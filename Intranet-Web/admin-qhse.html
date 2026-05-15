@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor Revista QHSE | Sentinel IHS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700;1,800;1,900&family=Barlow:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --navy: #0a1628;
+      --navy2: #0e2044;
+      --blue: #1e88e5;
+      --cyan: #00c8ff;
+      --red: #e31e24;
+    }
+
+    * { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; overflow-x: hidden; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { background: linear-gradient(180deg, var(--navy) 0%, var(--navy2) 100%); width: 220px; flex-shrink: 0; }
+    .nav-btn { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,.65); cursor: pointer; transition: all .2s; width: 100%; text-align: left; background: none; border: none; }
+    .nav-btn:hover, .nav-btn.active { background: rgba(255,255,255,.1); color: white; }
+    .nav-btn.active { background: rgba(30,136,229,.25); color: var(--cyan); border-left: 3px solid var(--cyan); padding-left: 11px; }
+
+    /* ── SPLIT LAYOUT ── */
+    #app { display: flex; min-height: 100vh; }
+    #editor-panel { width: 420px; flex-shrink: 0; background: white; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; }
+    #preview-panel { flex: 1; overflow-y: auto; background: #e8edf4; padding: 24px; }
+
+    /* ── EDITOR PANEL ── */
+    .editor-header { background: var(--navy); padding: 16px 20px; flex-shrink: 0; }
+    .section-tabs { display: flex; gap: 4px; padding: 12px; border-bottom: 1px solid #f1f5f9; background: #f8fafc; flex-wrap: wrap; }
+    .stab { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1.5px solid #e2e8f0; color: #64748b; background: white; transition: all .2s; white-space: nowrap; }
+    .stab.active { background: var(--red); color: white; border-color: var(--red); }
+    .editor-body { flex: 1; overflow-y: auto; padding: 20px; }
+    .field-group { margin-bottom: 16px; }
+    .field-label { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #94a3b8; margin-bottom: 6px; }
+    .field-input { width: 100%; padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; background: #f8fafc; font-size: 13px; color: #1e293b; font-family: 'Inter', sans-serif; transition: all .2s; outline: none; }
+    .field-input:focus { border-color: var(--blue); background: white; box-shadow: 0 0 0 3px rgba(30,136,229,.1); }
+    .field-textarea { resize: vertical; min-height: 80px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .section-divider { height: 1px; background: #f1f5f9; margin: 20px 0; }
+    .section-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .section-label::after { content:''; flex:1; height:1px; background:#f1f5f9; }
+
+    /* EPP editor */
+    .epp-editor-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #f8fafc; border-radius: 8px; border: 1.5px solid #e2e8f0; margin-bottom: 6px; }
+    .epp-editor-item input { flex: 1; border: none; background: transparent; font-size: 13px; color: #1e293b; outline: none; }
+    .epp-editor-item .emoji-input { width: 44px; text-align: center; font-size: 18px; cursor: pointer; }
+    .epp-editor-item .remove-btn { color: #ef4444; background: none; border: none; cursor: pointer; padding: 2px 6px; font-size: 12px; }
+
+    /* ── EPP EMOJI PICKER ── */
+    .emoji-trigger {
+      width: 44px; height: 36px; border: 1.5px solid #e2e8f0; border-radius: 8px;
+      background: white; font-size: 20px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; transition: all .15s;
+      flex-shrink: 0; user-select: none;
+    }
+    .emoji-trigger:hover { border-color: #1e88e5; background: #f0f7ff; transform: scale(1.08); }
+    .emoji-trigger.open  { border-color: #1e88e5; box-shadow: 0 0 0 3px rgba(30,136,229,.15); }
+
+    /* Backdrop */
+    #epp-picker-backdrop {
+      position: fixed; inset: 0; z-index: 8999;
+      background: rgba(10,22,40,.35); backdrop-filter: blur(2px);
+      display: none;
+    }
+
+    /* Main picker panel */
+    #epp-emoji-picker {
+      position: fixed; z-index: 9000;
+      background: white; border-radius: 18px;
+      border: 1.5px solid #e2e8f0;
+      box-shadow: 0 32px 80px rgba(10,22,40,.28), 0 8px 24px rgba(0,0,0,.1);
+      width: 520px; max-width: calc(100vw - 24px);
+      display: flex; flex-direction: column;
+      max-height: min(580px, calc(100vh - 32px));
+      overflow: hidden;
+      animation: pickerIn .2s cubic-bezier(.175,.885,.32,1.275) both;
+    }
+    @keyframes pickerIn {
+      from { opacity:0; transform:scale(.94) translateY(-8px); }
+      to   { opacity:1; transform:scale(1)   translateY(0); }
+    }
+
+    /* Header */
+    .picker-header {
+      background: linear-gradient(135deg, #0a1628 0%, #0e2044 100%);
+      padding: 14px 18px; display: flex; align-items: center;
+      justify-content: space-between; flex-shrink: 0;
+      border-radius: 18px 18px 0 0;
+    }
+    .picker-close-btn {
+      background: rgba(255,255,255,.12); border: none; color: rgba(255,255,255,.8);
+      width: 28px; height: 28px; border-radius: 8px; cursor: pointer;
+      font-size: 12px; display: flex; align-items: center; justify-content: center;
+      transition: all .15s; flex-shrink: 0;
+    }
+    .picker-close-btn:hover { background: rgba(227,30,36,.5); color: white; }
+
+    /* Search bar */
+    .picker-search-wrap {
+      padding: 12px 16px 8px; flex-shrink: 0;
+      border-bottom: 1px solid #f1f5f9;
+      background: #fafcff;
+    }
+    .picker-search {
+      width: 100%; padding: 9px 12px 9px 34px; border: 1.5px solid #e2e8f0;
+      border-radius: 10px; font-size: 13px; outline: none; background: white;
+      color: #1e293b; font-family: 'Inter', sans-serif; transition: all .2s;
+      position: relative;
+    }
+    .picker-search:focus { border-color: #1e88e5; box-shadow: 0 0 0 3px rgba(30,136,229,.1); }
+    .picker-search-icon {
+      position: absolute; left: 28px; font-size: 12px; color: #94a3b8; pointer-events: none;
+    }
+
+    /* Body: sidebar + content */
+    .picker-body-wrap {
+      display: flex; flex: 1; overflow: hidden; min-height: 0;
+    }
+
+    /* Left sidebar — category tabs */
+    .picker-sidebar {
+      width: 110px; flex-shrink: 0;
+      background: #f8fafc; border-right: 1px solid #f1f5f9;
+      overflow-y: auto; padding: 8px 6px;
+    }
+    .picker-sidebar::-webkit-scrollbar { width: 3px; }
+    .picker-sidebar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    .picker-cat-tab {
+      width: 100%; padding: 7px 8px; border-radius: 8px; border: none;
+      background: none; cursor: pointer; text-align: left; transition: all .15s;
+      font-size: 10px; font-weight: 700; color: #64748b; line-height: 1.3;
+      font-family: 'Inter', sans-serif; margin-bottom: 2px;
+    }
+    .picker-cat-tab:hover  { background: #e8f0fe; color: #1e88e5; }
+    .picker-cat-tab.active { background: #dbeafe; color: #1e3a8a; }
+    .picker-cat-tab .tab-emoji { font-size: 16px; display: block; margin-bottom: 3px; }
+    .picker-cat-tab .tab-label { display: block; text-transform: uppercase; letter-spacing: .04em; }
+
+    /* Right: emoji grid scroll area */
+    .picker-content {
+      flex: 1; overflow-y: auto; padding: 12px 14px 16px;
+      scroll-behavior: smooth;
+    }
+    .picker-content::-webkit-scrollbar { width: 5px; }
+    .picker-content::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .picker-content::-webkit-scrollbar-track { background: transparent; }
+
+    /* Category section inside content */
+    .picker-section { margin-bottom: 18px; scroll-margin-top: 8px; }
+    .picker-cat-label {
+      font-size: 9px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .12em; color: #94a3b8; margin-bottom: 6px;
+      padding: 0; display: flex; align-items: center; gap: 6px;
+    }
+    .picker-cat-label::after { content:''; flex:1; height:1px; background:#f1f5f9; }
+
+    /* Emoji grid */
+    .picker-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+    }
+    .picker-emoji-btn {
+      width: 100%; aspect-ratio: 1; border: none; background: none;
+      border-radius: 8px; font-size: 24px; cursor: pointer;
+      transition: all .12s; display: flex; align-items: center;
+      justify-content: center; line-height: 1; min-width: 0;
+    }
+    .picker-emoji-btn:hover  { background: #eff6ff; transform: scale(1.22); }
+    .picker-emoji-btn.selected { background: #dbeafe; outline: 2px solid #1e88e5; border-radius: 8px; }
+
+    /* Footer tooltip */
+    .picker-footer {
+      flex-shrink: 0; border-top: 1px solid #f1f5f9; padding: 8px 16px;
+      background: #fafcff; display: flex; align-items: center; gap: 10px;
+      min-height: 38px;
+    }
+    .picker-footer-emoji { font-size: 22px; flex-shrink: 0; }
+    .picker-footer-name  { font-size: 11px; font-weight: 700; color: #334155; }
+    .picker-footer-hint  { font-size: 10px; color: #94a3b8; }
+
+    /* Search empty state */
+    .picker-empty { text-align:center; padding: 32px 16px; color: #94a3b8; }
+    .picker-empty p { font-size: 12px; font-weight: 600; margin-top: 8px; }
+
+    /* QR editor */
+    .qr-editor-row { display: flex; gap: 8px; align-items: center; padding: 10px; background: #f0f7ff; border-radius: 10px; border: 1.5px dashed rgba(30,136,229,.25); margin-bottom: 8px; }
+    .qr-editor-row input { flex: 1; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 7px 10px; font-size: 12px; background: white; outline: none; color: #1e293b; }
+
+    /* Block color picker */
+    .color-swatch { width: 24px; height: 24px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; transition: all .2s; }
+    .color-swatch.selected { border-color: #1e293b; transform: scale(1.15); }
+
+    /* ── EDITOR FOOTER ── */
+    .editor-footer { padding: 14px 20px; border-top: 1px solid #f1f5f9; background: #f8fafc; display: flex; gap: 8px; flex-shrink: 0; }
+
+    /* ── PREVIEW MAGAZINE ── */
+    .magazine-wrap { max-width: 900px; margin: 0 auto; }
+
+    /* Magazine: Cover */
+    .prev-cover { background: linear-gradient(135deg, #0a1628 0%, #0e2044 50%, #1a3160 100%); border-radius: 20px; padding: 40px; position: relative; overflow: hidden; margin-bottom: 16px; min-height: 360px; }
+    .prev-cover-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(30,136,229,.07) 1px, transparent 1px), linear-gradient(90deg,rgba(30,136,229,.07) 1px,transparent 1px); background-size: 36px 36px; border-radius: 20px; }
+    .prev-cover-line { position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: linear-gradient(180deg, #00c8ff, #1e88e5, #e31e24); border-radius: 20px 0 0 20px; }
+    .prev-cover-title { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(42px, 7vw, 80px); font-weight: 900; font-style: italic; line-height: .9; color: white; letter-spacing: -.02em; }
+    .prev-cover-subtitle { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 600; font-style: italic; color: #00c8ff; letter-spacing: .08em; }
+    .prev-stat { border-radius: 10px; padding: 10px 12px; text-align: center; }
+    .prev-msg-box { border-radius: 14px; padding: 20px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); }
+
+    /* Magazine: Section card */
+    .prev-section { background: white; border-radius: 16px; margin-bottom: 16px; overflow: hidden; box-shadow: 0 2px 16px rgba(10,22,40,.07); }
+    .prev-section-header { padding: 16px 22px; display: flex; align-items: center; gap: 12px; }
+    .prev-section-body { padding: 20px 22px; }
+    .prev-section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 900; font-style: italic; color: white; margin: 0; }
+    .prev-badge { font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; padding: 3px 10px; border-radius: 100px; background: rgba(255,255,255,.2); color: white; }
+
+    /* Near miss preview */
+    .prev-nm { border-left: 4px solid #e31e24; background: #fff5f5; border-radius: 0 12px 12px 0; padding: 14px 16px; margin: 10px 0; }
+    .prev-nm-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #e31e24; margin-bottom: 6px; }
+
+    /* Guardian preview */
+    .prev-guardian { background: linear-gradient(135deg, #0a1628 0%, #1a3160 100%); border-radius: 14px; padding: 22px; }
+    .prev-guardian-avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #00c8ff, #1e88e5); display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 18px; color: white; flex-shrink: 0; }
+
+    /* EPP preview */
+    .prev-epp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; }
+    .prev-epp-item { background: #f0f4f8; border-radius: 10px; padding: 10px 6px; text-align: center; }
+    .prev-epp-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+    .prev-epp-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #0e2044; }
+
+    /* Custom blocks preview */
+    .prev-block { border-radius: 14px; padding: 20px; margin-bottom: 12px; }
+
+    /* QR placeholder */
+    .prev-qr-box { background: #0a1628; border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+    .prev-qr-placeholder { width: 60px; height: 60px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 22px; }
+
+    /* ── DASHBOARD VIEW ── */
+    #view-dashboard { display: none; }
+    #view-dashboard.active { display: block; }
+    #view-editor { display: none; flex: 1; }
+    #view-editor.active { display: flex; }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+
+    /* ── TOAST ── */
+    #toast { position: fixed; bottom: 24px; right: 24px; background: var(--navy); color: white; padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 600; box-shadow: 0 10px 40px rgba(0,0,0,.4); border-left: 4px solid var(--cyan); transform: translateY(80px); opacity: 0; transition: all .4s cubic-bezier(.175,.885,.32,1.275); z-index: 9999; max-width: 300px; }
+    #toast.show { transform: translateY(0); opacity: 1; }
+
+    /* Badge status */
+    .badge-pub { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 100px; }
+    .badge-draft { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 100px; }
+
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    .fade-in { animation: fadeIn .25s ease both; }
+
+    /* ── MOBILE: hide preview, editor full width ── */
+    @media (max-width: 900px) {
+      #editor-panel { width: 100%; }
+      #preview-panel { display: none; }
+      .sidebar { display: none; }
+      #mobile-header { display: flex !important; }
+    }
+    #mobile-header { display: none; }
+  </style>
+</head>
+<body>
+
+<!-- MOBILE HEADER -->
+<header id="mobile-header" class="bg-white border-b border-slate-200 h-14 px-4 items-center justify-between sticky top-0 z-50">
+  <div class="flex items-center gap-3">
+    <i class="fas fa-newspaper text-[#e31e24]"></i>
+    <span class="font-bold text-slate-800 text-sm">Editor QHSE</span>
+  </div>
+  <div class="flex items-center gap-2">
+    <button id="mob-save-draft" onclick="guardarEdicion(false)" class="px-3 py-1.5 text-xs font-bold border border-slate-200 rounded-lg text-slate-600">
+      <i class="fas fa-save mr-1"></i>Borrador
+    </button>
+    <button id="mob-publish" onclick="guardarEdicion(true)" class="px-3 py-1.5 text-xs font-bold bg-[#e31e24] text-white rounded-lg">
+      Publicar
+    </button>
+  </div>
+</header>
+
+<div id="app">
+
+  <!-- ══════════════════════════════════ -->
+  <!-- SIDEBAR -->
+  <!-- ══════════════════════════════════ -->
+  <aside class="sidebar flex flex-col h-screen sticky top-0">
+    <!-- Logo -->
+    <div class="px-5 py-5 border-b border-white/10">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="w-7 h-7 rounded-lg bg-[#e31e24] flex items-center justify-center">
+          <i class="fas fa-shield-halved text-white text-xs"></i>
+        </div>
+        <span style="font-family:'Barlow Condensed';font-size:16px;font-weight:900;color:white;letter-spacing:.05em">SENTINEL IHS</span>
+      </div>
+      <p class="text-[10px] text-white/40 font-bold uppercase tracking-widest ml-9">Panel Administrador</p>
+    </div>
+
+    <!-- Nav -->
+    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <button onclick="showDashboard()" id="nav-dash" class="nav-btn active">
+        <i class="fas fa-newspaper w-4 text-center"></i> Ediciones
+      </button>
+      <button onclick="showEditorNuevo()" id="nav-new" class="nav-btn">
+        <i class="fas fa-plus-circle w-4 text-center text-emerald-400"></i> Nueva Edición
+      </button>
+      <div class="h-px bg-white/10 my-2"></div>
+      <a href="alertas-qhse.html" target="_blank" class="nav-btn" style="text-decoration:none">
+        <i class="fas fa-eye w-4 text-center text-amber-400"></i> Ver Revista
+      </a>
+      <a href="alertas-qhse.html" class="nav-btn" style="text-decoration:none">
+        <i class="fas fa-arrow-left w-4 text-center text-slate-400"></i> Volver
+      </a>
+    </nav>
+
+    <!-- User -->
+    <div class="px-4 py-4 border-t border-white/10">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-[#1e88e5]/30 flex items-center justify-center">
+          <i class="fas fa-user text-[#00c8ff] text-xs"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p id="sidebar-user" class="text-xs font-bold text-white truncate">Cargando...</p>
+          <p class="text-[10px] text-white/40">Administrador</p>
+        </div>
+        <button onclick="cerrarSesion()" class="text-white/30 hover:text-red-400 transition-colors text-sm">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- DASHBOARD VIEW                         -->
+  <!-- ══════════════════════════════════════ -->
+  <div id="view-dashboard" class="flex-1 p-6 lg:p-8 overflow-y-auto">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-800">Ediciones de la Revista</h1>
+        <p class="text-slate-500 text-sm mt-0.5">Gestiona todas las ediciones de Sentinel IHS</p>
+      </div>
+      <button onclick="showEditorNuevo()"
+        class="flex items-center gap-2 bg-[#e31e24] hover:bg-[#b3161b] text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-red-200 transition-all">
+        <i class="fas fa-plus"></i> Nueva Edición
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total</p>
+          <div class="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center"><i class="fas fa-newspaper text-[#1e88e5] text-sm"></i></div>
+        </div>
+        <p id="st-total" class="text-3xl font-black text-slate-800" style="font-family:'Barlow Condensed'">—</p>
+        <p class="text-xs text-slate-400 mt-1">Ediciones creadas</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Publicadas</p>
+          <div class="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center"><i class="fas fa-check-circle text-emerald-500 text-sm"></i></div>
+        </div>
+        <p id="st-pub" class="text-3xl font-black text-slate-800" style="font-family:'Barlow Condensed'">—</p>
+        <p class="text-xs text-slate-400 mt-1">Visibles para empleados</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Borradores</p>
+          <div class="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center"><i class="fas fa-pen text-amber-500 text-sm"></i></div>
+        </div>
+        <p id="st-draft" class="text-3xl font-black text-slate-800" style="font-family:'Barlow Condensed'">—</p>
+        <p class="text-xs text-slate-400 mt-1">En preparación</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Near Miss</p>
+          <div class="w-8 h-8 rounded-xl bg-red-50 flex items-center justify-center"><i class="fas fa-triangle-exclamation text-red-500 text-sm"></i></div>
+        </div>
+        <p id="st-nm" class="text-3xl font-black text-slate-800" style="font-family:'Barlow Condensed'">—</p>
+        <p class="text-xs text-slate-400 mt-1">Registrados</p>
+      </div>
+    </div>
+
+    <!-- Lista ediciones -->
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <h2 class="font-bold text-slate-800">Todas las ediciones</h2>
+        <button onclick="loadDashboard()" class="text-slate-400 hover:text-slate-700 transition-colors text-sm"><i class="fas fa-rotate-right"></i></button>
+      </div>
+      <div id="editions-list" class="divide-y divide-slate-50">
+        <div class="flex items-center justify-center py-16 text-slate-400">
+          <i class="fas fa-spinner fa-spin mr-2"></i> Cargando ediciones...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- EDITOR VIEW: panel izquierdo + preview derecho        -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div id="view-editor" class="flex-1">
+
+    <!-- ── EDITOR PANEL ── -->
+    <div id="editor-panel">
+      <!-- Header del editor -->
+      <div class="editor-header">
+        <div class="flex items-center justify-between">
+          <div>
+            <p id="editor-mode-label" class="text-[10px] font-black uppercase tracking-[.15em] text-white/50 mb-0.5">Nueva Edición</p>
+            <p class="text-sm font-bold text-white">Editor de Revista</p>
+          </div>
+          <button onclick="showDashboard()" class="h-8 w-8 rounded-lg bg-white/10 hover:bg-white/20 text-white/70 flex items-center justify-center transition text-sm">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <input type="hidden" id="edit-id">
+      </div>
+
+      <!-- Section tabs -->
+      <div class="section-tabs">
+        <button onclick="goTab('portada')" id="stab-portada" class="stab active"><i class="fas fa-image mr-1"></i>Portada</button>
+        <button onclick="goTab('safety')" id="stab-safety" class="stab"><i class="fas fa-hard-hat mr-1 text-red-500"></i>Safety</button>
+        <button onclick="goTab('quality')" id="stab-quality" class="stab"><i class="fas fa-check-double mr-1 text-blue-500"></i>Quality</button>
+        <button onclick="goTab('health')" id="stab-health" class="stab"><i class="fas fa-heartbeat mr-1 text-amber-500"></i>Health</button>
+        <button onclick="goTab('environment')" id="stab-environment" class="stab"><i class="fas fa-leaf mr-1 text-emerald-500"></i>Env.</button>
+        <button onclick="goTab('guardian')" id="stab-guardian" class="stab"><i class="fas fa-star mr-1 text-yellow-500"></i>Guardián</button>
+        <button onclick="goTab('bloques')" id="stab-bloques" class="stab"><i class="fas fa-palette mr-1 text-purple-500"></i>Bloques</button>
+      </div>
+
+      <!-- Editor body (tabs content) -->
+      <div class="editor-body">
+
+        <!-- ── TAB PORTADA ── -->
+        <div id="tab-portada">
+          <div class="section-label"><i class="fas fa-image text-slate-400"></i>Portada principal</div>
+          <div class="field-group">
+            <label class="field-label">Título principal *</label>
+            <input id="f-titulo" class="field-input" type="text" placeholder="SEGURIDAD SIN EXCUSAS" oninput="livePreview()">
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Edición (mes/año) *</label>
+              <input id="f-edicion" class="field-input" type="text" placeholder="Mayo 2026" oninput="livePreview()">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Volumen</label>
+              <input id="f-volumen" class="field-input" type="text" placeholder="Vol. 1" oninput="livePreview()">
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="fas fa-quote-left text-slate-400"></i>Mensaje de Dirección</div>
+          <div class="field-group">
+            <label class="field-label">Nombre del Gerente</label>
+            <input id="f-director" class="field-input" type="text" placeholder="Ing. Nombre Apellido" oninput="livePreview()">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Mensaje</label>
+            <textarea id="f-mensaje" class="field-input field-textarea" placeholder="Escribe el mensaje de gerencia..." oninput="livePreview()"></textarea>
+          </div>
+
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="fas fa-chart-bar text-slate-400"></i>KPIs de portada</div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Días sin accidente</label>
+              <input id="f-stat-dias" class="field-input" type="number" placeholder="247" min="0" oninput="livePreview()">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Reportes de riesgo</label>
+              <input id="f-stat-obs" class="field-input" type="number" placeholder="18" min="0" oninput="livePreview()">
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Near miss resueltos</label>
+            <input id="f-stat-acc" class="field-input" type="number" placeholder="3" min="0" oninput="livePreview()">
+          </div>
+        </div>
+
+        <!-- ── TAB SAFETY ── -->
+        <div id="tab-safety" class="hidden">
+          <div class="section-label"><i class="fas fa-hard-hat text-red-500"></i>Sección Safety</div>
+          <div class="field-group">
+            <label class="field-label">Título de la sección</label>
+            <input id="f-safety-titulo" class="field-input" type="text" placeholder="ALERTA DE SEGURIDAD" oninput="livePreview()">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Contenido / Tema principal</label>
+            <textarea id="f-safety-contenido" class="field-input field-textarea" style="min-height:100px" placeholder="Describe el tema principal de seguridad..." oninput="livePreview()"></textarea>
+          </div>
+
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="fas fa-shield-halved text-red-400"></i>EPP Safety</div>
+          <div id="epp-safety-list"></div>
+          <button onclick="addEpp('safety')" class="w-full py-2 rounded-lg border-2 border-dashed border-slate-200 text-slate-400 text-xs font-bold hover:border-red-300 hover:text-red-500 transition mt-1">
+            <i class="fas fa-plus mr-1"></i>Agregar EPP
+          </button>
+
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="fas fa-exclamation-triangle text-red-400"></i>Near Miss / Lección Aprendida</div>
+          <div class="field-group">
+            <label class="field-label">Título del incidente</label>
+            <input id="f-nm-titulo" class="field-input" type="text" placeholder="ej. CUÑAS DESLIZADAS DURANTE ENSAMBLE..." oninput="livePreview()">
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Área</label>
+              <input id="f-nm-area" class="field-input" type="text" placeholder="Taller Apriete" oninput="livePreview()">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Severidad</label>
+              <select id="f-nm-severidad" class="field-input" onchange="livePreview()">
+                <option value="bajo">Bajo</option>
+                <option value="medio" selected>Medio</option>
+                <option value="alto">Alto</option>
+                <option value="critico">Crítico</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Descripción</label>
+            <textarea id="f-nm-desc" class="field-input field-textarea" placeholder="¿Qué ocurrió?" oninput="livePreview()"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Causa raíz</label>
+            <textarea id="f-nm-causa" class="field-input field-textarea" placeholder="¿Por qué ocurrió?" oninput="livePreview()"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Acción correctiva</label>
+            <textarea id="f-nm-accion" class="field-input field-textarea" placeholder="¿Qué se hizo?" oninput="livePreview()"></textarea>
+          </div>
+
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="fas fa-qrcode text-slate-400"></i>Código QR</div>
+          <div class="qr-editor-row">
+            <span class="text-lg">📋</span>
+            <input id="f-qr-ats" class="field-input" type="url" placeholder="URL del formato ATS" oninput="livePreview()">
+          </div>
+        </div>
+
+        <!-- ── TAB QUALITY ── -->
+        <div id="tab-quality" class="hidden">
+          <div class="section-label"><i class="fas fa-check-double text-blue-500"></i>Sección Quality</div>
+          <div class="field-group">
+            <label class="field-label">Título de la sección</label>
+            <input id="f-quality-titulo" class="field-input" type="text" placeholder="CALIDAD OPERATIVA" oninput="livePreview()">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Contenido principal</label>
+            <textarea id="f-quality-contenido" class="field-input field-textarea" style="min-height:120px" placeholder="Procedimientos, inspecciones, alertas de calidad..." oninput="livePreview()"></textarea>
+          </div>
+
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="fas fa-shield-halved text-blue-400"></i>EPP Quality</div>
+          <div id="epp-quality-list"></div>
+          <button onclick="addEpp('quality')" class="w-full py-2 rounded-lg border-2 border-dashed border-slate-200 text-slate-400 text-xs font-bold hover:border-blue-300 hover:text-blue-500 transition mt-1">
+            <i class="fas fa-plus mr-1"></i>Agregar EPP
+          </button>
+
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="fas fa-qrcode text-slate-400"></i>Código QR</div>
+          <div class="qr-editor-row">
+            <span class="text-lg">⚙️</span>
+            <input id="f-qr-torque" class="field-input" type="url" placeholder="URL del manual de torque" oninput="livePreview()">
+          </div>
+        </div>
+
+        <!-- ── TAB HEALTH ── -->
+        <div id="tab-health" class="hidden">
+          <div class="section-label"><i class="fas fa-heartbeat text-amber-500"></i>Sección Health</div>
+          <div class="field-group">
+            <label class="field-label">Título de la sección</label>
+            <input id="f-health-titulo" class="field-input" type="text" placeholder="SALUD OCUPACIONAL" oninput="livePreview()">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Contenido principal</label>
+            <textarea id="f-health-contenido" class="field-input field-textarea" style="min-height:120px" placeholder="Ergonomía, higiene industrial, bienestar..." oninput="livePreview()"></textarea>
+          </div>
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="fas fa-qrcode text-slate-400"></i>Código QR</div>
+          <div class="qr-editor-row">
+            <span class="text-lg">🏋️</span>
+            <input id="f-qr-ergo" class="field-input" type="url" placeholder="URL video ergonomía" oninput="livePreview()">
+          </div>
+        </div>
+
+        <!-- ── TAB ENVIRONMENT ── -->
+        <div id="tab-environment" class="hidden">
+          <div class="section-label"><i class="fas fa-leaf text-emerald-500"></i>Sección Environment</div>
+          <div class="field-group">
+            <label class="field-label">Título de la sección</label>
+            <input id="f-env-titulo" class="field-input" type="text" placeholder="MEDIO AMBIENTE" oninput="livePreview()">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Contenido principal</label>
+            <textarea id="f-env-contenido" class="field-input field-textarea" style="min-height:120px" placeholder="Manejo de residuos, derrames, impacto ambiental..." oninput="livePreview()"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Derrames no contenidos (número)</label>
+            <input id="f-env-derrames" class="field-input" type="number" placeholder="0" min="0" oninput="livePreview()">
+          </div>
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="fas fa-qrcode text-slate-400"></i>Código QR</div>
+          <div class="qr-editor-row">
+            <span class="text-lg">🌿</span>
+            <input id="f-qr-ambiental" class="field-input" type="url" placeholder="URL formato incidente ambiental" oninput="livePreview()">
+          </div>
+        </div>
+
+        <!-- ── TAB GUARDIAN ── -->
+        <div id="tab-guardian" class="hidden">
+          <div class="section-label"><i class="fas fa-star text-yellow-500"></i>Guardián QHSE del Mes</div>
+          <div class="field-group">
+            <label class="field-label">Nombre completo *</label>
+            <input id="f-g-nombre" class="field-input" type="text" placeholder="José Luis Martínez" oninput="livePreview()">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Puesto / Área</label>
+            <input id="f-g-puesto" class="field-input" type="text" placeholder="Técnico de Apriete — Taller Villahermosa" oninput="livePreview()">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Condiciones reportadas</label>
+            <input id="f-g-reportes" class="field-input" type="number" placeholder="12" min="0" oninput="livePreview()">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Motivo del reconocimiento</label>
+            <textarea id="f-g-motivo" class="field-input field-textarea" style="min-height:100px" placeholder="¿Por qué es el Guardián QHSE de este mes?" oninput="livePreview()"></textarea>
+          </div>
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="fas fa-tags text-slate-400"></i>Badges del guardián</div>
+          <div id="guardian-badges-list"></div>
+          <button onclick="addGuardianBadge()" class="w-full py-2 rounded-lg border-2 border-dashed border-slate-200 text-slate-400 text-xs font-bold hover:border-yellow-300 hover:text-yellow-500 transition mt-1">
+            <i class="fas fa-plus mr-1"></i>Agregar badge
+          </button>
+        </div>
+
+        <!-- ── TAB BLOQUES ── -->
+        <div id="tab-bloques" class="hidden">
+          <div class="flex items-center justify-between mb-3">
+            <div class="section-label mb-0"><i class="fas fa-palette text-purple-500"></i>Bloques personalizados</div>
+            <button onclick="addCustomBlock()" class="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">
+              <i class="fas fa-plus"></i> Agregar
+            </button>
+          </div>
+          <p class="text-xs text-slate-500 mb-4">Bloques libres de contenido que aparecerán al final de la revista.</p>
+          <div id="custom-blocks-list">
+            <div class="text-center py-6 text-slate-400 text-sm" id="no-blocks-msg">
+              <i class="fas fa-cubes text-2xl mb-2 opacity-30 block"></i>
+              No hay bloques. Haz clic en "Agregar".
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /editor-body -->
+
+      <!-- ── EDITOR FOOTER ── -->
+      <div class="editor-footer">
+        <button onclick="guardarEdicion(false)"
+          class="flex-1 flex items-center justify-center gap-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold px-4 py-2.5 rounded-xl text-sm transition">
+          <i class="fas fa-save"></i> Borrador
+        </button>
+        <button onclick="guardarEdicion(true)"
+          class="flex-1 flex items-center justify-center gap-2 bg-[#e31e24] hover:bg-[#b3161b] text-white font-semibold px-4 py-2.5 rounded-xl text-sm shadow-lg shadow-red-200 transition">
+          <i class="fas fa-paper-plane"></i> Publicar
+        </button>
+      </div>
+    </div><!-- /editor-panel -->
+
+    <!-- ── PREVIEW PANEL ── -->
+    <div id="preview-panel">
+      <div class="magazine-wrap">
+
+        <!-- Preview label -->
+        <div class="flex items-center gap-3 mb-4">
+          <div class="flex items-center gap-2 bg-white/70 border border-white px-3 py-1.5 rounded-full backdrop-blur-sm">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">Vista previa en vivo</span>
+          </div>
+        </div>
+
+        <!-- ── PORTADA ── -->
+        <div class="prev-cover fade-in" id="prev-cover">
+          <div class="prev-cover-grid"></div>
+          <div class="prev-cover-line"></div>
+          <div style="position:relative;z-index:10;display:flex;gap:24px;flex-wrap:wrap;">
+            <!-- Left -->
+            <div style="flex:1;min-width:200px;">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+                <span id="pv-edition-badge" style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;padding:4px 12px;border-radius:100px;background:rgba(30,136,229,.2);border:1px solid rgba(0,200,255,.3);color:#00c8ff">Edición —</span>
+                <span id="pv-volumen" style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em">Vol. 1</span>
+              </div>
+              <p class="prev-cover-subtitle mb-1">ALERTAS QHSE</p>
+              <h1 class="prev-cover-title" id="pv-titulo">SEGURIDAD<br>SIN<br>EXCUSAS</h1>
+              <div style="margin-top:20px;display:flex;flex-wrap:wrap;gap:6px;">
+                <span style="font-size:10px;font-weight:700;text-transform:uppercase;padding:4px 10px;border-radius:100px;color:rgba(255,255,255,.8);background:rgba(227,30,36,.25);border:1px solid rgba(227,30,36,.3)"><i class="fas fa-hard-hat mr-1"></i>Safety</span>
+                <span style="font-size:10px;font-weight:700;text-transform:uppercase;padding:4px 10px;border-radius:100px;color:rgba(255,255,255,.8);background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.3)"><i class="fas fa-check-double mr-1"></i>Quality</span>
+                <span style="font-size:10px;font-weight:700;text-transform:uppercase;padding:4px 10px;border-radius:100px;color:rgba(255,255,255,.8);background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.3)"><i class="fas fa-heartbeat mr-1"></i>Health</span>
+                <span style="font-size:10px;font-weight:700;text-transform:uppercase;padding:4px 10px;border-radius:100px;color:rgba(255,255,255,.8);background:rgba(30,136,229,.2);border:1px solid rgba(30,136,229,.3)"><i class="fas fa-leaf mr-1"></i>Env.</span>
+              </div>
+            </div>
+            <!-- Right -->
+            <div style="width:240px;">
+              <div class="prev-msg-box">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                  <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1e88e5,#00c8ff);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-quote-left text-white" style="font-size:10px;"></i></div>
+                  <div><p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.5)">Mensaje de</p><p style="font-size:10px;font-weight:700;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.06em">Gerencia de Operaciones</p></div>
+                </div>
+                <p id="pv-mensaje" style="font-size:12px;color:rgba(255,255,255,.7);line-height:1.6;font-style:italic">Ingresa el mensaje del gerente de operaciones en el panel izquierdo...</p>
+                <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.1);">
+                  <p id="pv-director" style="font-size:10px;font-weight:800;color:rgba(255,255,255,.9);text-transform:uppercase;letter-spacing:.06em">Ing. —</p>
+                  <p style="font-size:9px;color:rgba(255,255,255,.45);margin-top:2px">Gerente de Operaciones — In Hole Solutions</p>
+                </div>
+              </div>
+              <!-- Stats -->
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;">
+                <div class="prev-stat" style="background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.25)">
+                  <p id="pv-stat-dias" style="font-family:'Barlow Condensed';font-size:24px;font-weight:900;color:#34d399;line-height:1">247</p>
+                  <p style="font-size:8px;color:rgba(255,255,255,.55);font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-top:2px">Días sin<br>accidente</p>
+                </div>
+                <div class="prev-stat" style="background:rgba(30,136,229,.15);border:1px solid rgba(30,136,229,.25)">
+                  <p id="pv-stat-obs" style="font-family:'Barlow Condensed';font-size:24px;font-weight:900;color:#60a5fa;line-height:1">18</p>
+                  <p style="font-size:8px;color:rgba(255,255,255,.55);font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-top:2px">Reportes<br>riesgo</p>
+                </div>
+                <div class="prev-stat" style="background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.25)">
+                  <p id="pv-stat-acc" style="font-family:'Barlow Condensed';font-size:24px;font-weight:900;color:#fbbf24;line-height:1">3</p>
+                  <p style="font-size:8px;color:rgba(255,255,255,.55);font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-top:2px">Near miss<br>resueltos</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SAFETY ── -->
+        <div class="prev-section fade-in" id="prev-safety">
+          <div class="prev-section-header" style="background:linear-gradient(135deg,#e31e24,#c01a1f)">
+            <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-hard-hat text-white text-sm"></i></div>
+            <div>
+              <span class="prev-badge">Safety</span>
+              <h2 class="prev-section-title" id="pv-safety-titulo">ALERTA DE SEGURIDAD</h2>
+            </div>
+            <span style="margin-left:auto;font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em">Safety</span>
+          </div>
+          <div class="prev-section-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+              <!-- Left: contenido + EPP -->
+              <div>
+                <p id="pv-safety-contenido" style="font-size:13px;color:#475569;line-height:1.7;margin-bottom:14px">El contenido de seguridad aparecerá aquí...</p>
+                <!-- EPP Preview -->
+                <div id="pv-epp-safety" class="rounded-xl p-3 mb-3" style="background:#fef9f9;border:2px dashed rgba(227,30,36,.2)">
+                  <p style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#e31e24;margin-bottom:8px"><i class="fas fa-shield-halved mr-1"></i>EPP Obligatorio</p>
+                  <div class="prev-epp-grid" id="pv-epp-safety-grid"><p style="font-size:11px;color:#94a3b8;padding:6px">Agrega EPP desde el panel izquierdo...</p></div>
+                </div>
+                <!-- QR -->
+                <div class="prev-qr-box" id="pv-qr-safety">
+                  <div class="prev-qr-placeholder">📋</div>
+                  <div><p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#00c8ff">Código QR</p><p style="font-size:11px;font-weight:700;color:white;margin-top:2px">Formato ATS Digital</p><p id="pv-qr-ats-url" style="font-size:10px;color:rgba(255,255,255,.4);margin-top:1px">Sin URL configurada</p></div>
+                </div>
+              </div>
+              <!-- Right: Near Miss -->
+              <div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                  <div style="width:28px;height:28px;border-radius:7px;background:#fef2f2;display:flex;align-items:center;justify-content:center;"><i class="fas fa-exclamation-triangle text-red-600" style="font-size:11px"></i></div>
+                  <h3 style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:#1e293b;text-transform:uppercase">Lección Aprendida</h3>
+                </div>
+                <div class="prev-nm">
+                  <p class="prev-nm-label" id="pv-nm-area"><i class="fas fa-clock mr-1"></i>Incidente —</p>
+                  <p id="pv-nm-titulo" style="font-family:'Barlow Condensed';font-size:16px;font-weight:900;color:#1e293b;margin-bottom:6px">Completa el formulario Near Miss...</p>
+                  <p id="pv-nm-desc" style="font-size:12px;color:#64748b;line-height:1.6"></p>
+                </div>
+                <div style="display:grid;gap:8px;margin-top:8px">
+                  <div style="border-radius:10px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0">
+                    <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:4px"><i class="fas fa-magnifying-glass mr-1 text-blue-400"></i>Causa Raíz</p>
+                    <p id="pv-nm-causa" style="font-size:12px;color:#475569">—</p>
+                  </div>
+                  <div style="border-radius:10px;padding:10px 12px;background:#f0fdf4;border:1px solid #bbf7d0">
+                    <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#15803d;margin-bottom:4px"><i class="fas fa-wrench mr-1"></i>Acción Correctiva</p>
+                    <p id="pv-nm-accion" style="font-size:12px;color:#475569">—</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── QUALITY ── -->
+        <div class="prev-section fade-in" id="prev-quality">
+          <div class="prev-section-header" style="background:linear-gradient(135deg,#1e88e5,#0d47a1)">
+            <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-check-double text-white text-sm"></i></div>
+            <div>
+              <span class="prev-badge">Quality</span>
+              <h2 class="prev-section-title" id="pv-quality-titulo">CALIDAD OPERATIVA</h2>
+            </div>
+            <span style="margin-left:auto;font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em">Quality</span>
+          </div>
+          <div class="prev-section-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+              <div>
+                <p id="pv-quality-contenido" style="font-size:13px;color:#475569;line-height:1.7;margin-bottom:14px">El contenido de calidad aparecerá aquí...</p>
+                <div id="pv-epp-quality" class="rounded-xl p-3" style="background:#f0f7ff;border:2px dashed rgba(30,136,229,.2)">
+                  <p style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#1e88e5;margin-bottom:8px"><i class="fas fa-shield-halved mr-1"></i>EPP Quality</p>
+                  <div class="prev-epp-grid" id="pv-epp-quality-grid"><p style="font-size:11px;color:#94a3b8;padding:6px">Agrega EPP...</p></div>
+                </div>
+              </div>
+              <div>
+                <div class="prev-qr-box">
+                  <div class="prev-qr-placeholder">⚙️</div>
+                  <div><p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#00c8ff">Código QR</p><p style="font-size:11px;font-weight:700;color:white;margin-top:2px">Manual de Torque</p><p id="pv-qr-torque-url" style="font-size:10px;color:rgba(255,255,255,.4);margin-top:1px">Sin URL configurada</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── HEALTH ── -->
+        <div class="prev-section fade-in" id="prev-health">
+          <div class="prev-section-header" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+            <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-heartbeat text-white text-sm"></i></div>
+            <div>
+              <span class="prev-badge">Health</span>
+              <h2 class="prev-section-title" id="pv-health-titulo">SALUD OCUPACIONAL</h2>
+            </div>
+            <span style="margin-left:auto;font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em">Health</span>
+          </div>
+          <div class="prev-section-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+              <div>
+                <p id="pv-health-contenido" style="font-size:13px;color:#475569;line-height:1.7">El contenido de salud aparecerá aquí...</p>
+              </div>
+              <div>
+                <div class="prev-qr-box">
+                  <div class="prev-qr-placeholder">🏋️</div>
+                  <div><p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#00c8ff">Código QR</p><p style="font-size:11px;font-weight:700;color:white;margin-top:2px">Video Ergonomía</p><p id="pv-qr-ergo-url" style="font-size:10px;color:rgba(255,255,255,.4);margin-top:1px">Sin URL configurada</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── ENVIRONMENT ── -->
+        <div class="prev-section fade-in" id="prev-environment">
+          <div class="prev-section-header" style="background:linear-gradient(135deg,#10b981,#059669)">
+            <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-leaf text-white text-sm"></i></div>
+            <div>
+              <span class="prev-badge">Environment</span>
+              <h2 class="prev-section-title" id="pv-env-titulo">MEDIO AMBIENTE</h2>
+            </div>
+            <span style="margin-left:auto;font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em">Environment</span>
+          </div>
+          <div class="prev-section-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+              <div>
+                <p id="pv-env-contenido" style="font-size:13px;color:#475569;line-height:1.7;margin-bottom:14px">El contenido ambiental aparecerá aquí...</p>
+                <div style="background:linear-gradient(135deg,#0a1628,#1a3160);border-radius:12px;padding:14px;text-align:center;border:1px solid rgba(16,185,129,.3)">
+                  <p id="pv-env-derrames" style="font-family:'Barlow Condensed';font-size:40px;font-weight:900;color:#34d399;line-height:1">0</p>
+                  <p style="font-size:10px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.6);letter-spacing:.06em">Derrames no<br>contenidos 2026</p>
+                </div>
+              </div>
+              <div>
+                <div class="prev-qr-box">
+                  <div class="prev-qr-placeholder">🌿</div>
+                  <div><p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#00c8ff">Código QR</p><p style="font-size:11px;font-weight:700;color:white;margin-top:2px">Incidente Ambiental</p><p id="pv-qr-ambiental-url" style="font-size:10px;color:rgba(255,255,255,.4);margin-top:1px">Sin URL configurada</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── GUARDIAN ── -->
+        <div class="prev-section fade-in" id="prev-guardian">
+          <div class="prev-section-header" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)">
+            <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-star text-white text-sm"></i></div>
+            <div>
+              <span class="prev-badge">Guardián QHSE del Mes</span>
+            </div>
+          </div>
+          <div class="prev-section-body">
+            <div class="prev-guardian">
+              <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+                <div class="prev-guardian-avatar" id="pv-g-avatar">??</div>
+                <div style="flex:1">
+                  <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:rgba(255,255,255,.45);margin-bottom:2px" id="pv-g-mes">Guardián QHSE del Mes — —</p>
+                  <h3 id="pv-g-nombre" style="font-family:'Barlow Condensed';font-size:26px;font-weight:900;font-style:italic;color:white;line-height:1">[Nombre del Empleado]</h3>
+                  <p id="pv-g-puesto" style="font-size:12px;color:rgba(255,255,255,.55);margin-top:2px">[Puesto — Área]</p>
+                </div>
+                <div style="text-align:right">
+                  <p id="pv-g-reportes" style="font-family:'Barlow Condensed';font-size:40px;font-weight:900;color:#00c8ff;line-height:1">12</p>
+                  <p style="font-size:9px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.45);letter-spacing:.06em">Condiciones<br>reportadas</p>
+                </div>
+              </div>
+              <div style="margin-top:14px;padding:12px 14px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)">
+                <p id="pv-g-motivo" style="font-size:12px;color:rgba(255,255,255,.75);line-height:1.6;font-style:italic">"Escribe el motivo del reconocimiento en el panel izquierdo..."</p>
+              </div>
+              <div id="pv-g-badges" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CUSTOM BLOCKS ── -->
+        <div id="prev-custom-blocks"></div>
+
+      </div><!-- /magazine-wrap -->
+    </div><!-- /preview-panel -->
+
+  </div><!-- /view-editor -->
+
+</div><!-- /app -->
+
+<!-- Modal confirmar eliminar -->
+<div id="modal-del" class="hidden fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center fade-in">
+    <div class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-trash text-red-600 text-xl"></i></div>
+    <h3 class="font-bold text-slate-800 text-lg mb-2">¿Eliminar edición?</h3>
+    <p class="text-slate-500 text-sm mb-6">Esta acción eliminará permanentemente la edición y todos sus datos.</p>
+    <div class="flex gap-3">
+      <button onclick="closeModal()" class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition">Cancelar</button>
+      <button onclick="confirmarEliminar()" class="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-sm transition">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"><span id="toast-msg"></span></div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- EPP EMOJI PICKER — panel flotante         -->
+<!-- ══════════════════════════════════════════ -->
+
+<!-- Backdrop -->
+<div id="epp-picker-backdrop" onclick="closePicker()"></div>
+
+<!-- Picker panel -->
+<div id="epp-emoji-picker" style="display:none; flex-direction:column;">
+
+  <!-- Header -->
+  <div class="picker-header">
+    <div>
+      <p style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:rgba(255,255,255,.5);margin-bottom:2px">EPP</p>
+      <p style="font-size:14px;font-weight:700;color:white;">Seleccionar equipo de protección</p>
+    </div>
+    <button class="picker-close-btn" onclick="closePicker()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <!-- Search bar -->
+  <div class="picker-search-wrap" style="position:relative;">
+    <i class="fas fa-search picker-search-icon" style="position:absolute;left:28px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8;pointer-events:none;"></i>
+    <input id="picker-search" class="picker-search" type="text"
+      placeholder="Buscar EPP... (ej: casco, guante, arnés)"
+      oninput="filterPicker(this.value)">
+  </div>
+
+  <!-- Body: sidebar + content -->
+  <div class="picker-body-wrap">
+    <!-- Left sidebar -->
+    <div class="picker-sidebar" id="picker-sidebar"></div>
+    <!-- Right content grid -->
+    <div class="picker-content" id="picker-content"
+      onscroll="onPickerScroll()"></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="picker-footer">
+    <span class="picker-footer-emoji" id="picker-footer-emoji">⛑️</span>
+    <div>
+      <p class="picker-footer-name" id="picker-footer-name">Haz clic para seleccionar</p>
+      <p class="picker-footer-hint">Haz clic en un emoji para asignarlo al EPP</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SCRIPTS -->
+<!-- ══════════════════════════════════════════ -->
+<script>
+  const { createClient } = supabase;
+  const sb = createClient(
+    'https://bgqlvkvlscujikhzzazf.supabase.co',
+    'sb_publishable_mzHMY11jZ7OaMES008LTzA_d7Ya1A2g'
+  );
+
+  let currentUser = null;
+  let deleteId    = null;
+  let customBlocks = [];
+  let eppSafety   = [];
+  let eppQuality  = [];
+  let guardianBadges = [];
+
+  // ── INIT ──
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = 'intranet-login.html'; return; }
+
+    const { data: perfil } = await sb.from('perfiles').select('*').eq('id', session.user.id).single();
+    const rolNorm = (perfil?.rol || '').toLowerCase().trim();
+    if (!perfil || !['admin','administrador'].includes(rolNorm)) {
+      window.location.href = 'dashboard.html'; return;
+    }
+
+    currentUser = perfil;
+    document.getElementById('sidebar-user').textContent = perfil.nombre_completo;
+    showDashboard();
+  }
+
+  async function cerrarSesion() { await sb.auth.signOut(); window.location.href = '../index.html'; }
+
+  // ── VIEWS ──
+  function showDashboard() {
+    document.getElementById('view-dashboard').classList.add('active');
+    document.getElementById('view-editor').classList.remove('active');
+    document.getElementById('nav-dash').classList.add('active');
+    document.getElementById('nav-new').classList.remove('active');
+    loadDashboard();
+  }
+
+  function showEditorNuevo() {
+    resetForm();
+    openEditor();
+    document.getElementById('editor-mode-label').textContent = 'Nueva Edición';
+    livePreview();
+  }
+
+  function openEditor() {
+    document.getElementById('view-dashboard').classList.remove('active');
+    document.getElementById('view-editor').classList.add('active');
+    document.getElementById('nav-dash').classList.remove('active');
+    document.getElementById('nav-new').classList.add('active');
+  }
+
+  // ── TABS ──
+  const TABS = ['portada','safety','quality','health','environment','guardian','bloques'];
+  function goTab(tab) {
+    TABS.forEach(t => {
+      document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tab);
+      document.getElementById(`stab-${t}`).classList.toggle('active', t === tab);
+    });
+  }
+
+  // ── RESET FORM ──
+  function resetForm() {
+    document.getElementById('edit-id').value = '';
+    const fields = ['f-titulo','f-edicion','f-volumen','f-director','f-mensaje',
+      'f-stat-dias','f-stat-obs','f-stat-acc',
+      'f-safety-titulo','f-safety-contenido',
+      'f-nm-titulo','f-nm-area','f-nm-desc','f-nm-causa','f-nm-accion',
+      'f-qr-ats','f-qr-torque','f-qr-ergo','f-qr-ambiental',
+      'f-quality-titulo','f-quality-contenido',
+      'f-health-titulo','f-health-contenido',
+      'f-env-titulo','f-env-contenido','f-env-derrames',
+      'f-g-nombre','f-g-puesto','f-g-reportes','f-g-motivo'];
+    fields.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+    customBlocks = []; eppSafety = []; eppQuality = []; guardianBadges = [];
+    renderCustomBlocks(); renderEpp('safety'); renderEpp('quality'); renderGuardianBadges();
+    goTab('portada');
+  }
+
+  // ── LOAD DASHBOARD ──
+  async function loadDashboard() {
+    const [edRes, nmRes] = await Promise.all([
+      sb.from('qhse_editions').select('*').order('created_at', { ascending: false }),
+      sb.from('qhse_near_miss').select('id', { count: 'exact', head: true })
+    ]);
+    const editions = edRes.data || [];
+    const pub = editions.filter(e => e.publicada).length;
+    document.getElementById('st-total').textContent = editions.length;
+    document.getElementById('st-pub').textContent   = pub;
+    document.getElementById('st-draft').textContent = editions.length - pub;
+    document.getElementById('st-nm').textContent    = nmRes.count ?? '—';
+
+    const list = document.getElementById('editions-list');
+    if (!editions.length) {
+      list.innerHTML = `<div class="flex flex-col items-center justify-center py-16 text-slate-400">
+        <i class="fas fa-folder-open text-4xl mb-3 opacity-30"></i>
+        <p class="font-semibold">No hay ediciones aún</p>
+        <button onclick="showEditorNuevo()" class="mt-4 bg-[#e31e24] text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-red-200 transition"><i class="fas fa-plus mr-2"></i>Nueva Edición</button>
+      </div>`; return;
+    }
+
+    list.innerHTML = editions.map((ed, i) => `
+      <div class="flex flex-col sm:flex-row sm:items-center gap-4 px-6 py-4 hover:bg-slate-50 transition-all fade-in" style="animation-delay:${i*40}ms">
+        <div class="flex items-center gap-4 flex-1 min-w-0">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${ed.publicada ? 'bg-emerald-100' : 'bg-slate-100'}">
+            <i class="fas ${ed.publicada ? 'fa-check-circle text-emerald-600' : 'fa-pen text-slate-500'} text-sm"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 flex-wrap mb-0.5">
+              <p class="font-bold text-slate-800 text-sm truncate">${ed.titulo || '—'}</p>
+              <span class="${ed.publicada ? 'badge-pub' : 'badge-draft'}">${ed.publicada ? 'Publicada' : 'Borrador'}</span>
+            </div>
+            <p class="text-xs text-slate-500">${ed.edicion || '—'} · ${ed.volumen || 'Vol. 1'}</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">
+              <i class="fas fa-shield-halved mr-1 text-emerald-400"></i>${ed.stat_dias ?? 0} días ·
+              <i class="fas fa-flag mr-1 text-blue-400 ml-1"></i>${ed.stat_obs ?? 0} reportes ·
+              <i class="fas fa-triangle-exclamation mr-1 text-amber-400 ml-1"></i>${ed.stat_acc ?? 0} near miss
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0 pl-14 sm:pl-0">
+          <button onclick="togglePublicar(${ed.id}, ${ed.publicada})"
+            class="h-8 px-3 rounded-lg text-xs font-bold border transition ${ed.publicada
+              ? 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'
+              : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'}">
+            ${ed.publicada ? '<i class="fas fa-eye-slash mr-1"></i>Despublicar' : '<i class="fas fa-paper-plane mr-1"></i>Publicar'}
+          </button>
+          <button onclick="editarEdicion(${ed.id})" class="h-8 w-8 rounded-lg border border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-100 transition flex items-center justify-center text-xs" title="Editar">
+            <i class="fas fa-pen"></i>
+          </button>
+          <button onclick="eliminarEdicion(${ed.id})" class="h-8 w-8 rounded-lg border border-red-100 bg-red-50 text-red-600 hover:bg-red-100 transition flex items-center justify-center text-xs" title="Eliminar">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>`).join('');
+  }
+
+  // ── EDITAR EDICIÓN ──
+  async function editarEdicion(id) {
+    const { data: ed, error } = await sb.from('qhse_editions').select('*').eq('id', id).single();
+    if (error || !ed) { toast('Error al cargar la edición', 'error'); return; }
+
+    resetForm();
+    document.getElementById('edit-id').value         = ed.id;
+    document.getElementById('f-titulo').value        = ed.titulo || '';
+    document.getElementById('f-edicion').value       = ed.edicion || '';
+    document.getElementById('f-volumen').value       = ed.volumen || '';
+    document.getElementById('f-director').value      = ed.nombre_director || '';
+    document.getElementById('f-mensaje').value       = ed.mensaje_director || '';
+    document.getElementById('f-stat-dias').value     = ed.stat_dias ?? '';
+    document.getElementById('f-stat-obs').value      = ed.stat_obs ?? '';
+    document.getElementById('f-stat-acc').value      = ed.stat_acc ?? '';
+    document.getElementById('f-safety-titulo').value    = ed.safety_titulo || '';
+    document.getElementById('f-safety-contenido').value = ed.safety_contenido || '';
+    document.getElementById('f-quality-titulo').value   = ed.quality_titulo || '';
+    document.getElementById('f-quality-contenido').value= ed.quality_contenido || '';
+    document.getElementById('f-health-titulo').value    = ed.health_titulo || '';
+    document.getElementById('f-health-contenido').value = ed.health_contenido || '';
+    document.getElementById('f-env-titulo').value       = ed.env_titulo || '';
+    document.getElementById('f-env-contenido').value    = ed.env_contenido || '';
+    document.getElementById('f-env-derrames').value     = ed.env_derrames ?? 0;
+    document.getElementById('f-g-nombre').value      = ed.guardian_nombre || '';
+    document.getElementById('f-g-puesto').value      = ed.guardian_puesto || '';
+    document.getElementById('f-g-reportes').value    = ed.guardian_reportes ?? '';
+    document.getElementById('f-g-motivo').value      = ed.guardian_motivo || '';
+
+    // QRs
+    const qrs = ed.qr_urls || {};
+    document.getElementById('f-qr-ats').value      = qrs.ats || '';
+    document.getElementById('f-qr-torque').value   = qrs.torque || '';
+    document.getElementById('f-qr-ergo').value     = qrs.ergo || '';
+    document.getElementById('f-qr-ambiental').value= qrs.ambiental || '';
+
+    // EPP
+    eppSafety  = Array.isArray(ed.epp_safety)  ? ed.epp_safety  : [];
+    eppQuality = Array.isArray(ed.epp_quality) ? ed.epp_quality : [];
+    renderEpp('safety'); renderEpp('quality');
+
+    // Guardian badges
+    guardianBadges = Array.isArray(ed.guardian_badges) ? ed.guardian_badges : [];
+    renderGuardianBadges();
+
+    // Custom blocks
+    customBlocks = Array.isArray(ed.custom_blocks) ? ed.custom_blocks : [];
+    renderCustomBlocks();
+
+    // Near miss
+    const { data: nm } = await sb.from('qhse_near_miss').select('*').eq('edition_id', id).limit(1).single();
+    if (nm) {
+      document.getElementById('f-nm-titulo').value    = nm.titulo || '';
+      document.getElementById('f-nm-area').value      = nm.area || '';
+      document.getElementById('f-nm-desc').value      = nm.descripcion || '';
+      document.getElementById('f-nm-causa').value     = nm.causa_raiz || '';
+      document.getElementById('f-nm-accion').value    = nm.accion_correctiva || '';
+      document.getElementById('f-nm-severidad').value = nm.severidad || 'medio';
+    }
+
+    document.getElementById('editor-mode-label').textContent = `Editando: ${ed.edicion || 'Edición'}`;
+    openEditor();
+    goTab('portada');
+    livePreview();
+  }
+
+  // ── GUARDAR ──
+  async function guardarEdicion(publicar) {
+    const titulo  = document.getElementById('f-titulo').value.trim();
+    const edicion = document.getElementById('f-edicion').value.trim();
+    if (!titulo || !edicion) { toast('El título y la edición son obligatorios', 'warn'); return; }
+
+    const id = document.getElementById('edit-id').value;
+
+    const qr_urls = {
+      ats:      document.getElementById('f-qr-ats').value.trim(),
+      torque:   document.getElementById('f-qr-torque').value.trim(),
+      ergo:     document.getElementById('f-qr-ergo').value.trim(),
+      ambiental:document.getElementById('f-qr-ambiental').value.trim(),
+    };
+
+    const payload = {
+      titulo, edicion,
+      volumen:           document.getElementById('f-volumen').value.trim() || 'Vol. 1',
+      nombre_director:   document.getElementById('f-director').value.trim(),
+      mensaje_director:  document.getElementById('f-mensaje').value.trim(),
+      stat_dias:         parseInt(document.getElementById('f-stat-dias').value) || 0,
+      stat_obs:          parseInt(document.getElementById('f-stat-obs').value)  || 0,
+      stat_acc:          parseInt(document.getElementById('f-stat-acc').value)  || 0,
+      safety_titulo:     document.getElementById('f-safety-titulo').value.trim(),
+      safety_contenido:  document.getElementById('f-safety-contenido').value.trim(),
+      quality_titulo:    document.getElementById('f-quality-titulo').value.trim(),
+      quality_contenido: document.getElementById('f-quality-contenido').value.trim(),
+      health_titulo:     document.getElementById('f-health-titulo').value.trim(),
+      health_contenido:  document.getElementById('f-health-contenido').value.trim(),
+      env_titulo:        document.getElementById('f-env-titulo').value.trim(),
+      env_contenido:     document.getElementById('f-env-contenido').value.trim(),
+      env_derrames:      parseInt(document.getElementById('f-env-derrames').value) || 0,
+      guardian_nombre:   document.getElementById('f-g-nombre').value.trim(),
+      guardian_puesto:   document.getElementById('f-g-puesto').value.trim(),
+      guardian_reportes: parseInt(document.getElementById('f-g-reportes').value) || 0,
+      guardian_motivo:   document.getElementById('f-g-motivo').value.trim(),
+      guardian_badges:   guardianBadges,
+      epp_safety:        eppSafety,
+      epp_quality:       eppQuality,
+      qr_urls,
+      custom_blocks:     customBlocks,
+      publicada:         publicar,
+      autor_id:          currentUser?.id,
+      updated_at:        new Date().toISOString()
+    };
+
+    let edId = id;
+    let error;
+    if (id) {
+      ({ error } = await sb.from('qhse_editions').update(payload).eq('id', id));
+    } else {
+      const { data, error: e } = await sb.from('qhse_editions').insert({ ...payload, activa: true }).select('id').single();
+      error = e;
+      if (data) edId = data.id;
+    }
+
+    if (error) { toast('Error al guardar: ' + error.message, 'error'); return; }
+
+    // Near miss
+    const nmTitulo = document.getElementById('f-nm-titulo').value.trim();
+    if (nmTitulo && edId) {
+      const nmPayload = {
+        titulo:            nmTitulo,
+        area:              document.getElementById('f-nm-area').value.trim(),
+        descripcion:       document.getElementById('f-nm-desc').value.trim() || nmTitulo,
+        causa_raiz:        document.getElementById('f-nm-causa').value.trim(),
+        accion_correctiva: document.getElementById('f-nm-accion').value.trim(),
+        severidad:         document.getElementById('f-nm-severidad').value,
+        visible_revista:   true,
+        edition_id:        parseInt(edId),
+        autor_id:          currentUser?.id
+      };
+      const { data: existNm } = await sb.from('qhse_near_miss').select('id').eq('edition_id', parseInt(edId)).limit(1).single();
+      if (existNm) {
+        await sb.from('qhse_near_miss').update(nmPayload).eq('id', existNm.id);
+      } else {
+        await sb.from('qhse_near_miss').insert(nmPayload);
+      }
+    }
+
+    document.getElementById('edit-id').value = edId;
+    toast(publicar ? '✅ Edición publicada correctamente' : '💾 Borrador guardado correctamente');
+  }
+
+  // ── PUBLICAR / DESPUBLICAR ──
+  async function togglePublicar(id, actual) {
+    const { error } = await sb.from('qhse_editions').update({ publicada: !actual }).eq('id', id);
+    if (error) { toast('Error: ' + error.message, 'error'); return; }
+    toast(!actual ? '✅ Edición publicada' : '⬇️ Edición despublicada');
+    loadDashboard();
+  }
+
+  // ── ELIMINAR ──
+  function eliminarEdicion(id) { deleteId = id; document.getElementById('modal-del').classList.remove('hidden'); }
+  function closeModal()        { document.getElementById('modal-del').classList.add('hidden'); deleteId = null; }
+  async function confirmarEliminar() {
+    if (!deleteId) return;
+    await sb.from('qhse_near_miss').delete().eq('edition_id', deleteId);
+    await sb.from('qhse_custom_blocks').delete().eq('edition_id', deleteId);
+    const { error } = await sb.from('qhse_editions').delete().eq('id', deleteId);
+    closeModal();
+    if (error) { toast('Error al eliminar', 'error'); return; }
+    toast('🗑️ Edición eliminada');
+    loadDashboard();
+  }
+
+  // ── EPP ──
+  function addEpp(section) {
+    const arr = section === 'safety' ? eppSafety : eppQuality;
+    arr.push({ emoji: '⛑️', label: '' });
+    renderEpp(section);
+    livePreview();
+  }
+
+  function removeEpp(section, i) {
+    if (section === 'safety') eppSafety.splice(i, 1);
+    else eppQuality.splice(i, 1);
+    renderEpp(section);
+    livePreview();
+  }
+
+  function renderEpp(section) {
+    const arr = section === 'safety' ? eppSafety : eppQuality;
+    const container = document.getElementById(`epp-${section}-list`);
+    container.innerHTML = arr.map((item, i) => `
+      <div class="epp-editor-item">
+        <button class="emoji-trigger" id="etrig-${section}-${i}"
+          onclick="openPicker('${section}',${i},this)"
+          title="Cambiar emoji EPP">${item.emoji || '⛑️'}</button>
+        <input class="field-input" style="flex:1;padding:6px 10px;font-size:12px"
+          value="${item.label || ''}" placeholder="Nombre EPP..."
+          oninput="updateEpp('${section}',${i},'label',this.value)">
+        <button class="remove-btn" onclick="removeEpp('${section}',${i})"><i class="fas fa-times"></i></button>
+      </div>`).join('');
+  }
+
+  function updateEpp(section, i, field, value) {
+    const arr = section === 'safety' ? eppSafety : eppQuality;
+    if (arr[i]) arr[i][field] = value;
+    livePreview();
+  }
+
+  // ── GUARDIAN BADGES ──
+  function addGuardianBadge() {
+    guardianBadges.push({ emoji: '⭐', label: 'Reconocimiento', color: 'blue' });
+    renderGuardianBadges();
+    livePreview();
+  }
+
+  function removeGuardianBadge(i) {
+    guardianBadges.splice(i, 1);
+    renderGuardianBadges();
+    livePreview();
+  }
+
+  function renderGuardianBadges() {
+    const container = document.getElementById('guardian-badges-list');
+    if (!guardianBadges.length) { container.innerHTML = ''; return; }
+    container.innerHTML = guardianBadges.map((b, i) => `
+      <div class="epp-editor-item mb-2">
+        <input class="field-input" style="width:44px;text-align:center;padding:4px;font-size:18px;background:white" 
+          value="${b.emoji}" maxlength="4"
+          oninput="updateBadge(${i},'emoji',this.value)">
+        <input class="field-input" style="flex:1;padding:6px 10px;font-size:12px"
+          value="${b.label}" placeholder="Etiqueta..."
+          oninput="updateBadge(${i},'label',this.value)">
+        <button class="remove-btn" onclick="removeGuardianBadge(${i})"><i class="fas fa-times"></i></button>
+      </div>`).join('');
+  }
+
+  function updateBadge(i, field, value) {
+    if (guardianBadges[i]) guardianBadges[i][field] = value;
+    livePreview();
+  }
+
+  // ── CUSTOM BLOCKS ──
+  function addCustomBlock() {
+    customBlocks.push({ titulo: '', contenido: '', color: 'blue' });
+    renderCustomBlocks();
+    livePreview();
+  }
+
+  function removeCustomBlock(i) {
+    customBlocks.splice(i, 1);
+    renderCustomBlocks();
+    livePreview();
+  }
+
+  function updateBlock(i, field, value) { if (customBlocks[i]) customBlocks[i][field] = value; livePreview(); }
+
+  function renderCustomBlocks() {
+    const container = document.getElementById('custom-blocks-list');
+    const noMsg     = document.getElementById('no-blocks-msg');
+    if (!customBlocks.length) {
+      container.innerHTML = ''; container.appendChild(noMsg); noMsg.classList.remove('hidden'); return;
+    }
+    noMsg.classList.add('hidden');
+    container.innerHTML = customBlocks.map((b, i) => `
+      <div class="border border-slate-200 rounded-xl p-4 bg-slate-50 mb-3 fade-in">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-black uppercase tracking-wider text-slate-500">Bloque #${i+1}</span>
+          <button onclick="removeCustomBlock(${i})" class="h-7 w-7 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 flex items-center justify-center text-xs transition"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Título</label>
+          <input type="text" value="${b.titulo || ''}" placeholder="Título del bloque..." class="field-input"
+            oninput="updateBlock(${i},'titulo',this.value)">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Contenido</label>
+          <textarea class="field-input field-textarea" placeholder="Contenido..."
+            oninput="updateBlock(${i},'contenido',this.value)">${b.contenido || ''}</textarea>
+        </div>
+        <div>
+          <label class="field-label">Color</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            ${[
+              {val:'blue',   bg:'#1e88e5', label:'Azul'},
+              {val:'red',    bg:'#e31e24', label:'Rojo'},
+              {val:'green',  bg:'#10b981', label:'Verde'},
+              {val:'yellow', bg:'#f59e0b', label:'Ámbar'},
+            ].map(c => `
+              <button type="button" onclick="updateBlock(${i},'color','${c.val}');renderCustomBlocks()"
+                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-2 text-xs font-bold transition"
+                style="${b.color===c.val ? 'border-color:#1e293b;background:white' : 'border-color:transparent;background:white'}">
+                <span style="width:10px;height:10px;border-radius:50%;background:${c.bg};flex-shrink:0"></span>${c.label}
+              </button>`).join('')}
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  // ── LIVE PREVIEW ──
+  function livePreview() {
+    const v  = id => document.getElementById(id)?.value || '';
+    const pv = id => document.getElementById(id);
+
+    // Portada
+    const titulo = v('f-titulo') || 'SEGURIDAD SIN EXCUSAS';
+    pv('pv-titulo').innerHTML = titulo.split(' ').slice(0,3).join('<br>') || titulo;
+    const edicion = v('f-edicion');
+    pv('pv-edition-badge').textContent = edicion ? `Edición ${edicion}` : 'Edición —';
+    pv('pv-volumen').textContent = v('f-volumen') || 'Vol. 1';
+    pv('pv-director').textContent = v('f-director') ? `Ing. ${v('f-director')}` : 'Ing. —';
+    pv('pv-mensaje').textContent = v('f-mensaje') || 'Ingresa el mensaje del gerente de operaciones en el panel izquierdo...';
+    pv('pv-stat-dias').textContent = v('f-stat-dias') || '247';
+    pv('pv-stat-obs').textContent  = v('f-stat-obs')  || '18';
+    pv('pv-stat-acc').textContent  = v('f-stat-acc')  || '3';
+
+    // Safety
+    pv('pv-safety-titulo').textContent = v('f-safety-titulo') || 'ALERTA DE SEGURIDAD';
+    pv('pv-safety-contenido').textContent = v('f-safety-contenido') || 'El contenido de seguridad aparecerá aquí...';
+    pv('pv-nm-titulo').textContent = v('f-nm-titulo') || 'Completa el formulario Near Miss...';
+    pv('pv-nm-area').innerHTML = `<i class="fas fa-clock mr-1"></i>${v('f-nm-area') || 'Incidente —'}`;
+    pv('pv-nm-desc').textContent  = v('f-nm-desc')  || '';
+    pv('pv-nm-causa').textContent = v('f-nm-causa') || '—';
+    pv('pv-nm-accion').textContent= v('f-nm-accion')|| '—';
+    pv('pv-qr-ats-url').textContent = v('f-qr-ats') || 'Sin URL configurada';
+
+    // EPP Safety
+    const epSGrid = pv('pv-epp-safety-grid');
+    if (eppSafety.length) {
+      epSGrid.innerHTML = eppSafety.map(e => `
+        <div class="prev-epp-item">
+          <span class="prev-epp-icon">${e.emoji||'🔧'}</span>
+          <span class="prev-epp-label">${e.label||'EPP'}</span>
+        </div>`).join('');
+    } else {
+      epSGrid.innerHTML = '<p style="font-size:11px;color:#94a3b8;padding:6px">Agrega EPP desde el panel izquierdo...</p>';
+    }
+
+    // Quality
+    pv('pv-quality-titulo').textContent = v('f-quality-titulo') || 'CALIDAD OPERATIVA';
+    pv('pv-quality-contenido').textContent = v('f-quality-contenido') || 'El contenido de calidad aparecerá aquí...';
+    pv('pv-qr-torque-url').textContent = v('f-qr-torque') || 'Sin URL configurada';
+
+    // EPP Quality
+    const epQGrid = pv('pv-epp-quality-grid');
+    if (eppQuality.length) {
+      epQGrid.innerHTML = eppQuality.map(e => `
+        <div class="prev-epp-item">
+          <span class="prev-epp-icon">${e.emoji||'🔧'}</span>
+          <span class="prev-epp-label">${e.label||'EPP'}</span>
+        </div>`).join('');
+    } else {
+      epQGrid.innerHTML = '<p style="font-size:11px;color:#94a3b8;padding:6px">Agrega EPP...</p>';
+    }
+
+    // Health
+    pv('pv-health-titulo').textContent = v('f-health-titulo') || 'SALUD OCUPACIONAL';
+    pv('pv-health-contenido').textContent = v('f-health-contenido') || 'El contenido de salud aparecerá aquí...';
+    pv('pv-qr-ergo-url').textContent = v('f-qr-ergo') || 'Sin URL configurada';
+
+    // Environment
+    pv('pv-env-titulo').textContent = v('f-env-titulo') || 'MEDIO AMBIENTE';
+    pv('pv-env-contenido').textContent = v('f-env-contenido') || 'El contenido ambiental aparecerá aquí...';
+    pv('pv-env-derrames').textContent = v('f-env-derrames') || '0';
+    pv('pv-qr-ambiental-url').textContent = v('f-qr-ambiental') || 'Sin URL configurada';
+
+    // Guardian
+    const gNombre = v('f-g-nombre');
+    pv('pv-g-nombre').textContent = gNombre || '[Nombre del Empleado]';
+    pv('pv-g-puesto').textContent = v('f-g-puesto') || '[Puesto — Área]';
+    pv('pv-g-reportes').textContent = v('f-g-reportes') || '12';
+    pv('pv-g-motivo').textContent = v('f-g-motivo') ? `"${v('f-g-motivo')}"` : '"Escribe el motivo del reconocimiento..."';
+    pv('pv-g-mes').textContent = `Guardián QHSE del Mes — ${edicion || '—'}`;
+    if (gNombre) {
+      const initials = gNombre.trim().split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+      pv('pv-g-avatar').textContent = initials || '??';
+    } else {
+      pv('pv-g-avatar').textContent = '??';
+    }
+
+    // Guardian badges
+    const badgesEl = pv('pv-g-badges');
+    badgesEl.innerHTML = guardianBadges.map(b => `
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;padding:4px 10px;border-radius:100px;background:rgba(0,200,255,.15);border:1px solid rgba(0,200,255,.3);color:#00c8ff">
+        ${b.emoji} ${b.label}
+      </span>`).join('');
+
+    // Custom blocks
+    const colorMaps = {
+      blue:   { bg:'linear-gradient(135deg,#0a1628,#1a3160)', border:'rgba(30,136,229,.3)', accent:'#00c8ff' },
+      red:    { bg:'linear-gradient(135deg,#7f1d1d,#991b1b)',  border:'rgba(227,30,36,.3)',  accent:'#fca5a5' },
+      green:  { bg:'linear-gradient(135deg,#064e3b,#065f46)',   border:'rgba(16,185,129,.3)', accent:'#6ee7b7' },
+      yellow: { bg:'linear-gradient(135deg,#78350f,#92400e)',   border:'rgba(245,158,11,.3)', accent:'#fcd34d' },
+    };
+    const cbContainer = pv('prev-custom-blocks');
+    cbContainer.innerHTML = customBlocks.map(b => {
+      const c = colorMaps[b.color] || colorMaps.blue;
+      return `<div class="prev-block" style="background:${c.bg};border:1px solid ${c.border}">
+        <h3 style="font-family:'Barlow Condensed';font-size:22px;font-weight:900;font-style:italic;color:${c.accent};margin-bottom:10px">${b.titulo || '(Sin título)'}</h3>
+        <p style="font-size:13px;color:rgba(255,255,255,.75);line-height:1.7;white-space:pre-line">${b.contenido || ''}</p>
+      </div>`;
+    }).join('');
+  }
+
+  // ── TOAST ──
+  let toastTimer = null;
+  function toast(msg, type = 'success') {
+    const colors = { success:'#00c8ff', error:'#ef4444', warn:'#f59e0b' };
+    const el = document.getElementById('toast');
+    el.style.borderLeftColor = colors[type] || colors.success;
+    document.getElementById('toast-msg').textContent = msg;
+    el.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 3800);
+  }
+
+  init();
+
+  // ══════════════════════════════════════════════
+  // EPP EMOJI PICKER  — rediseñado
+  // ══════════════════════════════════════════════
+  const EPP_CATALOG = [
+    { id:'cabeza',      icon:'⛑️', cat:'Protección Cabeza', items:[
+      {e:'⛑️',n:'Casco de seguridad'},{e:'🪖',n:'Casco industrial'},{e:'🧢',n:'Gorra protectora'},
+    ]},
+    { id:'visual',      icon:'🥽', cat:'Visual y Facial', items:[
+      {e:'🥽',n:'Gogles de seguridad'},{e:'👓',n:'Lentes protectores'},{e:'😷',n:'Careta facial completa'},{e:'🛡️',n:'Protector facial'},
+    ]},
+    { id:'respiratoria',icon:'🫁', cat:'Respiratoria', items:[
+      {e:'🫁',n:'Respirador / Mascarilla'},{e:'💨',n:'Respirador con filtro HEPA'},{e:'🌬️',n:'Equipo SCBA'},
+    ]},
+    { id:'auditiva',    icon:'👂', cat:'Auditiva', items:[
+      {e:'👂',n:'Protección auditiva'},{e:'🔇',n:'Tapones auditivos'},{e:'🎧',n:'Orejeras de seguridad'},
+    ]},
+    { id:'manos',       icon:'🧤', cat:'Protección Manos', items:[
+      {e:'🧤',n:'Guantes de seguridad'},{e:'🫱',n:'Guantes anticorte'},{e:'🖐️',n:'Guantes dieléctricos'},{e:'✋',n:'Guantes anticalor'},{e:'🤚',n:'Guantes anticorrosivos'},
+    ]},
+    { id:'cuerpo',      icon:'🦺', cat:'Protección Cuerpo', items:[
+      {e:'🦺',n:'Chaleco reflectivo'},{e:'🥼',n:'Mono / Overall'},{e:'👕',n:'Camisa FR retardante'},{e:'🧥',n:'Traje protección química'},{e:'👔',n:'Ropa de trabajo'},
+    ]},
+    { id:'pies',        icon:'👢', cat:'Protección Pies', items:[
+      {e:'👢',n:'Botas punta de acero'},{e:'🥾',n:'Botas dieléctricas'},{e:'👟',n:'Calzado antideslizante'},{e:'🩴',n:'Botas impermeables'},
+    ]},
+    { id:'alturas',     icon:'🔒', cat:'Alturas y Caídas', items:[
+      {e:'🔒',n:'Arnés 4 puntos'},{e:'🪝',n:'Gancho de seguridad'},{e:'⛓️',n:'Línea de vida'},{e:'🧗',n:'Equipo de descenso'},{e:'🪢',n:'Cuerda de seguridad'},
+    ]},
+    { id:'herramientas',icon:'🔧', cat:'Herramientas', items:[
+      {e:'🔧',n:'Llave de torque'},{e:'🔨',n:'Martillo de seguridad'},{e:'🪛',n:'Destornillador aislado'},{e:'⚙️',n:'Equipo mecánico'},{e:'🛠️',n:'Kit de herramientas'},{e:'🪚',n:'Sierra de seguridad'},
+    ]},
+    { id:'señalizacion',icon:'🚧', cat:'Señalización', items:[
+      {e:'🚧',n:'Cono / Barricada'},{e:'⚠️',n:'Señal de advertencia'},{e:'🚫',n:'Señal de prohibición'},{e:'🔴',n:'Señal de peligro'},{e:'🟡',n:'Señal de precaución'},{e:'🟢',n:'Zona segura'},{e:'🚦',n:'Control de tráfico'},
+    ]},
+    { id:'emergencias', icon:'🧯', cat:'Emergencias', items:[
+      {e:'🧯',n:'Extinguidor'},{e:'🚒',n:'Equipo contra incendio'},{e:'🏥',n:'Botiquín primeros auxilios'},{e:'🩹',n:'Kit de primeros auxilios'},{e:'🆘',n:'Señal de emergencia'},{e:'🚨',n:'Alarma de emergencia'},
+    ]},
+    { id:'ambiental',   icon:'🌿', cat:'Ambiental / Derrames', items:[
+      {e:'🧴',n:'Kit antiderrame'},{e:'🪣',n:'Contenedor de residuos'},{e:'♻️',n:'Manejo de residuos'},{e:'💧',n:'Control de fluidos'},{e:'🌿',n:'Control ambiental'},{e:'🗑️',n:'Disposición de residuos'},
+    ]},
+  ];
+
+  let pickerTarget  = null;
+  let activeSection = null;
+  let isScrolling   = false;
+
+  // ── Build sidebar ──
+  function buildSidebar(activeCatId) {
+    return EPP_CATALOG.map(cat => `
+      <button class="picker-cat-tab ${cat.id === activeCatId ? 'active' : ''}"
+        onclick="scrollToCategory('${cat.id}')"
+        id="pctab-${cat.id}">
+        <span class="tab-emoji">${cat.icon}</span>
+        <span class="tab-label">${cat.cat}</span>
+      </button>`).join('');
+  }
+
+  // ── Build full content ──
+  function buildContent(items, selectedEmoji, searchMode) {
+    if (searchMode) {
+      if (!items.length) return `
+        <div class="picker-empty">
+          <div style="font-size:32px">🔍</div>
+          <p>Sin resultados. Intenta con otra palabra.</p>
+        </div>`;
+      return `<div class="picker-section">
+        <div class="picker-cat-label">Resultados de búsqueda</div>
+        <div class="picker-grid">${items.map(item => `
+          <button class="picker-emoji-btn ${item.e === selectedEmoji ? 'selected':''}"
+            title="${item.n}"
+            onmouseenter="hoverPickerEmoji('${item.e}','${item.n.replace(/'/g,"\'")}')"
+            onmouseleave="unhoverPickerEmoji()"
+            onclick="selectEmoji('${item.e}')">${item.e}</button>`).join('')}
+        </div></div>`;
+    }
+    return EPP_CATALOG.map(cat => `
+      <div class="picker-section" id="psec-${cat.id}" data-cat="${cat.id}">
+        <div class="picker-cat-label">${cat.icon} ${cat.cat}</div>
+        <div class="picker-grid">${cat.items.map(item => `
+          <button class="picker-emoji-btn ${item.e === selectedEmoji ? 'selected':''}"
+            title="${item.n}"
+            onmouseenter="hoverPickerEmoji('${item.e}','${item.n.replace(/'/g,"\'")}')"
+            onmouseleave="unhoverPickerEmoji()"
+            onclick="selectEmoji('${item.e}')">${item.e}</button>`).join('')}
+        </div>
+      </div>`).join('');
+  }
+
+  function getSelectedEmoji() {
+    if (!pickerTarget) return '';
+    const arr = pickerTarget.section === 'safety' ? eppSafety : eppQuality;
+    return arr[pickerTarget.index]?.emoji || '';
+  }
+
+  function openPicker(section, index, triggerEl) {
+    if (pickerTarget && pickerTarget.triggerEl === triggerEl) { closePicker(); return; }
+    closePicker();
+    pickerTarget = { section, index, triggerEl };
+    triggerEl.classList.add('open');
+
+    const sel = getSelectedEmoji();
+    document.getElementById('picker-sidebar').innerHTML  = buildSidebar(EPP_CATALOG[0].id);
+    document.getElementById('picker-content').innerHTML  = buildContent([], sel, false);
+    document.getElementById('picker-search').value = '';
+    // rebuild full content
+    document.getElementById('picker-content').innerHTML = buildContent([], sel, false);
+
+    const picker   = document.getElementById('epp-emoji-picker');
+    const backdrop = document.getElementById('epp-picker-backdrop');
+    picker.style.display   = 'flex';
+    backdrop.style.display = 'block';
+
+    // Set footer default
+    document.getElementById('picker-footer-emoji').textContent = sel || '⛑️';
+    document.getElementById('picker-footer-name').textContent  = EPP_CATALOG[0].items[0]?.n || 'EPP';
+
+    positionPicker(picker, triggerEl);
+  }
+
+  function positionPicker(picker, triggerEl) {
+    const rect = triggerEl.getBoundingClientRect();
+    const pw = 520, ph = 540;
+    let left = rect.right + 10;
+    let top  = rect.top;
+
+    // If not enough space on the right, try left
+    if (left + pw > window.innerWidth - 10) left = rect.left - pw - 10;
+    // If still off screen, center horizontally
+    if (left < 10) left = Math.max(10, (window.innerWidth - pw) / 2);
+    // Vertical: keep within viewport
+    if (top + ph > window.innerHeight - 10) top = window.innerHeight - ph - 10;
+    if (top < 10) top = 10;
+
+    picker.style.left = left + 'px';
+    picker.style.top  = top  + 'px';
+  }
+
+  function closePicker() {
+    const picker   = document.getElementById('epp-emoji-picker');
+    const backdrop = document.getElementById('epp-picker-backdrop');
+    picker.style.display   = 'none';
+    backdrop.style.display = 'none';
+    if (pickerTarget?.triggerEl) pickerTarget.triggerEl.classList.remove('open');
+    pickerTarget = null;
+    activeSection = null;
+  }
+
+  function selectEmoji(emoji) {
+    if (!pickerTarget) return;
+    const { section, index } = pickerTarget;
+    updateEpp(section, index, 'emoji', emoji);
+    closePicker();
+    renderEpp(section);
+    livePreview();
+  }
+
+  function filterPicker(query) {
+    const sel = getSelectedEmoji();
+    const q   = query.toLowerCase().trim();
+    if (!q) {
+      document.getElementById('picker-sidebar').innerHTML = buildSidebar(EPP_CATALOG[0].id);
+      document.getElementById('picker-content').innerHTML = buildContent([], sel, false);
+      return;
+    }
+    const all = EPP_CATALOG.flatMap(c => c.items);
+    const res = all.filter(i => i.n.toLowerCase().includes(q) || i.e.includes(q));
+    document.getElementById('picker-sidebar').innerHTML = '';
+    document.getElementById('picker-content').innerHTML = buildContent(res, sel, true);
+  }
+
+  function scrollToCategory(catId) {
+    isScrolling = true;
+    // Update sidebar active
+    document.querySelectorAll('.picker-cat-tab').forEach(b => b.classList.remove('active'));
+    const tab = document.getElementById('pctab-' + catId);
+    if (tab) tab.classList.add('active');
+    // Scroll content
+    const sec = document.getElementById('psec-' + catId);
+    if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    activeSection = catId;
+    setTimeout(() => { isScrolling = false; }, 600);
+  }
+
+  function onPickerScroll() {
+    if (isScrolling) return;
+    const content = document.getElementById('picker-content');
+    const secs = content.querySelectorAll('.picker-section[data-cat]');
+    let current = null;
+    secs.forEach(sec => {
+      const top = sec.getBoundingClientRect().top - content.getBoundingClientRect().top;
+      if (top <= 40) current = sec.dataset.cat;
+    });
+    if (current && current !== activeSection) {
+      activeSection = current;
+      document.querySelectorAll('.picker-cat-tab').forEach(b => b.classList.remove('active'));
+      const tab = document.getElementById('pctab-' + current);
+      if (tab) {
+        tab.classList.add('active');
+        tab.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    }
+  }
+
+  function hoverPickerEmoji(emoji, name) {
+    document.getElementById('picker-footer-emoji').textContent = emoji;
+    document.getElementById('picker-footer-name').textContent  = name;
+  }
+  function unhoverPickerEmoji() {
+    const sel = getSelectedEmoji();
+    if (sel) {
+      const found = EPP_CATALOG.flatMap(c=>c.items).find(i=>i.e===sel);
+      document.getElementById('picker-footer-emoji').textContent = sel;
+      document.getElementById('picker-footer-name').textContent  = found?.n || 'Seleccionado';
+    } else {
+      document.getElementById('picker-footer-emoji').textContent = '⛑️';
+      document.getElementById('picker-footer-name').textContent  = 'Haz clic para seleccionar';
+    }
+  }
+</script>
+</body>
+</html>

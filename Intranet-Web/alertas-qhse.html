@@ -11,375 +11,95 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
   <style>
-    :root {
-      --navy:    #0a1628;
-      --navy2:   #0e2044;
-      --navy3:   #1a3160;
-      --accent:  #1e88e5;
-      --accent2: #00c8ff;
-      --red:     #e31e24;
-      --gold:    #f59e0b;
-      --green:   #10b981;
-      --white:   #ffffff;
-      --off:     #f0f4f8;
-    }
+    body { font-family: 'Barlow', sans-serif; }
 
-    * { box-sizing: border-box; }
-    body {
-      font-family: 'Barlow', sans-serif;
-      background: var(--off);
-      min-height: 100vh;
-      color: var(--navy);
-    }
+    /* Gradientes complejos */
+    .qhse-topbar { background: linear-gradient(135deg, #0a1628 0%, #0e2044 60%, #1a3160 100%); }
+    .cover-page  { background: linear-gradient(135deg, #0a1628 0%, #0e2044 50%, #1a3160 100%); }
+    .cover-grid-bg { position: absolute; inset: 0; background-image: linear-gradient(rgba(30,136,229,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(30,136,229,.07) 1px, transparent 1px); background-size: 40px 40px; }
+    .cover-accent-line { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: linear-gradient(180deg, #00c8ff, #1e88e5, #e31e24); }
+    .guardian-card { background: linear-gradient(135deg, #0a1628 0%, #1a3160 100%); }
+    .guardian-avatar { background: linear-gradient(135deg, #00c8ff, #1e88e5); }
+    #admin-panel { background: linear-gradient(135deg, #0a1628 0%, #1a3160 100%); border: 1px solid rgba(30,136,229,.3); }
+    .tech-divider { height: 2px; background: linear-gradient(90deg, transparent, #00c8ff, transparent); margin: 32px 0; opacity: .4; }
 
-    /* ── HEADER ── */
-    .site-header {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid #e2e8f0;
-      position: sticky; top: 0; z-index: 60;
-    }
-    .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+    /* Tipografía con clamp */
+    .cover-title    { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(52px, 10vw, 110px); font-weight: 900; font-style: italic; line-height: .9; letter-spacing: -.02em; color: white; }
+    .cover-subtitle { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(18px, 4vw, 32px); font-weight: 600; font-style: italic; color: #00c8ff; letter-spacing: .08em; }
+    .section-badge  { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; padding: 4px 12px; border-radius: 100px; }
+    .nm-label       { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #e31e24; }
+    .stat-num       { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 900; line-height: 1; }
+    .page-number    { font-family: 'Barlow Condensed', sans-serif; font-size: 120px; font-weight: 900; font-style: italic; color: rgba(10,22,40,.04); position: absolute; top: -20px; right: 16px; line-height: 1; user-select: none; pointer-events: none; }
 
-    /* ── TOPBAR MAGAZINE ── */
-    .qhse-topbar {
-      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 60%, var(--navy3) 100%);
-      padding: 12px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-      position: sticky;
-      top: 80px;
-      z-index: 50;
-      box-shadow: 0 4px 20px rgba(10,22,40,0.2);
-    }
-
-    /* ── COVER PAGE ── */
-    .cover-page {
-      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 50%, var(--navy3) 100%);
-      position: relative;
-      overflow: hidden;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    .cover-grid-bg {
-      position: absolute; inset: 0;
-      background-image:
-        linear-gradient(rgba(30,136,229,.07) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(30,136,229,.07) 1px, transparent 1px);
-      background-size: 40px 40px;
-    }
-    .cover-accent-line {
-      position: absolute; left: 0; top: 0; bottom: 0;
-      width: 6px;
-      background: linear-gradient(180deg, var(--accent2), var(--accent), var(--red));
-    }
-
-    /* ── SECTION CARDS ── */
-    .section-card {
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 4px 24px rgba(10,22,40,.08);
-      background: white;
-      margin-bottom: 32px;
-    }
-    .section-header {
-      padding: 20px 28px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .section-badge {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      padding: 4px 12px;
-      border-radius: 100px;
-    }
-
-    /* ── EPP INFOGRAPHIC ── */
-    .epp-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-      gap: 16px;
-      padding: 20px;
-    }
-    .epp-item {
-      background: var(--off);
-      border-radius: 14px;
-      padding: 16px 10px;
-      text-align: center;
-      border: 2px solid transparent;
-      transition: all .25s;
-      cursor: default;
-    }
-    .epp-item:hover {
-      border-color: var(--accent);
-      background: #e8f4fd;
-      transform: translateY(-3px);
-    }
-    .epp-icon {
-      font-size: 32px;
-      margin-bottom: 8px;
-      display: block;
-    }
-    .epp-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--navy2);
-      text-transform: uppercase;
-      letter-spacing: .04em;
-    }
-
-    /* ── QR BOX ── */
-    .qr-box {
-      background: var(--navy);
-      border-radius: 16px;
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      flex-wrap: wrap;
-    }
-    .qr-canvas-wrap {
-      background: white;
-      border-radius: 10px;
-      padding: 8px;
-      flex-shrink: 0;
-    }
+    /* Componentes que usan clases CSS propias */
+    .section-card  { border-radius: 20px; overflow: hidden; box-shadow: 0 4px 24px rgba(10,22,40,.08); background: white; margin-bottom: 32px; }
+    .section-header { padding: 20px 28px; display: flex; align-items: center; gap: 14px; }
+    .qr-box { background: #0a1628; border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+    .qr-canvas-wrap { background: white; border-radius: 10px; padding: 8px; flex-shrink: 0; }
     .qr-info { flex: 1; min-width: 180px; }
-
-    /* ── NEAR MISS CARD ── */
-    .nm-card {
-      border-left: 5px solid var(--red);
-      background: #fff5f5;
-      border-radius: 0 14px 14px 0;
-      padding: 20px 22px;
-      margin: 16px 0;
-    }
-    .nm-label {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: var(--red);
-    }
-
-    /* ── GUARDIAN CARD ── */
-    .guardian-card {
-      background: linear-gradient(135deg, var(--navy) 0%, var(--navy3) 100%);
-      border-radius: 20px;
-      padding: 32px;
-      color: white;
-      position: relative;
-      overflow: hidden;
-    }
-    .guardian-avatar {
-      width: 80px; height: 80px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent2), var(--accent));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 32px;
-      font-weight: 900;
-      color: white;
-      border: 4px solid rgba(255,255,255,.2);
-      flex-shrink: 0;
-    }
-
-    /* ── STAT BOXES ── */
-    .stat-pill {
-      background: var(--off);
-      border-radius: 12px;
-      padding: 14px 18px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .stat-num {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 36px;
-      font-weight: 900;
-      line-height: 1;
-    }
-
-    /* ── ADMIN PANEL ── */
-    #admin-panel {
-      background: linear-gradient(135deg, #0a1628 0%, #1a3160 100%);
-      border-radius: 24px;
-      padding: 32px;
-      color: white;
-      border: 1px solid rgba(30,136,229,.3);
-    }
-    .admin-tab {
-      padding: 10px 20px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all .2s;
-      background: rgba(255,255,255,.08);
-      color: rgba(255,255,255,.7);
-      border: 1px solid transparent;
-    }
-    .admin-tab.active, .admin-tab:hover {
-      background: var(--accent);
-      color: white;
-      border-color: var(--accent2);
-    }
-    .admin-input {
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.15);
-      border-radius: 10px;
-      padding: 10px 14px;
-      color: white;
-      font-size: 14px;
-      width: 100%;
-      outline: none;
-      font-family: 'Barlow', sans-serif;
-    }
-    .admin-input:focus { border-color: var(--accent2); }
-    .admin-input option { color: #1a1a1a; }
-    .admin-btn {
-      padding: 10px 22px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all .2s;
-      border: none;
-      font-family: 'Barlow', sans-serif;
-    }
-    .admin-btn-primary { background: var(--accent); color: white; }
-    .admin-btn-primary:hover { background: var(--accent2); color: var(--navy); }
-    .admin-btn-danger { background: rgba(227,30,36,.2); color: #ff6b6b; border: 1px solid rgba(227,30,36,.3); }
-    .admin-btn-danger:hover { background: var(--red); color: white; }
-    .admin-btn-success { background: rgba(16,185,129,.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,.3); }
-    .admin-btn-success:hover { background: var(--green); color: white; }
-
-    /* ── TOAST ── */
-    #toast {
-      position: fixed; bottom: 24px; right: 24px;
-      background: var(--navy); color: white;
-      padding: 14px 22px; border-radius: 14px;
-      font-size: 14px; font-weight: 600;
-      box-shadow: 0 10px 40px rgba(0,0,0,.4);
-      border-left: 4px solid var(--accent2);
-      transform: translateY(100px); opacity: 0;
-      transition: all .4s cubic-bezier(.175,.885,.32,1.275);
-      z-index: 9999; max-width: 320px;
-    }
-    #toast.show { transform: translateY(0); opacity: 1; }
-
-    /* ── MODAL ── */
-    .modal-overlay {
-      position: fixed; inset: 0; z-index: 200;
-      background: rgba(10,22,40,.85);
-      backdrop-filter: blur(8px);
-      display: flex; align-items: center; justify-content: center;
-      padding: 16px;
-    }
-    .modal-box {
-      background: var(--navy2);
-      border-radius: 20px;
-      padding: 32px;
-      width: 100%; max-width: 560px;
-      color: white;
-      border: 1px solid rgba(30,136,229,.3);
-      max-height: 90vh; overflow-y: auto;
-    }
-
-    /* ── DIVIDER ── */
-    .tech-divider {
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent2), transparent);
-      margin: 32px 0;
-      opacity: .4;
-    }
-
-    /* ── COVER typography ── */
-    .cover-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: clamp(52px, 10vw, 110px);
-      font-weight: 900;
-      font-style: italic;
-      line-height: .9;
-      letter-spacing: -.02em;
-      color: white;
-    }
-    .cover-subtitle {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: clamp(18px, 4vw, 32px);
-      font-weight: 600;
-      font-style: italic;
-      color: var(--accent2);
-      letter-spacing: .08em;
-    }
-
-    /* ── RESPONSIVE TABLE ── */
+    .nm-card { border-left: 5px solid #e31e24; background: #fff5f5; border-radius: 0 14px 14px 0; padding: 20px 22px; margin: 16px 0; }
+    .stat-pill { background: #f0f4f8; border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; }
+    .epp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 16px; padding: 20px; }
+    .epp-item { background: #f0f4f8; border-radius: 14px; padding: 16px 10px; text-align: center; border: 2px solid transparent; transition: all .25s; cursor: default; }
+    .epp-item:hover { border-color: #1e88e5; background: #e8f4fd; transform: translateY(-3px); }
+    .epp-icon  { font-size: 32px; margin-bottom: 8px; display: block; }
+    .epp-label { font-size: 11px; font-weight: 700; color: #0e2044; text-transform: uppercase; letter-spacing: .04em; }
     .responsive-table { overflow-x: auto; }
     .responsive-table table { min-width: 600px; }
 
-    /* ── PAGE NUMBER ── */
-    .page-number {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 120px;
-      font-weight: 900;
-      font-style: italic;
-      color: rgba(10,22,40,.04);
-      position: absolute;
-      top: -20px; right: 16px;
-      line-height: 1;
-      user-select: none;
-      pointer-events: none;
-    }
+    /* Admin */
+    .admin-tab { padding: 10px 20px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all .2s; background: rgba(255,255,255,.08); color: rgba(255,255,255,.7); border: 1px solid transparent; }
+    .admin-tab.active, .admin-tab:hover { background: #1e88e5; color: white; border-color: #00c8ff; }
+    .admin-input { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 10px; padding: 10px 14px; color: white; font-size: 14px; width: 100%; outline: none; font-family: 'Barlow', sans-serif; }
+    .admin-input:focus { border-color: #00c8ff; }
+    .admin-input option { color: #1a1a1a; }
+    .admin-btn { padding: 10px 22px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all .2s; border: none; font-family: 'Barlow', sans-serif; }
+    .admin-btn-primary { background: #1e88e5; color: white; }
+    .admin-btn-primary:hover { background: #00c8ff; color: #0a1628; }
+    .admin-btn-danger  { background: rgba(227,30,36,.2); color: #ff6b6b; border: 1px solid rgba(227,30,36,.3); }
+    .admin-btn-danger:hover { background: #e31e24; color: white; }
+    .admin-btn-success { background: rgba(16,185,129,.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,.3); }
+    .admin-btn-success:hover { background: #10b981; color: white; }
 
-    /* ── LOADING ── */
-    .skeleton {
-      background: linear-gradient(90deg, #e2e8f0 25%, #f8fafc 50%, #e2e8f0 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 8px;
-      height: 20px;
-    }
-    @keyframes shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
+    /* Toast */
+    #toast { position: fixed; bottom: 24px; right: 24px; background: #0a1628; color: white; padding: 14px 22px; border-radius: 14px; font-size: 14px; font-weight: 600; box-shadow: 0 10px 40px rgba(0,0,0,.4); border-left: 4px solid #00c8ff; transform: translateY(100px); opacity: 0; transition: all .4s cubic-bezier(.175,.885,.32,1.275); z-index: 9999; max-width: 320px; }
+    #toast.show { transform: translateY(0); opacity: 1; }
 
-    /* ── SCROLLBAR ── */
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(10,22,40,.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .modal-box { background: #0e2044; border-radius: 20px; padding: 32px; width: 100%; max-width: 560px; color: white; border: 1px solid rgba(30,136,229,.3); max-height: 90vh; overflow-y: auto; }
+
+    /* Skeleton */
+    .skeleton { background: linear-gradient(90deg, #e2e8f0 25%, #f8fafc 50%, #e2e8f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; height: 20px; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* Scrollbar */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
     @media (max-width: 640px) {
-      .epp-grid { grid-template-columns: repeat(3, 1fr); }
-      .qr-box { flex-direction: column; text-align: center; }
+      body { overflow-x: hidden; }
+      main { padding-left: 12px !important; padding-right: 12px !important; }
+      .section-card { overflow-x: hidden; margin-bottom: 16px; }
+      .section-header { flex-wrap: wrap; gap: 8px; padding: 14px 16px; }
+      .section-header .ml-auto { display: none; }
+      .page-number { display: none; }
       .cover-page { min-height: auto !important; }
       .cover-title { font-size: clamp(44px, 15vw, 80px) !important; }
-      .page-number { font-size: 80px; top: -10px; right: 8px; }
-      .section-header { flex-wrap: wrap; gap: 8px; }
-      .section-header .ml-auto { display: none; }
+      .epp-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 12px; }
+      .qr-box { flex-direction: column; text-align: center; }
+      .qr-info { min-width: unset; }
+      .nm-card { padding: 14px 16px; }
       .guardian-card { padding: 20px !important; }
       .stat-num { font-size: 28px; }
-      /* Prevent horizontal overflow */
-      .section-card { overflow-x: hidden; }
-      main { padding-left: 12px !important; padding-right: 12px !important; }
-      /* Admin panel tabs scroll */
-      #admin-panel .flex.flex-wrap { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
-      .admin-tab { white-space: nowrap; flex-shrink: 0; }
-      /* Grid cols fix on small screens */
-      .grid.md\:grid-cols-3 { grid-template-columns: 1fr !important; }
-      .grid.sm\:grid-cols-3 { grid-template-columns: 1fr !important; }
-      .grid.sm\:grid-cols-4 { grid-template-columns: repeat(2, 1fr) !important; }
+      .stat-pill { padding: 10px 12px; }
+      #admin-panel { padding: 20px 16px; border-radius: 16px; }
+      #admin-panel .flex.flex-wrap { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
+      .admin-tab { white-space: nowrap; flex-shrink: 0; padding: 8px 14px; font-size: 12px; }
+      .qhse-topbar { flex-wrap: nowrap; overflow: hidden; padding: 10px 14px; gap: 6px; }
     }
     @media (max-width: 480px) {
-      .qhse-topbar { top: 72px; padding: 10px 14px; }
       .cover-title { font-size: clamp(38px, 13vw, 60px) !important; }
     }
   </style>
@@ -395,7 +115,6 @@
       <span class="hidden md:block text-slate-500 font-medium text-sm tracking-wide uppercase">Intranet Corporativa</span>
     </div>
     <div class="flex items-center gap-6">
-      <span id="user-role-badge" class="hidden text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full"></span>
       <div class="text-right hidden sm:block">
         <p id="user-welcome" class="text-slate-800 font-semibold text-sm">Cargando...</p>
         <p class="text-slate-400 text-xs font-medium uppercase tracking-tighter">Miembro del Equipo</p>
@@ -411,20 +130,23 @@
 </header>
 
 <!-- ── TOPBAR ── -->
-<div class="qhse-topbar">
-  <div class="flex items-center gap-4">
-    <div class="flex items-center gap-2">
-      <span class="w-2 h-2 rounded-full bg-[#00c8ff] animate-pulse"></span>
-      <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.9)">SENTINEL IHS</span>
+<div class="qhse-topbar sticky top-20 z-50">
+  <div class="max-w-[1440px] mx-auto px-4 md:px-8 flex items-center justify-between" style="flex-wrap:nowrap;overflow:hidden;">
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-[#00c8ff] animate-pulse"></span>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.9)">SENTINEL IHS</span>
+      </div>
+      <div class="h-4 w-px bg-white/20"></div>
+      <span id="edition-tag" style="font-size:12px;color:rgba(255,255,255,.6);font-weight:500">Cargando edición...</span>
     </div>
-    <div class="h-4 w-px bg-white/20"></div>
-    <span id="edition-tag" style="font-size:12px;color:rgba(255,255,255,.6);font-weight:500">Cargando edición...</span>
-  </div>
-  <div class="flex items-center gap-3">
-    <span id="issue-counter" style="font-family:'DM Mono',monospace;font-size:12px;color:rgba(0,200,255,.8)">— — —</span>
-    <button id="btn-admin-toggle" onclick="toggleAdminPanel()" class="hidden px-4 py-2 rounded-lg text-[12px] font-bold uppercase tracking-wider border border-[#1e88e5]/40 text-[#00c8ff] hover:bg-[#1e88e5]/20 transition-all">
-      <i class="fas fa-sliders mr-1.5"></i>Panel Admin
-    </button>
+    <div class="flex items-center gap-3">
+      <span id="issue-counter" style="font-family:'DM Mono',monospace;font-size:12px;color:rgba(0,200,255,.8)">— — —</span>
+      <a href="admin-qhse.html" id="btn-admin-toggle"
+          class="hidden px-4 py-2 rounded-lg text-[12px] font-bold uppercase tracking-wider border border-[#1e88e5]/40 text-[#00c8ff] hover:bg-[#1e88e5]/20 transition-all inline-block no-underline">
+          <i class="fas fa-sliders mr-1.5"></i>Panel Admin
+      </a>
+    </div>
   </div>
 </div>
 
@@ -509,23 +231,29 @@
   </div>
 
   <!-- PAGINATION NAV -->
-  <div class="flex items-center gap-3 overflow-x-auto pb-2 mb-8 no-scrollbar">
-    <button onclick="scrollToSection('sec-safety')" class="flex-shrink-0 px-5 py-2.5 rounded-full text-[12px] font-bold uppercase tracking-widest transition-all" style="background:#e31e24;color:white">
-      <i class="fas fa-hard-hat mr-1.5"></i>Safety
-    </button>
-    <button onclick="scrollToSection('sec-quality')" class="flex-shrink-0 px-5 py-2.5 rounded-full text-[12px] font-bold uppercase tracking-widest transition-all bg-white border border-slate-200 text-slate-600 hover:border-blue-400">
-      <i class="fas fa-check-double mr-1.5"></i>Quality
-    </button>
-    <button onclick="scrollToSection('sec-health')" class="flex-shrink-0 px-5 py-2.5 rounded-full text-[12px] font-bold uppercase tracking-widest transition-all bg-white border border-slate-200 text-slate-600 hover:border-amber-400">
-      <i class="fas fa-heartbeat mr-1.5"></i>Health
-    </button>
-    <button onclick="scrollToSection('sec-env')" class="flex-shrink-0 px-5 py-2.5 rounded-full text-[12px] font-bold uppercase tracking-widest transition-all bg-white border border-slate-200 text-slate-600 hover:border-green-400">
-      <i class="fas fa-leaf mr-1.5"></i>Environment
-    </button>
-    <button onclick="scrollToSection('sec-guardian')" class="flex-shrink-0 px-5 py-2.5 rounded-full text-[12px] font-bold uppercase tracking-widest transition-all bg-white border border-slate-200 text-slate-600 hover:border-yellow-400">
-      <i class="fas fa-star mr-1.5"></i>Guardián
-    </button>
-  </div>
+    <div class="grid grid-cols-3 sm:flex sm:flex-wrap gap-2 mb-8">
+        <button onclick="scrollToSection('sec-safety')"
+            class="px-3 py-2.5 sm:px-5 rounded-full text-[11px] sm:text-[12px] font-bold uppercase tracking-widest transition-all text-center"
+            style="background:#e31e24;color:white">
+            <i class="fas fa-hard-hat mr-1"></i>Safety
+        </button>
+        <button onclick="scrollToSection('sec-quality')"
+            class="px-3 py-2.5 sm:px-5 rounded-full text-[11px] sm:text-[12px] font-bold uppercase tracking-widest transition-all bg-white border border-slate-200 text-slate-600 hover:border-blue-400 text-center">
+            <i class="fas fa-check-double mr-1"></i>Quality
+        </button>
+        <button onclick="scrollToSection('sec-health')"
+            class="px-3 py-2.5 sm:px-5 rounded-full text-[11px] sm:text-[12px] font-bold uppercase tracking-widest transition-all bg-white border border-slate-200 text-slate-600 hover:border-amber-400 text-center">
+            <i class="fas fa-heartbeat mr-1"></i>Health
+        </button>
+        <button onclick="scrollToSection('sec-env')"
+            class="px-3 py-2.5 sm:px-5 rounded-full text-[11px] sm:text-[12px] font-bold uppercase tracking-widest transition-all bg-white border border-slate-200 text-slate-600 hover:border-green-400 text-center">
+            <i class="fas fa-leaf mr-1"></i>Environment
+        </button>
+        <button onclick="scrollToSection('sec-guardian')"
+            class="px-3 py-2.5 sm:px-5 rounded-full text-[11px] sm:text-[12px] font-bold uppercase tracking-widest transition-all bg-white border border-slate-200 text-slate-600 hover:border-yellow-400 text-center col-span-2 sm:col-span-1">
+            <i class="fas fa-star mr-1"></i>Guardián
+        </button>
+    </div>
 
   <!-- ══════════════════════════════════════════ -->
   <!-- PÁGINAS 2-3 — SEGURIDAD (SAFETY)          -->
@@ -699,14 +427,15 @@
             <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight" style="font-family:'Barlow Condensed',sans-serif">Integridad de Conexiones</h3>
           </div>
 
-          <!-- Tabla roscas -->
+          <!-- Tabla roscas — responsive -->
           <div class="rounded-2xl overflow-hidden border border-slate-100 mb-5">
             <div class="px-4 py-3" style="background:#0e2044">
               <p class="text-[11px] font-black uppercase tracking-widest text-white/70">
                 <i class="fas fa-table mr-1.5 text-[#00c8ff]"></i>Inspección de roscas premium / API
               </p>
             </div>
-            <div class="responsive-table">
+            <!-- Tabla: visible solo en sm+ -->
+            <div class="hidden sm:block overflow-x-auto">
               <table class="w-full text-sm">
                 <thead style="background:#f8fafc">
                   <tr>
@@ -722,6 +451,57 @@
                   <tr style="background:#f8fafc"><td class="px-4 py-3 font-medium text-slate-700">Daños visuales</td><td class="px-4 py-3 text-emerald-600 font-bold">Sin corrosión/galling</td><td class="px-4 py-3 text-xs text-slate-500">Rechazar y reportar</td></tr>
                 </tbody>
               </table>
+            </div>
+            <!-- Cards: visible solo en móvil -->
+            <div class="sm:hidden divide-y divide-slate-100">
+              <div class="p-4">
+                <p class="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Parámetro</p>
+                <p class="font-bold text-slate-800 text-sm">Limpieza de rosca</p>
+                <div class="flex items-center gap-2 mt-2">
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">OK:</span>
+                  <span class="text-emerald-600 font-bold text-sm">Sin lodo/arena</span>
+                </div>
+                <div class="flex items-start gap-2 mt-1">
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 mt-0.5">Acción:</span>
+                  <span class="text-xs text-slate-500">Limpiar con cepillo y solvente</span>
+                </div>
+              </div>
+              <div class="p-4 bg-slate-50">
+                <p class="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Parámetro</p>
+                <p class="font-bold text-slate-800 text-sm">Dope API/Premium</p>
+                <div class="flex items-center gap-2 mt-2">
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">OK:</span>
+                  <span class="text-emerald-600 font-bold text-sm">Capa uniforme</span>
+                </div>
+                <div class="flex items-start gap-2 mt-1">
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 mt-0.5">Acción:</span>
+                  <span class="text-xs text-slate-500">Aplicar según ficha técnica</span>
+                </div>
+              </div>
+              <div class="p-4">
+                <p class="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Parámetro</p>
+                <p class="font-bold text-slate-800 text-sm">Par de torque</p>
+                <div class="flex items-center gap-2 mt-2">
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">OK:</span>
+                  <span class="text-emerald-600 font-bold text-sm">Dentro de rango</span>
+                </div>
+                <div class="flex items-start gap-2 mt-1">
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 mt-0.5">Acción:</span>
+                  <span class="text-xs text-slate-500">Verificar tabla de torque IHS</span>
+                </div>
+              </div>
+              <div class="p-4 bg-slate-50">
+                <p class="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Parámetro</p>
+                <p class="font-bold text-slate-800 text-sm">Daños visuales</p>
+                <div class="flex items-center gap-2 mt-2">
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">OK:</span>
+                  <span class="text-emerald-600 font-bold text-sm">Sin corrosión/galling</span>
+                </div>
+                <div class="flex items-start gap-2 mt-1">
+                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 mt-0.5">Acción:</span>
+                  <span class="text-xs text-slate-500">Rechazar y reportar</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1099,250 +879,6 @@
       </div>
     </div>
   </div>
-
-  <div class="tech-divider"></div>
-
-  <!-- ══════════════════════════════════════════ -->
-  <!-- PANEL ADMINISTRADOR                       -->
-  <!-- ══════════════════════════════════════════ -->
-  <div id="admin-panel" class="hidden mb-8">
-    <div class="flex items-center gap-4 mb-6">
-      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(30,136,229,.2);border:1px solid rgba(0,200,255,.3)">
-        <i class="fas fa-sliders text-[#00c8ff]"></i>
-      </div>
-      <div>
-        <h2 class="text-white font-black text-xl" style="font-family:'Barlow Condensed',sans-serif;font-style:italic;">PANEL DE ADMINISTRACIÓN</h2>
-        <p class="text-white/50 text-xs">Solo visible para administradores — In Hole Solutions QHSE</p>
-      </div>
-      <button onclick="toggleAdminPanel()" class="ml-auto h-9 w-9 rounded-xl flex items-center justify-center text-white/40 hover:text-white transition-all" style="background:rgba(255,255,255,.06)">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-
-    <!-- Admin Tabs -->
-    <div class="flex flex-wrap gap-2 mb-6">
-      <button class="admin-tab active" onclick="switchAdminTab('tab-editions', this)">
-        <i class="fas fa-newspaper mr-1.5"></i>Ediciones
-      </button>
-      <button class="admin-tab" onclick="switchAdminTab('tab-guardian', this)">
-        <i class="fas fa-star mr-1.5"></i>Guardián del Mes
-      </button>
-      <button class="admin-tab" onclick="switchAdminTab('tab-stats', this)">
-        <i class="fas fa-chart-bar mr-1.5"></i>Estadísticas
-      </button>
-      <button class="admin-tab" onclick="switchAdminTab('tab-custom', this)">
-        <i class="fas fa-palette mr-1.5"></i>Personalización
-      </button>
-    </div>
-
-    <!-- TAB: Ediciones -->
-    <div id="tab-editions" class="admin-tab-content">
-      <div class="grid md:grid-cols-2 gap-6">
-        <!-- Nueva edición -->
-        <div class="rounded-xl p-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
-          <h3 class="text-white font-black text-base mb-4" style="font-family:'Barlow Condensed',sans-serif;font-style:italic">
-            <i class="fas fa-plus-circle mr-2 text-[#00c8ff]"></i>CREAR / ACTUALIZAR EDICIÓN
-          </h3>
-          <div class="space-y-3">
-            <div>
-              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Título de portada</label>
-              <input id="adm-cover-title" class="admin-input" type="text" placeholder="Ej: SEGURIDAD SIN EXCUSAS" value="SEGURIDAD SIN EXCUSAS">
-            </div>
-            <div>
-              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Edición (mes/año)</label>
-              <input id="adm-edition" class="admin-input" type="text" placeholder="Ej: Mayo 2026" value="Mayo 2026">
-            </div>
-            <div>
-              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Mensaje de Dirección</label>
-              <textarea id="adm-director-msg" class="admin-input" rows="4" placeholder="Mensaje del gerente...">"Nuestro compromiso es claro: cero accidentes, cero excusas..."</textarea>
-            </div>
-            <div>
-              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Nombre del Gerente</label>
-              <input id="adm-director-name" class="admin-input" type="text" placeholder="Ing. Nombre Apellido">
-            </div>
-            <div class="grid grid-cols-3 gap-2">
-              <div>
-                <label class="text-[10px] font-black uppercase tracking-widest text-white/50 mb-1 block">Días sin acc.</label>
-                <input id="adm-stat-dias" class="admin-input" type="number" placeholder="247" value="247">
-              </div>
-              <div>
-                <label class="text-[10px] font-black uppercase tracking-widest text-white/50 mb-1 block">Reportes</label>
-                <input id="adm-stat-obs" class="admin-input" type="number" placeholder="18" value="18">
-              </div>
-              <div>
-                <label class="text-[10px] font-black uppercase tracking-widest text-white/50 mb-1 block">Near miss</label>
-                <input id="adm-stat-acc" class="admin-input" type="number" placeholder="3" value="3">
-              </div>
-            </div>
-            <button onclick="saveEdition()" class="admin-btn admin-btn-primary w-full mt-2">
-              <i class="fas fa-save mr-2"></i>Guardar
-            </button>
-          </div>
-        </div>
-
-        <!-- Historial ediciones -->
-        <div class="rounded-xl p-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
-          <h3 class="text-white font-black text-base mb-4" style="font-family:'Barlow Condensed',sans-serif;font-style:italic">
-            <i class="fas fa-clock-rotate-left mr-2 text-[#00c8ff]"></i>HISTORIAL DE EDICIONES
-          </h3>
-          <div id="editions-list" class="space-y-2 max-h-80 overflow-y-auto">
-            <p class="text-white/40 text-sm text-center py-8">Cargando ediciones...</p>
-          </div>
-          <button onclick="loadEditions()" class="admin-btn admin-btn-success w-full mt-3">
-            <i class="fas fa-rotate mr-2"></i>Recargar listado
-          </button>
-        </div>
-      </div>
-
-      <!-- Near Miss editor -->
-      <div class="rounded-xl p-5 mt-4" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
-        <h3 class="text-white font-black text-base mb-4" style="font-family:'Barlow Condensed',sans-serif;font-style:italic">
-          <i class="fas fa-triangle-exclamation mr-2 text-[#f59e0b]"></i>GESTIÓN NEAR MISS / LECCIÓN APRENDIDA
-        </h3>
-        <div class="grid md:grid-cols-2 gap-4">
-          <div class="space-y-3">
-            <div>
-              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Título del incidente</label>
-              <input id="nm-titulo" class="admin-input" type="text" placeholder="Ej: Cuñas deslizadas en banco horizontal">
-            </div>
-            <div>
-              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Área / Ubicación</label>
-              <input id="nm-area" class="admin-input" type="text" placeholder="Ej: Taller de Apriete — Villahermosa">
-            </div>
-            <div>
-              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Descripción del evento</label>
-              <textarea id="nm-desc" class="admin-input" rows="3" placeholder="Describe qué ocurrió..."></textarea>
-            </div>
-          </div>
-          <div class="space-y-3">
-            <div>
-              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Causa raíz</label>
-              <textarea id="nm-causa" class="admin-input" rows="3" placeholder="Análisis de causa raíz..."></textarea>
-            </div>
-            <div>
-              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Acción correctiva</label>
-              <textarea id="nm-accion" class="admin-input" rows="3" placeholder="Medidas correctivas implementadas..."></textarea>
-            </div>
-            <button onclick="saveNearMiss()" class="admin-btn admin-btn-primary w-full">
-              <i class="fas fa-save mr-2"></i>Guardar
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB: Guardián -->
-    <div id="tab-guardian" class="admin-tab-content hidden">
-      <div class="rounded-xl p-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
-        <h3 class="text-white font-black text-base mb-4" style="font-family:'Barlow Condensed',sans-serif;font-style:italic">
-          <i class="fas fa-star mr-2 text-yellow-400"></i>EDITAR GUARDIÁN QHSE DEL MES
-        </h3>
-        <div class="grid md:grid-cols-2 gap-4">
-          <div class="space-y-3">
-            <div>
-              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Nombre completo</label>
-              <input id="g-nombre" class="admin-input" type="text" placeholder="Ej: José Luis Martínez">
-            </div>
-            <div>
-              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Puesto / Área</label>
-              <input id="g-puesto" class="admin-input" type="text" placeholder="Ej: Técnico de Apriete — Taller Villahermosa">
-            </div>
-            <div>
-              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">No. de condiciones reportadas</label>
-              <input id="g-reportes" class="admin-input" type="number" placeholder="12">
-            </div>
-          </div>
-          <div class="space-y-3">
-            <div>
-              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Motivo del reconocimiento</label>
-              <textarea id="g-motivo" class="admin-input" rows="5" placeholder="Describe por qué es el Guardián QHSE..."></textarea>
-            </div>
-            <button onclick="saveGuardian()" class="admin-btn admin-btn-primary w-full">
-              <i class="fas fa-save mr-2"></i>Actualizar Guardián
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB: Estadísticas -->
-    <div id="tab-stats" class="admin-tab-content hidden">
-      <div class="rounded-xl p-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
-        <h3 class="text-white font-black text-base mb-4" style="font-family:'Barlow Condensed',sans-serif;font-style:italic">
-          <i class="fas fa-chart-bar mr-2 text-[#00c8ff]"></i>ESTADÍSTICAS DE LA REVISTA
-        </h3>
-        <div id="stats-content" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="rounded-xl p-4 text-center" style="background:rgba(255,255,255,.06)">
-            <p id="stat-ediciones" class="text-3xl font-black text-[#00c8ff]" style="font-family:'Barlow Condensed',sans-serif">—</p>
-            <p class="text-[10px] text-white/50 font-bold uppercase tracking-wider mt-1">Ediciones<br>publicadas</p>
-          </div>
-          <div class="rounded-xl p-4 text-center" style="background:rgba(255,255,255,.06)">
-            <p id="stat-nm-total" class="text-3xl font-black text-[#f59e0b]" style="font-family:'Barlow Condensed',sans-serif">—</p>
-            <p class="text-[10px] text-white/50 font-bold uppercase tracking-wider mt-1">Near miss<br>registrados</p>
-          </div>
-          <div class="rounded-xl p-4 text-center" style="background:rgba(255,255,255,.06)">
-            <p id="stat-guardianes" class="text-3xl font-black text-yellow-400" style="font-family:'Barlow Condensed',sans-serif">—</p>
-            <p class="text-[10px] text-white/50 font-bold uppercase tracking-wider mt-1">Guardianes<br>reconocidos</p>
-          </div>
-          <div class="rounded-xl p-4 text-center" style="background:rgba(255,255,255,.06)">
-            <p id="stat-last-update" class="text-lg font-black text-emerald-400" style="font-family:'Barlow Condensed',sans-serif">—</p>
-            <p class="text-[10px] text-white/50 font-bold uppercase tracking-wider mt-1">Última<br>actualización</p>
-          </div>
-        </div>
-        <button onclick="loadStats()" class="admin-btn admin-btn-success mt-4">
-          <i class="fas fa-rotate mr-2"></i>Recargar estadísticas
-        </button>
-      </div>
-    </div>
-
-    <!-- TAB: Personalización libre -->
-    <div id="tab-custom" class="admin-tab-content hidden">
-      <div class="rounded-xl p-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
-        <h3 class="text-white font-black text-base mb-4" style="font-family:'Barlow Condensed',sans-serif;font-style:italic">
-          <i class="fas fa-palette mr-2 text-purple-400"></i>ZONA LIBRE — PERSONALIZACIÓN DE CONTENIDO
-        </h3>
-        <p class="text-white/50 text-sm mb-5">Agrega contenido personalizado libre que aparecerá al final de la revista. Soporta texto enriquecido.</p>
-        <div class="space-y-3">
-          <div>
-            <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Título del bloque personalizado</label>
-            <input id="custom-title" class="admin-input" type="text" placeholder="Ej: Comunicado especial, Aviso importante...">
-          </div>
-          <div>
-            <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Contenido (texto libre)</label>
-            <textarea id="custom-content" class="admin-input" rows="6" placeholder="Escribe aquí tu contenido personalizado..."></textarea>
-          </div>
-          <div>
-            <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Color del bloque</label>
-            <select id="custom-color" class="admin-input">
-                <option value="blue">Azul marino (IHS)</option>
-                <option value="red">Rojo alerta</option>
-                <option value="green">Verde ambiental</option>
-                <option value="yellow">Ámbar precaución</option>
-            </select>
-          </div>
-          <div class="flex gap-3">
-            <button onclick="saveCustomBlock()" class="admin-btn admin-btn-primary flex-1">
-              <i class="fas fa-save mr-2"></i>Guardar bloque
-            </button>
-            <button onclick="previewCustomBlock()" class="admin-btn flex-1" style="background:rgba(124,58,237,.2);color:#a78bfa;border:1px solid rgba(124,58,237,.3)">
-              <i class="fas fa-eye mr-2"></i>Previsualizar
-            </button>
-          </div>
-        </div>
-
-        <!-- Bloques personalizados existentes -->
-        <div id="custom-blocks-list" class="mt-5">
-          <p class="text-[11px] font-black uppercase tracking-widest text-white/40 mb-3">Bloques guardados</p>
-          <p id="no-custom-blocks" class="text-white/30 text-sm text-center py-6">No hay bloques personalizados aún</p>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- end admin panel -->
-
-  <!-- Bloque personalizado visible (generado dinámicamente) -->
-  <div id="custom-blocks-render" class="mb-8"></div>
-
 </main>
 
 <!-- ── TOAST ── -->
@@ -1385,13 +921,9 @@
     if (perfil) {
       const saludo = getGreeting();
       document.getElementById('user-welcome').innerText = `${saludo}, ${perfil.nombre_completo}`;
-      isAdmin = perfil.rol === 'admin' || perfil.rol === 'Administrador';
+      isAdmin = perfil.rol === 'admin' ||  perfil.rol === 'Administrador' || perfil.rol === 'administrador';
       if (isAdmin) {
         document.getElementById('btn-admin-toggle').classList.remove('hidden');
-        const badge = document.getElementById('user-role-badge');
-        badge.classList.remove('hidden');
-        badge.textContent = '🔑 Admin';
-        badge.style.cssText = 'background:rgba(30,136,229,.15);border:1px solid rgba(0,200,255,.3);color:#00c8ff;';
       }
     }
 
