@@ -18,6 +18,8 @@
     @keyframes fadeSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
     .glass-nav { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); }
     .card-politica { animation: fadeSlide 0.3s ease-out both; }
+    .drop-zone { border: 2px dashed #e2e8f0; transition: all 0.2s; }
+    .drop-zone.drag-over { border-color: #e31e24; background: #fef2f2; }
   </style>
 </head>
 <body class="bg-[#f8fafc] min-h-screen">
@@ -50,64 +52,52 @@
   <nav id="mobile-nav" class="hidden lg:block bg-red-700 shadow-lg sticky top-20 z-50">
     <div class="max-w-[1440px] mx-auto px-6">
       <div class="flex flex-col lg:flex-row justify-center items-center lg:h-14 space-y-1 lg:space-y-0 lg:space-x-8 py-4 lg:py-0">
-
+        <a href="politicas.html" class="w-full lg:w-auto px-5 py-3 lg:py-0 text-[11px] md:text-xs font-bold text-white lg:hover:bg-white/10 uppercase tracking-widest flex items-center justify-center border-b-2 border-white">Políticas</a>
+        <a href="javascript:void(0)" class="w-full lg:w-auto px-5 py-3 lg:py-0 text-[11px] md:text-xs font-bold text-white/90 hover:text-white lg:hover:bg-white/10 uppercase tracking-widest flex items-center justify-between">Alertas QHSE</a>
+        <a href="javascript:void(0)" class="w-full lg:w-auto px-5 py-3 lg:py-0 text-[11px] md:text-xs font-bold text-white/90 hover:text-white lg:hover:bg-white/10 uppercase tracking-widest flex items-center justify-between">Mantenimiento</a>
         <div class="relative dropdown w-full lg:w-auto">
-          <button onclick="toggleSubmenu(this)" class="w-full h-full px-5 py-3 lg:py-0 text-[11px] md:text-xs font-bold text-white lg:hover:bg-white/10 transition-all uppercase tracking-widest flex items-center justify-between lg:justify-center gap-2 border-b-2 border-white/40 lg:border-white">
-            Políticas <i class="fas fa-chevron-down text-[9px] opacity-70"></i>
+          <button onclick="toggleSubmenu(this)" class="w-full h-full px-5 py-3 lg:py-0 text-[11px] md:text-xs font-bold text-white/90 hover:text-white lg:hover:bg-white/10 transition-all uppercase tracking-widest flex items-center justify-between lg:justify-center gap-2">
+            Operaciones <i class="fas fa-chevron-down text-[9px] opacity-70"></i>
           </button>
-          <div class="dropdown-menu hidden lg:absolute left-0 w-full lg:w-56 bg-white shadow-2xl rounded-b-xl border border-slate-100 py-3 mt-0">
+          <div class="dropdown-menu hidden lg:absolute left-0 w-full lg:w-64 bg-white shadow-2xl rounded-b-xl border border-slate-100 py-3 mt-0">
             <div class="relative group/sub">
               <button onclick="toggleSubmenu(this)" class="flex items-center justify-between w-full px-5 py-3 text-sm text-slate-600 hover:bg-red-50 hover:text-[#e31e24] transition-colors font-medium">
-                <span class="flex items-center gap-3"><i class="fas fa-shield-halved w-5"></i> SGI</span>
+                <span class="flex items-center gap-3"><i class="fa-brands fa-whmcs w-5"></i> Servicios</span>
                 <i class="fas fa-chevron-right text-[10px]"></i>
               </button>
-              <div class="submenu-content hidden lg:absolute lg:left-full lg:top-0 w-full lg:w-64 bg-white shadow-2xl border border-slate-100 py-3 lg:rounded-r-xl">
-                <a href="politicas.html?cat=SGI" class="block px-8 lg:px-5 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-[#e31e24]">Ver todas las SGI</a>
+              <div class="submenu-content hidden lg:absolute lg:left-full lg:top-0 w-full lg:w-64 bg-slate-50 lg:bg-white shadow-2xl border border-slate-100 py-3 lg:rounded-r-xl">
+                <a href="dashboard.html" class="block px-8 lg:px-5 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-[#e31e24]">Apriete</a>
+                <a href="#" class="block px-8 lg:px-5 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-[#e31e24]">Pruebas Hidrostáticas</a>
               </div>
             </div>
-            <div class="relative group/sub">
-              <button onclick="toggleSubmenu(this)" class="flex items-center justify-between w-full px-5 py-3 text-sm text-slate-600 hover:bg-red-50 hover:text-[#e31e24] transition-colors font-medium">
-                <span class="flex items-center gap-3"><i class="fas fa-file-contract w-5"></i> Generales</span>
-                <i class="fas fa-chevron-right text-[10px]"></i>
-              </button>
-              <div class="submenu-content hidden lg:absolute lg:left-full lg:top-0 w-full lg:w-64 bg-white shadow-2xl border border-slate-100 py-3 lg:rounded-r-xl">
-                <a href="politicas.html?cat=Generales" class="block px-8 lg:px-5 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-[#e31e24]">Ver todas las Generales</a>
-              </div>
-            </div>
+            <a href="#" class="flex items-center gap-3 px-5 py-3 text-sm text-slate-600 hover:bg-red-50 hover:text-[#e31e24] transition-colors font-medium">
+              <i class="fas fa-toolbox w-5"></i> Suministros
+            </a>
           </div>
         </div>
-
-        <a href="dashboard.html" class="w-full lg:w-auto px-5 py-3 lg:py-0 text-[11px] md:text-xs font-bold text-white/90 hover:text-white lg:hover:bg-white/10 uppercase tracking-widest flex items-center justify-between">Alertas QHSE</a>
-        <a href="dashboard.html" class="w-full lg:w-auto px-5 py-3 lg:py-0 text-[11px] md:text-xs font-bold text-white/90 hover:text-white lg:hover:bg-white/10 uppercase tracking-widest flex items-center justify-between">Mantenimiento</a>
-        <a href="dashboard.html" class="w-full lg:w-auto px-5 py-3 lg:py-0 text-[11px] md:text-xs font-bold text-white/90 hover:text-white lg:hover:bg-white/10 uppercase tracking-widest flex items-center justify-between">Operaciones</a>
       </div>
     </div>
   </nav>
 
   <!-- ── CONTENIDO ── -->
   <main class="max-w-[1440px] mx-auto px-4 sm:px-6 py-10">
-
-    <!-- Encabezado de página -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
       <div>
         <div class="flex items-center gap-3 mb-1">
-          <a href="dashboard.html" class="text-slate-400 hover:text-[#e31e24] text-sm transition-colors">
-            <i class="fas fa-home"></i>
-          </a>
+          <a href="dashboard.html" class="text-slate-400 hover:text-[#e31e24] text-sm transition-colors"><i class="fas fa-home"></i></a>
           <span class="text-slate-300">/</span>
           <span class="text-sm text-slate-500 font-medium">Políticas</span>
         </div>
         <h1 class="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">Políticas Corporativas</h1>
         <p class="text-slate-500 text-sm mt-1">Documentos normativos y de cumplimiento de In Hole Solutions</p>
       </div>
-
-      <!-- Botón agregar (solo Administrador) -->
-      <button id="btn-agregar" onclick="abrirModal()" class="hidden items-center gap-2 bg-[#e31e24] hover:bg-[#b3161b] text-white font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-red-200 transition duration-200 text-sm">
+      <button id="btn-agregar" onclick="abrirModal()"
+        class="hidden items-center gap-2 bg-[#e31e24] hover:bg-[#b3161b] text-white font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-red-200 transition duration-200 text-sm">
         <i class="fas fa-plus"></i> Agregar Política
       </button>
     </div>
 
-    <!-- Filtros / Búsqueda -->
+    <!-- Filtros -->
     <div class="flex flex-col sm:flex-row gap-3 mb-8">
       <div class="relative flex-1">
         <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none"><i class="fas fa-search text-sm"></i></span>
@@ -115,20 +105,18 @@
           class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl bg-white text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#e31e24] transition">
       </div>
       <div class="flex gap-2">
-        <button onclick="filtrar('Todas')" class="filtro-btn active px-4 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-600 transition" data-cat="Todas">Todas</button>
+        <button onclick="filtrar('Todas')" class="filtro-btn px-4 py-2.5 rounded-xl text-sm font-semibold border border-[#e31e24] bg-[#e31e24] text-white transition" data-cat="Todas">Todas</button>
         <button onclick="filtrar('SGI')" class="filtro-btn px-4 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-600 transition" data-cat="SGI">SGI</button>
         <button onclick="filtrar('Generales')" class="filtro-btn px-4 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-600 transition" data-cat="Generales">Generales</button>
       </div>
     </div>
 
-    <!-- Grid de tarjetas -->
-    <div id="grid-politicas" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-      <!-- Cargando skeleton -->
-      <div class="col-span-full flex items-center justify-center py-20 text-slate-400">
+    <!-- Lista -->
+    <div id="grid-politicas" class="flex flex-col gap-2">
+      <div class="flex items-center justify-center py-20 text-slate-400">
         <i class="fas fa-spinner fa-spin mr-2"></i> Cargando políticas...
       </div>
     </div>
-
   </main>
 
   <!-- ── MODAL VISOR PDF ── -->
@@ -137,10 +125,9 @@
       <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
         <div>
           <h3 id="pdf-titulo" class="font-bold text-slate-800 text-base"></h3>
-          <p id="pdf-version" class="text-xs text-slate-400 mt-0.5"></p>
         </div>
         <div class="flex items-center gap-2">
-          <a id="pdf-descargar" href="#" download
+          <a id="pdf-descargar" href="#" download target="_blank"
             class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-4 py-2 rounded-xl text-sm transition">
             <i class="fas fa-download"></i> <span class="hidden sm:inline">Descargar</span>
           </a>
@@ -153,7 +140,7 @@
     </div>
   </div>
 
-  <!-- ── MODAL AGREGAR / EDITAR (solo Administrador) ── -->
+  <!-- ── MODAL AGREGAR/EDITAR ── -->
   <div id="modal-form" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
       <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100">
@@ -164,6 +151,7 @@
       </div>
       <div class="p-6 space-y-4">
         <input type="hidden" id="form-id">
+        <input type="hidden" id="form-archivo-url">
 
         <div>
           <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Nombre de la Política</label>
@@ -173,37 +161,62 @@
 
         <div>
           <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Descripción</label>
-          <textarea id="form-descripcion" rows="2" placeholder="Breve descripción de esta política..."
+          <textarea id="form-descripcion" rows="2" placeholder="Breve descripción..."
             class="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#e31e24] transition resize-none"></textarea>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Categoría</label>
-            <select id="form-categoria"
-              class="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#e31e24] transition">
-              <option value="SGI">SGI</option>
-              <option value="Generales">Generales</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Versión</label>
-            <input type="text" id="form-version" placeholder="ej. v1.0"
-              class="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#e31e24] transition">
-          </div>
-        </div>
-
         <div>
-          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Nombre del archivo PDF</label>
-          <div class="relative">
-            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none text-sm"><i class="fas fa-file-pdf"></i></span>
-            <input type="text" id="form-archivo" placeholder="nombre-del-archivo.pdf"
-              class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#e31e24] transition">
-          </div>
-          <p class="text-xs text-slate-400 mt-1.5">El PDF debe estar en la carpeta <code class="bg-slate-100 px-1 rounded">assets/docs/</code></p>
+          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Categoría</label>
+          <select id="form-categoria"
+            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#e31e24] transition">
+            <option value="SGI">SGI</option>
+            <option value="Generales">Generales</option>
+          </select>
         </div>
 
-        <!-- Mensaje de error del form -->
+        <!-- Subir archivo -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Subir Archivo PDF</label>
+          <div id="drop-zone" class="drop-zone rounded-xl p-6 text-center cursor-pointer bg-slate-50 hover:bg-red-50/30 transition"
+               onclick="document.getElementById('file-input').click()"
+               ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+            <input type="file" id="file-input" accept=".pdf" class="hidden" onchange="archivoSeleccionado(this.files[0])">
+            <div id="drop-content">
+              <i class="fas fa-cloud-arrow-up text-3xl text-slate-300 mb-2"></i>
+              <p class="text-sm font-semibold text-slate-500">Haz clic o arrastra un PDF aquí</p>
+              <p class="text-xs text-slate-400 mt-1">Solo archivos PDF</p>
+            </div>
+            <div id="file-selected" class="hidden flex items-center justify-center gap-3">
+              <i class="fas fa-file-pdf text-2xl text-red-500"></i>
+              <div class="text-left">
+                <p id="file-name" class="text-sm font-bold text-slate-700 truncate max-w-[240px]"></p>
+                <p id="file-size" class="text-xs text-slate-400"></p>
+              </div>
+              <button type="button" onclick="quitarArchivo(event)"
+                class="ml-2 h-6 w-6 rounded-full bg-slate-200 hover:bg-red-100 hover:text-red-600 text-slate-500 flex items-center justify-center text-xs transition">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+          <!-- Archivo actual al editar -->
+          <div id="archivo-actual" class="hidden mt-2 flex items-center gap-2 text-xs text-slate-500">
+            <i class="fas fa-file-pdf text-red-500"></i>
+            <span id="archivo-actual-nombre" class="truncate"></span>
+            <span class="text-slate-400">(archivo actual)</span>
+          </div>
+        </div>
+
+        <!-- Barra de progreso -->
+        <div id="progreso-container" class="hidden">
+          <div class="flex justify-between text-xs text-slate-500 mb-1">
+            <span>Subiendo archivo...</span>
+            <span id="progreso-pct">0%</span>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-2">
+            <div id="progreso-bar" class="bg-[#e31e24] h-2 rounded-full transition-all duration-300" style="width:0%"></div>
+          </div>
+        </div>
+
         <div id="form-error" class="hidden p-3 rounded-xl bg-red-50 border border-red-100 text-red-700 text-sm font-medium"></div>
       </div>
 
@@ -217,14 +230,14 @@
     </div>
   </div>
 
-  <!-- ── MODAL CONFIRMAR ELIMINAR ── -->
+  <!-- ── MODAL ELIMINAR ── -->
   <div id="modal-eliminar" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
       <div class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
         <i class="fas fa-trash text-red-600 text-xl"></i>
       </div>
       <h3 class="font-bold text-slate-800 text-lg mb-2">¿Eliminar política?</h3>
-      <p class="text-slate-500 text-sm mb-6">Esta acción no se puede deshacer. La política será eliminada permanentemente.</p>
+      <p class="text-slate-500 text-sm mb-6">Esta acción no se puede deshacer.</p>
       <div class="flex gap-3">
         <button onclick="cerrarEliminar()" class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-100 transition">Cancelar</button>
         <button onclick="confirmarEliminar()" class="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-sm transition">Eliminar</button>
@@ -246,19 +259,19 @@
       'sb_publishable_mzHMY11jZ7OaMES008LTzA_d7Ya1A2g'
     );
 
-    // ── Estado global ──
+    const STORAGE_URL = 'https://bgqlvkvlscujikhzzazf.supabase.co/storage/v1/object/public/politicas/';
+
     let esAdmin = false;
     let todasLasPoliticas = [];
     let categoriaActiva = 'Todas';
     let politicaAEliminar = null;
+    let archivoActual = null; // File object seleccionado
 
-    // ── Íconos por categoría ──
     const iconos = {
-      'SGI': { icon: 'fa-shield-halved', color: 'bg-blue-100 text-blue-600' },
+      'SGI':       { icon: 'fa-shield-halved', color: 'bg-blue-100 text-blue-600' },
       'Generales': { icon: 'fa-file-contract', color: 'bg-purple-100 text-purple-600' }
     };
 
-    // ── Nav helpers ──
     function toggleMenu(id) { document.getElementById(id).classList.toggle('hidden'); }
     function toggleSubmenu(btn) {
       if (window.innerWidth < 1024) {
@@ -267,7 +280,6 @@
       }
     }
 
-    // ── Auth & saludo ──
     function obtenerSaludo() {
       const h = new Date().getHours();
       if (h >= 6 && h < 12) return 'Buenos días';
@@ -286,22 +298,40 @@
         if (esAdmin) document.getElementById('btn-agregar').classList.replace('hidden', 'flex');
       }
 
-      // Filtrar por categoría si viene por URL
       const params = new URLSearchParams(window.location.search);
       const cat = params.get('cat');
-      if (cat) filtrar(cat);
-      else cargarPoliticas();
+      if (cat) {
+        categoriaActiva = cat;
+        document.querySelectorAll('.filtro-btn').forEach(b => {
+          b.className = b.dataset.cat === cat
+            ? 'filtro-btn px-4 py-2.5 rounded-xl text-sm font-semibold border border-[#e31e24] bg-[#e31e24] text-white transition'
+            : 'filtro-btn px-4 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-600 transition';
+        });
+      }
+
+      await cargarPoliticas();
     }
 
     async function cerrarSesion() { await supabaseClient.auth.signOut(); window.location.href = '../index.html'; }
 
-    // ── Cargar y renderizar ──
     async function cargarPoliticas() {
+      const grid = document.getElementById('grid-politicas');
+      grid.innerHTML = `<div class="flex items-center justify-center py-20 text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i> Cargando políticas...</div>`;
+
       const { data, error } = await supabaseClient
         .from('politicas').select('*').order('categoria').order('nombre');
 
-      if (error) { mostrarError('No se pudieron cargar las políticas.'); return; }
-      todasLasPoliticas = data || [];
+      if (error) {
+        grid.innerHTML = `<div class="flex flex-col items-center justify-center py-20 text-slate-400"><i class="fas fa-exclamation-circle text-3xl mb-3 text-red-400"></i><p class="font-medium text-red-500">Error al cargar las políticas</p><p class="text-xs mt-1">${error.message}</p></div>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        grid.innerHTML = `<div class="flex flex-col items-center justify-center py-20 text-slate-400"><i class="fas fa-folder-open text-4xl mb-3 opacity-40"></i><p class="font-medium">No hay políticas registradas</p>${esAdmin ? '<p class="text-sm mt-1">Haz clic en "Agregar Política" para comenzar.</p>' : ''}</div>`;
+        return;
+      }
+
+      todasLasPoliticas = data;
       renderizar();
     }
 
@@ -318,16 +348,10 @@
       const grid = document.getElementById('grid-politicas');
 
       if (lista.length === 0) {
-        grid.innerHTML = `
-          <div class="col-span-full flex flex-col items-center justify-center py-20 text-slate-400">
-            <i class="fas fa-folder-open text-4xl mb-3 opacity-40"></i>
-            <p class="font-medium">No se encontraron políticas</p>
-            <p class="text-sm mt-1">Intenta con otro filtro o término de búsqueda</p>
-          </div>`;
+        grid.innerHTML = `<div class="flex flex-col items-center justify-center py-20 text-slate-400"><i class="fas fa-folder-open text-4xl mb-3 opacity-40"></i><p class="font-medium">No se encontraron políticas</p></div>`;
         return;
       }
 
-      // Agrupar por categoría
       const grupos = {};
       lista.forEach(p => {
         if (!grupos[p.categoria]) grupos[p.categoria] = [];
@@ -337,9 +361,8 @@
       grid.innerHTML = '';
 
       Object.entries(grupos).forEach(([cat, politicas], gi) => {
-        // Encabezado de categoría
         const header = document.createElement('div');
-        header.className = 'col-span-full flex items-center gap-3 mt-2 mb-1';
+        header.className = 'flex items-center gap-3 mt-4 mb-2';
         const ic = iconos[cat] || { icon: 'fa-file', color: 'bg-slate-100 text-slate-500' };
         header.innerHTML = `
           <div class="w-8 h-8 rounded-lg ${ic.color} flex items-center justify-center flex-shrink-0">
@@ -352,40 +375,40 @@
 
         politicas.forEach((p, i) => {
           const card = document.createElement('div');
-          card.className = 'card-politica bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col overflow-hidden';
+          card.className = 'card-politica bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-md hover:border-slate-200 transition-all duration-200 overflow-hidden';
           card.style.animationDelay = `${(gi * 5 + i) * 40}ms`;
 
-          const fecha = new Date(p.updated_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
           const ic2 = iconos[p.categoria] || { icon: 'fa-file', color: 'bg-slate-100 text-slate-500' };
 
+          // URL del archivo desde Supabase Storage o assets/docs local
+          const fileUrl = p.archivo.startsWith('http')
+            ? p.archivo
+            : `../assets/docs/${encodeURIComponent(p.archivo)}`;
+
           card.innerHTML = `
-            <div class="p-5 flex-1">
-              <div class="flex items-start justify-between gap-3 mb-3">
-                <div class="w-10 h-10 rounded-xl ${ic2.color} flex items-center justify-center flex-shrink-0">
-                  <i class="fas ${ic2.icon}"></i>
-                </div>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-1 rounded-full">${p.version || 'v1.0'}</span>
+            <div class="flex items-center gap-4 px-5 py-4">
+              <div class="w-10 h-10 rounded-xl ${ic2.color} flex items-center justify-center flex-shrink-0">
+                <i class="fas ${ic2.icon}"></i>
               </div>
-              <h3 class="font-bold text-slate-800 text-sm leading-snug mb-2">${p.nombre}</h3>
-              <p class="text-xs text-slate-500 leading-relaxed line-clamp-2">${p.descripcion || 'Sin descripción'}</p>
-            </div>
-            <div class="px-5 py-3 border-t border-slate-50 bg-slate-50/50 flex items-center justify-between gap-2">
-              <span class="text-[10px] text-slate-400"><i class="fas fa-clock mr-1"></i>${fecha}</span>
-              <div class="flex items-center gap-1.5">
-                <button onclick="verPDF('${p.archivo}', '${p.nombre}', '${p.version || 'v1.0'}')"
+              <div class="flex-1 min-w-0">
+                <h3 class="font-bold text-slate-800 text-sm truncate mb-0.5">${p.nombre}</h3>
+                <p class="text-xs text-slate-500 truncate">${p.descripcion || 'Sin descripción'}</p>
+              </div>
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <button onclick="verPDF('${fileUrl}', '${p.nombre}')"
                   class="flex items-center gap-1.5 bg-[#e31e24] hover:bg-[#b3161b] text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">
                   <i class="fas fa-eye text-[10px]"></i> Ver
                 </button>
-                <a href="../assets/docs/${encodeURIComponent(p.archivo)}" download
-                  class="flex items-center gap-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                <a href="${fileUrl}" download target="_blank"
+                  class="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
                   <i class="fas fa-download text-[10px]"></i>
                 </a>
                 ${esAdmin ? `
-                <button onclick="abrirEditar(${JSON.stringify(p).replace(/"/g, '&quot;')})"
+                <button onclick='abrirEditar(${JSON.stringify(p)})'
                   class="h-7 w-7 flex items-center justify-center bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition text-xs">
                   <i class="fas fa-pen"></i>
                 </button>
-                <button onclick="abrirEliminar('${p.id}')"
+                <button onclick="abrirEliminar('${p.id}', '${p.archivo}')"
                   class="h-7 w-7 flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition text-xs">
                   <i class="fas fa-trash"></i>
                 </button>` : ''}
@@ -396,28 +419,23 @@
       });
     }
 
-    // ── Buscador ──
     document.getElementById('buscador').addEventListener('input', renderizar);
 
-    // ── Filtros ──
     function filtrar(cat) {
       categoriaActiva = cat;
       document.querySelectorAll('.filtro-btn').forEach(b => {
-        const activo = b.dataset.cat === cat;
-        b.className = activo
-          ? 'filtro-btn active px-4 py-2.5 rounded-xl text-sm font-semibold border border-[#e31e24] bg-[#e31e24] text-white transition'
+        b.className = b.dataset.cat === cat
+          ? 'filtro-btn px-4 py-2.5 rounded-xl text-sm font-semibold border border-[#e31e24] bg-[#e31e24] text-white transition'
           : 'filtro-btn px-4 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-600 transition hover:border-slate-300';
       });
-      if (todasLasPoliticas.length > 0) renderizar();
-      else cargarPoliticas();
+      renderizar();
     }
 
     // ── Visor PDF ──
-    function verPDF(archivo, nombre, version) {
+    function verPDF(url, nombre) {
       document.getElementById('pdf-titulo').innerText = nombre;
-      document.getElementById('pdf-version').innerText = version;
-      document.getElementById('iframe-pdf').src = `../assets/docs/${archivo}`;
-      document.getElementById('pdf-descargar').href = `../assets/docs/${encodeURIComponent(archivo)}`;
+      document.getElementById('iframe-pdf').src = url;
+      document.getElementById('pdf-descargar').href = url;
       document.getElementById('modal-pdf').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
     }
@@ -427,31 +445,68 @@
       document.body.style.overflow = '';
     }
 
+    // ── Drag & Drop ──
+    function dragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('drag-over'); }
+    function dragLeave(e) { document.getElementById('drop-zone').classList.remove('drag-over'); }
+    function dropFile(e) {
+      e.preventDefault();
+      document.getElementById('drop-zone').classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type === 'application/pdf') archivoSeleccionado(file);
+    }
+
+    function archivoSeleccionado(file) {
+      if (!file || file.type !== 'application/pdf') {
+        mostrarToast('Solo se permiten archivos PDF', true);
+        return;
+      }
+      archivoActual = file;
+      document.getElementById('drop-content').classList.add('hidden');
+      document.getElementById('file-selected').classList.remove('hidden');
+      document.getElementById('file-name').innerText = file.name;
+      document.getElementById('file-size').innerText = (file.size / 1024).toFixed(1) + ' KB';
+    }
+
+    function quitarArchivo(e) {
+      e.stopPropagation();
+      archivoActual = null;
+      document.getElementById('file-input').value = '';
+      document.getElementById('drop-content').classList.remove('hidden');
+      document.getElementById('file-selected').classList.add('hidden');
+    }
+
     // ── Modal Agregar/Editar ──
     function abrirModal() {
       document.getElementById('form-id').value = '';
+      document.getElementById('form-archivo-url').value = '';
       document.getElementById('form-nombre').value = '';
       document.getElementById('form-descripcion').value = '';
       document.getElementById('form-categoria').value = 'SGI';
-      document.getElementById('form-version').value = 'v1.0';
-      document.getElementById('form-archivo').value = '';
       document.getElementById('form-error').classList.add('hidden');
+      document.getElementById('archivo-actual').classList.add('hidden');
       document.getElementById('modal-titulo').innerText = 'Agregar Política';
       document.getElementById('btn-guardar-text').innerText = 'Guardar';
+      quitarArchivo({ stopPropagation: () => {} });
       document.getElementById('modal-form').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
     }
 
     function abrirEditar(p) {
       document.getElementById('form-id').value = p.id;
+      document.getElementById('form-archivo-url').value = p.archivo;
       document.getElementById('form-nombre').value = p.nombre;
       document.getElementById('form-descripcion').value = p.descripcion || '';
       document.getElementById('form-categoria').value = p.categoria;
-      document.getElementById('form-version').value = p.version || 'v1.0';
-      document.getElementById('form-archivo').value = p.archivo;
       document.getElementById('form-error').classList.add('hidden');
       document.getElementById('modal-titulo').innerText = 'Editar Política';
       document.getElementById('btn-guardar-text').innerText = 'Actualizar';
+      // Mostrar archivo actual
+      const nombreArchivo = p.archivo.startsWith('http')
+        ? decodeURIComponent(p.archivo.split('/').pop())
+        : p.archivo;
+      document.getElementById('archivo-actual-nombre').innerText = nombreArchivo;
+      document.getElementById('archivo-actual').classList.remove('hidden');
+      quitarArchivo({ stopPropagation: () => {} });
       document.getElementById('modal-form').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
     }
@@ -459,6 +514,7 @@
     function cerrarModal() {
       document.getElementById('modal-form').classList.add('hidden');
       document.body.style.overflow = '';
+      archivoActual = null;
     }
 
     async function guardarPolitica() {
@@ -466,21 +522,61 @@
       const nombre   = document.getElementById('form-nombre').value.trim();
       const desc     = document.getElementById('form-descripcion').value.trim();
       const cat      = document.getElementById('form-categoria').value;
-      const version  = document.getElementById('form-version').value.trim();
-      const archivo  = document.getElementById('form-archivo').value.trim();
       const errEl    = document.getElementById('form-error');
       const btn      = document.getElementById('btn-guardar');
+      let archivoUrl = document.getElementById('form-archivo-url').value;
 
-      if (!nombre || !archivo) {
-        errEl.innerText = 'El nombre y el archivo son obligatorios.';
+      if (!nombre) {
+        errEl.innerText = 'El nombre es obligatorio.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      // Si es nuevo y no hay archivo
+      if (!id && !archivoActual) {
+        errEl.innerText = 'Debes subir un archivo PDF.';
         errEl.classList.remove('hidden');
         return;
       }
 
       btn.disabled = true;
       document.getElementById('btn-guardar-text').innerText = 'Guardando...';
+      errEl.classList.add('hidden');
 
-      const payload = { nombre, descripcion: desc, categoria: cat, version, archivo, updated_at: new Date().toISOString() };
+      // Subir archivo si hay uno nuevo
+      if (archivoActual) {
+        document.getElementById('progreso-container').classList.remove('hidden');
+        document.getElementById('progreso-bar').style.width = '30%';
+        document.getElementById('progreso-pct').innerText = '30%';
+
+        const ext = archivoActual.name.split('.').pop();
+        const nombreArchivo = `${Date.now()}_${archivoActual.name}`;
+
+        const { data: uploadData, error: uploadError } = await supabaseClient.storage
+          .from('politicas')
+          .upload(nombreArchivo, archivoActual, { cacheControl: '3600', upsert: false });
+
+        if (uploadError) {
+          errEl.innerText = 'Error al subir el archivo: ' + uploadError.message;
+          errEl.classList.remove('hidden');
+          btn.disabled = false;
+          document.getElementById('btn-guardar-text').innerText = id ? 'Actualizar' : 'Guardar';
+          document.getElementById('progreso-container').classList.add('hidden');
+          return;
+        }
+
+        document.getElementById('progreso-bar').style.width = '80%';
+        document.getElementById('progreso-pct').innerText = '80%';
+
+        // Obtener URL pública
+        const { data: urlData } = supabaseClient.storage.from('politicas').getPublicUrl(nombreArchivo);
+        archivoUrl = urlData.publicUrl;
+
+        document.getElementById('progreso-bar').style.width = '100%';
+        document.getElementById('progreso-pct').innerText = '100%';
+      }
+
+      const payload = { nombre, descripcion: desc, categoria: cat, archivo: archivoUrl, updated_at: new Date().toISOString() };
 
       let error;
       if (id) {
@@ -491,9 +587,10 @@
 
       btn.disabled = false;
       document.getElementById('btn-guardar-text').innerText = id ? 'Actualizar' : 'Guardar';
+      document.getElementById('progreso-container').classList.add('hidden');
 
       if (error) {
-        errEl.innerText = 'Error al guardar. Intenta de nuevo.';
+        errEl.innerText = 'Error al guardar: ' + error.message;
         errEl.classList.remove('hidden');
         return;
       }
@@ -504,19 +601,31 @@
     }
 
     // ── Modal Eliminar ──
-    function abrirEliminar(id) {
+    let archivoAEliminar = null;
+    function abrirEliminar(id, archivo) {
       politicaAEliminar = id;
+      archivoAEliminar = archivo;
       document.getElementById('modal-eliminar').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
     }
     function cerrarEliminar() {
       politicaAEliminar = null;
+      archivoAEliminar = null;
       document.getElementById('modal-eliminar').classList.add('hidden');
       document.body.style.overflow = '';
     }
     async function confirmarEliminar() {
       if (!politicaAEliminar) return;
+
+      // Eliminar de la BD
       const { error } = await supabaseClient.from('politicas').delete().eq('id', politicaAEliminar);
+
+      // Eliminar del Storage si es URL de Supabase
+      if (archivoAEliminar && archivoAEliminar.startsWith('http')) {
+        const nombreArchivo = decodeURIComponent(archivoAEliminar.split('/').pop());
+        await supabaseClient.storage.from('politicas').remove([nombreArchivo]);
+      }
+
       cerrarEliminar();
       if (error) { mostrarToast('Error al eliminar', true); return; }
       mostrarToast('Política eliminada');
@@ -531,10 +640,9 @@
         ? 'fas fa-exclamation-circle text-red-400'
         : 'fas fa-check-circle text-emerald-400';
       t.classList.remove('hidden');
-      setTimeout(() => t.classList.add('hidden'), 3000);
+      setTimeout(() => t.classList.add('hidden'), 3500);
     }
 
-    // Cerrar modales con Escape
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') { cerrarPDF(); cerrarModal(); cerrarEliminar(); }
     });
