@@ -26,55 +26,131 @@
 
   <!-- ── HEADER ── -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-[60] glass-nav">
-    <div class="max-w-[1440px] mx-auto px-6 h-20 flex justify-between items-center">
-      <a href="dashboard.html" class="flex items-center gap-8">
-        <img src="../assets/images/logo/logo-dark.svg" alt="In Hole Solutions" class="h-12 md:h-20 w-auto"
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 h-16 sm:h-20 flex justify-between items-center">
+      <!-- Logo -->
+      <a href="dashboard.html" class="flex items-center gap-3 sm:gap-6 min-w-0">
+        <img src="../assets/images/logo/logo-dark.svg" alt="In Hole Solutions" class="h-9 sm:h-12 w-auto flex-shrink-0"
              onerror="this.src='../assets/images/logo/logo-dark.png'">
-        <div class="hidden md:block h-8 w-[1px] bg-slate-200"></div>
-        <span class="hidden md:block text-slate-500 font-medium text-sm tracking-wide uppercase">Intranet Corporativa</span>
+        <div class="hidden md:block h-7 w-[1px] bg-slate-200 flex-shrink-0"></div>
+        <span class="hidden md:block text-slate-500 font-medium text-sm tracking-wide uppercase truncate">Intranet Corporativa</span>
       </a>
-      <div class="flex items-center gap-6">
+      <!-- Acciones -->
+      <div class="flex items-center gap-2 sm:gap-4">
         <div class="text-right hidden sm:block">
-          <p id="user-welcome" class="text-slate-800 font-semibold text-sm">Cargando...</p>
+          <p id="user-welcome" class="text-slate-800 font-semibold text-sm leading-tight">Cargando...</p>
           <p class="text-slate-400 text-xs font-medium uppercase tracking-tighter">Miembro del Equipo</p>
         </div>
-        <button onclick="toggleMenu('mobile-nav')" class="lg:hidden bg-slate-50 text-slate-600 h-10 w-10 rounded-xl border border-slate-200 flex items-center justify-center">
-          <i class="fas fa-bars"></i>
+        <!-- Hamburguesa — solo móvil/tablet -->
+        <button id="btn-menu" onclick="toggleNav()" aria-label="Menú"
+          class="lg:hidden bg-slate-50 text-slate-600 h-10 w-10 rounded-xl border border-slate-200 flex items-center justify-center transition hover:bg-slate-100">
+          <i id="icon-menu" class="fas fa-bars text-sm"></i>
         </button>
-        <button onclick="cerrarSesion()" class="bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-600 h-10 w-10 rounded-xl border border-slate-200 transition-all flex items-center justify-center shadow-sm">
-          <i class="fas fa-sign-out-alt"></i>
+        <button onclick="cerrarSesion()"
+          class="bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-600 h-10 w-10 rounded-xl border border-slate-200 transition-all flex items-center justify-center shadow-sm">
+          <i class="fas fa-sign-out-alt text-sm"></i>
         </button>
       </div>
     </div>
   </header>
 
   <!-- ── NAV ── -->
-  <nav id="mobile-nav" class="hidden lg:block bg-red-700 shadow-lg sticky top-20 z-50">
+  <nav id="main-nav" class="bg-red-700 shadow-lg sticky top-16 sm:top-20 z-50">
+    <!-- Barra desktop: siempre visible en lg+ -->
     <div class="max-w-[1440px] mx-auto px-6">
-      <div class="flex flex-col lg:flex-row justify-center items-center lg:h-14 space-y-1 lg:space-y-0 lg:space-x-8 py-4 lg:py-0">
-        <a href="politicas.html" class="w-full lg:w-auto px-5 py-3 lg:py-0 text-[11px] md:text-xs font-bold text-white lg:hover:bg-white/10 uppercase tracking-widest flex items-center justify-center border-b-2 border-white">Políticas</a>
-        <a href="javascript:void(0)" class="w-full lg:w-auto px-5 py-3 lg:py-0 text-[11px] md:text-xs font-bold text-white/90 hover:text-white lg:hover:bg-white/10 uppercase tracking-widest flex items-center justify-between">Alertas QHSE</a>
-        <a href="javascript:void(0)" class="w-full lg:w-auto px-5 py-3 lg:py-0 text-[11px] md:text-xs font-bold text-white/90 hover:text-white lg:hover:bg-white/10 uppercase tracking-widest flex items-center justify-between">Mantenimiento</a>
-        <div class="relative dropdown w-full lg:w-auto">
-          <button onclick="toggleSubmenu(this)" class="w-full h-full px-5 py-3 lg:py-0 text-[11px] md:text-xs font-bold text-white/90 hover:text-white lg:hover:bg-white/10 transition-all uppercase tracking-widest flex items-center justify-between lg:justify-center gap-2">
+      <div class="hidden lg:flex items-center justify-center h-14 gap-1">
+
+        <a href="politicas.html"
+          class="nav-link-desktop relative px-5 h-full flex items-center text-xs font-bold text-white uppercase tracking-widest hover:bg-white/10 transition">
+          Políticas
+          <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-white"></span>
+        </a>
+        <a href="alertas-qhse.html" class="w-full lg:w-auto px-5 py-3 lg:py-0 text-[11px] md:text-xs font-bold text-white/90 hover:text-white lg:hover:bg-white/10 uppercase tracking-widest flex items-center justify-center">Alertas QHSE</a>
+        <a href="javascript:void(0)"
+          class="px-5 h-full flex items-center text-xs font-bold text-white/80 hover:text-white uppercase tracking-widest hover:bg-white/10 transition">
+          Mantenimiento
+        </a>
+
+        <!-- Dropdown Operaciones desktop -->
+        <div class="relative dropdown h-full flex items-center">
+          <button class="px-5 h-full flex items-center gap-2 text-xs font-bold text-white/80 hover:text-white uppercase tracking-widest hover:bg-white/10 transition">
             Operaciones <i class="fas fa-chevron-down text-[9px] opacity-70"></i>
           </button>
-          <div class="dropdown-menu hidden lg:absolute left-0 w-full lg:w-64 bg-white shadow-2xl rounded-b-xl border border-slate-100 py-3 mt-0">
+          <div class="dropdown-menu hidden absolute top-full left-0 w-56 bg-white shadow-2xl rounded-b-xl border border-slate-100 py-2">
             <div class="relative group/sub">
-              <button onclick="toggleSubmenu(this)" class="flex items-center justify-between w-full px-5 py-3 text-sm text-slate-600 hover:bg-red-50 hover:text-[#e31e24] transition-colors font-medium">
-                <span class="flex items-center gap-3"><i class="fa-brands fa-whmcs w-5"></i> Servicios</span>
-                <i class="fas fa-chevron-right text-[10px]"></i>
+              <button onclick="toggleSubmenu(this)"
+                class="flex items-center justify-between w-full px-4 py-2.5 text-sm text-slate-600 hover:bg-red-50 hover:text-[#e31e24] transition font-medium">
+                <span class="flex items-center gap-2"><i class="fa-brands fa-whmcs w-4"></i> Servicios</span>
+                <i class="fas fa-chevron-right text-[9px]"></i>
               </button>
-              <div class="submenu-content hidden lg:absolute lg:left-full lg:top-0 w-full lg:w-64 bg-slate-50 lg:bg-white shadow-2xl border border-slate-100 py-3 lg:rounded-r-xl">
-                <a href="dashboard.html" class="block px-8 lg:px-5 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-[#e31e24]">Apriete</a>
-                <a href="#" class="block px-8 lg:px-5 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-[#e31e24]">Pruebas Hidrostáticas</a>
+              <div class="submenu-content hidden absolute left-full top-0 w-52 bg-white shadow-2xl border border-slate-100 py-2 rounded-r-xl">
+                <a href="dashboard.html" class="block px-4 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-[#e31e24]">Apriete</a>
+                <a href="#" class="block px-4 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-[#e31e24]">Pruebas Hidrostáticas</a>
               </div>
             </div>
-            <a href="#" class="flex items-center gap-3 px-5 py-3 text-sm text-slate-600 hover:bg-red-50 hover:text-[#e31e24] transition-colors font-medium">
-              <i class="fas fa-toolbox w-5"></i> Suministros
+            <a href="#" class="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 hover:bg-red-50 hover:text-[#e31e24] transition font-medium">
+              <i class="fas fa-toolbox w-4"></i> Suministros
             </a>
           </div>
         </div>
+
+      </div>
+    </div>
+
+    <!-- Menú móvil: oculto por defecto, toggle con JS -->
+    <div id="mobile-nav" class="lg:hidden hidden border-t border-red-600">
+      <div class="max-w-[1440px] mx-auto py-2">
+
+        <!-- Item activo resaltado -->
+        <a href="politicas.html"
+          class="flex items-center gap-3 px-5 py-3 text-xs font-bold text-white uppercase tracking-widest bg-white/10 border-l-4 border-white">
+          <i class="fas fa-file-contract w-4 text-center"></i>
+          Políticas
+        </a>
+        <a href="alertas-qhse.html"
+          class="flex items-center gap-3 px-5 py-3 text-xs font-bold text-white/80 hover:text-white uppercase tracking-widest hover:bg-white/10 transition border-l-4 border-transparent hover:border-white/40">
+          <i class="fas fa-bell w-4 text-center"></i>
+          Alertas QHSE
+        </a>
+        <a href="javascript:void(0)"
+          class="flex items-center gap-3 px-5 py-3 text-xs font-bold text-white/80 hover:text-white uppercase tracking-widest hover:bg-white/10 transition border-l-4 border-transparent hover:border-white/40">
+          <i class="fas fa-wrench w-4 text-center"></i>
+          Mantenimiento
+        </a>
+
+        <!-- Accordion Operaciones móvil -->
+        <div>
+          <button onclick="toggleAccordion(this)"
+            class="w-full flex items-center justify-between gap-3 px-5 py-3 text-xs font-bold text-white/80 hover:text-white uppercase tracking-widest hover:bg-white/10 transition border-l-4 border-transparent">
+            <span class="flex items-center gap-3">
+              <i class="fas fa-gears w-4 text-center"></i>
+              Operaciones
+            </span>
+            <i class="fas fa-chevron-down text-[9px] opacity-70 transition-transform duration-200"></i>
+          </button>
+          <div class="accordion-content hidden bg-red-800/40">
+            <div>
+              <button onclick="toggleAccordion(this)"
+                class="w-full flex items-center justify-between px-8 py-2.5 text-xs font-semibold text-white/80 hover:text-white hover:bg-white/10 transition uppercase tracking-widest">
+                <span class="flex items-center gap-2"><i class="fa-brands fa-whmcs w-4"></i> Servicios</span>
+                <i class="fas fa-chevron-down text-[9px] opacity-70 transition-transform duration-200"></i>
+              </button>
+              <div class="accordion-content hidden bg-red-900/30">
+                <a href="dashboard.html" class="block px-12 py-2.5 text-xs text-white/70 hover:text-white hover:bg-white/10 transition">Apriete</a>
+                <a href="#" class="block px-12 py-2.5 text-xs text-white/70 hover:text-white hover:bg-white/10 transition">Pruebas Hidrostáticas</a>
+              </div>
+            </div>
+            <a href="#" class="flex items-center gap-2 px-8 py-2.5 text-xs font-semibold text-white/80 hover:text-white hover:bg-white/10 transition uppercase tracking-widest">
+              <i class="fas fa-toolbox w-4"></i> Suministros
+            </a>
+          </div>
+        </div>
+
+        <!-- Nombre usuario en móvil -->
+        <div class="sm:hidden px-5 pt-3 pb-4 border-t border-red-600 mt-2">
+          <p id="user-welcome-mobile" class="text-white/90 font-semibold text-sm"></p>
+          <p class="text-white/50 text-xs uppercase tracking-tighter">Miembro del Equipo</p>
+        </div>
+
       </div>
     </div>
   </nav>
@@ -92,7 +168,7 @@
         <p class="text-slate-500 text-sm mt-1">Documentos normativos y de cumplimiento de In Hole Solutions</p>
       </div>
       <button id="btn-agregar" onclick="abrirModal()"
-        class="hidden items-center gap-2 bg-[#e31e24] hover:bg-[#b3161b] text-white font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-red-200 transition duration-200 text-sm">
+        class="hidden items-center justify-center gap-2 bg-[#e31e24] hover:bg-[#b3161b] text-white font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-red-200 transition duration-200 text-sm w-full sm:w-auto">
         <i class="fas fa-plus"></i> Agregar Política
       </button>
     </div>
@@ -272,12 +348,24 @@
       'Generales': { icon: 'fa-file-contract', color: 'bg-purple-100 text-purple-600' }
     };
 
-    function toggleMenu(id) { document.getElementById(id).classList.toggle('hidden'); }
+    function toggleNav() {
+      const nav = document.getElementById('mobile-nav');
+      const icon = document.getElementById('icon-menu');
+      const open = nav.classList.toggle('hidden');
+      icon.className = open ? 'fas fa-bars text-sm' : 'fas fa-times text-sm';
+    }
+
+    function toggleAccordion(btn) {
+      const content = btn.nextElementSibling;
+      const chevron = btn.querySelector('.fa-chevron-down');
+      const isOpen = !content.classList.contains('hidden');
+      content.classList.toggle('hidden', isOpen);
+      if (chevron) chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+    }
+
     function toggleSubmenu(btn) {
-      if (window.innerWidth < 1024) {
-        const sub = btn.nextElementSibling;
-        if (sub) sub.classList.toggle('mobile-active');
-      }
+      const sub = btn.nextElementSibling;
+      if (sub) sub.classList.toggle('hidden');
     }
 
     function obtenerSaludo() {
@@ -293,7 +381,10 @@
 
       const { data: perfil } = await supabaseClient.from('perfiles').select('*').eq('id', session.user.id).single();
       if (perfil) {
-        document.getElementById('user-welcome').innerText = `${obtenerSaludo()}, ${perfil.nombre_completo}`;
+        const bienvenida = `${obtenerSaludo()}, ${perfil.nombre_completo}`;
+        document.getElementById('user-welcome').innerText = bienvenida;
+        const mobileEl = document.getElementById('user-welcome-mobile');
+        if (mobileEl) mobileEl.innerText = bienvenida;
         esAdmin = perfil.rol === 'Administrador';
         if (esAdmin) document.getElementById('btn-agregar').classList.replace('hidden', 'flex');
       }
@@ -386,15 +477,19 @@
             : `../assets/docs/${encodeURIComponent(p.archivo)}`;
 
           card.innerHTML = `
-            <div class="flex items-center gap-4 px-5 py-4">
-              <div class="w-10 h-10 rounded-xl ${ic2.color} flex items-center justify-center flex-shrink-0">
-                <i class="fas ${ic2.icon}"></i>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-3 px-4 sm:px-5 py-4">
+              <!-- Ícono + texto -->
+              <div class="flex items-center gap-3 flex-1 min-w-0">
+                <div class="w-10 h-10 rounded-xl ${ic2.color} flex items-center justify-center flex-shrink-0">
+                  <i class="fas ${ic2.icon}"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="font-bold text-slate-800 text-sm truncate mb-0.5">${p.nombre}</h3>
+                  <p class="text-xs text-slate-500 truncate">${p.descripcion || 'Sin descripción'}</p>
+                </div>
               </div>
-              <div class="flex-1 min-w-0">
-                <h3 class="font-bold text-slate-800 text-sm truncate mb-0.5">${p.nombre}</h3>
-                <p class="text-xs text-slate-500 truncate">${p.descripcion || 'Sin descripción'}</p>
-              </div>
-              <div class="flex items-center gap-1.5 flex-shrink-0">
+              <!-- Botones -->
+              <div class="flex items-center gap-1.5 flex-shrink-0 pl-[52px] sm:pl-0">
                 <button onclick="verPDF('${fileUrl}', '${p.nombre}')"
                   class="flex items-center gap-1.5 bg-[#e31e24] hover:bg-[#b3161b] text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">
                   <i class="fas fa-eye text-[10px]"></i> Ver
@@ -550,7 +645,16 @@
         document.getElementById('progreso-pct').innerText = '30%';
 
         const ext = archivoActual.name.split('.').pop();
-        const nombreArchivo = `${Date.now()}_${archivoActual.name}`;
+        // Sanitizar nombre: quitar tildes/acentos, ñ y otros caracteres especiales no permitidos por Supabase Storage
+        const sanitizarNombre = (nombre) => {
+          return nombre
+            .normalize('NFD')                        // Descompone caracteres acentuados
+            .replace(/[\u0300-\u036f]/g, '')         // Elimina los diacríticos (tildes, etc.)
+            .replace(/ñ/gi, 'n')                     // Reemplaza ñ/Ñ por n
+            .replace(/[^a-zA-Z0-9._-]/g, '_')       // Reemplaza cualquier otro carácter raro por _
+            .replace(/_+/g, '_');                    // Evita guiones bajos consecutivos
+        };
+        const nombreArchivo = `${Date.now()}_${sanitizarNombre(archivoActual.name)}`;
 
         const { data: uploadData, error: uploadError } = await supabaseClient.storage
           .from('politicas')

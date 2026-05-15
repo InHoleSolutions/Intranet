@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alertas QHSE | In Hole Solutions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700;1,800;1,900&family=Barlow:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+  <style>
+    :root {
+      --navy:    #0a1628;
+      --navy2:   #0e2044;
+      --navy3:   #1a3160;
+      --accent:  #1e88e5;
+      --accent2: #00c8ff;
+      --red:     #e31e24;
+      --gold:    #f59e0b;
+      --green:   #10b981;
+      --white:   #ffffff;
+      --off:     #f0f4f8;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: var(--off);
+      min-height: 100vh;
+      color: var(--navy);
+    }
+
+    /* ── HEADER ── */
+    .site-header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e2e8f0;
+      position: sticky; top: 0; z-index: 60;
+    }
+    .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+
+    /* ── TOPBAR MAGAZINE ── */
+    .qhse-topbar {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 60%, var(--navy3) 100%);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      position: sticky;
+      top: 80px;
+      z-index: 50;
+      box-shadow: 0 4px 20px rgba(10,22,40,0.2);
+    }
+
+    /* ── COVER PAGE ── */
+    .cover-page {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 50%, var(--navy3) 100%);
+      position: relative;
+      overflow: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .cover-grid-bg {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(30,136,229,.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(30,136,229,.07) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .cover-accent-line {
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 6px;
+      background: linear-gradient(180deg, var(--accent2), var(--accent), var(--red));
+    }
+
+    /* ── SECTION CARDS ── */
+    .section-card {
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(10,22,40,.08);
+      background: white;
+      margin-bottom: 32px;
+    }
+    .section-header {
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .section-badge {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 100px;
+    }
+
+    /* ── EPP INFOGRAPHIC ── */
+    .epp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 16px;
+      padding: 20px;
+    }
+    .epp-item {
+      background: var(--off);
+      border-radius: 14px;
+      padding: 16px 10px;
+      text-align: center;
+      border: 2px solid transparent;
+      transition: all .25s;
+      cursor: default;
+    }
+    .epp-item:hover {
+      border-color: var(--accent);
+      background: #e8f4fd;
+      transform: translateY(-3px);
+    }
+    .epp-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .epp-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--navy2);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    /* ── QR BOX ── */
+    .qr-box {
+      background: var(--navy);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    .qr-canvas-wrap {
+      background: white;
+      border-radius: 10px;
+      padding: 8px;
+      flex-shrink: 0;
+    }
+    .qr-info { flex: 1; min-width: 180px; }
+
+    /* ── NEAR MISS CARD ── */
+    .nm-card {
+      border-left: 5px solid var(--red);
+      background: #fff5f5;
+      border-radius: 0 14px 14px 0;
+      padding: 20px 22px;
+      margin: 16px 0;
+    }
+    .nm-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--red);
+    }
+
+    /* ── GUARDIAN CARD ── */
+    .guardian-card {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy3) 100%);
+      border-radius: 20px;
+      padding: 32px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .guardian-avatar {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+      font-weight: 900;
+      color: white;
+      border: 4px solid rgba(255,255,255,.2);
+      flex-shrink: 0;
+    }
+
+    /* ── STAT BOXES ── */
+    .stat-pill {
+      background: var(--off);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .stat-num {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 36px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    /* ── ADMIN PANEL ── */
+    #admin-panel {
+      background: linear-gradient(135deg, #0a1628 0%, #1a3160 100%);
+      border-radius: 24px;
+      padding: 32px;
+      color: white;
+      border: 1px solid rgba(30,136,229,.3);
+    }
+    .admin-tab {
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .2s;
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.7);
+      border: 1px solid transparent;
+    }
+    .admin-tab.active, .admin-tab:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent2);
+    }
+    .admin-input {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: white;
+      font-size: 14px;
+      width: 100%;
+      outline: none;
+      font-family: 'Barlow', sans-serif;
+    }
+    .admin-input:focus { border-color: var(--accent2); }
+    .admin-input option { color: #1a1a1a; }
+    .admin-btn {
+      padding: 10px 22px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .2s;
+      border: none;
+      font-family: 'Barlow', sans-serif;
+    }
+    .admin-btn-primary { background: var(--accent); color: white; }
+    .admin-btn-primary:hover { background: var(--accent2); color: var(--navy); }
+    .admin-btn-danger { background: rgba(227,30,36,.2); color: #ff6b6b; border: 1px solid rgba(227,30,36,.3); }
+    .admin-btn-danger:hover { background: var(--red); color: white; }
+    .admin-btn-success { background: rgba(16,185,129,.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,.3); }
+    .admin-btn-success:hover { background: var(--green); color: white; }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--navy); color: white;
+      padding: 14px 22px; border-radius: 14px;
+      font-size: 14px; font-weight: 600;
+      box-shadow: 0 10px 40px rgba(0,0,0,.4);
+      border-left: 4px solid var(--accent2);
+      transform: translateY(100px); opacity: 0;
+      transition: all .4s cubic-bezier(.175,.885,.32,1.275);
+      z-index: 9999; max-width: 320px;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(10,22,40,.85);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    .modal-box {
+      background: var(--navy2);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%; max-width: 560px;
+      color: white;
+      border: 1px solid rgba(30,136,229,.3);
+      max-height: 90vh; overflow-y: auto;
+    }
+
+    /* ── DIVIDER ── */
+    .tech-divider {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+      margin: 32px 0;
+      opacity: .4;
+    }
+
+    /* ── COVER typography ── */
+    .cover-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(52px, 10vw, 110px);
+      font-weight: 900;
+      font-style: italic;
+      line-height: .9;
+      letter-spacing: -.02em;
+      color: white;
+    }
+    .cover-subtitle {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(18px, 4vw, 32px);
+      font-weight: 600;
+      font-style: italic;
+      color: var(--accent2);
+      letter-spacing: .08em;
+    }
+
+    /* ── RESPONSIVE TABLE ── */
+    .responsive-table { overflow-x: auto; }
+    .responsive-table table { min-width: 600px; }
+
+    /* ── PAGE NUMBER ── */
+    .page-number {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 120px;
+      font-weight: 900;
+      font-style: italic;
+      color: rgba(10,22,40,.04);
+      position: absolute;
+      top: -20px; right: 16px;
+      line-height: 1;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* ── LOADING ── */
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f8fafc 50%, #e2e8f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+      height: 20px;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+    @media (max-width: 640px) {
+      .epp-grid { grid-template-columns: repeat(3, 1fr); }
+      .qr-box { flex-direction: column; text-align: center; }
+      .cover-page { min-height: auto !important; }
+      .cover-title { font-size: clamp(44px, 15vw, 80px) !important; }
+      .page-number { font-size: 80px; top: -10px; right: 8px; }
+      .section-header { flex-wrap: wrap; gap: 8px; }
+      .section-header .ml-auto { display: none; }
+      .guardian-card { padding: 20px !important; }
+      .stat-num { font-size: 28px; }
+      /* Prevent horizontal overflow */
+      .section-card { overflow-x: hidden; }
+      main { padding-left: 12px !important; padding-right: 12px !important; }
+      /* Admin panel tabs scroll */
+      #admin-panel .flex.flex-wrap { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
+      .admin-tab { white-space: nowrap; flex-shrink: 0; }
+      /* Grid cols fix on small screens */
+      .grid.md\:grid-cols-3 { grid-template-columns: 1fr !important; }
+      .grid.sm\:grid-cols-3 { grid-template-columns: 1fr !important; }
+      .grid.sm\:grid-cols-4 { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+    @media (max-width: 480px) {
+      .qhse-topbar { top: 72px; padding: 10px 14px; }
+      .cover-title { font-size: clamp(38px, 13vw, 60px) !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="bg-white border-b border-slate-200 sticky top-0 z-[60] glass-nav">
+  <div class="max-w-[1440px] mx-auto px-6 h-20 flex justify-between items-center">
+    <div class="flex items-center gap-8 cursor-pointer" onclick="window.location.href='dashboard.html'">
+      <img src="../assets/images/logo/logo-dark.svg" alt="In Hole Solutions" class="h-12 md:h-20 w-auto">
+      <div class="hidden md:block h-8 w-[1px] bg-slate-200"></div>
+      <span class="hidden md:block text-slate-500 font-medium text-sm tracking-wide uppercase">Intranet Corporativa</span>
+    </div>
+    <div class="flex items-center gap-6">
+      <span id="user-role-badge" class="hidden text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full"></span>
+      <div class="text-right hidden sm:block">
+        <p id="user-welcome" class="text-slate-800 font-semibold text-sm">Cargando...</p>
+        <p class="text-slate-400 text-xs font-medium uppercase tracking-tighter">Miembro del Equipo</p>
+      </div>
+      <button onclick="window.location.href='dashboard.html'" class="bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-700 h-10 w-10 rounded-xl border border-slate-200 transition-all flex items-center justify-center shadow-sm" title="Regresar al Dashboard">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <button onclick="cerrarSesion()" class="bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-600 h-10 w-10 rounded-xl border border-slate-200 transition-all flex items-center justify-center shadow-sm">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ── TOPBAR ── -->
+<div class="qhse-topbar">
+  <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-[#00c8ff] animate-pulse"></span>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.9)">SENTINEL IHS</span>
+    </div>
+    <div class="h-4 w-px bg-white/20"></div>
+    <span id="edition-tag" style="font-size:12px;color:rgba(255,255,255,.6);font-weight:500">Cargando edición...</span>
+  </div>
+  <div class="flex items-center gap-3">
+    <span id="issue-counter" style="font-family:'DM Mono',monospace;font-size:12px;color:rgba(0,200,255,.8)">— — —</span>
+    <button id="btn-admin-toggle" onclick="toggleAdminPanel()" class="hidden px-4 py-2 rounded-lg text-[12px] font-bold uppercase tracking-wider border border-[#1e88e5]/40 text-[#00c8ff] hover:bg-[#1e88e5]/20 transition-all">
+      <i class="fas fa-sliders mr-1.5"></i>Panel Admin
+    </button>
+  </div>
+</div>
+
+<!-- ── MAIN ── -->
+<main class="max-w-[1440px] mx-auto px-4 md:px-8 py-10">
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PÁGINA 1 — PORTADA & MENSAJE DIRECCIÓN    -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="cover-page rounded-3xl mb-8 relative" style="min-height:520px;">
+    <div class="cover-grid-bg"></div>
+    <div class="cover-accent-line"></div>
+    <!-- Decorative circles -->
+    <div class="absolute -top-20 -right-20 w-96 h-96 rounded-full opacity-5" style="background:radial-gradient(circle, #1e88e5, transparent)"></div>
+    <div class="absolute bottom-0 left-1/3 w-64 h-64 rounded-full opacity-5" style="background:radial-gradient(circle, #00c8ff, transparent)"></div>
+
+    <div class="relative z-10 p-8 md:p-14 flex flex-col md:flex-row gap-10 h-full">
+      <!-- Left: portada -->
+      <div class="flex-1">
+        <div class="flex items-center gap-3 mb-8">
+          <span id="cover-edition-badge" class="text-[11px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full" style="background:rgba(30,136,229,.2);border:1px solid rgba(0,200,255,.3);color:#00c8ff">Edición Mayo 2026</span>
+          <span class="text-[11px] font-bold text-white/40 uppercase tracking-widest">Vol. 1</span>
+        </div>
+        <div id="cover-title-wrap">
+          <p class="cover-subtitle mb-2">ALERTAS QHSE</p>
+          <h1 class="cover-title" id="cover-title">SEGURIDAD<br>SIN<br>EXCUSAS</h1>
+        </div>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <span class="text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full text-white/80" style="background:rgba(227,30,36,.25);border:1px solid rgba(227,30,36,.3)">
+            <i class="fas fa-hard-hat mr-1"></i>Safety
+          </span>
+          <span class="text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full text-white/80" style="background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.3)">
+            <i class="fas fa-check-double mr-1"></i>Quality
+          </span>
+          <span class="text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full text-white/80" style="background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.3)">
+            <i class="fas fa-heartbeat mr-1"></i>Health
+          </span>
+          <span class="text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full text-white/80" style="background:rgba(30,136,229,.2);border:1px solid rgba(30,136,229,.3)">
+            <i class="fas fa-leaf mr-1"></i>Environment
+          </span>
+        </div>
+      </div>
+
+      <!-- Right: Mensaje Dirección -->
+      <div class="md:w-96 flex flex-col justify-between">
+        <div class="rounded-2xl p-7" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(8px)">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:linear-gradient(135deg,#1e88e5,#00c8ff)">
+              <i class="fas fa-quote-left text-white text-xs"></i>
+            </div>
+            <div>
+              <p class="text-[10px] font-black uppercase tracking-[.15em] text-white/50">Mensaje de</p>
+              <p class="text-[11px] font-bold text-white/80 uppercase tracking-wider">Gerencia de Operaciones</p>
+            </div>
+          </div>
+          <p id="director-message" class="text-sm text-white/75 leading-relaxed italic">
+            "Nuestro compromiso es claro: cero accidentes, cero excusas. Cada procedimiento que seguimos, cada EPP que portamos y cada condición insegura que reportamos es un acto de liderazgo. La seguridad no es un departamento, es una responsabilidad compartida por cada uno de nosotros en campo y en taller."
+          </p>
+          <div class="mt-5 border-t border-white/10 pt-4">
+            <p id="director-name" class="text-xs font-black text-white/90 uppercase tracking-wider">Ing. [Nombre del Gerente]</p>
+            <p class="text-[10px] text-white/45 mt-0.5">Gerente de Operaciones — In Hole Solutions</p>
+          </div>
+        </div>
+
+        <!-- Stats rápidos -->
+        <div class="grid grid-cols-3 gap-3 mt-5">
+          <div class="rounded-xl p-3 text-center" style="background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.25)">
+            <p id="stat-dias" class="text-2xl font-black text-emerald-400" style="font-family:'Barlow Condensed',sans-serif">247</p>
+            <p class="text-[9px] text-white/60 font-bold uppercase tracking-wide mt-0.5">Días sin<br>accidente</p>
+          </div>
+          <div class="rounded-xl p-3 text-center" style="background:rgba(30,136,229,.15);border:1px solid rgba(30,136,229,.25)">
+            <p id="stat-obs" class="text-2xl font-black text-blue-400" style="font-family:'Barlow Condensed',sans-serif">18</p>
+            <p class="text-[9px] text-white/60 font-bold uppercase tracking-wide mt-0.5">Reportes<br>de riesgo</p>
+          </div>
+          <div class="rounded-xl p-3 text-center" style="background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.25)">
+            <p id="stat-acc" class="text-2xl font-black text-amber-400" style="font-family:'Barlow Condensed',sans-serif">3</p>
+            <p class="text-[9px] text-white/60 font-bold uppercase tracking-wide mt-0.5">Near miss<br>resueltos</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGINATION NAV -->
+  <div class="flex items-center gap-3 overflow-x-auto pb-2 mb-8 no-scrollbar">
+    <button onclick="scrollToSection('sec-safety')" class="flex-shrink-0 px-5 py-2.5 rounded-full text-[12px] font-bold uppercase tracking-widest transition-all" style="background:#e31e24;color:white">
+      <i class="fas fa-hard-hat mr-1.5"></i>Safety
+    </button>
+    <button onclick="scrollToSection('sec-quality')" class="flex-shrink-0 px-5 py-2.5 rounded-full text-[12px] font-bold uppercase tracking-widest transition-all bg-white border border-slate-200 text-slate-600 hover:border-blue-400">
+      <i class="fas fa-check-double mr-1.5"></i>Quality
+    </button>
+    <button onclick="scrollToSection('sec-health')" class="flex-shrink-0 px-5 py-2.5 rounded-full text-[12px] font-bold uppercase tracking-widest transition-all bg-white border border-slate-200 text-slate-600 hover:border-amber-400">
+      <i class="fas fa-heartbeat mr-1.5"></i>Health
+    </button>
+    <button onclick="scrollToSection('sec-env')" class="flex-shrink-0 px-5 py-2.5 rounded-full text-[12px] font-bold uppercase tracking-widest transition-all bg-white border border-slate-200 text-slate-600 hover:border-green-400">
+      <i class="fas fa-leaf mr-1.5"></i>Environment
+    </button>
+    <button onclick="scrollToSection('sec-guardian')" class="flex-shrink-0 px-5 py-2.5 rounded-full text-[12px] font-bold uppercase tracking-widest transition-all bg-white border border-slate-200 text-slate-600 hover:border-yellow-400">
+      <i class="fas fa-star mr-1.5"></i>Guardián
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PÁGINAS 2-3 — SEGURIDAD (SAFETY)          -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="sec-safety" class="section-card scroll-mt-36">
+    <div class="section-header" style="background:linear-gradient(135deg,#e31e24,#c01a1f);">
+      <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+        <i class="fas fa-hard-hat text-white"></i>
+      </div>
+      <div>
+        <span class="section-badge" style="background:rgba(255,255,255,.2);color:white">Págs. 2–3</span>
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;font-style:italic;color:white;margin:0;letter-spacing:-.01em;">ALERTA DE SEGURIDAD</h2>
+      </div>
+      <span class="ml-auto text-white/60 text-xs font-bold uppercase tracking-wider">Safety</span>
+    </div>
+
+    <div class="p-6 md:p-8 relative">
+      <div class="page-number">02</div>
+      <div class="grid md:grid-cols-2 gap-8">
+
+        <!-- Maniobras de carga -->
+        <div>
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:#fef2f2">
+              <i class="fas fa-truck-pickup text-[#e31e24] text-sm"></i>
+            </div>
+            <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight" style="font-family:'Barlow Condensed',sans-serif">Maniobras de Carga — Grúa Viajera 10T</h3>
+          </div>
+
+          <!-- EPP Infografía -->
+          <div class="rounded-2xl p-5 mb-5" style="background:#fef9f9;border:2px dashed rgba(227,30,36,.2)">
+            <p class="text-[11px] font-black uppercase tracking-widest text-[#e31e24] mb-4">
+              <i class="fas fa-shield-halved mr-1.5"></i>EPP Obligatorio para maniobras de izaje
+            </p>
+            <div class="epp-grid">
+              <div class="epp-item">
+                <span class="epp-icon">⛑️</span>
+                <span class="epp-label">Casco<br>Clase E</span>
+              </div>
+              <div class="epp-item">
+                <span class="epp-icon">🥽</span>
+                <span class="epp-label">Careta<br>facial</span>
+              </div>
+              <div class="epp-item">
+                <span class="epp-icon">🧤</span>
+                <span class="epp-label">Guantes<br>anticorte</span>
+              </div>
+              <div class="epp-item">
+                <span class="epp-icon">🦺</span>
+                <span class="epp-label">Chaleco<br>reflectivo</span>
+              </div>
+              <div class="epp-item">
+                <span class="epp-icon">👢</span>
+                <span class="epp-label">Botas<br>punta acero</span>
+              </div>
+              <div class="epp-item">
+                <span class="epp-icon">🔒</span>
+                <span class="epp-label">Arnés<br>4 puntos</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex items-start gap-3 p-3 rounded-xl" style="background:#f0fdf4;border-left:4px solid #10b981">
+              <i class="fas fa-check-circle text-emerald-500 mt-0.5 flex-shrink-0"></i>
+              <p class="text-sm text-slate-700">Realizar análisis de trabajo seguro (ATS) <strong>antes</strong> de cualquier maniobra de izaje con carga superior a 500 kg.</p>
+            </div>
+            <div class="flex items-start gap-3 p-3 rounded-xl" style="background:#fff7ed;border-left:4px solid #f59e0b">
+              <i class="fas fa-triangle-exclamation text-amber-500 mt-0.5 flex-shrink-0"></i>
+              <p class="text-sm text-slate-700">Verificar SWL (Safe Working Load) de eslingas, grilletes y cadenas certificadas antes de cada uso. <strong>Nunca improvisas.</strong></p>
+            </div>
+            <div class="flex items-start gap-3 p-3 rounded-xl" style="background:#fef2f2;border-left:4px solid #e31e24">
+              <i class="fas fa-ban text-[#e31e24] mt-0.5 flex-shrink-0"></i>
+              <p class="text-sm text-slate-700"><strong>Prohibido</strong> transitar bajo cargas suspendidas. Zona de exclusión mínima: 2× la altura de la carga.</p>
+            </div>
+          </div>
+
+          <!-- QR 1 -->
+          <div class="qr-box mt-5">
+            <div class="qr-canvas-wrap">
+              <div id="qr-ats" style="width:72px;height:72px;"></div>
+            </div>
+            <div class="qr-info">
+              <p class="text-[10px] font-black uppercase tracking-widest text-[#00c8ff] mb-1">
+                <i class="fas fa-qrcode mr-1"></i>Código QR
+              </p>
+              <p class="text-white font-bold text-sm">Formato ATS Digital</p>
+              <p class="text-white/50 text-xs mt-0.5">Escanea para reportar condición insegura</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Near Miss -->
+        <div>
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:#fef2f2">
+              <i class="fas fa-exclamation-triangle text-[#e31e24] text-sm"></i>
+            </div>
+            <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight" style="font-family:'Barlow Condensed',sans-serif">Lección Aprendida — Near Miss</h3>
+          </div>
+
+          <div id="near-miss-content">
+            <div class="nm-card">
+              <p class="nm-label mb-3"><i class="fas fa-clock mr-1"></i>Incidente — Taller de Apriete</p>
+              <p class="font-black text-slate-800 text-base mb-2" style="font-family:'Barlow Condensed',sans-serif;font-size:18px;">CUÑAS DESLIZADAS DURANTE ENSAMBLE DE HERRAMIENTA DE FONDO</p>
+              <p class="text-sm text-slate-600 leading-relaxed">
+                Durante el ensamble de una herramienta de fondo en el banco horizontal, las cuñas de sujeción se deslizaron al aplicar par de apriete. El operador reaccionó a tiempo y no se registraron lesiones.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-3 mt-4">
+              <div class="rounded-xl p-4" style="background:#f8fafc;border:1px solid #e2e8f0">
+                <p class="text-[11px] font-black uppercase tracking-wider text-slate-500 mb-2">
+                  <i class="fas fa-magnifying-glass mr-1 text-[#1e88e5]"></i>Causa Raíz
+                </p>
+                <p class="text-sm text-slate-700">Desgaste no detectado en las mordazas del banco horizontal. El pre-uso no incluyó revisión de mecanismo de traba.</p>
+              </div>
+              <div class="rounded-xl p-4" style="background:#f0fdf4;border:1px solid #bbf7d0">
+                <p class="text-[11px] font-black uppercase tracking-wider text-emerald-700 mb-2">
+                  <i class="fas fa-wrench mr-1"></i>Acción Correctiva
+                </p>
+                <p class="text-sm text-slate-700">Se actualiza la checklist de pre-uso del banco horizontal incluyendo verificación de mordazas y mecanismo de traba. Capacitación inmediata al personal de taller.</p>
+              </div>
+            </div>
+
+            <!-- QR 2 -->
+            <div class="qr-box mt-5">
+              <div class="qr-canvas-wrap">
+                <div id="qr-nearmiss" style="width:72px;height:72px;"></div>
+              </div>
+              <div class="qr-info">
+                <p class="text-[10px] font-black uppercase tracking-widest text-[#00c8ff] mb-1">
+                  <i class="fas fa-qrcode mr-1"></i>Código QR
+                </p>
+                <p class="text-white font-bold text-sm">Reporte Near Miss</p>
+                <p class="text-white/50 text-xs mt-0.5">Formato digital de reporte de casi-accidente</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PÁGINAS 4-5 — CALIDAD (QUALITY)           -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="sec-quality" class="section-card scroll-mt-36">
+    <div class="section-header" style="background:linear-gradient(135deg,#1e88e5,#0d47a1);">
+      <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+        <i class="fas fa-check-double text-white"></i>
+      </div>
+      <div>
+        <span class="section-badge" style="background:rgba(255,255,255,.2);color:white">Págs. 4–5</span>
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;font-style:italic;color:white;margin:0;">CALIDAD OPERATIVA</h2>
+      </div>
+      <span class="ml-auto text-white/60 text-xs font-bold uppercase tracking-wider">Quality</span>
+    </div>
+
+    <div class="p-6 md:p-8 relative">
+      <div class="page-number">04</div>
+      <div class="grid md:grid-cols-2 gap-8">
+
+        <!-- Integridad de conexiones -->
+        <div>
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+              <i class="fas fa-link text-[#1e88e5] text-sm"></i>
+            </div>
+            <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight" style="font-family:'Barlow Condensed',sans-serif">Integridad de Conexiones</h3>
+          </div>
+
+          <!-- Tabla roscas -->
+          <div class="rounded-2xl overflow-hidden border border-slate-100 mb-5">
+            <div class="px-4 py-3" style="background:#0e2044">
+              <p class="text-[11px] font-black uppercase tracking-widest text-white/70">
+                <i class="fas fa-table mr-1.5 text-[#00c8ff]"></i>Inspección de roscas premium / API
+              </p>
+            </div>
+            <div class="responsive-table">
+              <table class="w-full text-sm">
+                <thead style="background:#f8fafc">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-[11px] font-black uppercase tracking-wider text-slate-500">Parámetro</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-black uppercase tracking-wider text-slate-500">Condición OK</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-black uppercase tracking-wider text-slate-500">Acción</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr><td class="px-4 py-3 font-medium text-slate-700">Limpieza de rosca</td><td class="px-4 py-3 text-emerald-600 font-bold">Sin lodo/arena</td><td class="px-4 py-3 text-xs text-slate-500">Limpiar con cepillo y solvente</td></tr>
+                  <tr style="background:#f8fafc"><td class="px-4 py-3 font-medium text-slate-700">Dope API/Premium</td><td class="px-4 py-3 text-emerald-600 font-bold">Capa uniforme</td><td class="px-4 py-3 text-xs text-slate-500">Aplicar según ficha técnica</td></tr>
+                  <tr><td class="px-4 py-3 font-medium text-slate-700">Par de torque</td><td class="px-4 py-3 text-emerald-600 font-bold">Dentro de rango</td><td class="px-4 py-3 text-xs text-slate-500">Verificar tabla de torque IHS</td></tr>
+                  <tr style="background:#f8fafc"><td class="px-4 py-3 font-medium text-slate-700">Daños visuales</td><td class="px-4 py-3 text-emerald-600 font-bold">Sin corrosión/galling</td><td class="px-4 py-3 text-xs text-slate-500">Rechazar y reportar</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Advertencia daños por mal enrosque -->
+          <div class="rounded-2xl p-5" style="background:linear-gradient(135deg,#0a1628,#0e2044);border:1px solid rgba(30,136,229,.3)">
+            <p class="text-[11px] font-black uppercase tracking-widest text-[#00c8ff] mb-3">
+              <i class="fas fa-triangle-exclamation mr-1.5"></i>¡Alerta de calidad!
+            </p>
+            <p class="text-sm text-white/80 leading-relaxed">El galling (soldadura en frío) en roscas premium es <strong class="text-white">irreversible</strong>. Un enrosque incorrecto puede destruir una conexión de <strong class="text-[#f59e0b]">$80,000+ MXN</strong>. Siga siempre el procedimiento de alineación y velocidad de enrosque de la máquina de torque.</p>
+          </div>
+        </div>
+
+        <!-- Máquina de torque -->
+        <div>
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+              <i class="fas fa-gears text-[#1e88e5] text-sm"></i>
+            </div>
+            <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight" style="font-family:'Barlow Condensed',sans-serif">Máquina de Torque — Rotación Continua</h3>
+          </div>
+
+          <div class="space-y-3 mb-5">
+            <div class="flex items-start gap-3 p-4 rounded-xl border border-slate-100">
+              <div class="w-8 h-8 rounded-lg bg-[#1e88e5] text-white flex items-center justify-center font-black text-sm flex-shrink-0">1</div>
+              <div>
+                <p class="font-bold text-slate-800 text-sm">Calibración previa a operación</p>
+                <p class="text-xs text-slate-500 mt-0.5">Verificar celdas de carga y transductor de par cada inicio de turno. Registro en bitácora digital.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 rounded-xl border border-slate-100">
+              <div class="w-8 h-8 rounded-lg bg-[#1e88e5] text-white flex items-center justify-center font-black text-sm flex-shrink-0">2</div>
+              <div>
+                <p class="font-bold text-slate-800 text-sm">Velocidad de enrosque</p>
+                <p class="text-xs text-slate-500 mt-0.5">Nunca superar 10 RPM en conexiones premium. Reducir a 4 RPM en los últimos 2 vueltas antes del torque final.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 rounded-xl border border-slate-100">
+              <div class="w-8 h-8 rounded-lg bg-[#1e88e5] text-white flex items-center justify-center font-black text-sm flex-shrink-0">3</div>
+              <div>
+                <p class="font-bold text-slate-800 text-sm">Registro de gráfica de torque</p>
+                <p class="text-xs text-slate-500 mt-0.5">Cada conexión debe generar su gráfica torque-vuelta. Sin gráfica aceptable = <strong>conexión rechazada</strong>.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- EPP Máquina torque -->
+          <div class="rounded-2xl p-4" style="background:#f0f7ff;border:2px dashed rgba(30,136,229,.2)">
+            <p class="text-[11px] font-black uppercase tracking-widest text-[#1e88e5] mb-3">
+              <i class="fas fa-shield-halved mr-1.5"></i>EPP para operación de máquina de torque
+            </p>
+            <div class="epp-grid">
+              <div class="epp-item">
+                <span class="epp-icon">⛑️</span>
+                <span class="epp-label">Casco</span>
+              </div>
+              <div class="epp-item">
+                <span class="epp-icon">🥽</span>
+                <span class="epp-label">Lentes<br>Seguridad</span>
+              </div>
+              <div class="epp-item">
+                <span class="epp-icon">🧤</span>
+                <span class="epp-label">Guantes<br>mecánicos</span>
+              </div>
+              <div class="epp-item">
+                <span class="epp-icon">👂</span>
+                <span class="epp-label">Tapones<br>auditivos</span>
+              </div>
+              <div class="epp-item">
+                <span class="epp-icon">👟</span>
+                <span class="epp-label">Botas<br>dieléct.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- QR Manual torque -->
+          <div class="qr-box mt-5">
+            <div class="qr-canvas-wrap">
+              <div id="qr-torque" style="width:72px;height:72px;"></div>
+            </div>
+            <div class="qr-info">
+              <p class="text-[10px] font-black uppercase tracking-widest text-[#00c8ff] mb-1">
+                <i class="fas fa-qrcode mr-1"></i>Código QR
+              </p>
+              <p class="text-white font-bold text-sm">Manual operativo máquina de torque</p>
+              <p class="text-white/50 text-xs mt-0.5">Procedimiento ISO / video de capacitación</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PÁGINAS 6-7 — SALUD (HEALTH)              -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="sec-health" class="section-card scroll-mt-36">
+    <div class="section-header" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+      <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+        <i class="fas fa-heartbeat text-white"></i>
+      </div>
+      <div>
+        <span class="section-badge" style="background:rgba(255,255,255,.2);color:white">Págs. 6–7</span>
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;font-style:italic;color:white;margin:0;">SALUD OCUPACIONAL</h2>
+      </div>
+      <span class="ml-auto text-white/60 text-xs font-bold uppercase tracking-wider">Health</span>
+    </div>
+
+    <div class="p-6 md:p-8 relative">
+      <div class="page-number">06</div>
+      <div class="grid md:grid-cols-2 gap-8">
+
+        <!-- Ruido y vibración -->
+        <div>
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+              <i class="fas fa-ear-deaf text-amber-600 text-sm"></i>
+            </div>
+            <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight" style="font-family:'Barlow Condensed',sans-serif">Protección Ruido y Vibración</h3>
+          </div>
+
+          <!-- Medidor visual de decibelios -->
+          <div class="rounded-2xl p-5 mb-5" style="background:#fffbeb;border:2px solid rgba(245,158,11,.2)">
+            <p class="text-[11px] font-black uppercase tracking-widest text-amber-700 mb-4">
+              <i class="fas fa-volume-high mr-1.5"></i>Niveles de exposición al ruido — Banco horizontal
+            </p>
+            <div class="space-y-3">
+              <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                  <span class="text-slate-600">Banco horizontal (operación)</span>
+                  <span class="text-amber-600">~92 dB</span>
+                </div>
+                <div class="h-3 rounded-full bg-slate-200 overflow-hidden">
+                  <div class="h-full rounded-full" style="width:76%;background:linear-gradient(90deg,#f59e0b,#ef4444)"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                  <span class="text-slate-600">Plataforma perforación</span>
+                  <span class="text-red-600">~100 dB</span>
+                </div>
+                <div class="h-3 rounded-full bg-slate-200 overflow-hidden">
+                  <div class="h-full rounded-full" style="width:90%;background:linear-gradient(90deg,#ef4444,#991b1b)"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                  <span class="text-slate-600">Límite permisible (8h)</span>
+                  <span class="text-emerald-600">85 dB</span>
+                </div>
+                <div class="h-3 rounded-full bg-slate-200 overflow-hidden">
+                  <div class="h-full rounded-full" style="width:68%;background:#10b981"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex items-start gap-3 p-3 rounded-xl" style="background:#fef9c3;border-left:4px solid #f59e0b">
+              <i class="fas fa-ear-listen text-amber-500 mt-0.5 flex-shrink-0"></i>
+              <p class="text-sm text-slate-700">Uso de tapones auditivos <strong>NRR ≥ 29 dB</strong> obligatorio durante toda operación del banco horizontal. Exposición máx. 4h sin rotación de turno.</p>
+            </div>
+            <div class="flex items-start gap-3 p-3 rounded-xl" style="background:#f0f9ff;border-left:4px solid #1e88e5">
+              <i class="fas fa-hand-dots text-[#1e88e5] mt-0.5 flex-shrink-0"></i>
+              <p class="text-sm text-slate-700">Vibración en manos y brazos (HAV): rotación de operadores cada 2h en trabajos con llaves hidráulicas. Reporte síntomas de entumecimiento al médico de empresa.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ergonomía en campo -->
+        <div>
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+              <i class="fas fa-person-walking text-amber-600 text-sm"></i>
+            </div>
+            <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight" style="font-family:'Barlow Condensed',sans-serif">Ergonomía en Campo y Taller</h3>
+          </div>
+
+          <!-- Infografía posturas -->
+          <div class="rounded-2xl p-5 mb-5" style="background:linear-gradient(135deg,#fffbeb,#fef3c7)">
+            <p class="text-[11px] font-black uppercase tracking-widest text-amber-700 mb-4">
+              Posturas correctas — Manejo de herramientas de fondo
+            </p>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="rounded-xl p-3 bg-white border border-amber-100">
+                <p class="text-3xl text-center mb-2">🟢</p>
+                <p class="text-[11px] font-black text-emerald-700 text-center uppercase">CORRECTO</p>
+                <p class="text-xs text-slate-600 text-center mt-1">Espalda recta, rodillas flexionadas, carga cerca del cuerpo</p>
+              </div>
+              <div class="rounded-xl p-3 bg-white border border-red-100">
+                <p class="text-3xl text-center mb-2">🔴</p>
+                <p class="text-[11px] font-black text-red-700 text-center uppercase">INCORRECTO</p>
+                <p class="text-xs text-slate-600 text-center mt-1">Espalda doblada, carga alejada del cuerpo, giro brusco</p>
+              </div>
+            </div>
+            <div class="mt-3 p-3 rounded-xl bg-white border border-amber-100">
+              <p class="text-xs text-slate-600 text-center">
+                <i class="fas fa-weight-scale mr-1 text-amber-500"></i>
+                <strong>Peso máx. manual sin apoyo mecánico: 25 kg</strong><br>
+                Para tubería y herramientas de fondo > 25 kg → uso obligatorio de grúa o balancín
+              </p>
+            </div>
+          </div>
+
+          <!-- QR video ergonomía -->
+          <div class="qr-box">
+            <div class="qr-canvas-wrap">
+              <div id="qr-ergo" style="width:72px;height:72px;"></div>
+            </div>
+            <div class="qr-info">
+              <p class="text-[10px] font-black uppercase tracking-widest text-[#00c8ff] mb-1">
+                <i class="fas fa-qrcode mr-1"></i>Código QR
+              </p>
+              <p class="text-white font-bold text-sm">Video: Ergonomía en campo</p>
+              <p class="text-white/50 text-xs mt-0.5">Capacitación IHS — Manejo seguro de cargas</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PÁGINA 8 — AMBIENTE (ENVIRONMENT)         -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="sec-env" class="section-card scroll-mt-36">
+    <div class="section-header" style="background:linear-gradient(135deg,#059669,#047857);">
+      <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+        <i class="fas fa-leaf text-white"></i>
+      </div>
+      <div>
+        <span class="section-badge" style="background:rgba(255,255,255,.2);color:white">Pág. 8</span>
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;font-style:italic;color:white;margin:0;">CUIDADO AMBIENTAL</h2>
+      </div>
+      <span class="ml-auto text-white/60 text-xs font-bold uppercase tracking-wider">Environment</span>
+    </div>
+
+    <div class="p-6 md:p-8 relative">
+      <div class="page-number">08</div>
+      <div class="grid md:grid-cols-3 gap-6">
+
+        <!-- Contención fluidos -->
+        <div class="md:col-span-2">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <i class="fas fa-droplet text-emerald-600 text-sm"></i>
+            </div>
+            <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight" style="font-family:'Barlow Condensed',sans-serif">Control y Contención de Fluidos</h3>
+          </div>
+
+          <div class="grid sm:grid-cols-3 gap-4 mb-6">
+            <div class="rounded-2xl p-5 text-center" style="background:linear-gradient(135deg,#f0fdf4,#d1fae5);border:1px solid #a7f3d0">
+              <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center mx-auto mb-3">
+                <i class="fas fa-oil-can text-emerald-600 text-xl"></i>
+              </div>
+              <p class="font-black text-sm text-slate-800 uppercase" style="font-family:'Barlow Condensed',sans-serif">Grasa para Roscas</p>
+              <p class="text-xs text-slate-600 mt-2 leading-relaxed">Aplicar sobre charola metálica. Residuos en contenedor específico etiquetado. Nunca vaciar al suelo.</p>
+            </div>
+            <div class="rounded-2xl p-5 text-center" style="background:linear-gradient(135deg,#f0fdf4,#d1fae5);border:1px solid #a7f3d0">
+              <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center mx-auto mb-3">
+                <i class="fas fa-gauge-high text-emerald-600 text-xl"></i>
+              </div>
+              <p class="font-black text-sm text-slate-800 uppercase" style="font-family:'Barlow Condensed',sans-serif">Aceite Hidráulico</p>
+              <p class="text-xs text-slate-600 mt-2 leading-relaxed">Cambio de aceite de bomba únicamente en área técnica designada. Uso de kit antiderrame obligatorio.</p>
+            </div>
+            <div class="rounded-2xl p-5 text-center" style="background:linear-gradient(135deg,#f0fdf4,#d1fae5);border:1px solid #a7f3d0">
+              <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center mx-auto mb-3">
+                <i class="fas fa-flask text-emerald-600 text-xl"></i>
+              </div>
+              <p class="font-black text-sm text-slate-800 uppercase" style="font-family:'Barlow Condensed',sans-serif">Pruebas Hidrostáticas</p>
+              <p class="text-xs text-slate-600 mt-2 leading-relaxed">Fluido de prueba contabilizado antes/después. Disposición en planta de tratamiento autorizada.</p>
+            </div>
+          </div>
+
+          <div class="rounded-2xl p-5" style="background:#f0fdf4;border:2px solid rgba(16,185,129,.3)">
+            <p class="text-[11px] font-black uppercase tracking-widest text-emerald-700 mb-3">
+              <i class="fas fa-triangle-exclamation mr-1.5"></i>Protocolo de respuesta a derrame
+            </p>
+            <div class="grid sm:grid-cols-4 gap-3">
+              <div class="text-center">
+                <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black mx-auto mb-2">1</div>
+                <p class="text-xs font-bold text-slate-700">CONTENER</p>
+                <p class="text-[10px] text-slate-500 mt-1">Bandeja o absorbente inmediato</p>
+              </div>
+              <div class="text-center">
+                <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black mx-auto mb-2">2</div>
+                <p class="text-xs font-bold text-slate-700">NOTIFICAR</p>
+                <p class="text-[10px] text-slate-500 mt-1">Supervisor y área QHSE</p>
+              </div>
+              <div class="text-center">
+                <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black mx-auto mb-2">3</div>
+                <p class="text-xs font-bold text-slate-700">LIMPIAR</p>
+                <p class="text-[10px] text-slate-500 mt-1">Material absorbente certificado</p>
+              </div>
+              <div class="text-center">
+                <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black mx-auto mb-2">4</div>
+                <p class="text-xs font-bold text-slate-700">REGISTRAR</p>
+                <p class="text-[10px] text-slate-500 mt-1">Formulario de incidente ambiental</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- QR + stat ambiental -->
+        <div class="flex flex-col gap-5">
+          <div class="rounded-2xl p-5 text-center" style="background:linear-gradient(135deg,#0a1628,#1a3160);border:1px solid rgba(16,185,129,.3)">
+            <p class="text-5xl font-black text-emerald-400 mb-1" style="font-family:'Barlow Condensed',sans-serif">0</p>
+            <p class="text-xs font-black uppercase tracking-wider text-white/70">Derrames no<br>contenidos 2026</p>
+            <div class="mt-3 h-1 rounded-full bg-white/10">
+              <div class="h-full rounded-full bg-emerald-400" style="width:100%"></div>
+            </div>
+          </div>
+          <div class="qr-box flex-col text-center gap-3">
+            <div class="qr-canvas-wrap mx-auto">
+              <div id="qr-ambiental" style="width:72px;height:72px;"></div>
+            </div>
+            <div>
+              <p class="text-[10px] font-black uppercase tracking-widest text-[#00c8ff] mb-1">
+                <i class="fas fa-qrcode mr-1"></i>QR
+              </p>
+              <p class="text-white font-bold text-sm">Formato incidente ambiental</p>
+              <p class="text-white/50 text-xs mt-0.5">Reporte digital</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PÁGINA 9 — GUARDIÁN QHSE                  -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="sec-guardian" class="section-card scroll-mt-36">
+    <div class="section-header" style="background:linear-gradient(135deg,#7c3aed,#4c1d95);">
+      <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+        <i class="fas fa-star text-white"></i>
+      </div>
+      <div>
+        <span class="section-badge" style="background:rgba(255,255,255,.2);color:white">Pág. 9</span>
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;font-style:italic;color:white;margin:0;">GUARDIÁN QHSE DEL MES</h2>
+      </div>
+    </div>
+
+    <div class="p-6 md:p-8 relative">
+      <div class="page-number">09</div>
+      <div class="guardian-card" id="guardian-card-content">
+        <div class="absolute -top-10 -right-10 text-[180px] opacity-5" style="font-family:'Barlow Condensed',sans-serif;font-weight:900;color:white;line-height:1;">★</div>
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6 relative z-10">
+          <div class="guardian-avatar" id="guardian-avatar">JL</div>
+          <div class="flex-1">
+            <p class="text-[11px] font-black uppercase tracking-[.2em] text-white/50 mb-1">Guardián QHSE del Mes — Mayo 2026</p>
+            <h3 id="guardian-name" class="text-3xl font-black italic text-white mb-1" style="font-family:'Barlow Condensed',sans-serif">[Nombre del Empleado]</h3>
+            <p id="guardian-position" class="text-sm font-semibold text-white/60">[Puesto] — [Área/Sede]</p>
+          </div>
+          <div class="text-right">
+            <p id="guardian-reports" class="text-5xl font-black text-[#00c8ff]" style="font-family:'Barlow Condensed',sans-serif">12</p>
+            <p class="text-xs text-white/50 font-bold uppercase tracking-wider">Condiciones<br>reportadas</p>
+          </div>
+        </div>
+        <div class="mt-6 p-4 rounded-xl relative z-10" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)">
+          <p id="guardian-reason" class="text-sm text-white/80 leading-relaxed italic">
+            "Reconocemos a [nombre] por su liderazgo en la identificación y reporte de condiciones inseguras durante las operaciones de apriete del mes, contribuyendo directamente a mantener nuestro récord sin accidentes. Su ejemplo demuestra que la seguridad empieza con cada uno de nosotros."
+          </p>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-3 relative z-10">
+          <span class="text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full" style="background:rgba(0,200,255,.15);border:1px solid rgba(0,200,255,.3);color:#00c8ff">
+            <i class="fas fa-clipboard-check mr-1"></i>Reporte de condiciones
+          </span>
+          <span class="text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full" style="background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:#f59e0b">
+            <i class="fas fa-star mr-1"></i>Liderazgo preventivo
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tech-divider"></div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PANEL ADMINISTRADOR                       -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="admin-panel" class="hidden mb-8">
+    <div class="flex items-center gap-4 mb-6">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(30,136,229,.2);border:1px solid rgba(0,200,255,.3)">
+        <i class="fas fa-sliders text-[#00c8ff]"></i>
+      </div>
+      <div>
+        <h2 class="text-white font-black text-xl" style="font-family:'Barlow Condensed',sans-serif;font-style:italic;">PANEL DE ADMINISTRACIÓN</h2>
+        <p class="text-white/50 text-xs">Solo visible para administradores — In Hole Solutions QHSE</p>
+      </div>
+      <button onclick="toggleAdminPanel()" class="ml-auto h-9 w-9 rounded-xl flex items-center justify-center text-white/40 hover:text-white transition-all" style="background:rgba(255,255,255,.06)">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Admin Tabs -->
+    <div class="flex flex-wrap gap-2 mb-6">
+      <button class="admin-tab active" onclick="switchAdminTab('tab-editions', this)">
+        <i class="fas fa-newspaper mr-1.5"></i>Ediciones
+      </button>
+      <button class="admin-tab" onclick="switchAdminTab('tab-guardian', this)">
+        <i class="fas fa-star mr-1.5"></i>Guardián del Mes
+      </button>
+      <button class="admin-tab" onclick="switchAdminTab('tab-stats', this)">
+        <i class="fas fa-chart-bar mr-1.5"></i>Estadísticas
+      </button>
+      <button class="admin-tab" onclick="switchAdminTab('tab-custom', this)">
+        <i class="fas fa-palette mr-1.5"></i>Personalización
+      </button>
+    </div>
+
+    <!-- TAB: Ediciones -->
+    <div id="tab-editions" class="admin-tab-content">
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Nueva edición -->
+        <div class="rounded-xl p-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
+          <h3 class="text-white font-black text-base mb-4" style="font-family:'Barlow Condensed',sans-serif;font-style:italic">
+            <i class="fas fa-plus-circle mr-2 text-[#00c8ff]"></i>CREAR / ACTUALIZAR EDICIÓN
+          </h3>
+          <div class="space-y-3">
+            <div>
+              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Título de portada</label>
+              <input id="adm-cover-title" class="admin-input" type="text" placeholder="Ej: SEGURIDAD SIN EXCUSAS" value="SEGURIDAD SIN EXCUSAS">
+            </div>
+            <div>
+              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Edición (mes/año)</label>
+              <input id="adm-edition" class="admin-input" type="text" placeholder="Ej: Mayo 2026" value="Mayo 2026">
+            </div>
+            <div>
+              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Mensaje de Dirección</label>
+              <textarea id="adm-director-msg" class="admin-input" rows="4" placeholder="Mensaje del gerente...">"Nuestro compromiso es claro: cero accidentes, cero excusas..."</textarea>
+            </div>
+            <div>
+              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Nombre del Gerente</label>
+              <input id="adm-director-name" class="admin-input" type="text" placeholder="Ing. Nombre Apellido">
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="text-[10px] font-black uppercase tracking-widest text-white/50 mb-1 block">Días sin acc.</label>
+                <input id="adm-stat-dias" class="admin-input" type="number" placeholder="247" value="247">
+              </div>
+              <div>
+                <label class="text-[10px] font-black uppercase tracking-widest text-white/50 mb-1 block">Reportes</label>
+                <input id="adm-stat-obs" class="admin-input" type="number" placeholder="18" value="18">
+              </div>
+              <div>
+                <label class="text-[10px] font-black uppercase tracking-widest text-white/50 mb-1 block">Near miss</label>
+                <input id="adm-stat-acc" class="admin-input" type="number" placeholder="3" value="3">
+              </div>
+            </div>
+            <button onclick="saveEdition()" class="admin-btn admin-btn-primary w-full mt-2">
+              <i class="fas fa-save mr-2"></i>Guardar
+            </button>
+          </div>
+        </div>
+
+        <!-- Historial ediciones -->
+        <div class="rounded-xl p-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
+          <h3 class="text-white font-black text-base mb-4" style="font-family:'Barlow Condensed',sans-serif;font-style:italic">
+            <i class="fas fa-clock-rotate-left mr-2 text-[#00c8ff]"></i>HISTORIAL DE EDICIONES
+          </h3>
+          <div id="editions-list" class="space-y-2 max-h-80 overflow-y-auto">
+            <p class="text-white/40 text-sm text-center py-8">Cargando ediciones...</p>
+          </div>
+          <button onclick="loadEditions()" class="admin-btn admin-btn-success w-full mt-3">
+            <i class="fas fa-rotate mr-2"></i>Recargar listado
+          </button>
+        </div>
+      </div>
+
+      <!-- Near Miss editor -->
+      <div class="rounded-xl p-5 mt-4" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
+        <h3 class="text-white font-black text-base mb-4" style="font-family:'Barlow Condensed',sans-serif;font-style:italic">
+          <i class="fas fa-triangle-exclamation mr-2 text-[#f59e0b]"></i>GESTIÓN NEAR MISS / LECCIÓN APRENDIDA
+        </h3>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="space-y-3">
+            <div>
+              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Título del incidente</label>
+              <input id="nm-titulo" class="admin-input" type="text" placeholder="Ej: Cuñas deslizadas en banco horizontal">
+            </div>
+            <div>
+              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Área / Ubicación</label>
+              <input id="nm-area" class="admin-input" type="text" placeholder="Ej: Taller de Apriete — Villahermosa">
+            </div>
+            <div>
+              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Descripción del evento</label>
+              <textarea id="nm-desc" class="admin-input" rows="3" placeholder="Describe qué ocurrió..."></textarea>
+            </div>
+          </div>
+          <div class="space-y-3">
+            <div>
+              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Causa raíz</label>
+              <textarea id="nm-causa" class="admin-input" rows="3" placeholder="Análisis de causa raíz..."></textarea>
+            </div>
+            <div>
+              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Acción correctiva</label>
+              <textarea id="nm-accion" class="admin-input" rows="3" placeholder="Medidas correctivas implementadas..."></textarea>
+            </div>
+            <button onclick="saveNearMiss()" class="admin-btn admin-btn-primary w-full">
+              <i class="fas fa-save mr-2"></i>Guardar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Guardián -->
+    <div id="tab-guardian" class="admin-tab-content hidden">
+      <div class="rounded-xl p-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
+        <h3 class="text-white font-black text-base mb-4" style="font-family:'Barlow Condensed',sans-serif;font-style:italic">
+          <i class="fas fa-star mr-2 text-yellow-400"></i>EDITAR GUARDIÁN QHSE DEL MES
+        </h3>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="space-y-3">
+            <div>
+              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Nombre completo</label>
+              <input id="g-nombre" class="admin-input" type="text" placeholder="Ej: José Luis Martínez">
+            </div>
+            <div>
+              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Puesto / Área</label>
+              <input id="g-puesto" class="admin-input" type="text" placeholder="Ej: Técnico de Apriete — Taller Villahermosa">
+            </div>
+            <div>
+              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">No. de condiciones reportadas</label>
+              <input id="g-reportes" class="admin-input" type="number" placeholder="12">
+            </div>
+          </div>
+          <div class="space-y-3">
+            <div>
+              <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Motivo del reconocimiento</label>
+              <textarea id="g-motivo" class="admin-input" rows="5" placeholder="Describe por qué es el Guardián QHSE..."></textarea>
+            </div>
+            <button onclick="saveGuardian()" class="admin-btn admin-btn-primary w-full">
+              <i class="fas fa-save mr-2"></i>Actualizar Guardián
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Estadísticas -->
+    <div id="tab-stats" class="admin-tab-content hidden">
+      <div class="rounded-xl p-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
+        <h3 class="text-white font-black text-base mb-4" style="font-family:'Barlow Condensed',sans-serif;font-style:italic">
+          <i class="fas fa-chart-bar mr-2 text-[#00c8ff]"></i>ESTADÍSTICAS DE LA REVISTA
+        </h3>
+        <div id="stats-content" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="rounded-xl p-4 text-center" style="background:rgba(255,255,255,.06)">
+            <p id="stat-ediciones" class="text-3xl font-black text-[#00c8ff]" style="font-family:'Barlow Condensed',sans-serif">—</p>
+            <p class="text-[10px] text-white/50 font-bold uppercase tracking-wider mt-1">Ediciones<br>publicadas</p>
+          </div>
+          <div class="rounded-xl p-4 text-center" style="background:rgba(255,255,255,.06)">
+            <p id="stat-nm-total" class="text-3xl font-black text-[#f59e0b]" style="font-family:'Barlow Condensed',sans-serif">—</p>
+            <p class="text-[10px] text-white/50 font-bold uppercase tracking-wider mt-1">Near miss<br>registrados</p>
+          </div>
+          <div class="rounded-xl p-4 text-center" style="background:rgba(255,255,255,.06)">
+            <p id="stat-guardianes" class="text-3xl font-black text-yellow-400" style="font-family:'Barlow Condensed',sans-serif">—</p>
+            <p class="text-[10px] text-white/50 font-bold uppercase tracking-wider mt-1">Guardianes<br>reconocidos</p>
+          </div>
+          <div class="rounded-xl p-4 text-center" style="background:rgba(255,255,255,.06)">
+            <p id="stat-last-update" class="text-lg font-black text-emerald-400" style="font-family:'Barlow Condensed',sans-serif">—</p>
+            <p class="text-[10px] text-white/50 font-bold uppercase tracking-wider mt-1">Última<br>actualización</p>
+          </div>
+        </div>
+        <button onclick="loadStats()" class="admin-btn admin-btn-success mt-4">
+          <i class="fas fa-rotate mr-2"></i>Recargar estadísticas
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB: Personalización libre -->
+    <div id="tab-custom" class="admin-tab-content hidden">
+      <div class="rounded-xl p-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
+        <h3 class="text-white font-black text-base mb-4" style="font-family:'Barlow Condensed',sans-serif;font-style:italic">
+          <i class="fas fa-palette mr-2 text-purple-400"></i>ZONA LIBRE — PERSONALIZACIÓN DE CONTENIDO
+        </h3>
+        <p class="text-white/50 text-sm mb-5">Agrega contenido personalizado libre que aparecerá al final de la revista. Soporta texto enriquecido.</p>
+        <div class="space-y-3">
+          <div>
+            <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Título del bloque personalizado</label>
+            <input id="custom-title" class="admin-input" type="text" placeholder="Ej: Comunicado especial, Aviso importante...">
+          </div>
+          <div>
+            <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Contenido (texto libre)</label>
+            <textarea id="custom-content" class="admin-input" rows="6" placeholder="Escribe aquí tu contenido personalizado..."></textarea>
+          </div>
+          <div>
+            <label class="text-[11px] font-black uppercase tracking-widest text-white/50 mb-1.5 block">Color del bloque</label>
+            <select id="custom-color" class="admin-input">
+                <option value="blue">Azul marino (IHS)</option>
+                <option value="red">Rojo alerta</option>
+                <option value="green">Verde ambiental</option>
+                <option value="yellow">Ámbar precaución</option>
+            </select>
+          </div>
+          <div class="flex gap-3">
+            <button onclick="saveCustomBlock()" class="admin-btn admin-btn-primary flex-1">
+              <i class="fas fa-save mr-2"></i>Guardar bloque
+            </button>
+            <button onclick="previewCustomBlock()" class="admin-btn flex-1" style="background:rgba(124,58,237,.2);color:#a78bfa;border:1px solid rgba(124,58,237,.3)">
+              <i class="fas fa-eye mr-2"></i>Previsualizar
+            </button>
+          </div>
+        </div>
+
+        <!-- Bloques personalizados existentes -->
+        <div id="custom-blocks-list" class="mt-5">
+          <p class="text-[11px] font-black uppercase tracking-widest text-white/40 mb-3">Bloques guardados</p>
+          <p id="no-custom-blocks" class="text-white/30 text-sm text-center py-6">No hay bloques personalizados aún</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end admin panel -->
+
+  <!-- Bloque personalizado visible (generado dinámicamente) -->
+  <div id="custom-blocks-render" class="mb-8"></div>
+
+</main>
+
+<!-- ── TOAST ── -->
+<div id="toast">✓ <span id="toast-msg">Guardado correctamente</span></div>
+
+<!-- ── MODAL EDICIÓN NEAR MISS (historial) ── -->
+<div id="modal-nm-view" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="text-white font-black text-xl" style="font-family:'Barlow Condensed',sans-serif;font-style:italic">Detalle Near Miss</h3>
+      <button onclick="closeModal('modal-nm-view')" class="h-9 w-9 rounded-xl flex items-center justify-center text-white/50 hover:text-white transition-all" style="background:rgba(255,255,255,.06)">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div id="modal-nm-content" class="text-white/80 text-sm leading-relaxed"></div>
+    <button onclick="closeModal('modal-nm-view')" class="admin-btn admin-btn-primary w-full mt-5">Cerrar</button>
+  </div>
+</div>
+
+<!-- ── SCRIPTS ── -->
+<script>
+  const { createClient } = supabase;
+  const sb = createClient(
+    'https://bgqlvkvlscujikhzzazf.supabase.co',
+    'sb_publishable_mzHMY11jZ7OaMES008LTzA_d7Ya1A2g'
+  );
+
+  let currentUser = null;
+  let isAdmin = false;
+
+  async function cerrarSesion() { await sb.auth.signOut(); window.location.href = '../index.html'; }
+
+  // ── INIT ──
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = 'intranet-login.html'; return; }
+    currentUser = session.user;
+
+    const { data: perfil } = await sb.from('perfiles').select('*').eq('id', session.user.id).single();
+    if (perfil) {
+      const saludo = getGreeting();
+      document.getElementById('user-welcome').innerText = `${saludo}, ${perfil.nombre_completo}`;
+      isAdmin = perfil.rol === 'admin' || perfil.rol === 'Administrador';
+      if (isAdmin) {
+        document.getElementById('btn-admin-toggle').classList.remove('hidden');
+        const badge = document.getElementById('user-role-badge');
+        badge.classList.remove('hidden');
+        badge.textContent = '🔑 Admin';
+        badge.style.cssText = 'background:rgba(30,136,229,.15);border:1px solid rgba(0,200,255,.3);color:#00c8ff;';
+      }
+    }
+
+    await loadLatestEdition();
+    generateQRCodes();
+  }
+
+  function getGreeting() {
+    const h = new Date().getHours();
+    if (h >= 6 && h < 12) return 'Buenos días';
+    if (h >= 12 && h < 19) return 'Buenas tardes';
+    return 'Buenas noches';
+  }
+
+  // ── QR CODES ──
+  function generateQRCodes() {
+    const qrConfig = [
+      { id: 'qr-ats',       url: 'https://inholes.com/formatos/ats',        label: 'ATS' },
+      { id: 'qr-nearmiss',  url: 'https://inholes.com/formatos/nearmiss',   label: 'NM'  },
+      { id: 'qr-torque',    url: 'https://inholes.com/manuales/torque',     label: 'TQ'  },
+      { id: 'qr-ergo',      url: 'https://inholes.com/videos/ergonomia',    label: 'ERG' },
+      { id: 'qr-ambiental', url: 'https://inholes.com/formatos/ambiental',  label: 'AMB' },
+    ];
+    qrConfig.forEach(({ id, url }) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      try {
+        new QRCode(el, {
+          text: url,
+          width: 72,
+          height: 72,
+          colorDark: '#0a1628',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } catch(e) {
+        el.innerHTML = `<div style="width:72px;height:72px;display:flex;align-items:center;justify-content:center;background:#e2e8f0;border-radius:6px;font-size:10px;color:#666;text-align:center">QR<br>[actualizar URL]</div>`;
+      }
+    });
+  }
+
+  // ── LOAD LATEST EDITION FROM SUPABASE ──
+  async function loadLatestEdition() {
+    const { data, error } = await sb
+      .from('qhse_editions')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error || !data) {
+      document.getElementById('edition-tag').textContent = 'Edición Mayo 2026 — Vol.1';
+      document.getElementById('issue-counter').textContent = 'ED-001';
+      return;
+    }
+
+    applyEditionToPage(data);
+  }
+
+  function applyEditionToPage(data) {
+    if (data.titulo)        document.getElementById('cover-title').innerHTML = data.titulo.replace(/\s/g,'<br>');
+    if (data.edicion)       {
+      document.getElementById('cover-edition-badge').textContent = `Edición ${data.edicion}`;
+      document.getElementById('edition-tag').textContent = `Edición ${data.edicion}`;
+    }
+    if (data.mensaje_director) document.getElementById('director-message').textContent = data.mensaje_director;
+    if (data.nombre_director)  document.getElementById('director-name').textContent   = `Ing. ${data.nombre_director}`;
+    if (data.stat_dias)    document.getElementById('stat-dias').textContent = data.stat_dias;
+    if (data.stat_obs)     document.getElementById('stat-obs').textContent  = data.stat_obs;
+    if (data.stat_acc)     document.getElementById('stat-acc').textContent  = data.stat_acc;
+    if (data.id)           document.getElementById('issue-counter').textContent = `ED-${String(data.id).padStart(3,'0')}`;
+
+    // Guardian
+    if (data.guardian_nombre) {
+      document.getElementById('guardian-name').textContent  = data.guardian_nombre;
+      const initials = data.guardian_nombre.split(' ').map(w=>w[0]).slice(0,2).join('');
+      document.getElementById('guardian-avatar').textContent = initials;
+    }
+    if (data.guardian_puesto)    document.getElementById('guardian-position').textContent = data.guardian_puesto;
+    if (data.guardian_reportes)  document.getElementById('guardian-reports').textContent  = data.guardian_reportes;
+    if (data.guardian_motivo)    document.getElementById('guardian-reason').textContent   = data.guardian_motivo;
+
+    // Custom blocks
+    if (data.custom_blocks) {
+      try {
+        const blocks = JSON.parse(data.custom_blocks);
+        renderCustomBlocks(blocks);
+      } catch(e) {}
+    }
+  }
+
+  // ── ADMIN: SAVE EDITION ──
+  async function saveEdition() {
+    if (!isAdmin) { showToast('⛔ Sin permisos de administrador', 'error'); return; }
+    const payload = {
+      titulo:            document.getElementById('adm-cover-title').value,
+      edicion:           document.getElementById('adm-edition').value,
+      mensaje_director:  document.getElementById('adm-director-msg').value,
+      nombre_director:   document.getElementById('adm-director-name').value,
+      stat_dias:         parseInt(document.getElementById('adm-stat-dias').value) || 0,
+      stat_obs:          parseInt(document.getElementById('adm-stat-obs').value)  || 0,
+      stat_acc:          parseInt(document.getElementById('adm-stat-acc').value)  || 0,
+      autor_id:          currentUser.id,
+      updated_at:        new Date().toISOString()
+    };
+
+    const { data, error } = await sb.from('qhse_editions').insert(payload).select().single();
+    if (error) { showToast('❌ Error al guardar: ' + error.message, 'error'); return; }
+
+    applyEditionToPage(data);
+    showToast('✅ Edición guardada correctamente');
+    loadEditions();
+  }
+
+  // ── ADMIN: SAVE GUARDIAN ──
+  async function saveGuardian() {
+    if (!isAdmin) { showToast('⛔ Sin permisos', 'error'); return; }
+    const nombre   = document.getElementById('g-nombre').value;
+    const puesto   = document.getElementById('g-puesto').value;
+    const reportes = document.getElementById('g-reportes').value;
+    const motivo   = document.getElementById('g-motivo').value;
+
+    if (!nombre) { showToast('⚠️ Ingresa el nombre del guardián', 'warn'); return; }
+
+    // Obtener última edición y actualizar
+    const { data: lastEd } = await sb.from('qhse_editions').select('id').order('created_at',{ascending:false}).limit(1).single();
+    if (!lastEd) { showToast('⚠️ Crea primero una edición', 'warn'); return; }
+
+    const { error } = await sb.from('qhse_editions').update({
+      guardian_nombre: nombre,
+      guardian_puesto: puesto,
+      guardian_reportes: parseInt(reportes)||0,
+      guardian_motivo: motivo
+    }).eq('id', lastEd.id);
+
+    if (error) { showToast('❌ Error: ' + error.message, 'error'); return; }
+
+    document.getElementById('guardian-name').textContent  = nombre;
+    document.getElementById('guardian-position').textContent = puesto;
+    document.getElementById('guardian-reports').textContent  = reportes;
+    document.getElementById('guardian-reason').textContent   = motivo;
+    const initials = nombre.split(' ').map(w=>w[0]).slice(0,2).join('');
+    document.getElementById('guardian-avatar').textContent = initials;
+
+    showToast('🌟 Guardián actualizado');
+  }
+
+  // ── ADMIN: NEAR MISS ──
+  async function saveNearMiss() {
+    if (!isAdmin) { showToast('⛔ Sin permisos', 'error'); return; }
+    const titulo = document.getElementById('nm-titulo').value;
+    const area   = document.getElementById('nm-area').value;
+    const desc   = document.getElementById('nm-desc').value;
+    const causa  = document.getElementById('nm-causa').value;
+    const accion = document.getElementById('nm-accion').value;
+
+    if (!titulo || !desc) { showToast('⚠️ Completa título y descripción', 'warn'); return; }
+
+    const { error } = await sb.from('qhse_near_miss').insert({
+      titulo, area, descripcion: desc, causa_raiz: causa, accion_correctiva: accion,
+      autor_id: currentUser.id, created_at: new Date().toISOString()
+    });
+
+    if (error) { showToast('❌ Error: ' + error.message, 'error'); return; }
+
+    // Update UI
+    document.getElementById('near-miss-content').querySelector('.nm-card p.nm-label').nextElementSibling.textContent = titulo;
+    document.getElementById('near-miss-content').querySelector('.nm-card p:last-of-type').textContent = desc;
+
+    showToast('⚠️ Near miss registrado');
+    ['nm-titulo','nm-area','nm-desc','nm-causa','nm-accion'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  // ── ADMIN: CUSTOM BLOCK ──
+  async function saveCustomBlock() {
+    if (!isAdmin) { showToast('⛔ Sin permisos', 'error'); return; }
+    const title   = document.getElementById('custom-title').value;
+    const content = document.getElementById('custom-content').value;
+    const color   = document.getElementById('custom-color').value;
+
+    if (!title || !content) { showToast('⚠️ Completa título y contenido', 'warn'); return; }
+
+    const { error } = await sb.from('qhse_custom_blocks').insert({
+      titulo: title, contenido: content, color,
+      autor_id: currentUser.id, created_at: new Date().toISOString(), visible: true
+    });
+
+    if (error) { showToast('❌ Error: ' + error.message, 'error'); return; }
+
+    renderCustomBlocks([{ titulo: title, contenido: content, color }]);
+    showToast('🎨 Bloque personalizado guardado');
+    document.getElementById('custom-title').value = '';
+    document.getElementById('custom-content').value = '';
+  }
+
+  async function previewCustomBlock() {
+    const title   = document.getElementById('custom-title').value || '(Sin título)';
+    const content = document.getElementById('custom-content').value || '(Sin contenido)';
+    const color   = document.getElementById('custom-color').value;
+    renderCustomBlocks([{ titulo: title, contenido: content, color }], true);
+    scrollToSection('custom-blocks-render');
+    showToast('👁️ Previsualización activa');
+  }
+
+  function renderCustomBlocks(blocks, preview=false) {
+    const container = document.getElementById('custom-blocks-render');
+    const colors = {
+      blue:   { bg: 'linear-gradient(135deg,#0a1628,#1a3160)', border: 'rgba(30,136,229,.3)', accent: '#00c8ff' },
+      red:    { bg: 'linear-gradient(135deg,#7f1d1d,#991b1b)',  border: 'rgba(227,30,36,.3)',  accent: '#fca5a5' },
+      green:  { bg: 'linear-gradient(135deg,#064e3b,#065f46)',   border: 'rgba(16,185,129,.3)', accent: '#6ee7b7' },
+      yellow: { bg: 'linear-gradient(135deg,#78350f,#92400e)',   border: 'rgba(245,158,11,.3)', accent: '#fcd34d' },
+    };
+    blocks.forEach(b => {
+      const c = colors[b.color] || colors.blue;
+      const div = document.createElement('div');
+      div.className = 'section-card mb-6';
+      div.innerHTML = `
+        <div style="padding:28px 32px;background:${c.bg};border-radius:20px;border:1px solid ${c.border};">
+          ${preview ? `<span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:${c.accent};background:rgba(255,255,255,.1);padding:3px 10px;border-radius:100px;margin-bottom:12px;display:inline-block">PREVISUALIZACIÓN</span>` : ''}
+          <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;font-style:italic;color:white;margin:8px 0">${b.titulo}</h3>
+          <p style="color:rgba(255,255,255,.75);font-size:14px;line-height:1.7;white-space:pre-line">${b.contenido}</p>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  // ── ADMIN: LOAD EDITIONS ──
+  async function loadEditions() {
+    const { data, error } = await sb.from('qhse_editions').select('*').order('created_at',{ascending:false}).limit(10);
+    const list = document.getElementById('editions-list');
+
+    if (error || !data || data.length === 0) {
+      list.innerHTML = '<p class="text-white/40 text-sm text-center py-8">No hay ediciones registradas aún</p>';
+      return;
+    }
+
+    list.innerHTML = data.map(ed => `
+      <div class="flex items-center justify-between p-3 rounded-xl" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)">
+        <div>
+          <p class="text-white font-bold text-sm">${ed.edicion || '—'}</p>
+          <p class="text-white/40 text-xs">${ed.titulo || '—'} · ${new Date(ed.created_at).toLocaleDateString('es-MX')}</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="applyEditionToPage(${JSON.stringify(ed).replace(/"/g,'&quot;')})" class="admin-btn admin-btn-success" style="padding:6px 12px;font-size:11px">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button onclick="deleteEdition(${ed.id})" class="admin-btn admin-btn-danger" style="padding:6px 12px;font-size:11px">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function deleteEdition(id) {
+    if (!isAdmin) return;
+    if (!confirm('¿Eliminar esta edición? Esta acción no se puede deshacer.')) return;
+    const { error } = await sb.from('qhse_editions').delete().eq('id', id);
+    if (error) { showToast('❌ Error al eliminar', 'error'); return; }
+    showToast('🗑️ Edición eliminada');
+    loadEditions();
+  }
+
+  // ── ADMIN: LOAD STATS ──
+  async function loadStats() {
+    const [edCount, nmCount, gCount] = await Promise.all([
+      sb.from('qhse_editions').select('id', {count:'exact',head:true}),
+      sb.from('qhse_near_miss').select('id', {count:'exact',head:true}),
+      sb.from('qhse_editions').select('guardian_nombre').not('guardian_nombre','is',null)
+    ]);
+    document.getElementById('stat-ediciones').textContent    = edCount.count ?? '—';
+    document.getElementById('stat-nm-total').textContent     = nmCount.count ?? '—';
+    document.getElementById('stat-guardianes').textContent   = gCount.data?.filter(g=>g.guardian_nombre).length ?? '—';
+    document.getElementById('stat-last-update').textContent  = new Date().toLocaleDateString('es-MX');
+  }
+
+  // ── UI HELPERS ──
+  function toggleAdminPanel() {
+    if (!isAdmin) { showToast('⛔ Acceso restringido a administradores', 'error'); return; }
+    document.getElementById('admin-panel').classList.toggle('hidden');
+    if (!document.getElementById('admin-panel').classList.contains('hidden')) {
+      loadEditions();
+      loadStats();
+      document.getElementById('admin-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  function switchAdminTab(tabId, btn) {
+    document.querySelectorAll('.admin-tab-content').forEach(t => t.classList.add('hidden'));
+    document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.remove('hidden');
+    btn.classList.add('active');
+  }
+
+  function scrollToSection(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.add('hidden');
+  }
+
+  let toastTimer = null;
+  function showToast(msg, type = 'success') {
+    const toast = document.getElementById('toast');
+    const colors = { success: '#00c8ff', error: '#ef4444', warn: '#f59e0b' };
+    toast.style.borderLeftColor = colors[type] || colors.success;
+    document.getElementById('toast-msg').textContent = msg;
+    toast.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 3800);
+  }
+
+  init();
+</script>
+
+</body>
+</html>
