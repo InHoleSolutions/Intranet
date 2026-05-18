@@ -19,18 +19,19 @@
     }
 
     * { box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: #f1f5f9; overflow-x: hidden; }
+    html, body { height: 100%; overflow: hidden; }
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
 
     /* ── SIDEBAR ── */
-    .sidebar { background: linear-gradient(180deg, var(--navy) 0%, var(--navy2) 100%); width: 220px; flex-shrink: 0; }
+    .sidebar { background: linear-gradient(180deg, var(--navy) 0%, var(--navy2) 100%); width: 220px; flex-shrink: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; }
     .nav-btn { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,.65); cursor: pointer; transition: all .2s; width: 100%; text-align: left; background: none; border: none; }
     .nav-btn:hover, .nav-btn.active { background: rgba(255,255,255,.1); color: white; }
     .nav-btn.active { background: rgba(30,136,229,.25); color: var(--cyan); border-left: 3px solid var(--cyan); padding-left: 11px; }
 
     /* ── SPLIT LAYOUT ── */
-    #app { display: flex; min-height: 100vh; }
-    #editor-panel { width: 420px; flex-shrink: 0; background: white; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; }
-    #preview-panel { flex: 1; overflow-y: auto; background: #e8edf4; padding: 24px; }
+    #app { display: flex; height: 100vh; overflow: hidden; }
+    #editor-panel { width: 420px; flex-shrink: 0; background: white; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+    #preview-panel { flex: 1; overflow-y: auto; background: #e8edf4; padding: 24px; height: 100%; }
 
     /* ── EDITOR PANEL ── */
     .editor-header { background: var(--navy); padding: 16px 20px; flex-shrink: 0; }
@@ -189,9 +190,78 @@
     .picker-empty { text-align:center; padding: 32px 16px; color: #94a3b8; }
     .picker-empty p { font-size: 12px; font-weight: 600; margin-top: 8px; }
 
-    /* QR editor */
-    .qr-editor-row { display: flex; gap: 8px; align-items: center; padding: 10px; background: #f0f7ff; border-radius: 10px; border: 1.5px dashed rgba(30,136,229,.25); margin-bottom: 8px; }
-    .qr-editor-row input { flex: 1; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 7px 10px; font-size: 12px; background: white; outline: none; color: #1e293b; }
+    /* ── TIPS EDITOR ── */
+    .tip-editor-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 10px; background: #f8fafc; border-radius: 10px;
+      border: 1.5px solid #e2e8f0; margin-bottom: 8px;
+    }
+    .tip-icon-select {
+      width: 36px; height: 36px; border-radius: 8px; border: 1.5px solid #e2e8f0;
+      background: white; font-size: 18px; text-align: center; cursor: pointer;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      padding: 0;
+    }
+    .tip-icon-picker {
+      display: none; position: absolute; z-index: 200;
+      background: white; border: 1.5px solid #e2e8f0; border-radius: 10px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.15); padding: 8px;
+      flex-wrap: wrap; gap: 4px; width: 180px;
+    }
+    .tip-icon-picker.open { display: flex; }
+    .tip-icon-opt {
+      width: 32px; height: 32px; border-radius: 6px; border: none;
+      background: #f8fafc; cursor: pointer; font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .tip-icon-opt:hover { background: #e0f2fe; }
+    /* preview tips */
+    .prev-tip { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; border-radius: 10px; margin-bottom: 8px; border-left: 4px solid; }
+    .prev-tip.green  { background: #f0fdf4; border-color: #22c55e; }
+    .prev-tip.yellow { background: #fffbeb; border-color: #f59e0b; }
+    .prev-tip.red    { background: #fef2f2; border-color: #ef4444; }
+    .prev-tip-icon   { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .prev-tip-text   { font-size: 12px; color: #475569; line-height: 1.6; }
+    /* multi-QR list */
+    .qr-list-item { position: relative; }
+    .qr-editor-block {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .qr-editor-block:hover { border-color: #1e88e5; }
+    .qr-upload-zone {
+      border: 2px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 18px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+      background: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .qr-upload-zone:hover, .qr-upload-zone.dragover {
+      border-color: #1e88e5;
+      background: #f0f7ff;
+    }
+    .qr-upload-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .qr-preview-img {
+      width: 80px; height: 80px; object-fit: contain;
+      border-radius: 8px; border: 1.5px solid #e2e8f0;
+      background: white; display: block; margin: 0 auto 8px;
+    }
+    .qr-remove-btn {
+      background: #fee2e2; color: #ef4444; border: none;
+      border-radius: 6px; padding: 4px 10px; font-size: 11px;
+      font-weight: 700; cursor: pointer; transition: all .15s;
+    }
+    .qr-remove-btn:hover { background: #ef4444; color: white; }
 
     /* Block color picker */
     .color-swatch { width: 24px; height: 24px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; transition: all .2s; }
@@ -241,9 +311,9 @@
     .prev-qr-placeholder { width: 60px; height: 60px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 22px; }
 
     /* ── DASHBOARD VIEW ── */
-    #view-dashboard { display: none; }
+    #view-dashboard { display: none; height: 100vh; overflow-y: auto; }
     #view-dashboard.active { display: block; }
-    #view-editor { display: none; flex: 1; }
+    #view-editor { display: none; flex: 1; height: 100vh; overflow: hidden; }
     #view-editor.active { display: flex; }
 
     /* ── SCROLLBAR ── */
@@ -344,7 +414,7 @@
   <!-- ══════════════════════════════════════ -->
   <!-- DASHBOARD VIEW                         -->
   <!-- ══════════════════════════════════════ -->
-  <div id="view-dashboard" class="flex-1 p-6 lg:p-8 overflow-y-auto">
+  <div id="view-dashboard" class="flex-1 p-6 lg:p-8 overflow-y-auto active">
 
     <!-- Header -->
     <div class="flex items-center justify-between mb-8">
@@ -411,7 +481,7 @@
   <!-- ══════════════════════════════════════════════════════ -->
   <!-- EDITOR VIEW: panel izquierdo + preview derecho        -->
   <!-- ══════════════════════════════════════════════════════ -->
-  <div id="view-editor" class="flex-1">
+  <div id="view-editor" class="flex-1" style="display:none">
 
     <!-- ── EDITOR PANEL ── -->
     <div id="editor-panel">
@@ -504,10 +574,28 @@
 
           <div class="section-divider"></div>
           <div class="section-label"><i class="fas fa-shield-halved text-red-400"></i>EPP Safety</div>
+          <div class="field-group" style="margin-bottom:10px">
+            <label class="field-label">Título del grupo EPP</label>
+            <input id="f-safety-epp-titulo" class="field-input" type="text" placeholder="Ej: EPP Obligatorio — Izaje de cargas" oninput="livePreview()">
+          </div>
           <div id="epp-safety-list"></div>
           <button onclick="addEpp('safety')" class="w-full py-2 rounded-lg border-2 border-dashed border-slate-200 text-slate-400 text-xs font-bold hover:border-red-300 hover:text-red-500 transition mt-1">
             <i class="fas fa-plus mr-1"></i>Agregar EPP
           </button>
+
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="fas fa-lightbulb text-yellow-400"></i>Tips de Seguridad</div>
+          <p style="font-size:11px;color:#94a3b8;margin-bottom:10px">3 tips con íconos editables. Aparecen debajo del EPP en la revista.</p>
+          <div id="tips-safety-list"></div>
+
+          <div class="section-divider"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div class="section-label" style="margin-bottom:0"><i class="fas fa-qrcode text-slate-400"></i>Códigos QR — Safety</div>
+            <button onclick="addQr('safety')" class="text-xs font-bold text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-lg border border-blue-100 transition">
+              <i class="fas fa-plus mr-1"></i>Agregar QR
+            </button>
+          </div>
+          <div id="qr-safety-list"></div>
 
           <div class="section-divider"></div>
           <div class="section-label"><i class="fas fa-exclamation-triangle text-red-400"></i>Near Miss / Lección Aprendida</div>
@@ -543,12 +631,6 @@
             <textarea id="f-nm-accion" class="field-input field-textarea" placeholder="¿Qué se hizo?" oninput="livePreview()"></textarea>
           </div>
 
-          <div class="section-divider"></div>
-          <div class="section-label"><i class="fas fa-qrcode text-slate-400"></i>Código QR</div>
-          <div class="qr-editor-row">
-            <span class="text-lg">📋</span>
-            <input id="f-qr-ats" class="field-input" type="url" placeholder="URL del formato ATS" oninput="livePreview()">
-          </div>
         </div>
 
         <!-- ── TAB QUALITY ── -->
@@ -558,23 +640,92 @@
             <label class="field-label">Título de la sección</label>
             <input id="f-quality-titulo" class="field-input" type="text" placeholder="CALIDAD OPERATIVA" oninput="livePreview()">
           </div>
+
+          <!-- ── COLUMNA IZQUIERDA: Título izquierdo + Tabla + Alerta ── -->
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="fas fa-table text-blue-400"></i>Columna Izquierda</div>
           <div class="field-group">
-            <label class="field-label">Contenido principal</label>
-            <textarea id="f-quality-contenido" class="field-input field-textarea" style="min-height:120px" placeholder="Procedimientos, inspecciones, alertas de calidad..." oninput="livePreview()"></textarea>
+            <label class="field-label">Título columna izquierda</label>
+            <input id="f-quality-left-titulo" class="field-input" type="text" placeholder="INTEGRIDAD DE CONEXIONES" oninput="livePreview()">
           </div>
 
+          <!-- Tabla de inspección -->
+          <div style="margin-bottom:12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <label class="field-label" style="margin:0">Tabla de Inspección</label>
+              <button onclick="addQualityRow()" style="font-size:10px;font-weight:700;color:#1e88e5;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:3px 10px;cursor:pointer">
+                <i class="fas fa-plus mr-1"></i>Fila
+              </button>
+            </div>
+            <div id="quality-tabla-list"></div>
+            <p style="font-size:10px;color:#94a3b8;margin-top:4px">Cada fila: Parámetro / Condición OK / Acción</p>
+          </div>
+
+          <!-- Alerta de calidad -->
+          <div class="field-group">
+            <label class="field-label">⚠️ Título de Alerta de Calidad</label>
+            <input id="f-quality-alerta-titulo" class="field-input" type="text" placeholder="¡ALERTA DE CALIDAD!" oninput="livePreview()">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Texto de alerta (soporta **negrita** y ==resaltado==)</label>
+            <textarea id="f-quality-alerta-texto" class="field-input field-textarea" style="min-height:80px"
+              placeholder="El galling (soldadura en frío) en roscas premium es **irreversible**..." oninput="livePreview()"></textarea>
+          </div>
+
+          <!-- ── COLUMNA DERECHA: Título derecho + Pasos + EPP + QR ── -->
           <div class="section-divider"></div>
-          <div class="section-label"><i class="fas fa-shield-halved text-blue-400"></i>EPP Quality</div>
+          <div class="section-label"><i class="fas fa-list-ol text-blue-400"></i>Columna Derecha</div>
+          <div class="field-group">
+            <label class="field-label">Título columna derecha</label>
+            <input id="f-quality-right-titulo" class="field-input" type="text" placeholder="MÁQUINA DE TORQUE — ROTACIÓN CONTINUA" oninput="livePreview()">
+          </div>
+
+          <!-- Pasos numerados -->
+          <div style="margin-bottom:12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <label class="field-label" style="margin:0">Pasos / Procedimiento</label>
+              <button onclick="addQualityPaso()" style="font-size:10px;font-weight:700;color:#1e88e5;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:3px 10px;cursor:pointer">
+                <i class="fas fa-plus mr-1"></i>Paso
+              </button>
+            </div>
+            <div id="quality-pasos-list"></div>
+          </div>
+
+          <!-- EPP Quality -->
+          <div class="section-divider"></div>
+          <div class="field-group" style="margin-bottom:8px">
+            <label class="field-label">Título del grupo EPP Quality</label>
+            <input id="f-quality-epp-titulo" class="field-input" type="text" placeholder="EPP PARA OPERACIÓN DE MÁQUINA DE TORQUE" oninput="livePreview()">
+          </div>
           <div id="epp-quality-list"></div>
           <button onclick="addEpp('quality')" class="w-full py-2 rounded-lg border-2 border-dashed border-slate-200 text-slate-400 text-xs font-bold hover:border-blue-300 hover:text-blue-500 transition mt-1">
             <i class="fas fa-plus mr-1"></i>Agregar EPP
           </button>
 
+          <!-- QR Quality -->
           <div class="section-divider"></div>
-          <div class="section-label"><i class="fas fa-qrcode text-slate-400"></i>Código QR</div>
-          <div class="qr-editor-row">
-            <span class="text-lg">⚙️</span>
-            <input id="f-qr-torque" class="field-input" type="url" placeholder="URL del manual de torque" oninput="livePreview()">
+          <div class="section-label"><i class="fas fa-qrcode text-slate-400"></i>Código QR — Quality</div>
+          <div class="qr-editor-block">
+            <div class="field-group" style="margin-bottom:10px">
+              <label class="field-label">Título del bloque QR</label>
+              <input id="f-qr-torque-titulo" class="field-input" type="text" placeholder="Ej: Manual operativo máquina de torque" oninput="livePreview()">
+            </div>
+            <div class="field-group" style="margin-bottom:10px">
+              <label class="field-label">Descripción</label>
+              <input id="f-qr-torque-desc" class="field-input" type="text" placeholder="Ej: Procedimiento ISO / video de capacitación" oninput="livePreview()">
+            </div>
+            <label class="field-label">Imagen del código QR</label>
+            <div class="qr-upload-zone" id="zone-torque" onclick="triggerQrUpload('torque')"
+              ondragover="event.preventDefault();this.classList.add('dragover')"
+              ondragleave="this.classList.remove('dragover')"
+              ondrop="handleQrDrop(event,'torque')">
+              <input type="file" id="file-qr-torque" accept="image/*" onchange="handleQrFile(event,'torque')" onclick="event.stopPropagation()">
+              <div id="qr-preview-torque">
+                <i class="fas fa-qrcode text-slate-300 text-3xl mb-2"></i>
+                <p style="font-size:12px;font-weight:600;color:#94a3b8">Haz clic o arrastra la imagen del QR</p>
+                <p style="font-size:10px;color:#cbd5e1;margin-top:2px">PNG, JPG — máx. 2 MB</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -585,15 +736,101 @@
             <label class="field-label">Título de la sección</label>
             <input id="f-health-titulo" class="field-input" type="text" placeholder="SALUD OCUPACIONAL" oninput="livePreview()">
           </div>
-          <div class="field-group">
-            <label class="field-label">Contenido principal</label>
-            <textarea id="f-health-contenido" class="field-input field-textarea" style="min-height:120px" placeholder="Ergonomía, higiene industrial, bienestar..." oninput="livePreview()"></textarea>
-          </div>
+
+          <!-- ══ COL IZQUIERDA: Ruido y Vibración ══ -->
           <div class="section-divider"></div>
-          <div class="section-label"><i class="fas fa-qrcode text-slate-400"></i>Código QR</div>
-          <div class="qr-editor-row">
-            <span class="text-lg">🏋️</span>
-            <input id="f-qr-ergo" class="field-input" type="url" placeholder="URL video ergonomía" oninput="livePreview()">
+          <div class="section-label"><i class="fas fa-ear-listen text-amber-400"></i>Columna Izquierda — Ruido y Vibración</div>
+          <div class="field-group">
+            <label class="field-label">Título columna izquierda</label>
+            <input id="f-health-left-titulo" class="field-input" type="text" placeholder="PROTECCIÓN RUIDO Y VIBRACIÓN" oninput="livePreview()">
+          </div>
+
+          <!-- Cuadro de niveles de ruido -->
+          <div style="margin-bottom:12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <label class="field-label" style="margin:0">🔊 Título del cuadro de ruido</label>
+            </div>
+            <input id="f-health-ruido-titulo" class="field-input" style="margin-bottom:8px" type="text"
+              placeholder="NIVELES DE EXPOSICIÓN AL RUIDO – BANCO HORIZONTAL" oninput="livePreview()">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <label class="field-label" style="margin:0">Barras de nivel (máx. 4)</label>
+              <button onclick="addHealthBarra()" style="font-size:10px;font-weight:700;color:#f59e0b;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:3px 10px;cursor:pointer">
+                <i class="fas fa-plus mr-1"></i>Barra
+              </button>
+            </div>
+            <p style="font-size:10px;color:#94a3b8;margin-bottom:6px">Cada barra: etiqueta / valor dB / % de la barra (0-100) / color (red/orange/green)</p>
+            <div id="health-barras-list"></div>
+          </div>
+
+          <!-- Tips de ruido/vibración -->
+          <div style="margin-bottom:12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <label class="field-label" style="margin:0">Tips ruido / vibración</label>
+              <button onclick="addHealthTip()" style="font-size:10px;font-weight:700;color:#f59e0b;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:3px 10px;cursor:pointer">
+                <i class="fas fa-plus mr-1"></i>Tip
+              </button>
+            </div>
+            <div id="health-tips-list"></div>
+          </div>
+
+          <!-- ══ COL DERECHA: Ergonomía ══ -->
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="fas fa-person-walking text-amber-400"></i>Columna Derecha — Ergonomía</div>
+          <div class="field-group">
+            <label class="field-label">Título columna derecha</label>
+            <input id="f-health-right-titulo" class="field-input" type="text" placeholder="ERGONOMÍA EN CAMPO Y TALLER" oninput="livePreview()">
+          </div>
+
+          <!-- Sub-título cuadro correcto/incorrecto -->
+          <div class="field-group">
+            <label class="field-label">Título cuadro Correcto / Incorrecto</label>
+            <input id="f-health-ergo-subtitulo" class="field-input" type="text"
+              placeholder="POSTURAS CORRECTAS – MANEJO DE HERRAMIENTAS DE FONDO" oninput="livePreview()">
+          </div>
+          <div class="field-row" style="margin-bottom:12px">
+            <div class="field-group">
+              <label class="field-label">✅ Descripción CORRECTO</label>
+              <textarea id="f-health-ergo-correcto" class="field-input field-textarea" style="min-height:60px"
+                placeholder="Espalda recta, rodillas flexionadas, carga cerca del cuerpo" oninput="livePreview()"></textarea>
+            </div>
+            <div class="field-group">
+              <label class="field-label">❌ Descripción INCORRECTO</label>
+              <textarea id="f-health-ergo-incorrecto" class="field-input field-textarea" style="min-height:60px"
+                placeholder="Espalda doblada, carga alejada del cuerpo, giro brusco" oninput="livePreview()"></textarea>
+            </div>
+          </div>
+
+          <!-- Nota de peso -->
+          <div class="field-group">
+            <label class="field-label">💛 Nota de peso máximo</label>
+            <input id="f-health-ergo-peso" class="field-input" type="text"
+              placeholder="Peso máx. manual sin apoyo mecánico: 25 kg — Para tubería..." oninput="livePreview()">
+          </div>
+
+          <!-- QR Health -->
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="fas fa-qrcode text-slate-400"></i>Código QR — Health</div>
+          <div class="qr-editor-block">
+            <div class="field-group" style="margin-bottom:10px">
+              <label class="field-label">Título del bloque QR</label>
+              <input id="f-qr-ergo-titulo" class="field-input" type="text" placeholder="Ej: Video: Ergonomía en campo" oninput="livePreview()">
+            </div>
+            <div class="field-group" style="margin-bottom:10px">
+              <label class="field-label">Descripción</label>
+              <input id="f-qr-ergo-desc" class="field-input" type="text" placeholder="Ej: Capacitación IHS — Manejo seguro de cargas" oninput="livePreview()">
+            </div>
+            <label class="field-label">Imagen del código QR</label>
+            <div class="qr-upload-zone" id="zone-ergo" onclick="triggerQrUpload('ergo')"
+              ondragover="event.preventDefault();this.classList.add('dragover')"
+              ondragleave="this.classList.remove('dragover')"
+              ondrop="handleQrDrop(event,'ergo')">
+              <input type="file" id="file-qr-ergo" accept="image/*" onchange="handleQrFile(event,'ergo')" onclick="event.stopPropagation()">
+              <div id="qr-preview-ergo">
+                <i class="fas fa-qrcode text-slate-300 text-3xl mb-2"></i>
+                <p style="font-size:12px;font-weight:600;color:#94a3b8">Haz clic o arrastra la imagen del QR</p>
+                <p style="font-size:10px;color:#cbd5e1;margin-top:2px">PNG, JPG — máx. 2 MB</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -613,10 +850,28 @@
             <input id="f-env-derrames" class="field-input" type="number" placeholder="0" min="0" oninput="livePreview()">
           </div>
           <div class="section-divider"></div>
-          <div class="section-label"><i class="fas fa-qrcode text-slate-400"></i>Código QR</div>
-          <div class="qr-editor-row">
-            <span class="text-lg">🌿</span>
-            <input id="f-qr-ambiental" class="field-input" type="url" placeholder="URL formato incidente ambiental" oninput="livePreview()">
+          <div class="section-label"><i class="fas fa-qrcode text-slate-400"></i>Código QR — Environment</div>
+          <div class="qr-editor-block">
+            <div class="field-group" style="margin-bottom:10px">
+              <label class="field-label">Título del bloque QR</label>
+              <input id="f-qr-ambiental-titulo" class="field-input" type="text" placeholder="Ej: Formato incidente ambiental" oninput="livePreview()">
+            </div>
+            <div class="field-group" style="margin-bottom:10px">
+              <label class="field-label">Descripción</label>
+              <input id="f-qr-ambiental-desc" class="field-input" type="text" placeholder="Ej: Reporte digital de incidente ambiental" oninput="livePreview()">
+            </div>
+            <label class="field-label">Imagen del código QR</label>
+            <div class="qr-upload-zone" id="zone-ambiental" onclick="triggerQrUpload('ambiental')"
+              ondragover="event.preventDefault();this.classList.add('dragover')"
+              ondragleave="this.classList.remove('dragover')"
+              ondrop="handleQrDrop(event,'ambiental')">
+              <input type="file" id="file-qr-ambiental" accept="image/*" onchange="handleQrFile(event,'ambiental')" onclick="event.stopPropagation()">
+              <div id="qr-preview-ambiental">
+                <i class="fas fa-qrcode text-slate-300 text-3xl mb-2"></i>
+                <p style="font-size:12px;font-weight:600;color:#94a3b8">Haz clic o arrastra la imagen del QR</p>
+                <p style="font-size:10px;color:#cbd5e1;margin-top:2px">PNG, JPG — máx. 2 MB</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -657,7 +912,7 @@
           </div>
           <p class="text-xs text-slate-500 mb-4">Bloques libres de contenido que aparecerán al final de la revista.</p>
           <div id="custom-blocks-list">
-            <div class="text-center py-6 text-slate-400 text-sm" id="no-blocks-msg">
+            <div class="text-center py-6 text-slate-400 text-sm">
               <i class="fas fa-cubes text-2xl mb-2 opacity-30 block"></i>
               No hay bloques. Haz clic en "Agregar".
             </div>
@@ -747,40 +1002,39 @@
         <div class="prev-section fade-in" id="prev-safety">
           <div class="prev-section-header" style="background:linear-gradient(135deg,#e31e24,#c01a1f)">
             <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-hard-hat text-white text-sm"></i></div>
-            <div>
-              <span class="prev-badge">Safety</span>
-              <h2 class="prev-section-title" id="pv-safety-titulo">ALERTA DE SEGURIDAD</h2>
-            </div>
+            <div><span class="prev-badge">Safety</span><h2 class="prev-section-title" id="pv-safety-titulo">ALERTA DE SEGURIDAD</h2></div>
             <span style="margin-left:auto;font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em">Safety</span>
           </div>
           <div class="prev-section-body">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-              <!-- Left: contenido + EPP -->
+              <!-- LEFT -->
               <div>
-                <p id="pv-safety-contenido" style="font-size:13px;color:#475569;line-height:1.7;margin-bottom:14px">El contenido de seguridad aparecerá aquí...</p>
-                <!-- EPP Preview -->
-                <div id="pv-epp-safety" class="rounded-xl p-3 mb-3" style="background:#fef9f9;border:2px dashed rgba(227,30,36,.2)">
-                  <p style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#e31e24;margin-bottom:8px"><i class="fas fa-shield-halved mr-1"></i>EPP Obligatorio</p>
-                  <div class="prev-epp-grid" id="pv-epp-safety-grid"><p style="font-size:11px;color:#94a3b8;padding:6px">Agrega EPP desde el panel izquierdo...</p></div>
+                <!-- Subtítulo tema -->
+                <p id="pv-safety-subtema" style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#e31e24;margin-bottom:6px;display:flex;align-items:center;gap:6px"><i class="fas fa-hard-hat"></i><span id="pv-safety-subtema-text">MANIOBRAS DE CARGA</span></p>
+                <!-- EPP Box -->
+                <div id="pv-epp-safety" style="border:2px dashed rgba(227,30,36,.25);border-radius:12px;padding:14px;background:#fff5f5;margin-bottom:12px">
+                  <p id="pv-epp-safety-titulo" style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#e31e24;margin-bottom:10px;display:flex;align-items:center;gap:5px"><i class="fas fa-shield-halved"></i>EPP Obligatorio</p>
+                  <div id="pv-epp-safety-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:8px"></div>
                 </div>
-                <!-- QR -->
-                <div class="prev-qr-box" id="pv-qr-safety">
-                  <div class="prev-qr-placeholder">📋</div>
-                  <div><p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#00c8ff">Código QR</p><p style="font-size:11px;font-weight:700;color:white;margin-top:2px">Formato ATS Digital</p><p id="pv-qr-ats-url" style="font-size:10px;color:rgba(255,255,255,.4);margin-top:1px">Sin URL configurada</p></div>
-                </div>
+                <!-- Tips Safety -->
+                <div id="pv-tips-safety" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"></div>
+                <!-- QRs Safety (dynamic) -->
+                <div id="pv-qr-safety-list"></div>
               </div>
-              <!-- Right: Near Miss -->
+              <!-- RIGHT: Near Miss -->
               <div>
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-                  <div style="width:28px;height:28px;border-radius:7px;background:#fef2f2;display:flex;align-items:center;justify-content:center;"><i class="fas fa-exclamation-triangle text-red-600" style="font-size:11px"></i></div>
-                  <h3 style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:#1e293b;text-transform:uppercase">Lección Aprendida</h3>
+                <p style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-bottom:8px;display:flex;align-items:center;gap:6px"><i class="fas fa-triangle-exclamation text-red-500"></i>Lección Aprendida — Near Miss</p>
+                <!-- Near miss label / area -->
+                <div style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:100px;background:#fef2f2;border:1px solid #fecaca;margin-bottom:10px">
+                  <i class="fas fa-circle text-red-500" style="font-size:6px"></i>
+                  <span id="pv-nm-area" style="font-size:10px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.06em">Incidente —</span>
                 </div>
-                <div class="prev-nm">
-                  <p class="prev-nm-label" id="pv-nm-area"><i class="fas fa-clock mr-1"></i>Incidente —</p>
-                  <p id="pv-nm-titulo" style="font-family:'Barlow Condensed';font-size:16px;font-weight:900;color:#1e293b;margin-bottom:6px">Completa el formulario Near Miss...</p>
-                  <p id="pv-nm-desc" style="font-size:12px;color:#64748b;line-height:1.6"></p>
+                <!-- Near miss card -->
+                <div style="border-left:4px solid #e31e24;background:#fff5f5;border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:10px">
+                  <p id="pv-nm-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:#1e293b;text-transform:uppercase;margin-bottom:6px">Completa el formulario Near Miss...</p>
+                  <p id="pv-nm-desc" style="font-size:11px;color:#64748b;line-height:1.6"></p>
                 </div>
-                <div style="display:grid;gap:8px;margin-top:8px">
+                <div style="display:grid;gap:8px">
                   <div style="border-radius:10px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0">
                     <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:4px"><i class="fas fa-magnifying-glass mr-1 text-blue-400"></i>Causa Raíz</p>
                     <p id="pv-nm-causa" style="font-size:12px;color:#475569">—</p>
@@ -800,26 +1054,71 @@
           <div class="prev-section-header" style="background:linear-gradient(135deg,#1e88e5,#0d47a1)">
             <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-check-double text-white text-sm"></i></div>
             <div>
-              <span class="prev-badge">Quality</span>
+              <span class="prev-badge" style="background:rgba(255,255,255,.15);color:rgba(255,255,255,.9);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:2px 8px;border-radius:4px">PÁGS. 4-5</span>
               <h2 class="prev-section-title" id="pv-quality-titulo">CALIDAD OPERATIVA</h2>
             </div>
             <span style="margin-left:auto;font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em">Quality</span>
           </div>
           <div class="prev-section-body">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <!-- TWO COLUMNS like image 2 -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+
+              <!-- ── LEFT COLUMN ── -->
               <div>
-                <p id="pv-quality-contenido" style="font-size:13px;color:#475569;line-height:1.7;margin-bottom:14px">El contenido de calidad aparecerá aquí...</p>
-                <div id="pv-epp-quality" class="rounded-xl p-3" style="background:#f0f7ff;border:2px dashed rgba(30,136,229,.2)">
-                  <p style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#1e88e5;margin-bottom:8px"><i class="fas fa-shield-halved mr-1"></i>EPP Quality</p>
-                  <div class="prev-epp-grid" id="pv-epp-quality-grid"><p style="font-size:11px;color:#94a3b8;padding:6px">Agrega EPP...</p></div>
+                <!-- Left title -->
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+                  <span style="font-size:18px">🔗</span>
+                  <h3 id="pv-quality-left-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:#1e293b;text-transform:uppercase;letter-spacing:.04em">INTEGRIDAD DE CONEXIONES</h3>
+                </div>
+
+                <!-- Inspection table -->
+                <div id="pv-quality-tabla-wrap" style="margin-bottom:14px">
+                  <!-- dynamically rendered -->
+                </div>
+
+                <!-- Quality alert -->
+                <div id="pv-quality-alerta-wrap" style="display:none">
+                  <div style="background:linear-gradient(135deg,#0a1628,#1a3160);border-radius:10px;padding:14px;border-left:4px solid #f59e0b">
+                    <p id="pv-quality-alerta-titulo" style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#fbbf24;margin-bottom:6px"><i class="fas fa-triangle-exclamation mr-1"></i>¡ALERTA DE CALIDAD!</p>
+                    <p id="pv-quality-alerta-texto" style="font-size:12px;color:rgba(255,255,255,.8);line-height:1.65"></p>
+                  </div>
                 </div>
               </div>
+
+              <!-- ── RIGHT COLUMN ── -->
               <div>
-                <div class="prev-qr-box">
-                  <div class="prev-qr-placeholder">⚙️</div>
-                  <div><p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#00c8ff">Código QR</p><p style="font-size:11px;font-weight:700;color:white;margin-top:2px">Manual de Torque</p><p id="pv-qr-torque-url" style="font-size:10px;color:rgba(255,255,255,.4);margin-top:1px">Sin URL configurada</p></div>
+                <!-- Right title -->
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+                  <span style="font-size:18px">⚙️</span>
+                  <h3 id="pv-quality-right-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:#1e293b;text-transform:uppercase;letter-spacing:.04em">MÁQUINA DE TORQUE — ROTACIÓN CONTINUA</h3>
+                </div>
+
+                <!-- Numbered steps -->
+                <div id="pv-quality-pasos-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>
+
+                <!-- EPP Quality -->
+                <div id="pv-epp-quality" style="border:2px dashed rgba(30,136,229,.25);border-radius:12px;padding:12px;background:#f0f7ff;margin-bottom:14px">
+                  <p id="pv-epp-quality-titulo" style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#1e88e5;margin-bottom:10px;display:flex;align-items:center;gap:5px">
+                    <i class="fas fa-shield-halved"></i>EPP Quality
+                  </p>
+                  <div id="pv-epp-quality-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:8px">
+                    <p style="font-size:11px;color:#94a3b8;padding:6px;grid-column:1/-1">Agrega EPP...</p>
+                  </div>
+                </div>
+
+                <!-- QR Quality -->
+                <div id="pv-qr-quality-wrap">
+                  <div class="prev-qr-box" style="margin-bottom:0">
+                    <div class="prev-qr-placeholder" id="pv-qr-torque-img-wrap">⚙️</div>
+                    <div>
+                      <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#00c8ff">Código QR</p>
+                      <p id="pv-qr-torque-titulo" style="font-size:11px;font-weight:700;color:white;margin-top:2px">Manual de Torque</p>
+                      <p id="pv-qr-torque-desc" style="font-size:10px;color:rgba(255,255,255,.4);margin-top:1px">Sin descripción</p>
+                    </div>
+                  </div>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
@@ -829,22 +1128,81 @@
           <div class="prev-section-header" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
             <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-heartbeat text-white text-sm"></i></div>
             <div>
-              <span class="prev-badge">Health</span>
+              <span class="prev-badge" style="background:rgba(255,255,255,.2);color:rgba(255,255,255,.9);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:2px 8px;border-radius:4px">PÁGS. 6-7</span>
               <h2 class="prev-section-title" id="pv-health-titulo">SALUD OCUPACIONAL</h2>
             </div>
             <span style="margin-left:auto;font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em">Health</span>
           </div>
           <div class="prev-section-body">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+
+              <!-- ══ LEFT: Ruido y Vibración ══ -->
               <div>
-                <p id="pv-health-contenido" style="font-size:13px;color:#475569;line-height:1.7">El contenido de salud aparecerá aquí...</p>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+                  <span style="font-size:18px">🎵</span>
+                  <h3 id="pv-health-left-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:#1e293b;text-transform:uppercase;letter-spacing:.04em">PROTECCIÓN RUIDO Y VIBRACIÓN</h3>
+                </div>
+
+                <!-- Ruido box -->
+                <div id="pv-health-ruido-box" style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:10px;padding:12px;margin-bottom:10px">
+                  <p id="pv-health-ruido-titulo" style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#92400e;margin-bottom:10px;display:flex;align-items:center;gap:5px">
+                    <i class="fas fa-volume-high"></i>NIVELES DE EXPOSICIÓN AL RUIDO
+                  </p>
+                  <div id="pv-health-barras-list" style="display:flex;flex-direction:column;gap:8px"></div>
+                </div>
+
+                <!-- Tips ruido/vibración -->
+                <div id="pv-health-tips-list" style="display:flex;flex-direction:column;gap:6px"></div>
               </div>
+
+              <!-- ══ RIGHT: Ergonomía ══ -->
               <div>
-                <div class="prev-qr-box">
-                  <div class="prev-qr-placeholder">🏋️</div>
-                  <div><p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#00c8ff">Código QR</p><p style="font-size:11px;font-weight:700;color:white;margin-top:2px">Video Ergonomía</p><p id="pv-qr-ergo-url" style="font-size:10px;color:rgba(255,255,255,.4);margin-top:1px">Sin URL configurada</p></div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+                  <span style="font-size:18px">🚶</span>
+                  <h3 id="pv-health-right-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:#1e293b;text-transform:uppercase;letter-spacing:.04em">ERGONOMÍA EN CAMPO Y TALLER</h3>
+                </div>
+
+                <!-- Cuadro correcto/incorrecto -->
+                <div style="border:1.5px solid #e2e8f0;border-radius:10px;overflow:hidden;margin-bottom:10px">
+                  <div id="pv-health-ergo-subtitulo" style="background:#f8fafc;padding:7px 12px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#64748b;border-bottom:1px solid #e2e8f0">
+                    POSTURAS CORRECTAS – MANEJO DE HERRAMIENTAS DE FONDO
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr">
+                    <div style="padding:14px;text-align:center;border-right:1px solid #e2e8f0">
+                      <div style="width:36px;height:36px;border-radius:50%;background:#22c55e;margin:0 auto 8px;display:flex;align-items:center;justify-content:center">
+                        <i class="fas fa-check" style="color:white;font-size:14px"></i>
+                      </div>
+                      <p style="font-size:9px;font-weight:800;color:#15803d;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Correcto</p>
+                      <p id="pv-health-ergo-correcto" style="font-size:11px;color:#475569;line-height:1.5">Espalda recta, rodillas flexionadas, carga cerca del cuerpo</p>
+                    </div>
+                    <div style="padding:14px;text-align:center">
+                      <div style="width:36px;height:36px;border-radius:50%;background:#ef4444;margin:0 auto 8px;display:flex;align-items:center;justify-content:center">
+                        <i class="fas fa-times" style="color:white;font-size:14px"></i>
+                      </div>
+                      <p style="font-size:9px;font-weight:800;color:#dc2626;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Incorrecto</p>
+                      <p id="pv-health-ergo-incorrecto" style="font-size:11px;color:#475569;line-height:1.5">Espalda doblada, carga alejada del cuerpo, giro brusco</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Nota de peso -->
+                <div id="pv-health-ergo-peso-wrap" style="display:none;background:#fffbeb;border-radius:8px;padding:9px 12px;margin-bottom:12px;border-left:3px solid #f59e0b">
+                  <p id="pv-health-ergo-peso" style="font-size:11px;color:#78350f;line-height:1.6">
+                    <span style="font-size:14px;margin-right:5px">💛</span>
+                  </p>
+                </div>
+
+                <!-- QR Ergo -->
+                <div class="prev-qr-box" style="margin-top:4px">
+                  <div class="prev-qr-placeholder" id="pv-qr-ergo-img-wrap">🏋️</div>
+                  <div>
+                    <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#00c8ff">Código QR</p>
+                    <p id="pv-qr-ergo-titulo" style="font-size:11px;font-weight:700;color:white;margin-top:2px">Video Ergonomía</p>
+                    <p id="pv-qr-ergo-desc" style="font-size:10px;color:rgba(255,255,255,.4);margin-top:1px">Sin descripción</p>
+                  </div>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
@@ -853,25 +1211,28 @@
         <div class="prev-section fade-in" id="prev-environment">
           <div class="prev-section-header" style="background:linear-gradient(135deg,#10b981,#059669)">
             <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-leaf text-white text-sm"></i></div>
-            <div>
-              <span class="prev-badge">Environment</span>
-              <h2 class="prev-section-title" id="pv-env-titulo">MEDIO AMBIENTE</h2>
-            </div>
+            <div><span class="prev-badge">Environment</span><h2 class="prev-section-title" id="pv-env-titulo">MEDIO AMBIENTE</h2></div>
             <span style="margin-left:auto;font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em">Environment</span>
           </div>
           <div class="prev-section-body">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <div style="display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start">
               <div>
-                <p id="pv-env-contenido" style="font-size:13px;color:#475569;line-height:1.7;margin-bottom:14px">El contenido ambiental aparecerá aquí...</p>
-                <div style="background:linear-gradient(135deg,#0a1628,#1a3160);border-radius:12px;padding:14px;text-align:center;border:1px solid rgba(16,185,129,.3)">
-                  <p id="pv-env-derrames" style="font-family:'Barlow Condensed';font-size:40px;font-weight:900;color:#34d399;line-height:1">0</p>
-                  <p style="font-size:10px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.6);letter-spacing:.06em">Derrames no<br>contenidos 2026</p>
-                </div>
+                <p id="pv-env-contenido" style="font-size:13px;color:#475569;line-height:1.7;margin-bottom:14px;white-space:pre-line">El contenido ambiental aparecerá aquí...</p>
               </div>
-              <div>
-                <div class="prev-qr-box">
-                  <div class="prev-qr-placeholder">🌿</div>
-                  <div><p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#00c8ff">Código QR</p><p style="font-size:11px;font-weight:700;color:white;margin-top:2px">Incidente Ambiental</p><p id="pv-qr-ambiental-url" style="font-size:10px;color:rgba(255,255,255,.4);margin-top:1px">Sin URL configurada</p></div>
+              <div style="display:flex;flex-direction:column;gap:12px;min-width:160px">
+                <!-- Derrames counter -->
+                <div style="background:linear-gradient(135deg,#0a1628,#1a3160);border-radius:12px;padding:16px;text-align:center;border:1px solid rgba(16,185,129,.3)">
+                  <p id="pv-env-derrames" style="font-family:'Barlow Condensed';font-size:40px;font-weight:900;color:#34d399;line-height:1">0</p>
+                  <p style="font-size:10px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.6);letter-spacing:.06em;margin-top:4px">Derrames no<br>contenidos 2026</p>
+                </div>
+                <!-- QR Ambiental -->
+                <div class="prev-qr-box" style="margin-top:0">
+                  <div class="prev-qr-placeholder" id="pv-qr-ambiental-img-wrap">🌿</div>
+                  <div>
+                    <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#00c8ff">Código QR</p>
+                    <p id="pv-qr-ambiental-titulo" style="font-size:11px;font-weight:700;color:white;margin-top:2px">Incidente Ambiental</p>
+                    <p id="pv-qr-ambiental-desc" style="font-size:10px;color:rgba(255,255,255,.4);margin-top:1px">Sin descripción</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -882,9 +1243,7 @@
         <div class="prev-section fade-in" id="prev-guardian">
           <div class="prev-section-header" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)">
             <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-star text-white text-sm"></i></div>
-            <div>
-              <span class="prev-badge">Guardián QHSE del Mes</span>
-            </div>
+            <div><span class="prev-badge">Guardián QHSE del Mes</span></div>
           </div>
           <div class="prev-section-body">
             <div class="prev-guardian">
@@ -999,6 +1358,16 @@
   let eppSafety   = [];
   let eppQuality  = [];
   let guardianBadges = [];
+  let qrsSafety   = [];   // array of {titulo, desc, img (File|string|null)}
+  let tipsSafety  = [     // 3 fixed tips with editable icon + text
+    { icon: '✅', text: '' },
+    { icon: '⚠️', text: '' },
+    { icon: '🚫', text: '' },
+  ];
+  let qualityTabla = []; // [{param, condicion, accion}]
+  let qualityPasos = []; // [{titulo, desc}]
+  let healthBarras = []; // [{label, valor, pct, color}]
+  let healthTips   = []; // [{icon, texto}]
 
   // ── INIT ──
   async function init() {
@@ -1020,8 +1389,12 @@
 
   // ── VIEWS ──
   function showDashboard() {
-    document.getElementById('view-dashboard').classList.add('active');
-    document.getElementById('view-editor').classList.remove('active');
+    const dash = document.getElementById('view-dashboard');
+    const ed   = document.getElementById('view-editor');
+    dash.classList.add('active');
+    dash.style.display = 'block';
+    ed.classList.remove('active');
+    ed.style.display = 'none';
     document.getElementById('nav-dash').classList.add('active');
     document.getElementById('nav-new').classList.remove('active');
     loadDashboard();
@@ -1035,8 +1408,12 @@
   }
 
   function openEditor() {
-    document.getElementById('view-dashboard').classList.remove('active');
-    document.getElementById('view-editor').classList.add('active');
+    const dash = document.getElementById('view-dashboard');
+    const ed   = document.getElementById('view-editor');
+    dash.classList.remove('active');
+    dash.style.display = 'none';
+    ed.classList.add('active');
+    ed.style.display = 'flex';
     document.getElementById('nav-dash').classList.remove('active');
     document.getElementById('nav-new').classList.add('active');
   }
@@ -1055,16 +1432,27 @@
     document.getElementById('edit-id').value = '';
     const fields = ['f-titulo','f-edicion','f-volumen','f-director','f-mensaje',
       'f-stat-dias','f-stat-obs','f-stat-acc',
-      'f-safety-titulo','f-safety-contenido',
+      'f-safety-titulo','f-safety-contenido','f-safety-epp-titulo',
       'f-nm-titulo','f-nm-area','f-nm-desc','f-nm-causa','f-nm-accion',
-      'f-qr-ats','f-qr-torque','f-qr-ergo','f-qr-ambiental',
-      'f-quality-titulo','f-quality-contenido',
-      'f-health-titulo','f-health-contenido',
+      'f-qr-torque-titulo','f-qr-torque-desc',
+      'f-qr-ergo-titulo','f-qr-ergo-desc',
+      'f-qr-ambiental-titulo','f-qr-ambiental-desc',
+      'f-quality-titulo','f-quality-left-titulo','f-quality-right-titulo',
+      'f-quality-alerta-titulo','f-quality-alerta-texto','f-quality-epp-titulo',
+      'f-health-titulo','f-health-left-titulo','f-health-right-titulo',
+      'f-health-ruido-titulo','f-health-ergo-subtitulo','f-health-ergo-correcto',
+      'f-health-ergo-incorrecto','f-health-ergo-peso',
       'f-env-titulo','f-env-contenido','f-env-derrames',
       'f-g-nombre','f-g-puesto','f-g-reportes','f-g-motivo'];
     fields.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
     customBlocks = []; eppSafety = []; eppQuality = []; guardianBadges = [];
+    qrsSafety = []; qualityTabla = []; qualityPasos = []; healthBarras = []; healthTips = [];
+    tipsSafety = [{ icon:'✅', text:'' }, { icon:'⚠️', text:'' }, { icon:'🚫', text:'' }];
+    qrImages = { torque: null, ergo: null, ambiental: null };
+    ['torque','ergo','ambiental'].forEach(k => clearQrPreview(k));
     renderCustomBlocks(); renderEpp('safety'); renderEpp('quality'); renderGuardianBadges();
+    renderTipsSafety(); renderQrsSafety(); renderQualityTabla(); renderQualityPasos();
+    renderHealthBarras(); renderHealthTips();
     goTab('portada');
   }
 
@@ -1128,8 +1516,10 @@
 
   // ── EDITAR EDICIÓN ──
   async function editarEdicion(id) {
+    try {
+    console.log('editarEdicion called with id:', id);
     const { data: ed, error } = await sb.from('qhse_editions').select('*').eq('id', id).single();
-    if (error || !ed) { toast('Error al cargar la edición', 'error'); return; }
+    if (error || !ed) { console.error('DB error:', error); toast('Error al cargar la edición', 'error'); return; }
 
     resetForm();
     document.getElementById('edit-id').value         = ed.id;
@@ -1143,10 +1533,33 @@
     document.getElementById('f-stat-acc').value      = ed.stat_acc ?? '';
     document.getElementById('f-safety-titulo').value    = ed.safety_titulo || '';
     document.getElementById('f-safety-contenido').value = ed.safety_contenido || '';
+    // EPP titulo
+    const eppTitEl = document.getElementById('f-safety-epp-titulo');
+    if (eppTitEl) eppTitEl.value = ed.safety_epp_titulo || '';
     document.getElementById('f-quality-titulo').value   = ed.quality_titulo || '';
-    document.getElementById('f-quality-contenido').value= ed.quality_contenido || '';
-    document.getElementById('f-health-titulo').value    = ed.health_titulo || '';
-    document.getElementById('f-health-contenido').value = ed.health_contenido || '';
+    const _setQVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+    _setQVal('f-quality-left-titulo',   ed.quality_left_titulo   || '');
+    _setQVal('f-quality-right-titulo',  ed.quality_right_titulo  || '');
+    _setQVal('f-quality-alerta-titulo', ed.quality_alerta_titulo || '');
+    _setQVal('f-quality-alerta-texto',  ed.quality_alerta_texto  || '');
+    _setQVal('f-quality-epp-titulo',    ed.quality_epp_titulo    || '');
+    // Quality tabla and pasos
+    qualityTabla = Array.isArray(ed.quality_tabla) ? ed.quality_tabla : [];
+    qualityPasos = Array.isArray(ed.quality_pasos) ? ed.quality_pasos : [];
+    renderQualityTabla();
+    renderQualityPasos();
+    const _setHVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+    _setHVal('f-health-titulo',          ed.health_titulo         || '');
+    _setHVal('f-health-left-titulo',     ed.health_left_titulo    || '');
+    _setHVal('f-health-right-titulo',    ed.health_right_titulo   || '');
+    _setHVal('f-health-ruido-titulo',    ed.health_ruido_titulo   || '');
+    _setHVal('f-health-ergo-subtitulo',  ed.health_ergo_subtitulo || '');
+    _setHVal('f-health-ergo-correcto',   ed.health_ergo_correcto  || '');
+    _setHVal('f-health-ergo-incorrecto', ed.health_ergo_incorrecto|| '');
+    _setHVal('f-health-ergo-peso',       ed.health_ergo_peso      || '');
+    healthBarras = Array.isArray(ed.health_barras) ? ed.health_barras : [];
+    healthTips   = Array.isArray(ed.health_tips)   ? ed.health_tips   : [];
+    renderHealthBarras(); renderHealthTips();
     document.getElementById('f-env-titulo').value       = ed.env_titulo || '';
     document.getElementById('f-env-contenido').value    = ed.env_contenido || '';
     document.getElementById('f-env-derrames').value     = ed.env_derrames ?? 0;
@@ -1155,17 +1568,40 @@
     document.getElementById('f-g-reportes').value    = ed.guardian_reportes ?? '';
     document.getElementById('f-g-motivo').value      = ed.guardian_motivo || '';
 
-    // QRs
+    // QRs — solo los campos que existen en el HTML (torque, ergo, ambiental)
     const qrs = ed.qr_urls || {};
-    document.getElementById('f-qr-ats').value      = qrs.ats || '';
-    document.getElementById('f-qr-torque').value   = qrs.torque || '';
-    document.getElementById('f-qr-ergo').value     = qrs.ergo || '';
-    document.getElementById('f-qr-ambiental').value= qrs.ambiental || '';
+    const _setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+    _setVal('f-qr-torque-titulo',    qrs.torque_titulo || '');
+    _setVal('f-qr-torque-desc',      qrs.torque_desc   || '');
+    _setVal('f-qr-ergo-titulo',      qrs.ergo_titulo   || '');
+    _setVal('f-qr-ergo-desc',        qrs.ergo_desc     || '');
+    _setVal('f-qr-ambiental-titulo', qrs.ambiental_titulo || '');
+    _setVal('f-qr-ambiental-desc',   qrs.ambiental_desc   || '');
+    // Load existing QR images (solo para las zonas que existen en el HTML)
+    qrImages = { ats: null, torque: null, ergo: null, ambiental: null };
+    ['torque','ergo','ambiental'].forEach(k => {
+      const img = qrs[k + '_img'];
+      if (img) { qrImages[k] = img; showQrPreview(k, img); }
+      else clearQrPreview(k);
+    });
 
     // EPP
     eppSafety  = Array.isArray(ed.epp_safety)  ? ed.epp_safety  : [];
     eppQuality = Array.isArray(ed.epp_quality) ? ed.epp_quality : [];
     renderEpp('safety'); renderEpp('quality');
+
+    // QRs Safety (dynamic array)
+    qrsSafety = Array.isArray(ed.qrs_safety) ? ed.qrs_safety : [];
+    renderQrsSafety();
+
+    // Tips Safety
+    const savedTips = Array.isArray(ed.tips_safety) ? ed.tips_safety : [];
+    tipsSafety = [
+      { icon: savedTips[0]?.icon || '✅', text: savedTips[0]?.text || '' },
+      { icon: savedTips[1]?.icon || '⚠️', text: savedTips[1]?.text || '' },
+      { icon: savedTips[2]?.icon || '🚫', text: savedTips[2]?.text || '' },
+    ];
+    renderTipsSafety();
 
     // Guardian badges
     guardianBadges = Array.isArray(ed.guardian_badges) ? ed.guardian_badges : [];
@@ -1190,6 +1626,11 @@
     openEditor();
     goTab('portada');
     livePreview();
+    } catch(e) {
+      console.error('editarEdicion exception:', e);
+      const msg = e?.message || String(e) || 'Error desconocido';
+      toast('Error al abrir el editor: ' + msg, 'error');
+    }
   }
 
   // ── GUARDAR ──
@@ -1200,12 +1641,57 @@
 
     const id = document.getElementById('edit-id').value;
 
-    const qr_urls = {
-      ats:      document.getElementById('f-qr-ats').value.trim(),
-      torque:   document.getElementById('f-qr-torque').value.trim(),
-      ergo:     document.getElementById('f-qr-ergo').value.trim(),
-      ambiental:document.getElementById('f-qr-ambiental').value.trim(),
-    };
+    // Upload QR images for fixed sections (torque, ergo, ambiental)
+    const qrKeys = ['torque','ergo','ambiental'];
+    const qr_urls = {};
+    for (const k of qrKeys) {
+      const tEl = document.getElementById(`f-qr-${k}-titulo`);
+      const dEl = document.getElementById(`f-qr-${k}-desc`);
+      qr_urls[k + '_titulo'] = tEl ? tEl.value.trim() : '';
+      qr_urls[k + '_desc']   = dEl ? dEl.value.trim() : '';
+      if (qrImages[k] && typeof qrImages[k] !== 'string') {
+        try {
+          const file = qrImages[k];
+          const ext  = file.name.split('.').pop();
+          const path = `qr-images/${Date.now()}-${k}.${ext}`;
+          const { error: upErr } = await sb.storage.from('qhse-assets').upload(path, file, { upsert: true });
+          if (!upErr) {
+            const { data: urlData } = sb.storage.from('qhse-assets').getPublicUrl(path);
+            qr_urls[k + '_img'] = urlData.publicUrl;
+          } else {
+            qr_urls[k + '_img'] = await fileToBase64(file);
+          }
+        } catch(e) {
+          try { qr_urls[k + '_img'] = await fileToBase64(qrImages[k]); } catch(_) {}
+        }
+      } else if (typeof qrImages[k] === 'string') {
+        qr_urls[k + '_img'] = qrImages[k];
+      }
+    }
+
+    // Upload images for dynamic Safety QRs
+    const qrs_safety_saved = [];
+    for (let i = 0; i < qrsSafety.length; i++) {
+      const qr = { ...qrsSafety[i] };
+      if (qr.imgFile && typeof qr.imgFile !== 'string') {
+        try {
+          const file = qr.imgFile;
+          const ext  = file.name.split('.').pop();
+          const path = `qr-images/${Date.now()}-safety-${i}.${ext}`;
+          const { error: upErr } = await sb.storage.from('qhse-assets').upload(path, file, { upsert: true });
+          if (!upErr) {
+            const { data: urlData } = sb.storage.from('qhse-assets').getPublicUrl(path);
+            qr.img = urlData.publicUrl;
+          } else {
+            qr.img = await fileToBase64(file);
+          }
+        } catch(e) {
+          try { qr.img = await fileToBase64(qr.imgFile); } catch(_) {}
+        }
+      }
+      delete qr.imgFile; // Don't store File object in DB
+      qrs_safety_saved.push(qr);
+    }
 
     const payload = {
       titulo, edicion,
@@ -1217,10 +1703,27 @@
       stat_acc:          parseInt(document.getElementById('f-stat-acc').value)  || 0,
       safety_titulo:     document.getElementById('f-safety-titulo').value.trim(),
       safety_contenido:  document.getElementById('f-safety-contenido').value.trim(),
-      quality_titulo:    document.getElementById('f-quality-titulo').value.trim(),
-      quality_contenido: document.getElementById('f-quality-contenido').value.trim(),
-      health_titulo:     document.getElementById('f-health-titulo').value.trim(),
-      health_contenido:  document.getElementById('f-health-contenido').value.trim(),
+      safety_epp_titulo: document.getElementById('f-safety-epp-titulo')?.value.trim() || '',
+      tips_safety:       tipsSafety.map(t => ({ icon: t.icon, text: t.text })),
+      qrs_safety:        qrs_safety_saved,
+      quality_titulo:         document.getElementById('f-quality-titulo').value.trim(),
+      quality_left_titulo:    document.getElementById('f-quality-left-titulo')?.value.trim()   || '',
+      quality_right_titulo:   document.getElementById('f-quality-right-titulo')?.value.trim()  || '',
+      quality_alerta_titulo:  document.getElementById('f-quality-alerta-titulo')?.value.trim() || '',
+      quality_alerta_texto:   document.getElementById('f-quality-alerta-texto')?.value.trim()  || '',
+      quality_epp_titulo:     document.getElementById('f-quality-epp-titulo')?.value.trim()    || '',
+      quality_tabla:          qualityTabla,
+      quality_pasos:          qualityPasos,
+      health_titulo:          document.getElementById('f-health-titulo').value.trim(),
+      health_left_titulo:     document.getElementById('f-health-left-titulo')?.value.trim()     || '',
+      health_right_titulo:    document.getElementById('f-health-right-titulo')?.value.trim()    || '',
+      health_ruido_titulo:    document.getElementById('f-health-ruido-titulo')?.value.trim()    || '',
+      health_ergo_subtitulo:  document.getElementById('f-health-ergo-subtitulo')?.value.trim()  || '',
+      health_ergo_correcto:   document.getElementById('f-health-ergo-correcto')?.value.trim()   || '',
+      health_ergo_incorrecto: document.getElementById('f-health-ergo-incorrecto')?.value.trim() || '',
+      health_ergo_peso:       document.getElementById('f-health-ergo-peso')?.value.trim()       || '',
+      health_barras:          healthBarras,
+      health_tips:            healthTips,
       env_titulo:        document.getElementById('f-env-titulo').value.trim(),
       env_contenido:     document.getElementById('f-env-contenido').value.trim(),
       env_derrames:      parseInt(document.getElementById('f-env-derrames').value) || 0,
@@ -1384,11 +1887,14 @@
 
   function renderCustomBlocks() {
     const container = document.getElementById('custom-blocks-list');
-    const noMsg     = document.getElementById('no-blocks-msg');
     if (!customBlocks.length) {
-      container.innerHTML = ''; container.appendChild(noMsg); noMsg.classList.remove('hidden'); return;
+      container.innerHTML = `
+        <div class="text-center py-6 text-slate-400 text-sm" id="no-blocks-msg">
+          <i class="fas fa-cubes text-2xl mb-2 opacity-30 block"></i>
+          No hay bloques. Haz clic en "Agregar".
+        </div>`;
+      return;
     }
-    noMsg.classList.add('hidden');
     container.innerHTML = customBlocks.map((b, i) => `
       <div class="border border-slate-200 rounded-xl p-4 bg-slate-50 mb-3 fade-in">
         <div class="flex items-center justify-between mb-3">
@@ -1424,6 +1930,332 @@
       </div>`).join('');
   }
 
+  // ── TIPS SAFETY ──
+  const TIP_ICONS = ['✅','⚠️','🚫','💡','🔔','❌','🟢','🟡','🔴','ℹ️','📌','🛑'];
+  const TIP_COLORS = { '✅':'green', '⚠️':'yellow', '🚫':'red', '💡':'yellow', '🔔':'yellow', '❌':'red', '🟢':'green', '🟡':'yellow', '🔴':'red', 'ℹ️':'green', '📌':'yellow', '🛑':'red' };
+
+  function tipColor(icon) { return TIP_COLORS[icon] || 'green'; }
+
+  function renderTipsSafety() {
+    const container = document.getElementById('tips-safety-list');
+    if (!container) return;
+    const colorNames = { '✅':'Verde', '⚠️':'Amarillo', '🚫':'Rojo', '💡':'Amarillo', '🔔':'Amarillo', '❌':'Rojo', '🟢':'Verde', '🟡':'Amarillo', '🔴':'Rojo', 'ℹ️':'Verde', '📌':'Amarillo', '🛑':'Rojo' };
+    container.innerHTML = tipsSafety.map((tip, i) => `
+      <div class="tip-editor-item">
+        <div style="position:relative;flex-shrink:0">
+          <button class="tip-icon-select" onclick="toggleTipPicker(${i})" title="Cambiar ícono">${tip.icon}</button>
+          <div class="tip-icon-picker" id="tip-picker-${i}">
+            ${TIP_ICONS.map(ic => `<button class="tip-icon-opt" onclick="setTipIcon(${i},'${ic}')" title="${colorNames[ic]||''}">${ic}</button>`).join('')}
+          </div>
+        </div>
+        <textarea class="field-input field-textarea" style="flex:1;min-height:60px;font-size:12px;resize:vertical"
+          placeholder="Escribe el tip de seguridad..."
+          oninput="updateTip(${i},'text',this.value)">${tip.text || ''}</textarea>
+      </div>`).join('');
+  }
+
+  function toggleTipPicker(i) {
+    // Close all others first
+    tipsSafety.forEach((_, j) => {
+      if (j !== i) document.getElementById(`tip-picker-${j}`)?.classList.remove('open');
+    });
+    document.getElementById(`tip-picker-${i}`)?.classList.toggle('open');
+  }
+
+  function setTipIcon(i, icon) {
+    tipsSafety[i].icon = icon;
+    document.getElementById(`tip-picker-${i}`)?.classList.remove('open');
+    renderTipsSafety();
+    livePreview();
+  }
+
+  function updateTip(i, field, value) {
+    tipsSafety[i][field] = value;
+    livePreview();
+  }
+
+  // Close tip pickers when clicking outside
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.tip-icon-select') && !e.target.closest('.tip-icon-picker')) {
+      tipsSafety.forEach((_, i) => document.getElementById(`tip-picker-${i}`)?.classList.remove('open'));
+    }
+  });
+
+  // ── DYNAMIC QRs SAFETY ──
+  function addQr(section) {
+    if (section === 'safety') {
+      qrsSafety.push({ titulo: '', desc: '', img: null, imgFile: null });
+      renderQrsSafety();
+      livePreview();
+    }
+  }
+
+  function removeQr(section, i) {
+    if (section === 'safety') {
+      qrsSafety.splice(i, 1);
+      renderQrsSafety();
+      livePreview();
+    }
+  }
+
+  function updateQr(i, field, value) {
+    if (qrsSafety[i]) qrsSafety[i][field] = value;
+    livePreview();
+  }
+
+  async function handleQrSafetyFile(event, i) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { toast('La imagen no debe superar 2 MB', 'warn'); return; }
+    qrsSafety[i].imgFile = file;
+    const b64 = await fileToBase64(file);
+    qrsSafety[i].img = b64;
+    renderQrsSafety();
+    livePreview();
+  }
+
+  async function handleQrSafetyDrop(event, i) {
+    event.preventDefault();
+    document.getElementById(`zone-safety-${i}`)?.classList.remove('dragover');
+    const file = event.dataTransfer.files[0];
+    if (!file || !file.type.startsWith('image/')) { toast('Solo se permiten imágenes', 'warn'); return; }
+    if (file.size > 2 * 1024 * 1024) { toast('La imagen no debe superar 2 MB', 'warn'); return; }
+    qrsSafety[i].imgFile = file;
+    const b64 = await fileToBase64(file);
+    qrsSafety[i].img = b64;
+    renderQrsSafety();
+    livePreview();
+  }
+
+  function removeQrSafetyImg(i) {
+    qrsSafety[i].img = null;
+    qrsSafety[i].imgFile = null;
+    renderQrsSafety();
+    livePreview();
+  }
+
+  function renderQrsSafety() {
+    const container = document.getElementById('qr-safety-list');
+    if (!container) return;
+    if (!qrsSafety.length) {
+      container.innerHTML = `<p style="font-size:11px;color:#94a3b8;text-align:center;padding:12px 0;border:2px dashed #e2e8f0;border-radius:10px">Sin QRs. Haz clic en "Agregar QR".</p>`;
+      return;
+    }
+    container.innerHTML = qrsSafety.map((qr, i) => `
+      <div class="qr-editor-block qr-list-item">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#94a3b8">QR #${i+1}</span>
+          <button onclick="removeQr('safety',${i})" class="h-7 w-7 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 flex items-center justify-center text-xs border border-red-100 transition"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="field-group" style="margin-bottom:10px">
+          <label class="field-label">Título del QR</label>
+          <input class="field-input" type="text" value="${qr.titulo || ''}" placeholder="Ej: Formato ATS Digital"
+            oninput="updateQr(${i},'titulo',this.value)">
+        </div>
+        <div class="field-group" style="margin-bottom:10px">
+          <label class="field-label">Descripción</label>
+          <input class="field-input" type="text" value="${qr.desc || ''}" placeholder="Ej: Escanea para reportar condición insegura"
+            oninput="updateQr(${i},'desc',this.value)">
+        </div>
+        <label class="field-label">Imagen del código QR</label>
+        <div class="qr-upload-zone" id="zone-safety-${i}"
+          onclick="document.getElementById('file-qr-safety-${i}').click()"
+          ondragover="event.preventDefault();this.classList.add('dragover')"
+          ondragleave="this.classList.remove('dragover')"
+          ondrop="handleQrSafetyDrop(event,${i})">
+          <input type="file" id="file-qr-safety-${i}" accept="image/*" style="display:none"
+            onchange="handleQrSafetyFile(event,${i})">
+          ${qr.img
+            ? `<img src="${qr.img}" class="qr-preview-img" alt="QR">
+               <button class="qr-remove-btn" onclick="removeQrSafetyImg(${i});event.stopPropagation()"><i class="fas fa-times mr-1"></i>Quitar imagen</button>`
+            : `<i class="fas fa-qrcode text-slate-300 text-3xl mb-2"></i>
+               <p style="font-size:12px;font-weight:600;color:#94a3b8">Haz clic o arrastra la imagen del QR</p>
+               <p style="font-size:10px;color:#cbd5e1;margin-top:2px">PNG, JPG — máx. 2 MB</p>`}
+        </div>
+      </div>`).join('');
+  }
+
+  // ── QUALITY TABLA ──
+  function addQualityRow() {
+    qualityTabla.push({ param: '', condicion: '', accion: '' });
+    renderQualityTabla();
+    livePreview();
+  }
+  function removeQualityRow(i) {
+    qualityTabla.splice(i, 1);
+    renderQualityTabla();
+    livePreview();
+  }
+  function updateQualityRow(i, field, val) {
+    qualityTabla[i][field] = val;
+    livePreview();
+  }
+  function renderQualityTabla() {
+    const container = document.getElementById('quality-tabla-list');
+    if (!container) return;
+    if (!qualityTabla.length) {
+      container.innerHTML = `<p style="font-size:11px;color:#94a3b8;text-align:center;padding:10px;border:2px dashed #e2e8f0;border-radius:8px">Sin filas. Haz clic en "+ Fila".</p>`;
+      return;
+    }
+    container.innerHTML = qualityTabla.map((r, i) => `
+      <div style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px;margin-bottom:6px">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
+          <button onclick="removeQualityRow(${i})" style="background:#fef2f2;border:none;color:#ef4444;border-radius:6px;width:22px;height:22px;cursor:pointer;font-size:11px"><i class="fas fa-times"></i></button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+          <div>
+            <label style="font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:3px">Parámetro</label>
+            <input class="field-input" style="font-size:11px;padding:6px 8px" type="text" value="${r.param||''}" placeholder="Ej: Limpieza de rosca"
+              oninput="updateQualityRow(${i},'param',this.value)">
+          </div>
+          <div>
+            <label style="font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:3px">Condición OK</label>
+            <input class="field-input" style="font-size:11px;padding:6px 8px" type="text" value="${r.condicion||''}" placeholder="Sin lodo/arena"
+              oninput="updateQualityRow(${i},'condicion',this.value)">
+          </div>
+          <div>
+            <label style="font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:3px">Acción</label>
+            <input class="field-input" style="font-size:11px;padding:6px 8px" type="text" value="${r.accion||''}" placeholder="Limpiar con cepillo"
+              oninput="updateQualityRow(${i},'accion',this.value)">
+          </div>
+        </div>
+      </div>`).join('');
+  }
+ 
+  // ── QUALITY PASOS ──
+  function addQualityPaso() {
+    qualityPasos.push({ titulo: '', desc: '' });
+    renderQualityPasos();
+    livePreview();
+  }
+  function removeQualityPaso(i) {
+    qualityPasos.splice(i, 1);
+    renderQualityPasos();
+    livePreview();
+  }
+  function updateQualityPaso(i, field, val) {
+    qualityPasos[i][field] = val;
+    livePreview();
+  }
+  function renderQualityPasos() {
+    const container = document.getElementById('quality-pasos-list');
+    if (!container) return;
+    if (!qualityPasos.length) {
+      container.innerHTML = `<p style="font-size:11px;color:#94a3b8;text-align:center;padding:10px;border:2px dashed #e2e8f0;border-radius:8px">Sin pasos. Haz clic en "+ Paso".</p>`;
+      return;
+    }
+    container.innerHTML = qualityPasos.map((p, i) => `
+      <div style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px;margin-bottom:6px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-size:10px;font-weight:800;color:#1e88e5;background:#eff6ff;padding:2px 8px;border-radius:5px">Paso ${i+1}</span>
+          <button onclick="removeQualityPaso(${i})" style="background:#fef2f2;border:none;color:#ef4444;border-radius:6px;width:22px;height:22px;cursor:pointer;font-size:11px"><i class="fas fa-times"></i></button>
+        </div>
+        <input class="field-input" style="font-size:12px;padding:7px 10px;margin-bottom:5px" type="text" value="${p.titulo||''}" placeholder="Título del paso (ej: Calibración previa a operación)"
+          oninput="updateQualityPaso(${i},'titulo',this.value)">
+        <input class="field-input" style="font-size:11px;padding:7px 10px" type="text" value="${p.desc||''}" placeholder="Descripción breve..."
+          oninput="updateQualityPaso(${i},'desc',this.value)">
+      </div>`).join('');
+  }
+ 
+  // ── HEALTH BARRAS (niveles de ruido) ──
+  const BARRA_COLORS = [
+    { val:'red',    label:'Rojo',   hex:'#ef4444' },
+    { val:'orange', label:'Naranja',hex:'#f97316' },
+    { val:'green',  label:'Verde',  hex:'#22c55e' },
+    { val:'blue',   label:'Azul',   hex:'#3b82f6' },
+  ];
+  function addHealthBarra() {
+    if (healthBarras.length >= 4) { toast('Máximo 4 barras', 'warn'); return; }
+    healthBarras.push({ label:'', valor:'', pct: 80, color:'red' });
+    renderHealthBarras(); livePreview();
+  }
+  function removeHealthBarra(i) { healthBarras.splice(i,1); renderHealthBarras(); livePreview(); }
+  function updateHealthBarra(i, field, val) { healthBarras[i][field] = val; livePreview(); }
+  function renderHealthBarras() {
+    const c = document.getElementById('health-barras-list');
+    if (!c) return;
+    if (!healthBarras.length) {
+      c.innerHTML = `<p style="font-size:11px;color:#94a3b8;text-align:center;padding:10px;border:2px dashed #e2e8f0;border-radius:8px">Sin barras. Haz clic en "+ Barra".</p>`;
+      return;
+    }
+    c.innerHTML = healthBarras.map((b,i) => `
+      <div style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px;margin-bottom:6px">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
+          <button onclick="removeHealthBarra(${i})" style="background:#fef2f2;border:none;color:#ef4444;border-radius:6px;width:22px;height:22px;cursor:pointer;font-size:11px"><i class="fas fa-times"></i></button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 80px 80px;gap:6px;margin-bottom:6px">
+          <div>
+            <label style="font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:3px">Etiqueta</label>
+            <input class="field-input" style="font-size:11px;padding:5px 8px" type="text" value="${b.label||''}" placeholder="Banco horizontal"
+              oninput="updateHealthBarra(${i},'label',this.value)">
+          </div>
+          <div>
+            <label style="font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:3px">Valor</label>
+            <input class="field-input" style="font-size:11px;padding:5px 8px" type="text" value="${b.valor||''}" placeholder="~92 dB"
+              oninput="updateHealthBarra(${i},'valor',this.value)">
+          </div>
+          <div>
+            <label style="font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:3px">% barra</label>
+            <input class="field-input" style="font-size:11px;padding:5px 8px" type="number" min="1" max="100" value="${b.pct||80}"
+              oninput="updateHealthBarra(${i},'pct',parseInt(this.value)||80);livePreview()">
+          </div>
+        </div>
+        <div>
+          <label style="font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;display:block;margin-bottom:4px">Color</label>
+          <div style="display:flex;gap:6px">
+            ${BARRA_COLORS.map(cl => `
+              <button type="button" onclick="updateHealthBarra(${i},'color','${cl.val}');renderHealthBarras()"
+                style="width:22px;height:22px;border-radius:50%;background:${cl.hex};border:${b.color===cl.val?'3px solid #0a1628':'2px solid transparent'};cursor:pointer" title="${cl.label}"></button>`).join('')}
+          </div>
+        </div>
+      </div>`).join('');
+  }
+ 
+  // ── HEALTH TIPS ──
+  const HEALTH_TIP_ICONS = ['🔇','🖐️','⚠️','💡','🔔','ℹ️','📌','🛑','✅'];
+  function addHealthTip() {
+    healthTips.push({ icon: '🔇', texto: '' });
+    renderHealthTips(); livePreview();
+  }
+  function removeHealthTip(i) { healthTips.splice(i,1); renderHealthTips(); livePreview(); }
+  function updateHealthTip(i, field, val) { healthTips[i][field] = val; livePreview(); }
+  function setHealthTipIcon(i, icon) {
+    healthTips[i].icon = icon;
+    document.getElementById(`htip-picker-${i}`)?.classList.remove('open');
+    renderHealthTips(); livePreview();
+  }
+  function toggleHealthTipPicker(i) {
+    healthTips.forEach((_,j) => { if(j!==i) document.getElementById(`htip-picker-${j}`)?.classList.remove('open'); });
+    document.getElementById(`htip-picker-${i}`)?.classList.toggle('open');
+  }
+  function renderHealthTips() {
+    const c = document.getElementById('health-tips-list');
+    if (!c) return;
+    if (!healthTips.length) {
+      c.innerHTML = `<p style="font-size:11px;color:#94a3b8;text-align:center;padding:10px;border:2px dashed #e2e8f0;border-radius:8px">Sin tips. Haz clic en "+ Tip".</p>`;
+      return;
+    }
+    c.innerHTML = healthTips.map((t,i) => `
+      <div class="tip-editor-item" style="margin-bottom:6px">
+        <div style="position:relative;flex-shrink:0">
+          <button class="tip-icon-select" onclick="toggleHealthTipPicker(${i})">${t.icon}</button>
+          <div class="tip-icon-picker" id="htip-picker-${i}">
+            ${HEALTH_TIP_ICONS.map(ic => `<button class="tip-icon-opt" onclick="setHealthTipIcon(${i},'${ic}')">${ic}</button>`).join('')}
+          </div>
+        </div>
+        <textarea class="field-input field-textarea" style="flex:1;min-height:56px;font-size:12px;resize:vertical"
+          placeholder="Tip de ruido / vibración..."
+          oninput="updateHealthTip(${i},'texto',this.value)">${t.texto||''}</textarea>
+        <button onclick="removeHealthTip(${i})" style="color:#ef4444;background:#fef2f2;border:none;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:11px;flex-shrink:0"><i class="fas fa-times"></i></button>
+      </div>`).join('');
+  }
+  // close health tip pickers on outside click
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.tip-icon-select') && !e.target.closest('.tip-icon-picker')) {
+      healthTips.forEach((_,i) => document.getElementById(`htip-picker-${i}`)?.classList.remove('open'));
+    }
+  });
+ 
   // ── LIVE PREVIEW ──
   function livePreview() {
     const v  = id => document.getElementById(id)?.value || '';
@@ -1443,53 +2275,222 @@
 
     // Safety
     pv('pv-safety-titulo').textContent = v('f-safety-titulo') || 'ALERTA DE SEGURIDAD';
-    pv('pv-safety-contenido').textContent = v('f-safety-contenido') || 'El contenido de seguridad aparecerá aquí...';
+    const safetyContenido = v('f-safety-contenido');
+    pv('pv-safety-contenido') && (pv('pv-safety-contenido').textContent = safetyContenido || 'El contenido de seguridad aparecerá aquí...');
+    // subtema = primer línea del contenido en mayúsculas
+    const subTemaEl = pv('pv-safety-subtema-text');
+    if (subTemaEl) subTemaEl.textContent = (safetyContenido || '').split('\n')[0].toUpperCase() || 'MANIOBRAS DE CARGA';
     pv('pv-nm-titulo').textContent = v('f-nm-titulo') || 'Completa el formulario Near Miss...';
-    pv('pv-nm-area').innerHTML = `<i class="fas fa-clock mr-1"></i>${v('f-nm-area') || 'Incidente —'}`;
+    const nmAreaEl = pv('pv-nm-area');
+    if (nmAreaEl) nmAreaEl.textContent = (v('f-nm-area') || 'Incidente —').toUpperCase();
     pv('pv-nm-desc').textContent  = v('f-nm-desc')  || '';
     pv('pv-nm-causa').textContent = v('f-nm-causa') || '—';
     pv('pv-nm-accion').textContent= v('f-nm-accion')|| '—';
-    pv('pv-qr-ats-url').textContent = v('f-qr-ats') || 'Sin URL configurada';
 
-    // EPP Safety
+    // EPP Safety — real magazine style (big emoji + label)
+    const eppTit = v('f-safety-epp-titulo') || 'EPP Obligatorio';
+    const eppTitEl = pv('pv-epp-safety-titulo');
+    if (eppTitEl) eppTitEl.innerHTML = `<i class="fas fa-shield-halved"></i> ${eppTit}`;
     const epSGrid = pv('pv-epp-safety-grid');
-    if (eppSafety.length) {
-      epSGrid.innerHTML = eppSafety.map(e => `
-        <div class="prev-epp-item">
-          <span class="prev-epp-icon">${e.emoji||'🔧'}</span>
-          <span class="prev-epp-label">${e.label||'EPP'}</span>
+    if (epSGrid) {
+      epSGrid.innerHTML = eppSafety.length
+        ? eppSafety.map(e => `
+            <div style="background:#f0f4f8;border-radius:10px;padding:10px 6px;text-align:center">
+              <span style="font-size:26px;display:block;margin-bottom:4px">${e.emoji||'🔧'}</span>
+              <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#0e2044;line-height:1.2;display:block">${e.label||'EPP'}</span>
+            </div>`).join('')
+        : '<p style="font-size:11px;color:#94a3b8;padding:6px;grid-column:1/-1">Agrega EPP desde el panel izquierdo...</p>';
+    }
+
+    // Tips Safety preview
+    const tipsEl = pv('pv-tips-safety');
+    if (tipsEl) {
+      const tipColorMap = { '✅':'green', '⚠️':'yellow', '🚫':'red', '💡':'yellow', '🔔':'yellow', '❌':'red', '🟢':'green', '🟡':'yellow', '🔴':'red', 'ℹ️':'green', '📌':'yellow', '🛑':'red' };
+      const tipBgMap   = { green:'#f0fdf4', yellow:'#fffbeb', red:'#fef2f2' };
+      const tipBdrMap  = { green:'#22c55e', yellow:'#f59e0b', red:'#ef4444' };
+      tipsEl.innerHTML = tipsSafety.every(t => !t.text) ? '' :
+        tipsSafety.map(t => {
+          if (!t.text) return '';
+          const col = tipColorMap[t.icon] || 'green';
+          return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:10px;background:${tipBgMap[col]};border-left:4px solid ${tipBdrMap[col]}">
+            <span style="font-size:16px;flex-shrink:0;margin-top:1px">${t.icon}</span>
+            <p style="font-size:12px;color:#475569;line-height:1.6;margin:0">${t.text}</p>
+          </div>`;
+        }).join('');
+    }
+
+    // Dynamic QRs Safety preview
+    const qrListEl = pv('pv-qr-safety-list');
+    if (qrListEl) {
+      qrListEl.innerHTML = qrsSafety.map(qr => `
+        <div style="background:#0a1628;border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;margin-top:8px">
+          <div style="width:60px;height:60px;background:white;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;overflow:hidden">
+            ${qr.img ? `<img src="${qr.img}" style="width:56px;height:56px;object-fit:contain;border-radius:6px;display:block">` : '📋'}
+          </div>
+          <div>
+            <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#00c8ff">Código QR</p>
+            <p style="font-size:11px;font-weight:700;color:white;margin-top:2px">${qr.titulo || 'Sin título'}</p>
+            <p style="font-size:10px;color:rgba(255,255,255,.4);margin-top:1px">${qr.desc || 'Sin descripción'}</p>
+          </div>
         </div>`).join('');
-    } else {
-      epSGrid.innerHTML = '<p style="font-size:11px;color:#94a3b8;padding:6px">Agrega EPP desde el panel izquierdo...</p>';
     }
 
     // Quality
-    pv('pv-quality-titulo').textContent = v('f-quality-titulo') || 'CALIDAD OPERATIVA';
-    pv('pv-quality-contenido').textContent = v('f-quality-contenido') || 'El contenido de calidad aparecerá aquí...';
-    pv('pv-qr-torque-url').textContent = v('f-qr-torque') || 'Sin URL configurada';
+    const pvQ = id => document.getElementById(id);
+    pvQ('pv-quality-titulo') && (pvQ('pv-quality-titulo').textContent = v('f-quality-titulo') || 'CALIDAD OPERATIVA');
+    pvQ('pv-quality-left-titulo') && (pvQ('pv-quality-left-titulo').textContent = v('f-quality-left-titulo') || 'INTEGRIDAD DE CONEXIONES');
+    pvQ('pv-quality-right-titulo') && (pvQ('pv-quality-right-titulo').textContent = v('f-quality-right-titulo') || 'MÁQUINA DE TORQUE — ROTACIÓN CONTINUA');
 
-    // EPP Quality
-    const epQGrid = pv('pv-epp-quality-grid');
-    if (eppQuality.length) {
-      epQGrid.innerHTML = eppQuality.map(e => `
-        <div class="prev-epp-item">
-          <span class="prev-epp-icon">${e.emoji||'🔧'}</span>
-          <span class="prev-epp-label">${e.label||'EPP'}</span>
-        </div>`).join('');
-    } else {
-      epQGrid.innerHTML = '<p style="font-size:11px;color:#94a3b8;padding:6px">Agrega EPP...</p>';
+    // Quality inspection table
+    const tablaWrap = pvQ('pv-quality-tabla-wrap');
+    if (tablaWrap) {
+      if (!qualityTabla.length) {
+        tablaWrap.innerHTML = `<p style="font-size:11px;color:#94a3b8;padding:6px">Agrega filas de inspección desde el panel izquierdo...</p>`;
+      } else {
+        const colores = ['#22c55e','#3b82f6','#f59e0b','#a855f7','#ef4444','#06b6d4'];
+        tablaWrap.innerHTML = `
+          <div style="background:#0a1628;border-radius:10px;overflow:hidden;border:1px solid rgba(30,136,229,.25)">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;background:#0e2044;padding:7px 10px;gap:4px">
+              <span style="font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.5)">Parámetro</span>
+              <span style="font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.5)">Condición OK</span>
+              <span style="font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.5)">Acción</span>
+            </div>
+            ${qualityTabla.map((r, i) => `
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:8px 10px;gap:4px;border-top:1px solid rgba(255,255,255,.06)">
+                <span style="font-size:11px;color:rgba(255,255,255,.8);font-weight:500">${r.param||'—'}</span>
+                <span style="font-size:11px;color:${colores[i%colores.length]};font-weight:700">${r.condicion||'—'}</span>
+                <span style="font-size:11px;color:rgba(255,255,255,.6)">${r.accion||'—'}</span>
+              </div>`).join('')}
+          </div>`;
+      }
     }
 
+    // Quality alert
+    const alertaTitulo = v('f-quality-alerta-titulo');
+    const alertaTexto  = v('f-quality-alerta-texto');
+    const alertaWrap   = pvQ('pv-quality-alerta-wrap');
+    if (alertaWrap) {
+      if (alertaTitulo || alertaTexto) {
+        alertaWrap.style.display = 'block';
+        pvQ('pv-quality-alerta-titulo') && (pvQ('pv-quality-alerta-titulo').innerHTML = `<i class="fas fa-triangle-exclamation mr-1"></i>${alertaTitulo || '¡ALERTA DE CALIDAD!'}`);
+        if (pvQ('pv-quality-alerta-texto')) {
+          // Support **bold** and ==highlight==
+          pvQ('pv-quality-alerta-texto').innerHTML = (alertaTexto || '')
+            .replace(/\*\*(.+?)\*\*/g, '<strong style="color:white">$1</strong>')
+            .replace(/==(.+?)==/g, '<span style="color:#fbbf24;font-weight:700">$1</span>');
+        }
+      } else {
+        alertaWrap.style.display = 'none';
+      }
+    }
+
+    // Quality numbered steps
+    const pasosEl = pvQ('pv-quality-pasos-list');
+    if (pasosEl) {
+      pasosEl.innerHTML = qualityPasos.length
+        ? qualityPasos.map((p, i) => `
+            <div style="display:flex;gap:10px;align-items:flex-start;background:#f8fafc;border-radius:10px;padding:10px 12px;border:1px solid #e2e8f0">
+              <div style="width:24px;height:24px;border-radius:50%;background:#1e88e5;color:white;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">${i+1}</div>
+              <div>
+                <p style="font-size:12px;font-weight:700;color:#1e293b;margin-bottom:2px">${p.titulo||'(Sin título)'}</p>
+                <p style="font-size:11px;color:#64748b;line-height:1.5">${p.desc||''}</p>
+              </div>
+            </div>`).join('')
+        : '<p style="font-size:11px;color:#94a3b8;padding:4px">Agrega pasos desde el panel izquierdo...</p>';
+    }
+
+    // EPP Quality titulo
+    const epQTitEl = pvQ('pv-epp-quality-titulo');
+    if (epQTitEl) epQTitEl.innerHTML = `<i class="fas fa-shield-halved"></i> ${v('f-quality-epp-titulo') || 'EPP Quality'}`;
+
+    // EPP Quality grid
+    const epQGrid = pvQ('pv-epp-quality-grid');
+    if (epQGrid) {
+      epQGrid.innerHTML = eppQuality.length
+        ? eppQuality.map(e => `
+            <div style="background:white;border-radius:10px;padding:10px 6px;text-align:center;border:1px solid #e2e8f0">
+              <span style="font-size:26px;display:block;margin-bottom:4px">${e.emoji||'🔧'}</span>
+              <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#0e2044;line-height:1.2;display:block">${e.label||'EPP'}</span>
+            </div>`).join('')
+        : '<p style="font-size:11px;color:#94a3b8;padding:6px;grid-column:1/-1">Agrega EPP...</p>';
+    }
+
+    pvQ('pv-qr-torque-titulo') && (pvQ('pv-qr-torque-titulo').textContent = v('f-qr-torque-titulo') || 'Manual de Torque');
+    pvQ('pv-qr-torque-desc')   && (pvQ('pv-qr-torque-desc').textContent   = v('f-qr-torque-desc')   || 'Sin descripción');
+    updatePreviewQrImg('torque');
+
     // Health
-    pv('pv-health-titulo').textContent = v('f-health-titulo') || 'SALUD OCUPACIONAL';
-    pv('pv-health-contenido').textContent = v('f-health-contenido') || 'El contenido de salud aparecerá aquí...';
-    pv('pv-qr-ergo-url').textContent = v('f-qr-ergo') || 'Sin URL configurada';
+    const pvH = id => document.getElementById(id);
+    pvH('pv-health-titulo')      && (pvH('pv-health-titulo').textContent      = v('f-health-titulo') || 'SALUD OCUPACIONAL');
+    pvH('pv-health-left-titulo') && (pvH('pv-health-left-titulo').textContent = v('f-health-left-titulo') || 'PROTECCIÓN RUIDO Y VIBRACIÓN');
+    pvH('pv-health-right-titulo')&& (pvH('pv-health-right-titulo').textContent= v('f-health-right-titulo') || 'ERGONOMÍA EN CAMPO Y TALLER');
+
+    // Ruido titulo
+    if (pvH('pv-health-ruido-titulo')) {
+      const rt = v('f-health-ruido-titulo');
+      pvH('pv-health-ruido-titulo').innerHTML = `<i class="fas fa-volume-high"></i> ${rt || 'NIVELES DE EXPOSICIÓN AL RUIDO'}`;
+    }
+
+    // Barras de ruido
+    const barrasEl = pvH('pv-health-barras-list');
+    if (barrasEl) {
+      const colorHex = { red:'#ef4444', orange:'#f97316', green:'#22c55e', blue:'#3b82f6' };
+      barrasEl.innerHTML = healthBarras.length
+        ? healthBarras.map(b => `
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+                <span style="font-size:11px;color:#1e293b;font-weight:500">${b.label||'—'}</span>
+                <span style="font-size:11px;font-weight:700;color:${colorHex[b.color]||'#ef4444'}">${b.valor||''}</span>
+              </div>
+              <div style="height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden">
+                <div style="height:100%;width:${Math.min(100,b.pct||80)}%;background:${colorHex[b.color]||'#ef4444'};border-radius:4px;transition:width .3s"></div>
+              </div>
+            </div>`).join('')
+        : '<p style="font-size:11px;color:#94a3b8">Agrega barras desde el panel izquierdo...</p>';
+    }
+
+    // Health tips (ruido/vibración)
+    const htipsEl = pvH('pv-health-tips-list');
+    if (htipsEl) {
+      const tipBg   = { '🔇':'#fff7ed', '🖐️':'#f0fdf4', '⚠️':'#fffbeb', default:'#f8fafc' };
+      const tipBdr  = { '🔇':'#fed7aa', '🖐️':'#bbf7d0', '⚠️':'#fde68a', default:'#e2e8f0' };
+      htipsEl.innerHTML = healthTips.filter(t=>t.texto).map(t => `
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:9px;background:${tipBg[t.icon]||tipBg.default};border-left:3px solid ${tipBdr[t.icon]||tipBdr.default}">
+          <span style="font-size:15px;flex-shrink:0;margin-top:1px">${t.icon}</span>
+          <p style="font-size:11px;color:#475569;line-height:1.6;margin:0">${t.texto}</p>
+        </div>`).join('');
+    }
+
+    // Ergo
+    if (pvH('pv-health-ergo-subtitulo')) {
+      pvH('pv-health-ergo-subtitulo').textContent = v('f-health-ergo-subtitulo') || 'POSTURAS CORRECTAS – MANEJO DE HERRAMIENTAS DE FONDO';
+    }
+    pvH('pv-health-ergo-correcto')   && (pvH('pv-health-ergo-correcto').textContent   = v('f-health-ergo-correcto')   || 'Espalda recta, rodillas flexionadas, carga cerca del cuerpo');
+    pvH('pv-health-ergo-incorrecto') && (pvH('pv-health-ergo-incorrecto').textContent = v('f-health-ergo-incorrecto') || 'Espalda doblada, carga alejada del cuerpo, giro brusco');
+
+    // Peso note
+    const pesoWrap = pvH('pv-health-ergo-peso-wrap');
+    const pesoTxt  = v('f-health-ergo-peso');
+    if (pesoWrap) {
+      if (pesoTxt) {
+        pesoWrap.style.display = 'block';
+        pvH('pv-health-ergo-peso').innerHTML = `<span style="font-size:14px;margin-right:5px">💛</span>${pesoTxt}`;
+      } else {
+        pesoWrap.style.display = 'none';
+      }
+    }
+
+    pvH('pv-qr-ergo-titulo') && (pvH('pv-qr-ergo-titulo').textContent = v('f-qr-ergo-titulo') || 'Video Ergonomía');
+    pvH('pv-qr-ergo-desc')   && (pvH('pv-qr-ergo-desc').textContent   = v('f-qr-ergo-desc')   || 'Sin descripción');
+    updatePreviewQrImg('ergo');
 
     // Environment
     pv('pv-env-titulo').textContent = v('f-env-titulo') || 'MEDIO AMBIENTE';
     pv('pv-env-contenido').textContent = v('f-env-contenido') || 'El contenido ambiental aparecerá aquí...';
     pv('pv-env-derrames').textContent = v('f-env-derrames') || '0';
-    pv('pv-qr-ambiental-url').textContent = v('f-qr-ambiental') || 'Sin URL configurada';
+    pv('pv-qr-ambiental-titulo').textContent = v('f-qr-ambiental-titulo') || 'Incidente Ambiental';
+    pv('pv-qr-ambiental-desc').textContent   = v('f-qr-ambiental-desc')   || 'Sin descripción';
+    updatePreviewQrImg('ambiental');
 
     // Guardian
     const gNombre = v('f-g-nombre');
@@ -1539,6 +2540,96 @@
     el.classList.add('show');
     if (toastTimer) clearTimeout(toastTimer);
     toastTimer = setTimeout(() => el.classList.remove('show'), 3800);
+  }
+
+  // ── QR IMAGE STATE ──
+  let qrImages = { torque: null, ergo: null, ambiental: null };
+
+  // Helper: file → base64
+  function fileToBase64(file) {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload  = e => res(e.target.result);
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+  }
+
+  // Trigger hidden file input
+  function triggerQrUpload(key) {
+    document.getElementById('file-qr-' + key).click();
+  }
+
+  // Handle file input change
+  async function handleQrFile(event, key) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { toast('La imagen no debe superar 2 MB', 'warn'); return; }
+    qrImages[key] = file;
+    const b64 = await fileToBase64(file);
+    showQrPreview(key, b64);
+    livePreview();
+  }
+
+  // Handle drag & drop
+  async function handleQrDrop(event, key) {
+    event.preventDefault();
+    document.getElementById('zone-' + key).classList.remove('dragover');
+    const file = event.dataTransfer.files[0];
+    if (!file || !file.type.startsWith('image/')) { toast('Solo se permiten imágenes', 'warn'); return; }
+    if (file.size > 2 * 1024 * 1024) { toast('La imagen no debe superar 2 MB', 'warn'); return; }
+    qrImages[key] = file;
+    const b64 = await fileToBase64(file);
+    showQrPreview(key, b64);
+    livePreview();
+  }
+
+  // Show uploaded image preview in the editor zone
+  function showQrPreview(key, src) {
+    const wrap = document.getElementById('qr-preview-' + key);
+    if (!wrap) return;
+    wrap.innerHTML = `
+      <img src="${src}" class="qr-preview-img" alt="QR">
+      <button class="qr-remove-btn" onclick="removeQrImage('${key}');event.stopPropagation()">
+        <i class="fas fa-times mr-1"></i>Quitar imagen
+      </button>`;
+  }
+
+  // Clear preview
+  function clearQrPreview(key) {
+    const wrap = document.getElementById('qr-preview-' + key);
+    if (!wrap) return;
+    wrap.innerHTML = `
+      <i class="fas fa-qrcode text-slate-300 text-3xl mb-2"></i>
+      <p style="font-size:12px;font-weight:600;color:#94a3b8">Haz clic o arrastra la imagen del QR</p>
+      <p style="font-size:10px;color:#cbd5e1;margin-top:2px">PNG, JPG — máx. 2 MB</p>`;
+  }
+
+  // Remove QR image
+  function removeQrImage(key) {
+    qrImages[key] = null;
+    clearQrPreview(key);
+    // Reset file input
+    const fi = document.getElementById('file-qr-' + key);
+    if (fi) fi.value = '';
+    // Update preview panel
+    const wrap = document.getElementById('pv-qr-' + key + '-img-wrap');
+    if (wrap) { wrap.textContent = { ats:'📋', torque:'⚙️', ergo:'🏋️', ambiental:'🌿' }[key]; }
+    livePreview();
+  }
+
+  // Update the preview panel QR image box
+  function updatePreviewQrImg(key) {
+    const wrap = document.getElementById('pv-qr-' + key + '-img-wrap');
+    if (!wrap) return;
+    const src = qrImages[key];
+    if (src) {
+      const imgSrc = typeof src === 'string' ? src : URL.createObjectURL(src);
+      wrap.innerHTML = `<img src="${imgSrc}" style="width:60px;height:60px;object-fit:contain;border-radius:6px;background:white;display:block;">`;
+    } else {
+      const fallback = { ats:'📋', torque:'⚙️', ergo:'🏋️', ambiental:'🌿' };
+      wrap.textContent = fallback[key] || '📋';
+    }
   }
 
   init();
