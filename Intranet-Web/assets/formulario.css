@@ -545,9 +545,36 @@ input[readonly] {
 /* ── Responsive ── */
 @media (max-width: 480px) {
   .header-bar { padding: 12px 16px; }
+  .header-bar img { height: 28px; }
   .form-wrap { padding: 0 12px; margin-top: 24px; }
   .intro-card { padding: 24px 20px; }
   .form-title { font-size: 34px; }
   .field-card { padding: 18px 16px; }
   .success-box { padding: 32px 24px; }
+}
+
+/* ── Tablet (481px – 768px) ── */
+@media (max-width: 768px) {
+  .form-title { font-size: 36px; }
+  .intro-card { padding: 28px 24px; }
+  .field-card  { padding: 20px 18px; }
+}
+
+/* ── Móvil grande (max 480px) — ya existe, reemplázalo ── */
+@media (max-width: 480px) {
+  .header-bar  { padding: 12px 16px; }
+  .header-badge { display: none; }        /* evita overflow en pantallas pequeñas */
+  .form-wrap   { padding: 0 12px; margin-top: 20px; }
+  .intro-card  { padding: 22px 16px; }
+  .form-title  { font-size: 30px; }
+  .field-card  { padding: 16px 14px; }
+  .submit-btn  { font-size: 14px; padding: 16px; }
+  .success-box { padding: 28px 18px; }
+  .success-title { font-size: 22px; }
+}
+
+/* ── Móvil pequeño (max 360px) ── */
+@media (max-width: 360px) {
+  .form-title  { font-size: 26px; }
+  .f-input, .f-select, .f-textarea { font-size: 16px; } /* evita zoom automático en iOS */
 }
