@@ -103,6 +103,7 @@
       .cover-title { font-size: clamp(38px, 13vw, 60px) !important; }
     }
   </style>
+  <script src="revista-render.js"></script>
 </head>
 <body>
 
@@ -151,734 +152,8 @@
 </div>
 
 <!-- ── MAIN ── -->
-<main class="max-w-[1440px] mx-auto px-4 md:px-8 py-10">
-
-  <!-- ══════════════════════════════════════════ -->
-  <!-- PÁGINA 1 — PORTADA & MENSAJE DIRECCIÓN    -->
-  <!-- ══════════════════════════════════════════ -->
-  <div class="cover-page rounded-3xl mb-8 relative" style="min-height:520px;">
-    <div class="cover-grid-bg"></div>
-    <div class="cover-accent-line"></div>
-    <!-- Decorative circles -->
-    <div class="absolute -top-20 -right-20 w-96 h-96 rounded-full opacity-5" style="background:radial-gradient(circle, #1e88e5, transparent)"></div>
-    <div class="absolute bottom-0 left-1/3 w-64 h-64 rounded-full opacity-5" style="background:radial-gradient(circle, #00c8ff, transparent)"></div>
-
-    <div class="relative z-10 p-8 md:p-14 flex flex-col md:flex-row gap-10 h-full">
-      <!-- Left: portada -->
-      <div class="flex-1">
-        <div class="flex items-center gap-3 mb-8">
-          <span id="cover-edition-badge" class="text-[11px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full" style="background:rgba(30,136,229,.2);border:1px solid rgba(0,200,255,.3);color:#00c8ff">Edición Mayo 2026</span>
-          <span class="text-[11px] font-bold text-white/40 uppercase tracking-widest">Vol. 1</span>
-        </div>
-        <div id="cover-title-wrap">
-          <p class="cover-subtitle mb-2">ALERTAS QHSE</p>
-          <h1 class="cover-title" id="cover-title">SEGURIDAD<br>SIN<br>EXCUSAS</h1>
-        </div>
-        <div class="mt-8 flex flex-wrap gap-3">
-          <span class="text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full text-white/80" style="background:rgba(227,30,36,.25);border:1px solid rgba(227,30,36,.3)">
-            <i class="fas fa-hard-hat mr-1"></i>Safety
-          </span>
-          <span class="text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full text-white/80" style="background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.3)">
-            <i class="fas fa-check-double mr-1"></i>Quality
-          </span>
-          <span class="text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full text-white/80" style="background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.3)">
-            <i class="fas fa-heartbeat mr-1"></i>Health
-          </span>
-          <span class="text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full text-white/80" style="background:rgba(30,136,229,.2);border:1px solid rgba(30,136,229,.3)">
-            <i class="fas fa-leaf mr-1"></i>Environment
-          </span>
-        </div>
-      </div>
-
-      <!-- Right: Mensaje Dirección -->
-      <div class="md:w-96 flex flex-col justify-between">
-        <div class="rounded-2xl p-7" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(8px)">
-          <div class="flex items-center gap-3 mb-5">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:linear-gradient(135deg,#1e88e5,#00c8ff)">
-              <i class="fas fa-quote-left text-white text-xs"></i>
-            </div>
-            <div>
-              <p class="text-[10px] font-black uppercase tracking-[.15em] text-white/50">Mensaje de</p>
-              <p class="text-[11px] font-bold text-white/80 uppercase tracking-wider">Gerencia de Operaciones</p>
-            </div>
-          </div>
-          <p id="director-message" class="text-sm text-white/75 leading-relaxed italic">
-            "Nuestro compromiso es claro: cero accidentes, cero excusas. Cada procedimiento que seguimos, cada EPP que portamos y cada condición insegura que reportamos es un acto de liderazgo. La seguridad no es un departamento, es una responsabilidad compartida por cada uno de nosotros en campo y en taller."
-          </p>
-          <div class="mt-5 border-t border-white/10 pt-4">
-            <p id="director-name" class="text-xs font-black text-white/90 uppercase tracking-wider">Ing. [Nombre del Gerente]</p>
-            <p class="text-[10px] text-white/45 mt-0.5">Gerente de Operaciones — In Hole Solutions</p>
-          </div>
-        </div>
-
-        <!-- Stats rápidos -->
-        <div class="grid grid-cols-3 gap-3 mt-5">
-          <div class="rounded-xl p-3 text-center" style="background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.25)">
-            <p id="stat-dias" class="text-2xl font-black text-emerald-400" style="font-family:'Barlow Condensed',sans-serif">247</p>
-            <p class="text-[9px] text-white/60 font-bold uppercase tracking-wide mt-0.5">Días sin<br>accidente</p>
-          </div>
-          <div class="rounded-xl p-3 text-center" style="background:rgba(30,136,229,.15);border:1px solid rgba(30,136,229,.25)">
-            <p id="stat-obs" class="text-2xl font-black text-blue-400" style="font-family:'Barlow Condensed',sans-serif">18</p>
-            <p class="text-[9px] text-white/60 font-bold uppercase tracking-wide mt-0.5">Reportes<br>de riesgo</p>
-          </div>
-          <div class="rounded-xl p-3 text-center" style="background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.25)">
-            <p id="stat-acc" class="text-2xl font-black text-amber-400" style="font-family:'Barlow Condensed',sans-serif">3</p>
-            <p class="text-[9px] text-white/60 font-bold uppercase tracking-wide mt-0.5">Near miss<br>resueltos</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PAGINATION NAV -->
-    <div class="grid grid-cols-3 sm:flex sm:flex-wrap gap-2 mb-8">
-        <button onclick="scrollToSection('sec-safety')"
-            class="px-3 py-2.5 sm:px-5 rounded-full text-[11px] sm:text-[12px] font-bold uppercase tracking-widest transition-all text-center"
-            style="background:#e31e24;color:white">
-            <i class="fas fa-hard-hat mr-1"></i>Safety
-        </button>
-        <button onclick="scrollToSection('sec-quality')"
-            class="px-3 py-2.5 sm:px-5 rounded-full text-[11px] sm:text-[12px] font-bold uppercase tracking-widest transition-all bg-white border border-slate-200 text-slate-600 hover:border-blue-400 text-center">
-            <i class="fas fa-check-double mr-1"></i>Quality
-        </button>
-        <button onclick="scrollToSection('sec-health')"
-            class="px-3 py-2.5 sm:px-5 rounded-full text-[11px] sm:text-[12px] font-bold uppercase tracking-widest transition-all bg-white border border-slate-200 text-slate-600 hover:border-amber-400 text-center">
-            <i class="fas fa-heartbeat mr-1"></i>Health
-        </button>
-        <button onclick="scrollToSection('sec-env')"
-            class="px-3 py-2.5 sm:px-5 rounded-full text-[11px] sm:text-[12px] font-bold uppercase tracking-widest transition-all bg-white border border-slate-200 text-slate-600 hover:border-green-400 text-center">
-            <i class="fas fa-leaf mr-1"></i>Environment
-        </button>
-        <button onclick="scrollToSection('sec-guardian')"
-            class="px-3 py-2.5 sm:px-5 rounded-full text-[11px] sm:text-[12px] font-bold uppercase tracking-widest transition-all bg-white border border-slate-200 text-slate-600 hover:border-yellow-400 text-center col-span-2 sm:col-span-1">
-            <i class="fas fa-star mr-1"></i>Guardián
-        </button>
-    </div>
-
-  <!-- ══════════════════════════════════════════ -->
-  <!-- PÁGINAS 2-3 — SEGURIDAD (SAFETY)          -->
-  <!-- ══════════════════════════════════════════ -->
-  <div id="sec-safety" class="section-card scroll-mt-36">
-    <div class="section-header" style="background:linear-gradient(135deg,#e31e24,#c01a1f);">
-      <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-        <i class="fas fa-hard-hat text-white"></i>
-      </div>
-      <div>
-        <span class="section-badge" style="background:rgba(255,255,255,.2);color:white">Págs. 2–3</span>
-        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;font-style:italic;color:white;margin:0;letter-spacing:-.01em;">ALERTA DE SEGURIDAD</h2>
-      </div>
-      <span class="ml-auto text-white/60 text-xs font-bold uppercase tracking-wider">Safety</span>
-    </div>
-
-    <div class="p-6 md:p-8 relative">
-      <div class="page-number">02</div>
-      <div class="grid md:grid-cols-2 gap-8">
-
-        <!-- Maniobras de carga -->
-        <div>
-          <div class="flex items-center gap-3 mb-5">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:#fef2f2">
-              <i class="fas fa-truck-pickup text-[#e31e24] text-sm"></i>
-            </div>
-            <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight" style="font-family:'Barlow Condensed',sans-serif">Maniobras de Carga — Grúa Viajera 10T</h3>
-          </div>
-
-          <!-- EPP Infografía -->
-          <div class="rounded-2xl p-5 mb-5" style="background:#fef9f9;border:2px dashed rgba(227,30,36,.2)">
-            <p class="text-[11px] font-black uppercase tracking-widest text-[#e31e24] mb-4">
-              <i class="fas fa-shield-halved mr-1.5"></i>EPP Obligatorio para maniobras de izaje
-            </p>
-            <div class="epp-grid">
-              <div class="epp-item">
-                <span class="epp-icon">⛑️</span>
-                <span class="epp-label">Casco<br>Clase E</span>
-              </div>
-              <div class="epp-item">
-                <span class="epp-icon">🥽</span>
-                <span class="epp-label">Careta<br>facial</span>
-              </div>
-              <div class="epp-item">
-                <span class="epp-icon">🧤</span>
-                <span class="epp-label">Guantes<br>anticorte</span>
-              </div>
-              <div class="epp-item">
-                <span class="epp-icon">🦺</span>
-                <span class="epp-label">Chaleco<br>reflectivo</span>
-              </div>
-              <div class="epp-item">
-                <span class="epp-icon">👢</span>
-                <span class="epp-label">Botas<br>punta acero</span>
-              </div>
-              <div class="epp-item">
-                <span class="epp-icon">🔒</span>
-                <span class="epp-label">Arnés<br>4 puntos</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="space-y-3">
-            <div class="flex items-start gap-3 p-3 rounded-xl" style="background:#f0fdf4;border-left:4px solid #10b981">
-              <i class="fas fa-check-circle text-emerald-500 mt-0.5 flex-shrink-0"></i>
-              <p class="text-sm text-slate-700">Realizar análisis de trabajo seguro (ATS) <strong>antes</strong> de cualquier maniobra de izaje con carga superior a 500 kg.</p>
-            </div>
-            <div class="flex items-start gap-3 p-3 rounded-xl" style="background:#fff7ed;border-left:4px solid #f59e0b">
-              <i class="fas fa-triangle-exclamation text-amber-500 mt-0.5 flex-shrink-0"></i>
-              <p class="text-sm text-slate-700">Verificar SWL (Safe Working Load) de eslingas, grilletes y cadenas certificadas antes de cada uso. <strong>Nunca improvisas.</strong></p>
-            </div>
-            <div class="flex items-start gap-3 p-3 rounded-xl" style="background:#fef2f2;border-left:4px solid #e31e24">
-              <i class="fas fa-ban text-[#e31e24] mt-0.5 flex-shrink-0"></i>
-              <p class="text-sm text-slate-700"><strong>Prohibido</strong> transitar bajo cargas suspendidas. Zona de exclusión mínima: 2× la altura de la carga.</p>
-            </div>
-          </div>
-
-          <!-- QR 1 -->
-          <div class="qr-box mt-5">
-            <div class="qr-canvas-wrap">
-              <div id="qr-ats" style="width:72px;height:72px;"></div>
-            </div>
-            <div class="qr-info">
-              <p class="text-[10px] font-black uppercase tracking-widest text-[#00c8ff] mb-1">
-                <i class="fas fa-qrcode mr-1"></i>Código QR
-              </p>
-              <p class="text-white font-bold text-sm">Formato ATS Digital</p>
-              <p class="text-white/50 text-xs mt-0.5">Escanea para reportar condición insegura</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Near Miss -->
-        <div>
-          <div class="flex items-center gap-3 mb-5">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:#fef2f2">
-              <i class="fas fa-exclamation-triangle text-[#e31e24] text-sm"></i>
-            </div>
-            <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight" style="font-family:'Barlow Condensed',sans-serif">Lección Aprendida — Near Miss</h3>
-          </div>
-
-          <div id="near-miss-content">
-            <div class="nm-card">
-              <p class="nm-label mb-3"><i class="fas fa-clock mr-1"></i>Incidente — Taller de Apriete</p>
-              <p class="font-black text-slate-800 text-base mb-2" style="font-family:'Barlow Condensed',sans-serif;font-size:18px;">CUÑAS DESLIZADAS DURANTE ENSAMBLE DE HERRAMIENTA DE FONDO</p>
-              <p class="text-sm text-slate-600 leading-relaxed">
-                Durante el ensamble de una herramienta de fondo en el banco horizontal, las cuñas de sujeción se deslizaron al aplicar par de apriete. El operador reaccionó a tiempo y no se registraron lesiones.
-              </p>
-            </div>
-
-            <div class="grid grid-cols-1 gap-3 mt-4">
-              <div class="rounded-xl p-4" style="background:#f8fafc;border:1px solid #e2e8f0">
-                <p class="text-[11px] font-black uppercase tracking-wider text-slate-500 mb-2">
-                  <i class="fas fa-magnifying-glass mr-1 text-[#1e88e5]"></i>Causa Raíz
-                </p>
-                <p class="text-sm text-slate-700">Desgaste no detectado en las mordazas del banco horizontal. El pre-uso no incluyó revisión de mecanismo de traba.</p>
-              </div>
-              <div class="rounded-xl p-4" style="background:#f0fdf4;border:1px solid #bbf7d0">
-                <p class="text-[11px] font-black uppercase tracking-wider text-emerald-700 mb-2">
-                  <i class="fas fa-wrench mr-1"></i>Acción Correctiva
-                </p>
-                <p class="text-sm text-slate-700">Se actualiza la checklist de pre-uso del banco horizontal incluyendo verificación de mordazas y mecanismo de traba. Capacitación inmediata al personal de taller.</p>
-              </div>
-            </div>
-
-            <!-- QR 2 -->
-            <div class="qr-box mt-5">
-              <div class="qr-canvas-wrap">
-                <div id="qr-nearmiss" style="width:72px;height:72px;"></div>
-              </div>
-              <div class="qr-info">
-                <p class="text-[10px] font-black uppercase tracking-widest text-[#00c8ff] mb-1">
-                  <i class="fas fa-qrcode mr-1"></i>Código QR
-                </p>
-                <p class="text-white font-bold text-sm">Reporte Near Miss</p>
-                <p class="text-white/50 text-xs mt-0.5">Formato digital de reporte de casi-accidente</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════ -->
-  <!-- PÁGINAS 4-5 — CALIDAD (QUALITY)           -->
-  <!-- ══════════════════════════════════════════ -->
-  <div id="sec-quality" class="section-card scroll-mt-36">
-    <div class="section-header" style="background:linear-gradient(135deg,#1e88e5,#0d47a1);">
-      <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-        <i class="fas fa-check-double text-white"></i>
-      </div>
-      <div>
-        <span class="section-badge" style="background:rgba(255,255,255,.2);color:white">Págs. 4–5</span>
-        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;font-style:italic;color:white;margin:0;">CALIDAD OPERATIVA</h2>
-      </div>
-      <span class="ml-auto text-white/60 text-xs font-bold uppercase tracking-wider">Quality</span>
-    </div>
-
-    <div class="p-6 md:p-8 relative">
-      <div class="page-number">04</div>
-      <div class="grid md:grid-cols-2 gap-8">
-
-        <!-- Integridad de conexiones -->
-        <div>
-          <div class="flex items-center gap-3 mb-5">
-            <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-              <i class="fas fa-link text-[#1e88e5] text-sm"></i>
-            </div>
-            <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight" style="font-family:'Barlow Condensed',sans-serif">Integridad de Conexiones</h3>
-          </div>
-
-          <!-- Tabla roscas — responsive -->
-          <div class="rounded-2xl overflow-hidden border border-slate-100 mb-5">
-            <div class="px-4 py-3" style="background:#0e2044">
-              <p class="text-[11px] font-black uppercase tracking-widest text-white/70">
-                <i class="fas fa-table mr-1.5 text-[#00c8ff]"></i>Inspección de roscas premium / API
-              </p>
-            </div>
-            <!-- Tabla: visible solo en sm+ -->
-            <div class="hidden sm:block overflow-x-auto">
-              <table class="w-full text-sm">
-                <thead style="background:#f8fafc">
-                  <tr>
-                    <th class="px-4 py-3 text-left text-[11px] font-black uppercase tracking-wider text-slate-500">Parámetro</th>
-                    <th class="px-4 py-3 text-left text-[11px] font-black uppercase tracking-wider text-slate-500">Condición OK</th>
-                    <th class="px-4 py-3 text-left text-[11px] font-black uppercase tracking-wider text-slate-500">Acción</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                  <tr><td class="px-4 py-3 font-medium text-slate-700">Limpieza de rosca</td><td class="px-4 py-3 text-emerald-600 font-bold">Sin lodo/arena</td><td class="px-4 py-3 text-xs text-slate-500">Limpiar con cepillo y solvente</td></tr>
-                  <tr style="background:#f8fafc"><td class="px-4 py-3 font-medium text-slate-700">Dope API/Premium</td><td class="px-4 py-3 text-emerald-600 font-bold">Capa uniforme</td><td class="px-4 py-3 text-xs text-slate-500">Aplicar según ficha técnica</td></tr>
-                  <tr><td class="px-4 py-3 font-medium text-slate-700">Par de torque</td><td class="px-4 py-3 text-emerald-600 font-bold">Dentro de rango</td><td class="px-4 py-3 text-xs text-slate-500">Verificar tabla de torque IHS</td></tr>
-                  <tr style="background:#f8fafc"><td class="px-4 py-3 font-medium text-slate-700">Daños visuales</td><td class="px-4 py-3 text-emerald-600 font-bold">Sin corrosión/galling</td><td class="px-4 py-3 text-xs text-slate-500">Rechazar y reportar</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <!-- Cards: visible solo en móvil -->
-            <div class="sm:hidden divide-y divide-slate-100">
-              <div class="p-4">
-                <p class="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Parámetro</p>
-                <p class="font-bold text-slate-800 text-sm">Limpieza de rosca</p>
-                <div class="flex items-center gap-2 mt-2">
-                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">OK:</span>
-                  <span class="text-emerald-600 font-bold text-sm">Sin lodo/arena</span>
-                </div>
-                <div class="flex items-start gap-2 mt-1">
-                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 mt-0.5">Acción:</span>
-                  <span class="text-xs text-slate-500">Limpiar con cepillo y solvente</span>
-                </div>
-              </div>
-              <div class="p-4 bg-slate-50">
-                <p class="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Parámetro</p>
-                <p class="font-bold text-slate-800 text-sm">Dope API/Premium</p>
-                <div class="flex items-center gap-2 mt-2">
-                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">OK:</span>
-                  <span class="text-emerald-600 font-bold text-sm">Capa uniforme</span>
-                </div>
-                <div class="flex items-start gap-2 mt-1">
-                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 mt-0.5">Acción:</span>
-                  <span class="text-xs text-slate-500">Aplicar según ficha técnica</span>
-                </div>
-              </div>
-              <div class="p-4">
-                <p class="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Parámetro</p>
-                <p class="font-bold text-slate-800 text-sm">Par de torque</p>
-                <div class="flex items-center gap-2 mt-2">
-                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">OK:</span>
-                  <span class="text-emerald-600 font-bold text-sm">Dentro de rango</span>
-                </div>
-                <div class="flex items-start gap-2 mt-1">
-                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 mt-0.5">Acción:</span>
-                  <span class="text-xs text-slate-500">Verificar tabla de torque IHS</span>
-                </div>
-              </div>
-              <div class="p-4 bg-slate-50">
-                <p class="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Parámetro</p>
-                <p class="font-bold text-slate-800 text-sm">Daños visuales</p>
-                <div class="flex items-center gap-2 mt-2">
-                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">OK:</span>
-                  <span class="text-emerald-600 font-bold text-sm">Sin corrosión/galling</span>
-                </div>
-                <div class="flex items-start gap-2 mt-1">
-                  <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 mt-0.5">Acción:</span>
-                  <span class="text-xs text-slate-500">Rechazar y reportar</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Advertencia daños por mal enrosque -->
-          <div class="rounded-2xl p-5" style="background:linear-gradient(135deg,#0a1628,#0e2044);border:1px solid rgba(30,136,229,.3)">
-            <p class="text-[11px] font-black uppercase tracking-widest text-[#00c8ff] mb-3">
-              <i class="fas fa-triangle-exclamation mr-1.5"></i>¡Alerta de calidad!
-            </p>
-            <p class="text-sm text-white/80 leading-relaxed">El galling (soldadura en frío) en roscas premium es <strong class="text-white">irreversible</strong>. Un enrosque incorrecto puede destruir una conexión de <strong class="text-[#f59e0b]">$80,000+ MXN</strong>. Siga siempre el procedimiento de alineación y velocidad de enrosque de la máquina de torque.</p>
-          </div>
-        </div>
-
-        <!-- Máquina de torque -->
-        <div>
-          <div class="flex items-center gap-3 mb-5">
-            <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-              <i class="fas fa-gears text-[#1e88e5] text-sm"></i>
-            </div>
-            <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight" style="font-family:'Barlow Condensed',sans-serif">Máquina de Torque — Rotación Continua</h3>
-          </div>
-
-          <div class="space-y-3 mb-5">
-            <div class="flex items-start gap-3 p-4 rounded-xl border border-slate-100">
-              <div class="w-8 h-8 rounded-lg bg-[#1e88e5] text-white flex items-center justify-center font-black text-sm flex-shrink-0">1</div>
-              <div>
-                <p class="font-bold text-slate-800 text-sm">Calibración previa a operación</p>
-                <p class="text-xs text-slate-500 mt-0.5">Verificar celdas de carga y transductor de par cada inicio de turno. Registro en bitácora digital.</p>
-              </div>
-            </div>
-            <div class="flex items-start gap-3 p-4 rounded-xl border border-slate-100">
-              <div class="w-8 h-8 rounded-lg bg-[#1e88e5] text-white flex items-center justify-center font-black text-sm flex-shrink-0">2</div>
-              <div>
-                <p class="font-bold text-slate-800 text-sm">Velocidad de enrosque</p>
-                <p class="text-xs text-slate-500 mt-0.5">Nunca superar 10 RPM en conexiones premium. Reducir a 4 RPM en los últimos 2 vueltas antes del torque final.</p>
-              </div>
-            </div>
-            <div class="flex items-start gap-3 p-4 rounded-xl border border-slate-100">
-              <div class="w-8 h-8 rounded-lg bg-[#1e88e5] text-white flex items-center justify-center font-black text-sm flex-shrink-0">3</div>
-              <div>
-                <p class="font-bold text-slate-800 text-sm">Registro de gráfica de torque</p>
-                <p class="text-xs text-slate-500 mt-0.5">Cada conexión debe generar su gráfica torque-vuelta. Sin gráfica aceptable = <strong>conexión rechazada</strong>.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- EPP Máquina torque -->
-          <div class="rounded-2xl p-4" style="background:#f0f7ff;border:2px dashed rgba(30,136,229,.2)">
-            <p class="text-[11px] font-black uppercase tracking-widest text-[#1e88e5] mb-3">
-              <i class="fas fa-shield-halved mr-1.5"></i>EPP para operación de máquina de torque
-            </p>
-            <div class="epp-grid">
-              <div class="epp-item">
-                <span class="epp-icon">⛑️</span>
-                <span class="epp-label">Casco</span>
-              </div>
-              <div class="epp-item">
-                <span class="epp-icon">🥽</span>
-                <span class="epp-label">Lentes<br>Seguridad</span>
-              </div>
-              <div class="epp-item">
-                <span class="epp-icon">🧤</span>
-                <span class="epp-label">Guantes<br>mecánicos</span>
-              </div>
-              <div class="epp-item">
-                <span class="epp-icon">👂</span>
-                <span class="epp-label">Tapones<br>auditivos</span>
-              </div>
-              <div class="epp-item">
-                <span class="epp-icon">👟</span>
-                <span class="epp-label">Botas<br>dieléct.</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- QR Manual torque -->
-          <div class="qr-box mt-5">
-            <div class="qr-canvas-wrap">
-              <div id="qr-torque" style="width:72px;height:72px;"></div>
-            </div>
-            <div class="qr-info">
-              <p class="text-[10px] font-black uppercase tracking-widest text-[#00c8ff] mb-1">
-                <i class="fas fa-qrcode mr-1"></i>Código QR
-              </p>
-              <p class="text-white font-bold text-sm">Manual operativo máquina de torque</p>
-              <p class="text-white/50 text-xs mt-0.5">Procedimiento ISO / video de capacitación</p>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════ -->
-  <!-- PÁGINAS 6-7 — SALUD (HEALTH)              -->
-  <!-- ══════════════════════════════════════════ -->
-  <div id="sec-health" class="section-card scroll-mt-36">
-    <div class="section-header" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
-      <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-        <i class="fas fa-heartbeat text-white"></i>
-      </div>
-      <div>
-        <span class="section-badge" style="background:rgba(255,255,255,.2);color:white">Págs. 6–7</span>
-        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;font-style:italic;color:white;margin:0;">SALUD OCUPACIONAL</h2>
-      </div>
-      <span class="ml-auto text-white/60 text-xs font-bold uppercase tracking-wider">Health</span>
-    </div>
-
-    <div class="p-6 md:p-8 relative">
-      <div class="page-number">06</div>
-      <div class="grid md:grid-cols-2 gap-8">
-
-        <!-- Ruido y vibración -->
-        <div>
-          <div class="flex items-center gap-3 mb-5">
-            <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
-              <i class="fas fa-ear-deaf text-amber-600 text-sm"></i>
-            </div>
-            <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight" style="font-family:'Barlow Condensed',sans-serif">Protección Ruido y Vibración</h3>
-          </div>
-
-          <!-- Medidor visual de decibelios -->
-          <div class="rounded-2xl p-5 mb-5" style="background:#fffbeb;border:2px solid rgba(245,158,11,.2)">
-            <p class="text-[11px] font-black uppercase tracking-widest text-amber-700 mb-4">
-              <i class="fas fa-volume-high mr-1.5"></i>Niveles de exposición al ruido — Banco horizontal
-            </p>
-            <div class="space-y-3">
-              <div>
-                <div class="flex justify-between text-xs font-bold mb-1">
-                  <span class="text-slate-600">Banco horizontal (operación)</span>
-                  <span class="text-amber-600">~92 dB</span>
-                </div>
-                <div class="h-3 rounded-full bg-slate-200 overflow-hidden">
-                  <div class="h-full rounded-full" style="width:76%;background:linear-gradient(90deg,#f59e0b,#ef4444)"></div>
-                </div>
-              </div>
-              <div>
-                <div class="flex justify-between text-xs font-bold mb-1">
-                  <span class="text-slate-600">Plataforma perforación</span>
-                  <span class="text-red-600">~100 dB</span>
-                </div>
-                <div class="h-3 rounded-full bg-slate-200 overflow-hidden">
-                  <div class="h-full rounded-full" style="width:90%;background:linear-gradient(90deg,#ef4444,#991b1b)"></div>
-                </div>
-              </div>
-              <div>
-                <div class="flex justify-between text-xs font-bold mb-1">
-                  <span class="text-slate-600">Límite permisible (8h)</span>
-                  <span class="text-emerald-600">85 dB</span>
-                </div>
-                <div class="h-3 rounded-full bg-slate-200 overflow-hidden">
-                  <div class="h-full rounded-full" style="width:68%;background:#10b981"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="space-y-3">
-            <div class="flex items-start gap-3 p-3 rounded-xl" style="background:#fef9c3;border-left:4px solid #f59e0b">
-              <i class="fas fa-ear-listen text-amber-500 mt-0.5 flex-shrink-0"></i>
-              <p class="text-sm text-slate-700">Uso de tapones auditivos <strong>NRR ≥ 29 dB</strong> obligatorio durante toda operación del banco horizontal. Exposición máx. 4h sin rotación de turno.</p>
-            </div>
-            <div class="flex items-start gap-3 p-3 rounded-xl" style="background:#f0f9ff;border-left:4px solid #1e88e5">
-              <i class="fas fa-hand-dots text-[#1e88e5] mt-0.5 flex-shrink-0"></i>
-              <p class="text-sm text-slate-700">Vibración en manos y brazos (HAV): rotación de operadores cada 2h en trabajos con llaves hidráulicas. Reporte síntomas de entumecimiento al médico de empresa.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Ergonomía en campo -->
-        <div>
-          <div class="flex items-center gap-3 mb-5">
-            <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
-              <i class="fas fa-person-walking text-amber-600 text-sm"></i>
-            </div>
-            <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight" style="font-family:'Barlow Condensed',sans-serif">Ergonomía en Campo y Taller</h3>
-          </div>
-
-          <!-- Infografía posturas -->
-          <div class="rounded-2xl p-5 mb-5" style="background:linear-gradient(135deg,#fffbeb,#fef3c7)">
-            <p class="text-[11px] font-black uppercase tracking-widest text-amber-700 mb-4">
-              Posturas correctas — Manejo de herramientas de fondo
-            </p>
-            <div class="grid grid-cols-2 gap-3">
-              <div class="rounded-xl p-3 bg-white border border-amber-100">
-                <p class="text-3xl text-center mb-2">🟢</p>
-                <p class="text-[11px] font-black text-emerald-700 text-center uppercase">CORRECTO</p>
-                <p class="text-xs text-slate-600 text-center mt-1">Espalda recta, rodillas flexionadas, carga cerca del cuerpo</p>
-              </div>
-              <div class="rounded-xl p-3 bg-white border border-red-100">
-                <p class="text-3xl text-center mb-2">🔴</p>
-                <p class="text-[11px] font-black text-red-700 text-center uppercase">INCORRECTO</p>
-                <p class="text-xs text-slate-600 text-center mt-1">Espalda doblada, carga alejada del cuerpo, giro brusco</p>
-              </div>
-            </div>
-            <div class="mt-3 p-3 rounded-xl bg-white border border-amber-100">
-              <p class="text-xs text-slate-600 text-center">
-                <i class="fas fa-weight-scale mr-1 text-amber-500"></i>
-                <strong>Peso máx. manual sin apoyo mecánico: 25 kg</strong><br>
-                Para tubería y herramientas de fondo > 25 kg → uso obligatorio de grúa o balancín
-              </p>
-            </div>
-          </div>
-
-          <!-- QR video ergonomía -->
-          <div class="qr-box">
-            <div class="qr-canvas-wrap">
-              <div id="qr-ergo" style="width:72px;height:72px;"></div>
-            </div>
-            <div class="qr-info">
-              <p class="text-[10px] font-black uppercase tracking-widest text-[#00c8ff] mb-1">
-                <i class="fas fa-qrcode mr-1"></i>Código QR
-              </p>
-              <p class="text-white font-bold text-sm">Video: Ergonomía en campo</p>
-              <p class="text-white/50 text-xs mt-0.5">Capacitación IHS — Manejo seguro de cargas</p>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════ -->
-  <!-- PÁGINA 8 — AMBIENTE (ENVIRONMENT)         -->
-  <!-- ══════════════════════════════════════════ -->
-  <div id="sec-env" class="section-card scroll-mt-36">
-    <div class="section-header" style="background:linear-gradient(135deg,#059669,#047857);">
-      <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-        <i class="fas fa-leaf text-white"></i>
-      </div>
-      <div>
-        <span class="section-badge" style="background:rgba(255,255,255,.2);color:white">Pág. 8</span>
-        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;font-style:italic;color:white;margin:0;">CUIDADO AMBIENTAL</h2>
-      </div>
-      <span class="ml-auto text-white/60 text-xs font-bold uppercase tracking-wider">Environment</span>
-    </div>
-
-    <div class="p-6 md:p-8 relative">
-      <div class="page-number">08</div>
-      <div class="grid md:grid-cols-3 gap-6">
-
-        <!-- Contención fluidos -->
-        <div class="md:col-span-2">
-          <div class="flex items-center gap-3 mb-5">
-            <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
-              <i class="fas fa-droplet text-emerald-600 text-sm"></i>
-            </div>
-            <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight" style="font-family:'Barlow Condensed',sans-serif">Control y Contención de Fluidos</h3>
-          </div>
-
-          <div class="grid sm:grid-cols-3 gap-4 mb-6">
-            <div class="rounded-2xl p-5 text-center" style="background:linear-gradient(135deg,#f0fdf4,#d1fae5);border:1px solid #a7f3d0">
-              <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center mx-auto mb-3">
-                <i class="fas fa-oil-can text-emerald-600 text-xl"></i>
-              </div>
-              <p class="font-black text-sm text-slate-800 uppercase" style="font-family:'Barlow Condensed',sans-serif">Grasa para Roscas</p>
-              <p class="text-xs text-slate-600 mt-2 leading-relaxed">Aplicar sobre charola metálica. Residuos en contenedor específico etiquetado. Nunca vaciar al suelo.</p>
-            </div>
-            <div class="rounded-2xl p-5 text-center" style="background:linear-gradient(135deg,#f0fdf4,#d1fae5);border:1px solid #a7f3d0">
-              <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center mx-auto mb-3">
-                <i class="fas fa-gauge-high text-emerald-600 text-xl"></i>
-              </div>
-              <p class="font-black text-sm text-slate-800 uppercase" style="font-family:'Barlow Condensed',sans-serif">Aceite Hidráulico</p>
-              <p class="text-xs text-slate-600 mt-2 leading-relaxed">Cambio de aceite de bomba únicamente en área técnica designada. Uso de kit antiderrame obligatorio.</p>
-            </div>
-            <div class="rounded-2xl p-5 text-center" style="background:linear-gradient(135deg,#f0fdf4,#d1fae5);border:1px solid #a7f3d0">
-              <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center mx-auto mb-3">
-                <i class="fas fa-flask text-emerald-600 text-xl"></i>
-              </div>
-              <p class="font-black text-sm text-slate-800 uppercase" style="font-family:'Barlow Condensed',sans-serif">Pruebas Hidrostáticas</p>
-              <p class="text-xs text-slate-600 mt-2 leading-relaxed">Fluido de prueba contabilizado antes/después. Disposición en planta de tratamiento autorizada.</p>
-            </div>
-          </div>
-
-          <div class="rounded-2xl p-5" style="background:#f0fdf4;border:2px solid rgba(16,185,129,.3)">
-            <p class="text-[11px] font-black uppercase tracking-widest text-emerald-700 mb-3">
-              <i class="fas fa-triangle-exclamation mr-1.5"></i>Protocolo de respuesta a derrame
-            </p>
-            <div class="grid sm:grid-cols-4 gap-3">
-              <div class="text-center">
-                <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black mx-auto mb-2">1</div>
-                <p class="text-xs font-bold text-slate-700">CONTENER</p>
-                <p class="text-[10px] text-slate-500 mt-1">Bandeja o absorbente inmediato</p>
-              </div>
-              <div class="text-center">
-                <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black mx-auto mb-2">2</div>
-                <p class="text-xs font-bold text-slate-700">NOTIFICAR</p>
-                <p class="text-[10px] text-slate-500 mt-1">Supervisor y área QHSE</p>
-              </div>
-              <div class="text-center">
-                <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black mx-auto mb-2">3</div>
-                <p class="text-xs font-bold text-slate-700">LIMPIAR</p>
-                <p class="text-[10px] text-slate-500 mt-1">Material absorbente certificado</p>
-              </div>
-              <div class="text-center">
-                <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black mx-auto mb-2">4</div>
-                <p class="text-xs font-bold text-slate-700">REGISTRAR</p>
-                <p class="text-[10px] text-slate-500 mt-1">Formulario de incidente ambiental</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- QR + stat ambiental -->
-        <div class="flex flex-col gap-5">
-          <div class="rounded-2xl p-5 text-center" style="background:linear-gradient(135deg,#0a1628,#1a3160);border:1px solid rgba(16,185,129,.3)">
-            <p class="text-5xl font-black text-emerald-400 mb-1" style="font-family:'Barlow Condensed',sans-serif">0</p>
-            <p class="text-xs font-black uppercase tracking-wider text-white/70">Derrames no<br>contenidos 2026</p>
-            <div class="mt-3 h-1 rounded-full bg-white/10">
-              <div class="h-full rounded-full bg-emerald-400" style="width:100%"></div>
-            </div>
-          </div>
-          <div class="qr-box flex-col text-center gap-3">
-            <div class="qr-canvas-wrap mx-auto">
-              <div id="qr-ambiental" style="width:72px;height:72px;"></div>
-            </div>
-            <div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-[#00c8ff] mb-1">
-                <i class="fas fa-qrcode mr-1"></i>QR
-              </p>
-              <p class="text-white font-bold text-sm">Formato incidente ambiental</p>
-              <p class="text-white/50 text-xs mt-0.5">Reporte digital</p>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════ -->
-  <!-- PÁGINA 9 — GUARDIÁN QHSE                  -->
-  <!-- ══════════════════════════════════════════ -->
-  <div id="sec-guardian" class="section-card scroll-mt-36">
-    <div class="section-header" style="background:linear-gradient(135deg,#7c3aed,#4c1d95);">
-      <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-        <i class="fas fa-star text-white"></i>
-      </div>
-      <div>
-        <span class="section-badge" style="background:rgba(255,255,255,.2);color:white">Pág. 9</span>
-        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;font-style:italic;color:white;margin:0;">GUARDIÁN QHSE DEL MES</h2>
-      </div>
-    </div>
-
-    <div class="p-6 md:p-8 relative">
-      <div class="page-number">09</div>
-      <div class="guardian-card" id="guardian-card-content">
-        <div class="absolute -top-10 -right-10 text-[180px] opacity-5" style="font-family:'Barlow Condensed',sans-serif;font-weight:900;color:white;line-height:1;">★</div>
-        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6 relative z-10">
-          <div class="guardian-avatar" id="guardian-avatar">JL</div>
-          <div class="flex-1">
-            <p class="text-[11px] font-black uppercase tracking-[.2em] text-white/50 mb-1">Guardián QHSE del Mes — Mayo 2026</p>
-            <h3 id="guardian-name" class="text-3xl font-black italic text-white mb-1" style="font-family:'Barlow Condensed',sans-serif">[Nombre del Empleado]</h3>
-            <p id="guardian-position" class="text-sm font-semibold text-white/60">[Puesto] — [Área/Sede]</p>
-          </div>
-          <div class="text-right">
-            <p id="guardian-reports" class="text-5xl font-black text-[#00c8ff]" style="font-family:'Barlow Condensed',sans-serif">12</p>
-            <p class="text-xs text-white/50 font-bold uppercase tracking-wider">Condiciones<br>reportadas</p>
-          </div>
-        </div>
-        <div class="mt-6 p-4 rounded-xl relative z-10" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)">
-          <p id="guardian-reason" class="text-sm text-white/80 leading-relaxed italic">
-            "Reconocemos a [nombre] por su liderazgo en la identificación y reporte de condiciones inseguras durante las operaciones de apriete del mes, contribuyendo directamente a mantener nuestro récord sin accidentes. Su ejemplo demuestra que la seguridad empieza con cada uno de nosotros."
-          </p>
-        </div>
-        <div class="mt-4 flex flex-wrap gap-3 relative z-10">
-          <span class="text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full" style="background:rgba(0,200,255,.15);border:1px solid rgba(0,200,255,.3);color:#00c8ff">
-            <i class="fas fa-clipboard-check mr-1"></i>Reporte de condiciones
-          </span>
-          <span class="text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full" style="background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:#f59e0b">
-            <i class="fas fa-star mr-1"></i>Liderazgo preventivo
-          </span>
-        </div>
-      </div>
-    </div>
-  </div>
+<main class="max-w-[1440px] mx-auto px-0 py-4">
+  <div id="revista-container" style="padding: 8px 0; background: #e8edf4; min-height: 100vh;"></div>
 </main>
 
 <!-- ── TOAST ── -->
@@ -927,8 +202,7 @@
       }
     }
 
-    await loadLatestEdition();
-    generateQRCodes();
+    await cargarRevista();
   }
 
   function getGreeting() {
@@ -938,38 +212,13 @@
     return 'Buenas noches';
   }
 
-  // ── QR CODES ──
-  function generateQRCodes() {
-    const qrConfig = [
-      { id: 'qr-ats',       url: 'https://inholes.com/formatos/ats',        label: 'ATS' },
-      { id: 'qr-nearmiss',  url: 'https://inholes.com/formatos/nearmiss',   label: 'NM'  },
-      { id: 'qr-torque',    url: 'https://inholes.com/manuales/torque',     label: 'TQ'  },
-      { id: 'qr-ergo',      url: 'https://inholes.com/videos/ergonomia',    label: 'ERG' },
-      { id: 'qr-ambiental', url: 'https://inholes.com/formatos/ambiental',  label: 'AMB' },
-    ];
-    qrConfig.forEach(({ id, url }) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      try {
-        new QRCode(el, {
-          text: url,
-          width: 72,
-          height: 72,
-          colorDark: '#0a1628',
-          colorLight: '#ffffff',
-          correctLevel: QRCode.CorrectLevel.M
-        });
-      } catch(e) {
-        el.innerHTML = `<div style="width:72px;height:72px;display:flex;align-items:center;justify-content:center;background:#e2e8f0;border-radius:6px;font-size:10px;color:#666;text-align:center">QR<br>[actualizar URL]</div>`;
-      }
-    });
-  }
-
   // ── LOAD LATEST EDITION FROM SUPABASE ──
-  async function loadLatestEdition() {
+  async function cargarRevista() {
     const { data, error } = await sb
       .from('qhse_editions')
       .select('*')
+      .eq('publicada', true)
+      .eq('activa', true)
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
@@ -983,200 +232,61 @@
     applyEditionToPage(data);
   }
 
-  function applyEditionToPage(data) {
-    if (data.titulo)        document.getElementById('cover-title').innerHTML = data.titulo.replace(/\s/g,'<br>');
-    if (data.edicion)       {
-      document.getElementById('cover-edition-badge').textContent = `Edición ${data.edicion}`;
-      document.getElementById('edition-tag').textContent = `Edición ${data.edicion}`;
-    }
-    if (data.mensaje_director) document.getElementById('director-message').textContent = data.mensaje_director;
-    if (data.nombre_director)  document.getElementById('director-name').textContent   = `Ing. ${data.nombre_director}`;
-    if (data.stat_dias)    document.getElementById('stat-dias').textContent = data.stat_dias;
-    if (data.stat_obs)     document.getElementById('stat-obs').textContent  = data.stat_obs;
-    if (data.stat_acc)     document.getElementById('stat-acc').textContent  = data.stat_acc;
-    if (data.id)           document.getElementById('issue-counter').textContent = `ED-${String(data.id).padStart(3,'0')}`;
-
-    // Guardian
-    if (data.guardian_nombre) {
-      document.getElementById('guardian-name').textContent  = data.guardian_nombre;
-      const initials = data.guardian_nombre.split(' ').map(w=>w[0]).slice(0,2).join('');
-      document.getElementById('guardian-avatar').textContent = initials;
-    }
-    if (data.guardian_puesto)    document.getElementById('guardian-position').textContent = data.guardian_puesto;
-    if (data.guardian_reportes)  document.getElementById('guardian-reports').textContent  = data.guardian_reportes;
-    if (data.guardian_motivo)    document.getElementById('guardian-reason').textContent   = data.guardian_motivo;
-
-    // Custom blocks
-    if (data.custom_blocks) {
-      try {
-        const blocks = JSON.parse(data.custom_blocks);
-        renderCustomBlocks(blocks);
-      } catch(e) {}
-    }
-  }
-
-  // ── ADMIN: SAVE EDITION ──
-  async function saveEdition() {
-    if (!isAdmin) { showToast('⛔ Sin permisos de administrador', 'error'); return; }
-    const payload = {
-      titulo:            document.getElementById('adm-cover-title').value,
-      edicion:           document.getElementById('adm-edition').value,
-      mensaje_director:  document.getElementById('adm-director-msg').value,
-      nombre_director:   document.getElementById('adm-director-name').value,
-      stat_dias:         parseInt(document.getElementById('adm-stat-dias').value) || 0,
-      stat_obs:          parseInt(document.getElementById('adm-stat-obs').value)  || 0,
-      stat_acc:          parseInt(document.getElementById('adm-stat-acc').value)  || 0,
-      autor_id:          currentUser.id,
-      updated_at:        new Date().toISOString()
-    };
-
-    const { data, error } = await sb.from('qhse_editions').insert(payload).select().single();
-    if (error) { showToast('❌ Error al guardar: ' + error.message, 'error'); return; }
-
-    applyEditionToPage(data);
-    showToast('✅ Edición guardada correctamente');
-    loadEditions();
-  }
-
-  // ── ADMIN: SAVE GUARDIAN ──
-  async function saveGuardian() {
-    if (!isAdmin) { showToast('⛔ Sin permisos', 'error'); return; }
-    const nombre   = document.getElementById('g-nombre').value;
-    const puesto   = document.getElementById('g-puesto').value;
-    const reportes = document.getElementById('g-reportes').value;
-    const motivo   = document.getElementById('g-motivo').value;
-
-    if (!nombre) { showToast('⚠️ Ingresa el nombre del guardián', 'warn'); return; }
-
-    // Obtener última edición y actualizar
-    const { data: lastEd } = await sb.from('qhse_editions').select('id').order('created_at',{ascending:false}).limit(1).single();
-    if (!lastEd) { showToast('⚠️ Crea primero una edición', 'warn'); return; }
-
-    const { error } = await sb.from('qhse_editions').update({
-      guardian_nombre: nombre,
-      guardian_puesto: puesto,
-      guardian_reportes: parseInt(reportes)||0,
-      guardian_motivo: motivo
-    }).eq('id', lastEd.id);
-
-    if (error) { showToast('❌ Error: ' + error.message, 'error'); return; }
-
-    document.getElementById('guardian-name').textContent  = nombre;
-    document.getElementById('guardian-position').textContent = puesto;
-    document.getElementById('guardian-reports').textContent  = reportes;
-    document.getElementById('guardian-reason').textContent   = motivo;
-    const initials = nombre.split(' ').map(w=>w[0]).slice(0,2).join('');
-    document.getElementById('guardian-avatar').textContent = initials;
-
-    showToast('🌟 Guardián actualizado');
-  }
-
-  // ── ADMIN: NEAR MISS ──
-  async function saveNearMiss() {
-    if (!isAdmin) { showToast('⛔ Sin permisos', 'error'); return; }
-    const titulo = document.getElementById('nm-titulo').value;
-    const area   = document.getElementById('nm-area').value;
-    const desc   = document.getElementById('nm-desc').value;
-    const causa  = document.getElementById('nm-causa').value;
-    const accion = document.getElementById('nm-accion').value;
-
-    if (!titulo || !desc) { showToast('⚠️ Completa título y descripción', 'warn'); return; }
-
-    const { error } = await sb.from('qhse_near_miss').insert({
-      titulo, area, descripcion: desc, causa_raiz: causa, accion_correctiva: accion,
-      autor_id: currentUser.id, created_at: new Date().toISOString()
-    });
-
-    if (error) { showToast('❌ Error: ' + error.message, 'error'); return; }
-
-    // Update UI
-    document.getElementById('near-miss-content').querySelector('.nm-card p.nm-label').nextElementSibling.textContent = titulo;
-    document.getElementById('near-miss-content').querySelector('.nm-card p:last-of-type').textContent = desc;
-
-    showToast('⚠️ Near miss registrado');
-    ['nm-titulo','nm-area','nm-desc','nm-causa','nm-accion'].forEach(id => document.getElementById(id).value = '');
-  }
-
-  // ── ADMIN: CUSTOM BLOCK ──
-  async function saveCustomBlock() {
-    if (!isAdmin) { showToast('⛔ Sin permisos', 'error'); return; }
-    const title   = document.getElementById('custom-title').value;
-    const content = document.getElementById('custom-content').value;
-    const color   = document.getElementById('custom-color').value;
-
-    if (!title || !content) { showToast('⚠️ Completa título y contenido', 'warn'); return; }
-
-    const { error } = await sb.from('qhse_custom_blocks').insert({
-      titulo: title, contenido: content, color,
-      autor_id: currentUser.id, created_at: new Date().toISOString(), visible: true
-    });
-
-    if (error) { showToast('❌ Error: ' + error.message, 'error'); return; }
-
-    renderCustomBlocks([{ titulo: title, contenido: content, color }]);
-    showToast('🎨 Bloque personalizado guardado');
-    document.getElementById('custom-title').value = '';
-    document.getElementById('custom-content').value = '';
-  }
-
-  async function previewCustomBlock() {
-    const title   = document.getElementById('custom-title').value || '(Sin título)';
-    const content = document.getElementById('custom-content').value || '(Sin contenido)';
-    const color   = document.getElementById('custom-color').value;
-    renderCustomBlocks([{ titulo: title, contenido: content, color }], true);
-    scrollToSection('custom-blocks-render');
-    showToast('👁️ Previsualización activa');
-  }
-
-  function renderCustomBlocks(blocks, preview=false) {
-    const container = document.getElementById('custom-blocks-render');
-    const colors = {
-      blue:   { bg: 'linear-gradient(135deg,#0a1628,#1a3160)', border: 'rgba(30,136,229,.3)', accent: '#00c8ff' },
-      red:    { bg: 'linear-gradient(135deg,#7f1d1d,#991b1b)',  border: 'rgba(227,30,36,.3)',  accent: '#fca5a5' },
-      green:  { bg: 'linear-gradient(135deg,#064e3b,#065f46)',   border: 'rgba(16,185,129,.3)', accent: '#6ee7b7' },
-      yellow: { bg: 'linear-gradient(135deg,#78350f,#92400e)',   border: 'rgba(245,158,11,.3)', accent: '#fcd34d' },
-    };
-    blocks.forEach(b => {
-      const c = colors[b.color] || colors.blue;
-      const div = document.createElement('div');
-      div.className = 'section-card mb-6';
-      div.innerHTML = `
-        <div style="padding:28px 32px;background:${c.bg};border-radius:20px;border:1px solid ${c.border};">
-          ${preview ? `<span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:${c.accent};background:rgba(255,255,255,.1);padding:3px 10px;border-radius:100px;margin-bottom:12px;display:inline-block">PREVISUALIZACIÓN</span>` : ''}
-          <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;font-style:italic;color:white;margin:8px 0">${b.titulo}</h3>
-          <p style="color:rgba(255,255,255,.75);font-size:14px;line-height:1.7;white-space:pre-line">${b.contenido}</p>
-        </div>
-      `;
-      container.appendChild(div);
-    });
-  }
-
   // ── ADMIN: LOAD EDITIONS ──
-  async function loadEditions() {
-    const { data, error } = await sb.from('qhse_editions').select('*').order('created_at',{ascending:false}).limit(10);
-    const list = document.getElementById('editions-list');
+  async function cargarRevista() {
+    const { data, error } = await sb
+      .from('qhse_editions')
+      .select('*')
+      .eq('publicada', true)
+      .eq('activa', true)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
 
-    if (error || !data || data.length === 0) {
-      list.innerHTML = '<p class="text-white/40 text-sm text-center py-8">No hay ediciones registradas aún</p>';
+    if (error || !data) {
+      document.getElementById('revista-container').innerHTML =
+        '<p style="text-align:center;padding:60px;color:#64748b;font-size:14px;">No hay edición publicada actualmente.</p>';
       return;
     }
 
-    list.innerHTML = data.map(ed => `
-      <div class="flex items-center justify-between p-3 rounded-xl" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)">
-        <div>
-          <p class="text-white font-bold text-sm">${ed.edicion || '—'}</p>
-          <p class="text-white/40 text-xs">${ed.titulo || '—'} · ${new Date(ed.created_at).toLocaleDateString('es-MX')}</p>
-        </div>
-        <div class="flex gap-2">
-          <button onclick="applyEditionToPage(${JSON.stringify(ed).replace(/"/g,'&quot;')})" class="admin-btn admin-btn-success" style="padding:6px 12px;font-size:11px">
-            <i class="fas fa-eye"></i>
-          </button>
-          <button onclick="deleteEdition(${ed.id})" class="admin-btn admin-btn-danger" style="padding:6px 12px;font-size:11px">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
-      </div>
-    `).join('');
+    montarRevista('revista-container');
+    aplicarEdicionARevista(data);
+
+    // Actualizar topbar
+    const setEl = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.textContent = val; };
+    setEl('edition-tag',  data.edicion ? `Edición ${data.edicion} — ${data.volumen || 'Vol.1'}` : 'Edición —');
+    setEl('issue-counter', data.id ? `ED-${String(data.id).padStart(3,'0')}` : '— — —');
+
+    // Cargar Near Miss de esta edición
+    const { data: nm } = await sb
+      .from('qhse_near_miss')
+      .select('*')
+      .eq('edition_id', data.id)
+      .eq('visible_revista', true)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (nm) {
+      const pv = id => document.getElementById(id);
+      const set = (id, val) => { const el = pv(id); if (el && val != null) el.textContent = val; };
+      set('pv-nm-area',   (nm.area || '').toUpperCase());
+      set('pv-nm-titulo', nm.titulo || '—');
+      set('pv-nm-desc',   nm.descripcion || '');
+      set('pv-nm-causa',  nm.causa_raiz || '—');
+      set('pv-nm-accion', nm.accion_correctiva || '—');
+    }
+    // Actualizar también la portada estática superior
+    const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.textContent = val; };
+    if (data.titulo) document.getElementById('cover-title').textContent = data.titulo;
+    set('cover-edition-badge', data.edicion ? `Edición ${data.edicion}` : '');
+    set('edition-tag',  data.edicion ? `Edición ${data.edicion} — ${data.volumen || 'Vol.1'}` : '');
+    set('issue-counter', data.id ? `ED-${String(data.id).padStart(3,'0')}` : '');
+    set('director-message', data.mensaje_director);
+    set('director-name', data.nombre_director ? `Ing. ${data.nombre_director}` : '');
+    set('stat-dias', data.stat_dias ?? 0);
+    set('stat-obs',  data.stat_obs  ?? 0);
+    set('stat-acc',  data.stat_acc  ?? 0);
   }
 
   async function deleteEdition(id) {
@@ -1185,7 +295,7 @@
     const { error } = await sb.from('qhse_editions').delete().eq('id', id);
     if (error) { showToast('❌ Error al eliminar', 'error'); return; }
     showToast('🗑️ Edición eliminada');
-    loadEditions();
+    cargarRevista();
   }
 
   // ── ADMIN: LOAD STATS ──

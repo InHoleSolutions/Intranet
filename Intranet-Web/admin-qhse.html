@@ -277,7 +277,7 @@
     .prev-cover { background: linear-gradient(135deg, #0a1628 0%, #0e2044 50%, #1a3160 100%); border-radius: 20px; padding: 40px; position: relative; overflow: hidden; margin-bottom: 16px; min-height: 360px; }
     .prev-cover-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(30,136,229,.07) 1px, transparent 1px), linear-gradient(90deg,rgba(30,136,229,.07) 1px,transparent 1px); background-size: 36px 36px; border-radius: 20px; }
     .prev-cover-line { position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: linear-gradient(180deg, #00c8ff, #1e88e5, #e31e24); border-radius: 20px 0 0 20px; }
-    .prev-cover-title { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(42px, 7vw, 80px); font-weight: 900; font-style: italic; line-height: .9; color: white; letter-spacing: -.02em; }
+    .prev-cover-title { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(22px, 4vw, 52px); font-weight: 900; font-style: italic; line-height: 1; color: white; letter-spacing: -.02em; word-break: break-word; overflow-wrap: break-word; max-width: 99%; }    
     .prev-cover-subtitle { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 600; font-style: italic; color: #00c8ff; letter-spacing: .08em; }
     .prev-stat { border-radius: 10px; padding: 10px 12px; text-align: center; }
     .prev-msg-box { border-radius: 14px; padding: 20px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); }
@@ -302,9 +302,6 @@
     .prev-epp-item { background: #f0f4f8; border-radius: 10px; padding: 10px 6px; text-align: center; }
     .prev-epp-icon { font-size: 22px; display: block; margin-bottom: 4px; }
     .prev-epp-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #0e2044; }
-
-    /* Custom blocks preview */
-    .prev-block { border-radius: 14px; padding: 20px; margin-bottom: 12px; }
 
     /* QR placeholder */
     .prev-qr-box { background: #0a1628; border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 12px; margin-top: 10px; }
@@ -341,6 +338,7 @@
     }
     #mobile-header { display: none; }
   </style>
+  <script src="revista-render.js"></script>
 </head>
 <body>
 
@@ -386,11 +384,8 @@
         <i class="fas fa-plus-circle w-4 text-center text-emerald-400"></i> Nueva Edición
       </button>
       <div class="h-px bg-white/10 my-2"></div>
-      <a href="alertas-qhse.html" target="_blank" class="nav-btn" style="text-decoration:none">
-        <i class="fas fa-eye w-4 text-center text-amber-400"></i> Ver Revista
-      </a>
       <a href="alertas-qhse.html" class="nav-btn" style="text-decoration:none">
-        <i class="fas fa-arrow-left w-4 text-center text-slate-400"></i> Volver
+        <i class="fas fa-arrow-left w-4 text-center text-slate-400"></i> Volver a la revista
       </a>
     </nav>
 
@@ -507,7 +502,6 @@
         <button onclick="goTab('health')" id="stab-health" class="stab"><i class="fas fa-heartbeat mr-1 text-amber-500"></i>Health</button>
         <button onclick="goTab('environment')" id="stab-environment" class="stab"><i class="fas fa-leaf mr-1 text-emerald-500"></i>Env.</button>
         <button onclick="goTab('guardian')" id="stab-guardian" class="stab"><i class="fas fa-star mr-1 text-yellow-500"></i>Guardián</button>
-        <button onclick="goTab('bloques')" id="stab-bloques" class="stab"><i class="fas fa-palette mr-1 text-purple-500"></i>Bloques</button>
       </div>
 
       <!-- Editor body (tabs content) -->
@@ -517,12 +511,12 @@
         <div id="tab-portada">
           <div class="section-label"><i class="fas fa-image text-slate-400"></i>Portada principal</div>
           <div class="field-group">
-            <label class="field-label">Título principal *</label>
-            <input id="f-titulo" class="field-input" type="text" placeholder="SEGURIDAD SIN EXCUSAS" oninput="livePreview()">
+            <label class="field-label">Título principal</label>
+            <input id="f-titulo" class="field-input" type="text" placeholder="" oninput="livePreview()">
           </div>
           <div class="field-row">
             <div class="field-group">
-              <label class="field-label">Edición (mes/año) *</label>
+              <label class="field-label">Edición (mes/año)</label>
               <input id="f-edicion" class="field-input" type="text" placeholder="Mayo 2026" oninput="livePreview()">
             </div>
             <div class="field-group">
@@ -547,16 +541,16 @@
           <div class="field-row">
             <div class="field-group">
               <label class="field-label">Días sin accidente</label>
-              <input id="f-stat-dias" class="field-input" type="number" placeholder="247" min="0" oninput="livePreview()">
+              <input id="f-stat-dias" class="field-input" type="number" placeholder="" min="0" oninput="livePreview()">
             </div>
             <div class="field-group">
               <label class="field-label">Reportes de riesgo</label>
-              <input id="f-stat-obs" class="field-input" type="number" placeholder="18" min="0" oninput="livePreview()">
+              <input id="f-stat-obs" class="field-input" type="number" placeholder="" min="0" oninput="livePreview()">
             </div>
           </div>
           <div class="field-group">
             <label class="field-label">Near miss resueltos</label>
-            <input id="f-stat-acc" class="field-input" type="number" placeholder="3" min="0" oninput="livePreview()">
+            <input id="f-stat-acc" class="field-input" type="number" placeholder="" min="0" oninput="livePreview()">
           </div>
         </div>
 
@@ -568,7 +562,7 @@
             <input id="f-safety-titulo" class="field-input" type="text" placeholder="ALERTA DE SEGURIDAD" oninput="livePreview()">
           </div>
           <div class="field-group">
-            <label class="field-label">Contenido / Tema principal</label>
+            <label class="field-label">Contenido</label>
             <textarea id="f-safety-contenido" class="field-input field-textarea" style="min-height:100px" placeholder="Describe el tema principal de seguridad..." oninput="livePreview()"></textarea>
           </div>
 
@@ -585,7 +579,7 @@
 
           <div class="section-divider"></div>
           <div class="section-label"><i class="fas fa-lightbulb text-yellow-400"></i>Tips de Seguridad</div>
-          <p style="font-size:11px;color:#94a3b8;margin-bottom:10px">3 tips con íconos editables. Aparecen debajo del EPP en la revista.</p>
+          <p style="font-size:11px;color:#94a3b8;margin-bottom:10px">3 tips.</p>
           <div id="tips-safety-list"></div>
 
           <div class="section-divider"></div>
@@ -638,15 +632,15 @@
           <div class="section-label"><i class="fas fa-check-double text-blue-500"></i>Sección Quality</div>
           <div class="field-group">
             <label class="field-label">Título de la sección</label>
-            <input id="f-quality-titulo" class="field-input" type="text" placeholder="CALIDAD OPERATIVA" oninput="livePreview()">
+            <input id="f-quality-titulo" class="field-input" type="text" placeholder="..." oninput="livePreview()">
           </div>
 
           <!-- ── COLUMNA IZQUIERDA: Título izquierdo + Tabla + Alerta ── -->
           <div class="section-divider"></div>
-          <div class="section-label"><i class="fas fa-table text-blue-400"></i>Columna Izquierda</div>
+          <div class="section-label"><i class="fas fa-table text-blue-400"></i>Tabla</div>
           <div class="field-group">
-            <label class="field-label">Título columna izquierda</label>
-            <input id="f-quality-left-titulo" class="field-input" type="text" placeholder="INTEGRIDAD DE CONEXIONES" oninput="livePreview()">
+            <label class="field-label">Título de tabla</label>
+            <input id="f-quality-left-titulo" class="field-input" type="text" placeholder="..." oninput="livePreview()">
           </div>
 
           <!-- Tabla de inspección -->
@@ -664,20 +658,20 @@
           <!-- Alerta de calidad -->
           <div class="field-group">
             <label class="field-label">⚠️ Título de Alerta de Calidad</label>
-            <input id="f-quality-alerta-titulo" class="field-input" type="text" placeholder="¡ALERTA DE CALIDAD!" oninput="livePreview()">
+            <input id="f-quality-alerta-titulo" class="field-input" type="text" placeholder="..." oninput="livePreview()">
           </div>
           <div class="field-group">
-            <label class="field-label">Texto de alerta (soporta **negrita** y ==resaltado==)</label>
+            <label class="field-label">Texto de alerta</label>
             <textarea id="f-quality-alerta-texto" class="field-input field-textarea" style="min-height:80px"
-              placeholder="El galling (soldadura en frío) en roscas premium es **irreversible**..." oninput="livePreview()"></textarea>
+              placeholder="..." oninput="livePreview()"></textarea>
           </div>
 
           <!-- ── COLUMNA DERECHA: Título derecho + Pasos + EPP + QR ── -->
           <div class="section-divider"></div>
-          <div class="section-label"><i class="fas fa-list-ol text-blue-400"></i>Columna Derecha</div>
+          <div class="section-label"><i class="fas fa-list-ol text-blue-400"></i>Tabla de Pasos</div>
           <div class="field-group">
-            <label class="field-label">Título columna derecha</label>
-            <input id="f-quality-right-titulo" class="field-input" type="text" placeholder="MÁQUINA DE TORQUE — ROTACIÓN CONTINUA" oninput="livePreview()">
+            <label class="field-label">Título</label>
+            <input id="f-quality-right-titulo" class="field-input" type="text" placeholder="..." oninput="livePreview()">
           </div>
 
           <!-- Pasos numerados -->
@@ -695,7 +689,7 @@
           <div class="section-divider"></div>
           <div class="field-group" style="margin-bottom:8px">
             <label class="field-label">Título del grupo EPP Quality</label>
-            <input id="f-quality-epp-titulo" class="field-input" type="text" placeholder="EPP PARA OPERACIÓN DE MÁQUINA DE TORQUE" oninput="livePreview()">
+            <input id="f-quality-epp-titulo" class="field-input" type="text" placeholder="..." oninput="livePreview()">
           </div>
           <div id="epp-quality-list"></div>
           <button onclick="addEpp('quality')" class="w-full py-2 rounded-lg border-2 border-dashed border-slate-200 text-slate-400 text-xs font-bold hover:border-blue-300 hover:text-blue-500 transition mt-1">
@@ -704,15 +698,15 @@
 
           <!-- QR Quality -->
           <div class="section-divider"></div>
-          <div class="section-label"><i class="fas fa-qrcode text-slate-400"></i>Código QR — Quality</div>
+          <div class="section-label"><i class="fas fa-qrcode text-slate-400"></i>Código QR</div>
           <div class="qr-editor-block">
             <div class="field-group" style="margin-bottom:10px">
-              <label class="field-label">Título del bloque QR</label>
-              <input id="f-qr-torque-titulo" class="field-input" type="text" placeholder="Ej: Manual operativo máquina de torque" oninput="livePreview()">
+              <label class="field-label">Título del QR</label>
+              <input id="f-qr-torque-titulo" class="field-input" type="text" placeholder="..." oninput="livePreview()">
             </div>
             <div class="field-group" style="margin-bottom:10px">
               <label class="field-label">Descripción</label>
-              <input id="f-qr-torque-desc" class="field-input" type="text" placeholder="Ej: Procedimiento ISO / video de capacitación" oninput="livePreview()">
+              <input id="f-qr-torque-desc" class="field-input" type="text" placeholder="..." oninput="livePreview()">
             </div>
             <label class="field-label">Imagen del código QR</label>
             <div class="qr-upload-zone" id="zone-torque" onclick="triggerQrUpload('torque')"
@@ -837,35 +831,67 @@
         <!-- ── TAB ENVIRONMENT ── -->
         <div id="tab-environment" class="hidden">
           <div class="section-label"><i class="fas fa-leaf text-emerald-500"></i>Sección Environment</div>
+        
           <div class="field-group">
             <label class="field-label">Título de la sección</label>
-            <input id="f-env-titulo" class="field-input" type="text" placeholder="MEDIO AMBIENTE" oninput="livePreview()">
+            <input id="f-env-titulo" class="field-input" type="text" placeholder="CUIDADO AMBIENTAL" oninput="livePreview()">
           </div>
+        
+          <div class="section-divider"></div>
+          <div class="section-label"><i class="fas fa-droplet text-emerald-500"></i>Título — Columna Izquierda</div>
           <div class="field-group">
-            <label class="field-label">Contenido principal</label>
-            <textarea id="f-env-contenido" class="field-input field-textarea" style="min-height:120px" placeholder="Manejo de residuos, derrames, impacto ambiental..." oninput="livePreview()"></textarea>
+            <label class="field-label">Título bloque fluidos</label>
+            <input id="f-env-left-titulo" class="field-input" type="text" placeholder="CONTROL Y CONTENCIÓN DE FLUIDOS"
+              oninput="livePreview()">
           </div>
+        
+          <!-- Tarjetas de fluidos -->
+          <div class="section-label"><i class="fas fa-cards-blank text-slate-400"></i>Tarjetas de fluidos (máx. 3)</div>
+          <div id="env-fluidos-list"></div>
+          <button onclick="addEnvFluido()"
+            class="w-full py-2 rounded-lg border-2 border-dashed border-slate-200 text-slate-400 text-xs font-bold hover:border-emerald-300 hover:text-emerald-500 transition mt-1 mb-4">
+            <i class="fas fa-plus mr-1"></i>Agregar tarjeta
+          </button>
+        
+          <!-- Protocolo de pasos -->
+          <div class="section-label"><i class="fas fa-list-ol text-slate-400"></i>Protocolo de respuesta</div>
+          <div class="field-group">
+            <label class="field-label">Título del protocolo</label>
+            <input id="f-env-protocolo-titulo" class="field-input" type="text" placeholder="PROTOCOLO DE RESPUESTA A DERRAME"
+              oninput="livePreview()">
+          </div>
+          <div id="env-protocolo-list"></div>
+          <button onclick="addEnvProtocolo()"
+            class="w-full py-2 rounded-lg border-2 border-dashed border-slate-200 text-slate-400 text-xs font-bold hover:border-emerald-300 hover:text-emerald-500 transition mt-1 mb-4">
+            <i class="fas fa-plus mr-1"></i>Agregar paso
+          </button>
+        
+          <div class="section-divider"></div>
+          <!-- Derrames counter -->
           <div class="field-group">
             <label class="field-label">Derrames no contenidos (número)</label>
             <input id="f-env-derrames" class="field-input" type="number" placeholder="0" min="0" oninput="livePreview()">
           </div>
+        
           <div class="section-divider"></div>
           <div class="section-label"><i class="fas fa-qrcode text-slate-400"></i>Código QR — Environment</div>
           <div class="qr-editor-block">
             <div class="field-group" style="margin-bottom:10px">
               <label class="field-label">Título del bloque QR</label>
-              <input id="f-qr-ambiental-titulo" class="field-input" type="text" placeholder="Ej: Formato incidente ambiental" oninput="livePreview()">
+              <input id="f-qr-ambiental-titulo" class="field-input" type="text" placeholder="Formato incidente ambiental"
+                oninput="livePreview()">
             </div>
             <div class="field-group" style="margin-bottom:10px">
               <label class="field-label">Descripción</label>
-              <input id="f-qr-ambiental-desc" class="field-input" type="text" placeholder="Ej: Reporte digital de incidente ambiental" oninput="livePreview()">
+              <input id="f-qr-ambiental-desc" class="field-input" type="text"
+                placeholder="Reporte digital de incidente ambiental" oninput="livePreview()">
             </div>
             <label class="field-label">Imagen del código QR</label>
             <div class="qr-upload-zone" id="zone-ambiental" onclick="triggerQrUpload('ambiental')"
-              ondragover="event.preventDefault();this.classList.add('dragover')"
-              ondragleave="this.classList.remove('dragover')"
+              ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')"
               ondrop="handleQrDrop(event,'ambiental')">
-              <input type="file" id="file-qr-ambiental" accept="image/*" onchange="handleQrFile(event,'ambiental')" onclick="event.stopPropagation()">
+              <input type="file" id="file-qr-ambiental" accept="image/*" onchange="handleQrFile(event,'ambiental')"
+                onclick="event.stopPropagation()">
               <div id="qr-preview-ambiental">
                 <i class="fas fa-qrcode text-slate-300 text-3xl mb-2"></i>
                 <p style="font-size:12px;font-weight:600;color:#94a3b8">Haz clic o arrastra la imagen del QR</p>
@@ -878,22 +904,33 @@
         <!-- ── TAB GUARDIAN ── -->
         <div id="tab-guardian" class="hidden">
           <div class="section-label"><i class="fas fa-star text-yellow-500"></i>Guardián QHSE del Mes</div>
+
           <div class="field-group">
             <label class="field-label">Nombre completo *</label>
             <input id="f-g-nombre" class="field-input" type="text" placeholder="José Luis Martínez" oninput="livePreview()">
           </div>
-          <div class="field-group">
-            <label class="field-label">Puesto / Área</label>
-            <input id="f-g-puesto" class="field-input" type="text" placeholder="Técnico de Apriete — Taller Villahermosa" oninput="livePreview()">
+
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Puesto</label>
+              <input id="f-g-puesto" class="field-input" type="text" placeholder="Técnico de Apriete" oninput="livePreview()">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Área / Sede</label>
+              <input id="f-g-area" class="field-input" type="text" placeholder="Taller Villahermosa" oninput="livePreview()">
+            </div>
           </div>
+
           <div class="field-group">
             <label class="field-label">Condiciones reportadas</label>
             <input id="f-g-reportes" class="field-input" type="number" placeholder="12" min="0" oninput="livePreview()">
           </div>
+
           <div class="field-group">
             <label class="field-label">Motivo del reconocimiento</label>
             <textarea id="f-g-motivo" class="field-input field-textarea" style="min-height:100px" placeholder="¿Por qué es el Guardián QHSE de este mes?" oninput="livePreview()"></textarea>
           </div>
+
           <div class="section-divider"></div>
           <div class="section-label"><i class="fas fa-tags text-slate-400"></i>Badges del guardián</div>
           <div id="guardian-badges-list"></div>
@@ -901,24 +938,6 @@
             <i class="fas fa-plus mr-1"></i>Agregar badge
           </button>
         </div>
-
-        <!-- ── TAB BLOQUES ── -->
-        <div id="tab-bloques" class="hidden">
-          <div class="flex items-center justify-between mb-3">
-            <div class="section-label mb-0"><i class="fas fa-palette text-purple-500"></i>Bloques personalizados</div>
-            <button onclick="addCustomBlock()" class="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">
-              <i class="fas fa-plus"></i> Agregar
-            </button>
-          </div>
-          <p class="text-xs text-slate-500 mb-4">Bloques libres de contenido que aparecerán al final de la revista.</p>
-          <div id="custom-blocks-list">
-            <div class="text-center py-6 text-slate-400 text-sm">
-              <i class="fas fa-cubes text-2xl mb-2 opacity-30 block"></i>
-              No hay bloques. Haz clic en "Agregar".
-            </div>
-          </div>
-        </div>
-
       </div><!-- /editor-body -->
 
       <!-- ── EDITOR FOOTER ── -->
@@ -936,341 +955,7 @@
 
     <!-- ── PREVIEW PANEL ── -->
     <div id="preview-panel">
-      <div class="magazine-wrap">
-
-        <!-- Preview label -->
-        <div class="flex items-center gap-3 mb-4">
-          <div class="flex items-center gap-2 bg-white/70 border border-white px-3 py-1.5 rounded-full backdrop-blur-sm">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">Vista previa en vivo</span>
-          </div>
-        </div>
-
-        <!-- ── PORTADA ── -->
-        <div class="prev-cover fade-in" id="prev-cover">
-          <div class="prev-cover-grid"></div>
-          <div class="prev-cover-line"></div>
-          <div style="position:relative;z-index:10;display:flex;gap:24px;flex-wrap:wrap;">
-            <!-- Left -->
-            <div style="flex:1;min-width:200px;">
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
-                <span id="pv-edition-badge" style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;padding:4px 12px;border-radius:100px;background:rgba(30,136,229,.2);border:1px solid rgba(0,200,255,.3);color:#00c8ff">Edición —</span>
-                <span id="pv-volumen" style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em">Vol. 1</span>
-              </div>
-              <p class="prev-cover-subtitle mb-1">ALERTAS QHSE</p>
-              <h1 class="prev-cover-title" id="pv-titulo">SEGURIDAD<br>SIN<br>EXCUSAS</h1>
-              <div style="margin-top:20px;display:flex;flex-wrap:wrap;gap:6px;">
-                <span style="font-size:10px;font-weight:700;text-transform:uppercase;padding:4px 10px;border-radius:100px;color:rgba(255,255,255,.8);background:rgba(227,30,36,.25);border:1px solid rgba(227,30,36,.3)"><i class="fas fa-hard-hat mr-1"></i>Safety</span>
-                <span style="font-size:10px;font-weight:700;text-transform:uppercase;padding:4px 10px;border-radius:100px;color:rgba(255,255,255,.8);background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.3)"><i class="fas fa-check-double mr-1"></i>Quality</span>
-                <span style="font-size:10px;font-weight:700;text-transform:uppercase;padding:4px 10px;border-radius:100px;color:rgba(255,255,255,.8);background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.3)"><i class="fas fa-heartbeat mr-1"></i>Health</span>
-                <span style="font-size:10px;font-weight:700;text-transform:uppercase;padding:4px 10px;border-radius:100px;color:rgba(255,255,255,.8);background:rgba(30,136,229,.2);border:1px solid rgba(30,136,229,.3)"><i class="fas fa-leaf mr-1"></i>Env.</span>
-              </div>
-            </div>
-            <!-- Right -->
-            <div style="width:240px;">
-              <div class="prev-msg-box">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-                  <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1e88e5,#00c8ff);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-quote-left text-white" style="font-size:10px;"></i></div>
-                  <div><p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.5)">Mensaje de</p><p style="font-size:10px;font-weight:700;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.06em">Gerencia de Operaciones</p></div>
-                </div>
-                <p id="pv-mensaje" style="font-size:12px;color:rgba(255,255,255,.7);line-height:1.6;font-style:italic">Ingresa el mensaje del gerente de operaciones en el panel izquierdo...</p>
-                <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.1);">
-                  <p id="pv-director" style="font-size:10px;font-weight:800;color:rgba(255,255,255,.9);text-transform:uppercase;letter-spacing:.06em">Ing. —</p>
-                  <p style="font-size:9px;color:rgba(255,255,255,.45);margin-top:2px">Gerente de Operaciones — In Hole Solutions</p>
-                </div>
-              </div>
-              <!-- Stats -->
-              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;">
-                <div class="prev-stat" style="background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.25)">
-                  <p id="pv-stat-dias" style="font-family:'Barlow Condensed';font-size:24px;font-weight:900;color:#34d399;line-height:1">247</p>
-                  <p style="font-size:8px;color:rgba(255,255,255,.55);font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-top:2px">Días sin<br>accidente</p>
-                </div>
-                <div class="prev-stat" style="background:rgba(30,136,229,.15);border:1px solid rgba(30,136,229,.25)">
-                  <p id="pv-stat-obs" style="font-family:'Barlow Condensed';font-size:24px;font-weight:900;color:#60a5fa;line-height:1">18</p>
-                  <p style="font-size:8px;color:rgba(255,255,255,.55);font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-top:2px">Reportes<br>riesgo</p>
-                </div>
-                <div class="prev-stat" style="background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.25)">
-                  <p id="pv-stat-acc" style="font-family:'Barlow Condensed';font-size:24px;font-weight:900;color:#fbbf24;line-height:1">3</p>
-                  <p style="font-size:8px;color:rgba(255,255,255,.55);font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-top:2px">Near miss<br>resueltos</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── SAFETY ── -->
-        <div class="prev-section fade-in" id="prev-safety">
-          <div class="prev-section-header" style="background:linear-gradient(135deg,#e31e24,#c01a1f)">
-            <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-hard-hat text-white text-sm"></i></div>
-            <div><span class="prev-badge">Safety</span><h2 class="prev-section-title" id="pv-safety-titulo">ALERTA DE SEGURIDAD</h2></div>
-            <span style="margin-left:auto;font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em">Safety</span>
-          </div>
-          <div class="prev-section-body">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-              <!-- LEFT -->
-              <div>
-                <!-- Subtítulo tema -->
-                <p id="pv-safety-subtema" style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#e31e24;margin-bottom:6px;display:flex;align-items:center;gap:6px"><i class="fas fa-hard-hat"></i><span id="pv-safety-subtema-text">MANIOBRAS DE CARGA</span></p>
-                <!-- EPP Box -->
-                <div id="pv-epp-safety" style="border:2px dashed rgba(227,30,36,.25);border-radius:12px;padding:14px;background:#fff5f5;margin-bottom:12px">
-                  <p id="pv-epp-safety-titulo" style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#e31e24;margin-bottom:10px;display:flex;align-items:center;gap:5px"><i class="fas fa-shield-halved"></i>EPP Obligatorio</p>
-                  <div id="pv-epp-safety-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:8px"></div>
-                </div>
-                <!-- Tips Safety -->
-                <div id="pv-tips-safety" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"></div>
-                <!-- QRs Safety (dynamic) -->
-                <div id="pv-qr-safety-list"></div>
-              </div>
-              <!-- RIGHT: Near Miss -->
-              <div>
-                <p style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-bottom:8px;display:flex;align-items:center;gap:6px"><i class="fas fa-triangle-exclamation text-red-500"></i>Lección Aprendida — Near Miss</p>
-                <!-- Near miss label / area -->
-                <div style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:100px;background:#fef2f2;border:1px solid #fecaca;margin-bottom:10px">
-                  <i class="fas fa-circle text-red-500" style="font-size:6px"></i>
-                  <span id="pv-nm-area" style="font-size:10px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.06em">Incidente —</span>
-                </div>
-                <!-- Near miss card -->
-                <div style="border-left:4px solid #e31e24;background:#fff5f5;border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:10px">
-                  <p id="pv-nm-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:#1e293b;text-transform:uppercase;margin-bottom:6px">Completa el formulario Near Miss...</p>
-                  <p id="pv-nm-desc" style="font-size:11px;color:#64748b;line-height:1.6"></p>
-                </div>
-                <div style="display:grid;gap:8px">
-                  <div style="border-radius:10px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0">
-                    <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:4px"><i class="fas fa-magnifying-glass mr-1 text-blue-400"></i>Causa Raíz</p>
-                    <p id="pv-nm-causa" style="font-size:12px;color:#475569">—</p>
-                  </div>
-                  <div style="border-radius:10px;padding:10px 12px;background:#f0fdf4;border:1px solid #bbf7d0">
-                    <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#15803d;margin-bottom:4px"><i class="fas fa-wrench mr-1"></i>Acción Correctiva</p>
-                    <p id="pv-nm-accion" style="font-size:12px;color:#475569">—</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── QUALITY ── -->
-        <div class="prev-section fade-in" id="prev-quality">
-          <div class="prev-section-header" style="background:linear-gradient(135deg,#1e88e5,#0d47a1)">
-            <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-check-double text-white text-sm"></i></div>
-            <div>
-              <span class="prev-badge" style="background:rgba(255,255,255,.15);color:rgba(255,255,255,.9);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:2px 8px;border-radius:4px">PÁGS. 4-5</span>
-              <h2 class="prev-section-title" id="pv-quality-titulo">CALIDAD OPERATIVA</h2>
-            </div>
-            <span style="margin-left:auto;font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em">Quality</span>
-          </div>
-          <div class="prev-section-body">
-            <!-- TWO COLUMNS like image 2 -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
-
-              <!-- ── LEFT COLUMN ── -->
-              <div>
-                <!-- Left title -->
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-                  <span style="font-size:18px">🔗</span>
-                  <h3 id="pv-quality-left-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:#1e293b;text-transform:uppercase;letter-spacing:.04em">INTEGRIDAD DE CONEXIONES</h3>
-                </div>
-
-                <!-- Inspection table -->
-                <div id="pv-quality-tabla-wrap" style="margin-bottom:14px">
-                  <!-- dynamically rendered -->
-                </div>
-
-                <!-- Quality alert -->
-                <div id="pv-quality-alerta-wrap" style="display:none">
-                  <div style="background:linear-gradient(135deg,#0a1628,#1a3160);border-radius:10px;padding:14px;border-left:4px solid #f59e0b">
-                    <p id="pv-quality-alerta-titulo" style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#fbbf24;margin-bottom:6px"><i class="fas fa-triangle-exclamation mr-1"></i>¡ALERTA DE CALIDAD!</p>
-                    <p id="pv-quality-alerta-texto" style="font-size:12px;color:rgba(255,255,255,.8);line-height:1.65"></p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- ── RIGHT COLUMN ── -->
-              <div>
-                <!-- Right title -->
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-                  <span style="font-size:18px">⚙️</span>
-                  <h3 id="pv-quality-right-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:#1e293b;text-transform:uppercase;letter-spacing:.04em">MÁQUINA DE TORQUE — ROTACIÓN CONTINUA</h3>
-                </div>
-
-                <!-- Numbered steps -->
-                <div id="pv-quality-pasos-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>
-
-                <!-- EPP Quality -->
-                <div id="pv-epp-quality" style="border:2px dashed rgba(30,136,229,.25);border-radius:12px;padding:12px;background:#f0f7ff;margin-bottom:14px">
-                  <p id="pv-epp-quality-titulo" style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#1e88e5;margin-bottom:10px;display:flex;align-items:center;gap:5px">
-                    <i class="fas fa-shield-halved"></i>EPP Quality
-                  </p>
-                  <div id="pv-epp-quality-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:8px">
-                    <p style="font-size:11px;color:#94a3b8;padding:6px;grid-column:1/-1">Agrega EPP...</p>
-                  </div>
-                </div>
-
-                <!-- QR Quality -->
-                <div id="pv-qr-quality-wrap">
-                  <div class="prev-qr-box" style="margin-bottom:0">
-                    <div class="prev-qr-placeholder" id="pv-qr-torque-img-wrap">⚙️</div>
-                    <div>
-                      <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#00c8ff">Código QR</p>
-                      <p id="pv-qr-torque-titulo" style="font-size:11px;font-weight:700;color:white;margin-top:2px">Manual de Torque</p>
-                      <p id="pv-qr-torque-desc" style="font-size:10px;color:rgba(255,255,255,.4);margin-top:1px">Sin descripción</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-
-        <!-- ── HEALTH ── -->
-        <div class="prev-section fade-in" id="prev-health">
-          <div class="prev-section-header" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
-            <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-heartbeat text-white text-sm"></i></div>
-            <div>
-              <span class="prev-badge" style="background:rgba(255,255,255,.2);color:rgba(255,255,255,.9);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:2px 8px;border-radius:4px">PÁGS. 6-7</span>
-              <h2 class="prev-section-title" id="pv-health-titulo">SALUD OCUPACIONAL</h2>
-            </div>
-            <span style="margin-left:auto;font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em">Health</span>
-          </div>
-          <div class="prev-section-body">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
-
-              <!-- ══ LEFT: Ruido y Vibración ══ -->
-              <div>
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-                  <span style="font-size:18px">🎵</span>
-                  <h3 id="pv-health-left-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:#1e293b;text-transform:uppercase;letter-spacing:.04em">PROTECCIÓN RUIDO Y VIBRACIÓN</h3>
-                </div>
-
-                <!-- Ruido box -->
-                <div id="pv-health-ruido-box" style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:10px;padding:12px;margin-bottom:10px">
-                  <p id="pv-health-ruido-titulo" style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#92400e;margin-bottom:10px;display:flex;align-items:center;gap:5px">
-                    <i class="fas fa-volume-high"></i>NIVELES DE EXPOSICIÓN AL RUIDO
-                  </p>
-                  <div id="pv-health-barras-list" style="display:flex;flex-direction:column;gap:8px"></div>
-                </div>
-
-                <!-- Tips ruido/vibración -->
-                <div id="pv-health-tips-list" style="display:flex;flex-direction:column;gap:6px"></div>
-              </div>
-
-              <!-- ══ RIGHT: Ergonomía ══ -->
-              <div>
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-                  <span style="font-size:18px">🚶</span>
-                  <h3 id="pv-health-right-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:#1e293b;text-transform:uppercase;letter-spacing:.04em">ERGONOMÍA EN CAMPO Y TALLER</h3>
-                </div>
-
-                <!-- Cuadro correcto/incorrecto -->
-                <div style="border:1.5px solid #e2e8f0;border-radius:10px;overflow:hidden;margin-bottom:10px">
-                  <div id="pv-health-ergo-subtitulo" style="background:#f8fafc;padding:7px 12px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#64748b;border-bottom:1px solid #e2e8f0">
-                    POSTURAS CORRECTAS – MANEJO DE HERRAMIENTAS DE FONDO
-                  </div>
-                  <div style="display:grid;grid-template-columns:1fr 1fr">
-                    <div style="padding:14px;text-align:center;border-right:1px solid #e2e8f0">
-                      <div style="width:36px;height:36px;border-radius:50%;background:#22c55e;margin:0 auto 8px;display:flex;align-items:center;justify-content:center">
-                        <i class="fas fa-check" style="color:white;font-size:14px"></i>
-                      </div>
-                      <p style="font-size:9px;font-weight:800;color:#15803d;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Correcto</p>
-                      <p id="pv-health-ergo-correcto" style="font-size:11px;color:#475569;line-height:1.5">Espalda recta, rodillas flexionadas, carga cerca del cuerpo</p>
-                    </div>
-                    <div style="padding:14px;text-align:center">
-                      <div style="width:36px;height:36px;border-radius:50%;background:#ef4444;margin:0 auto 8px;display:flex;align-items:center;justify-content:center">
-                        <i class="fas fa-times" style="color:white;font-size:14px"></i>
-                      </div>
-                      <p style="font-size:9px;font-weight:800;color:#dc2626;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Incorrecto</p>
-                      <p id="pv-health-ergo-incorrecto" style="font-size:11px;color:#475569;line-height:1.5">Espalda doblada, carga alejada del cuerpo, giro brusco</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Nota de peso -->
-                <div id="pv-health-ergo-peso-wrap" style="display:none;background:#fffbeb;border-radius:8px;padding:9px 12px;margin-bottom:12px;border-left:3px solid #f59e0b">
-                  <p id="pv-health-ergo-peso" style="font-size:11px;color:#78350f;line-height:1.6">
-                    <span style="font-size:14px;margin-right:5px">💛</span>
-                  </p>
-                </div>
-
-                <!-- QR Ergo -->
-                <div class="prev-qr-box" style="margin-top:4px">
-                  <div class="prev-qr-placeholder" id="pv-qr-ergo-img-wrap">🏋️</div>
-                  <div>
-                    <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#00c8ff">Código QR</p>
-                    <p id="pv-qr-ergo-titulo" style="font-size:11px;font-weight:700;color:white;margin-top:2px">Video Ergonomía</p>
-                    <p id="pv-qr-ergo-desc" style="font-size:10px;color:rgba(255,255,255,.4);margin-top:1px">Sin descripción</p>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-
-        <!-- ── ENVIRONMENT ── -->
-        <div class="prev-section fade-in" id="prev-environment">
-          <div class="prev-section-header" style="background:linear-gradient(135deg,#10b981,#059669)">
-            <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-leaf text-white text-sm"></i></div>
-            <div><span class="prev-badge">Environment</span><h2 class="prev-section-title" id="pv-env-titulo">MEDIO AMBIENTE</h2></div>
-            <span style="margin-left:auto;font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em">Environment</span>
-          </div>
-          <div class="prev-section-body">
-            <div style="display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start">
-              <div>
-                <p id="pv-env-contenido" style="font-size:13px;color:#475569;line-height:1.7;margin-bottom:14px;white-space:pre-line">El contenido ambiental aparecerá aquí...</p>
-              </div>
-              <div style="display:flex;flex-direction:column;gap:12px;min-width:160px">
-                <!-- Derrames counter -->
-                <div style="background:linear-gradient(135deg,#0a1628,#1a3160);border-radius:12px;padding:16px;text-align:center;border:1px solid rgba(16,185,129,.3)">
-                  <p id="pv-env-derrames" style="font-family:'Barlow Condensed';font-size:40px;font-weight:900;color:#34d399;line-height:1">0</p>
-                  <p style="font-size:10px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.6);letter-spacing:.06em;margin-top:4px">Derrames no<br>contenidos 2026</p>
-                </div>
-                <!-- QR Ambiental -->
-                <div class="prev-qr-box" style="margin-top:0">
-                  <div class="prev-qr-placeholder" id="pv-qr-ambiental-img-wrap">🌿</div>
-                  <div>
-                    <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#00c8ff">Código QR</p>
-                    <p id="pv-qr-ambiental-titulo" style="font-size:11px;font-weight:700;color:white;margin-top:2px">Incidente Ambiental</p>
-                    <p id="pv-qr-ambiental-desc" style="font-size:10px;color:rgba(255,255,255,.4);margin-top:1px">Sin descripción</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── GUARDIAN ── -->
-        <div class="prev-section fade-in" id="prev-guardian">
-          <div class="prev-section-header" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)">
-            <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-star text-white text-sm"></i></div>
-            <div><span class="prev-badge">Guardián QHSE del Mes</span></div>
-          </div>
-          <div class="prev-section-body">
-            <div class="prev-guardian">
-              <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-                <div class="prev-guardian-avatar" id="pv-g-avatar">??</div>
-                <div style="flex:1">
-                  <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:rgba(255,255,255,.45);margin-bottom:2px" id="pv-g-mes">Guardián QHSE del Mes — —</p>
-                  <h3 id="pv-g-nombre" style="font-family:'Barlow Condensed';font-size:26px;font-weight:900;font-style:italic;color:white;line-height:1">[Nombre del Empleado]</h3>
-                  <p id="pv-g-puesto" style="font-size:12px;color:rgba(255,255,255,.55);margin-top:2px">[Puesto — Área]</p>
-                </div>
-                <div style="text-align:right">
-                  <p id="pv-g-reportes" style="font-family:'Barlow Condensed';font-size:40px;font-weight:900;color:#00c8ff;line-height:1">12</p>
-                  <p style="font-size:9px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.45);letter-spacing:.06em">Condiciones<br>reportadas</p>
-                </div>
-              </div>
-              <div style="margin-top:14px;padding:12px 14px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)">
-                <p id="pv-g-motivo" style="font-size:12px;color:rgba(255,255,255,.75);line-height:1.6;font-style:italic">"Escribe el motivo del reconocimiento en el panel izquierdo..."</p>
-              </div>
-              <div id="pv-g-badges" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── CUSTOM BLOCKS ── -->
-        <div id="prev-custom-blocks"></div>
-
-      </div><!-- /magazine-wrap -->
+      <div id="revista-admin-container"></div>
     </div><!-- /preview-panel -->
 
   </div><!-- /view-editor -->
@@ -1346,6 +1031,7 @@
 <!-- SCRIPTS -->
 <!-- ══════════════════════════════════════════ -->
 <script>
+  montarRevista('revista-admin-container');
   const { createClient } = supabase;
   const sb = createClient(
     'https://bgqlvkvlscujikhzzazf.supabase.co',
@@ -1354,7 +1040,6 @@
 
   let currentUser = null;
   let deleteId    = null;
-  let customBlocks = [];
   let eppSafety   = [];
   let eppQuality  = [];
   let guardianBadges = [];
@@ -1419,7 +1104,7 @@
   }
 
   // ── TABS ──
-  const TABS = ['portada','safety','quality','health','environment','guardian','bloques'];
+  const TABS = ['portada','safety','quality','health','environment','guardian'];
   function goTab(tab) {
     TABS.forEach(t => {
       document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tab);
@@ -1443,14 +1128,19 @@
       'f-health-ruido-titulo','f-health-ergo-subtitulo','f-health-ergo-correcto',
       'f-health-ergo-incorrecto','f-health-ergo-peso',
       'f-env-titulo','f-env-contenido','f-env-derrames',
-      'f-g-nombre','f-g-puesto','f-g-reportes','f-g-motivo'];
+      'f-g-nombre','f-g-puesto','f-g-area','f-g-reportes','f-g-motivo'];
     fields.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
-    customBlocks = []; eppSafety = []; eppQuality = []; guardianBadges = [];
+    eppSafety = []; eppQuality = []; guardianBadges = [];
     qrsSafety = []; qualityTabla = []; qualityPasos = []; healthBarras = []; healthTips = [];
     tipsSafety = [{ icon:'✅', text:'' }, { icon:'⚠️', text:'' }, { icon:'🚫', text:'' }];
     qrImages = { torque: null, ergo: null, ambiental: null };
+    renderEnvFluidos([]);
+    renderEnvProtocolo([]);
+    document.getElementById('f-g-area').value = '';
+    document.getElementById('f-env-left-titulo').value = '';
+    document.getElementById('f-env-protocolo-titulo').value = '';
     ['torque','ergo','ambiental'].forEach(k => clearQrPreview(k));
-    renderCustomBlocks(); renderEpp('safety'); renderEpp('quality'); renderGuardianBadges();
+    renderEpp('safety'); renderEpp('quality'); renderGuardianBadges();
     renderTipsSafety(); renderQrsSafety(); renderQualityTabla(); renderQualityPasos();
     renderHealthBarras(); renderHealthTips();
     goTab('portada');
@@ -1560,13 +1250,17 @@
     healthBarras = Array.isArray(ed.health_barras) ? ed.health_barras : [];
     healthTips   = Array.isArray(ed.health_tips)   ? ed.health_tips   : [];
     renderHealthBarras(); renderHealthTips();
-    document.getElementById('f-env-titulo').value       = ed.env_titulo || '';
-    document.getElementById('f-env-contenido').value    = ed.env_contenido || '';
-    document.getElementById('f-env-derrames').value     = ed.env_derrames ?? 0;
-    document.getElementById('f-g-nombre').value      = ed.guardian_nombre || '';
-    document.getElementById('f-g-puesto').value      = ed.guardian_puesto || '';
-    document.getElementById('f-g-reportes').value    = ed.guardian_reportes ?? '';
-    document.getElementById('f-g-motivo').value      = ed.guardian_motivo || '';
+    document.getElementById('f-env-titulo').value           = ed.env_titulo || '';
+    document.getElementById('f-env-derrames').value         = ed.env_derrames ?? 0;
+    document.getElementById('f-env-left-titulo').value      = ed.env_left_titulo || '';
+    document.getElementById('f-env-protocolo-titulo').value = ed.env_protocolo_titulo || '';
+    renderEnvFluidos(ed.env_fluidos   || []);
+    renderEnvProtocolo(ed.env_protocolo || []);
+    document.getElementById('f-g-nombre').value    = ed.guardian_nombre || '';
+    document.getElementById('f-g-puesto').value    = ed.guardian_puesto || '';
+    document.getElementById('f-g-area').value      = ed.guardian_area   || '';
+    document.getElementById('f-g-reportes').value  = ed.guardian_reportes ?? '';
+    document.getElementById('f-g-motivo').value    = ed.guardian_motivo  || '';
 
     // QRs — solo los campos que existen en el HTML (torque, ergo, ambiental)
     const qrs = ed.qr_urls || {};
@@ -1606,10 +1300,6 @@
     // Guardian badges
     guardianBadges = Array.isArray(ed.guardian_badges) ? ed.guardian_badges : [];
     renderGuardianBadges();
-
-    // Custom blocks
-    customBlocks = Array.isArray(ed.custom_blocks) ? ed.custom_blocks : [];
-    renderCustomBlocks();
 
     // Near miss
     const { data: nm } = await sb.from('qhse_near_miss').select('*').eq('edition_id', id).limit(1).single();
@@ -1724,18 +1414,21 @@
       health_ergo_peso:       document.getElementById('f-health-ergo-peso')?.value.trim()       || '',
       health_barras:          healthBarras,
       health_tips:            healthTips,
-      env_titulo:        document.getElementById('f-env-titulo').value.trim(),
-      env_contenido:     document.getElementById('f-env-contenido').value.trim(),
-      env_derrames:      parseInt(document.getElementById('f-env-derrames').value) || 0,
+      env_titulo:           document.getElementById('f-env-titulo').value.trim(),
+      env_derrames:         parseInt(document.getElementById('f-env-derrames').value) || 0,
+      env_left_titulo:      document.getElementById('f-env-left-titulo').value.trim(),
+      env_protocolo_titulo: document.getElementById('f-env-protocolo-titulo').value.trim(),
+      env_fluidos:          getEnvFluidos(),
+      env_protocolo:        getEnvProtocolo(),
       guardian_nombre:   document.getElementById('f-g-nombre').value.trim(),
       guardian_puesto:   document.getElementById('f-g-puesto').value.trim(),
+      guardian_area:     document.getElementById('f-g-area').value.trim(),
       guardian_reportes: parseInt(document.getElementById('f-g-reportes').value) || 0,
       guardian_motivo:   document.getElementById('f-g-motivo').value.trim(),
       guardian_badges:   guardianBadges,
       epp_safety:        eppSafety,
       epp_quality:       eppQuality,
       qr_urls,
-      custom_blocks:     customBlocks,
       publicada:         publicar,
       autor_id:          currentUser?.id,
       updated_at:        new Date().toISOString()
@@ -1793,7 +1486,6 @@
   async function confirmarEliminar() {
     if (!deleteId) return;
     await sb.from('qhse_near_miss').delete().eq('edition_id', deleteId);
-    await sb.from('qhse_custom_blocks').delete().eq('edition_id', deleteId);
     const { error } = await sb.from('qhse_editions').delete().eq('id', deleteId);
     closeModal();
     if (error) { toast('Error al eliminar', 'error'); return; }
@@ -1837,6 +1529,103 @@
     livePreview();
   }
 
+  // ── ENV: Fluidos ──────────────────────────────────────────────
+  function renderEnvFluidos(arr) {
+    const list = document.getElementById('env-fluidos-list');
+    if (!list) return;
+    list.innerHTML = '';
+    (arr || []).forEach((item, i) => {
+      const div = document.createElement('div');
+      div.className = 'epp-editor-item';
+      div.style.cssText = 'flex-direction:column;align-items:stretch;gap:6px;padding:10px;';
+      div.innerHTML = `
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="emoji-trigger" onclick="openPicker('env-fluido', ${i}, this)" title="Elegir ícono">${item.icon||'🧴'}</button>
+          <input id="env-fluido-icon-${i}" type="hidden" value="${item.icon||'🧴'}">
+          <input class="field-input" style="flex:1;margin:0" placeholder="Título (GRASA PARA ROSCAS)" value="${item.titulo||''}" oninput="syncEnvFluidos()">
+          <button class="remove-btn" onclick="removeEnvFluido(${i})"><i class="fas fa-times"></i></button>
+        </div>
+        <textarea class="field-input field-textarea" style="min-height:60px;margin:0" placeholder="Descripción breve..." oninput="syncEnvFluidos()">${item.desc||''}</textarea>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function addEnvFluido() {
+    const arr = getEnvFluidos();
+    if (arr.length >= 3) { alert('Máximo 3 tarjetas'); return; }
+    arr.push({ icon:'🧴', titulo:'', desc:'' });
+    renderEnvFluidos(arr);
+    livePreview();
+  }
+
+  function removeEnvFluido(i) {
+    const arr = getEnvFluidos();
+    arr.splice(i, 1);
+    renderEnvFluidos(arr);
+    livePreview();
+  }
+
+  function getEnvFluidos() {
+    const items = [];
+    document.querySelectorAll('#env-fluidos-list .epp-editor-item').forEach((div,i) => {
+      const inputs = div.querySelectorAll('input:not([type=hidden]),textarea');
+      const iconEl = div.querySelector('input[type=hidden]');
+      items.push({
+        icon: iconEl ? iconEl.value : '🧴',
+        titulo: inputs[0]?.value.trim() || '',
+        desc: inputs[1]?.value.trim() || ''
+      });
+    });
+    return items;
+  }
+
+  function syncEnvFluidos() { livePreview(); }
+
+  // ── ENV: Protocolo pasos ──────────────────────────────────────
+  function renderEnvProtocolo(arr) {
+    const list = document.getElementById('env-protocolo-list');
+    if (!list) return;
+    list.innerHTML = '';
+    (arr || []).forEach((item, i) => {
+      const div = document.createElement('div');
+      div.className = 'epp-editor-item';
+      div.innerHTML = `
+        <span style="width:24px;height:24px;border-radius:50%;background:#10b981;color:white;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</span>
+        <input class="field-input" style="flex:1;margin:0" placeholder="Título (CONTENER)" value="${item.titulo||''}" oninput="livePreview()">
+        <input class="field-input" style="flex:1;margin:0" placeholder="Descripción corta" value="${item.desc||''}" oninput="livePreview()">
+        <button class="remove-btn" onclick="removeEnvProtocolo(${i})"><i class="fas fa-times"></i></button>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function addEnvProtocolo() {
+    const arr = getEnvProtocolo();
+    arr.push({ titulo:'', desc:'' });
+    renderEnvProtocolo(arr);
+    livePreview();
+  }
+
+  function removeEnvProtocolo(i) {
+    const arr = getEnvProtocolo();
+    arr.splice(i, 1);
+    renderEnvProtocolo(arr);
+    livePreview();
+  }
+
+  function getEnvProtocolo() {
+    const items = [];
+    document.querySelectorAll('#env-protocolo-list .epp-editor-item').forEach((div, i) => {
+      const inputs = div.querySelectorAll('input.field-input');
+      items.push({
+        titulo: inputs[0]?.value.trim() || '',
+        desc: inputs[1]?.value.trim() || ''
+      });
+    });
+    return items;
+  }
+
   // ── GUARDIAN BADGES ──
   function addGuardianBadge() {
     guardianBadges.push({ emoji: '⭐', label: 'Reconocimiento', color: 'blue' });
@@ -1855,9 +1644,11 @@
     if (!guardianBadges.length) { container.innerHTML = ''; return; }
     container.innerHTML = guardianBadges.map((b, i) => `
       <div class="epp-editor-item mb-2">
-        <input class="field-input" style="width:44px;text-align:center;padding:4px;font-size:18px;background:white" 
-          value="${b.emoji}" maxlength="4"
-          oninput="updateBadge(${i},'emoji',this.value)">
+        <button class="emoji-trigger" 
+          onclick="openPicker('guardian-badge', ${i}, this)"
+          title="Cambiar emoji del badge">
+          ${b.emoji || '⭐'}
+        </button>
         <input class="field-input" style="flex:1;padding:6px 10px;font-size:12px"
           value="${b.label}" placeholder="Etiqueta..."
           oninput="updateBadge(${i},'label',this.value)">
@@ -1870,68 +1661,27 @@
     livePreview();
   }
 
-  // ── CUSTOM BLOCKS ──
-  function addCustomBlock() {
-    customBlocks.push({ titulo: '', contenido: '', color: 'blue' });
-    renderCustomBlocks();
-    livePreview();
-  }
-
-  function removeCustomBlock(i) {
-    customBlocks.splice(i, 1);
-    renderCustomBlocks();
-    livePreview();
-  }
-
-  function updateBlock(i, field, value) { if (customBlocks[i]) customBlocks[i][field] = value; livePreview(); }
-
-  function renderCustomBlocks() {
-    const container = document.getElementById('custom-blocks-list');
-    if (!customBlocks.length) {
-      container.innerHTML = `
-        <div class="text-center py-6 text-slate-400 text-sm" id="no-blocks-msg">
-          <i class="fas fa-cubes text-2xl mb-2 opacity-30 block"></i>
-          No hay bloques. Haz clic en "Agregar".
-        </div>`;
-      return;
-    }
-    container.innerHTML = customBlocks.map((b, i) => `
-      <div class="border border-slate-200 rounded-xl p-4 bg-slate-50 mb-3 fade-in">
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-xs font-black uppercase tracking-wider text-slate-500">Bloque #${i+1}</span>
-          <button onclick="removeCustomBlock(${i})" class="h-7 w-7 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 flex items-center justify-center text-xs transition"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Título</label>
-          <input type="text" value="${b.titulo || ''}" placeholder="Título del bloque..." class="field-input"
-            oninput="updateBlock(${i},'titulo',this.value)">
-        </div>
-        <div class="field-group">
-          <label class="field-label">Contenido</label>
-          <textarea class="field-input field-textarea" placeholder="Contenido..."
-            oninput="updateBlock(${i},'contenido',this.value)">${b.contenido || ''}</textarea>
-        </div>
-        <div>
-          <label class="field-label">Color</label>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
-            ${[
-              {val:'blue',   bg:'#1e88e5', label:'Azul'},
-              {val:'red',    bg:'#e31e24', label:'Rojo'},
-              {val:'green',  bg:'#10b981', label:'Verde'},
-              {val:'yellow', bg:'#f59e0b', label:'Ámbar'},
-            ].map(c => `
-              <button type="button" onclick="updateBlock(${i},'color','${c.val}');renderCustomBlocks()"
-                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-2 text-xs font-bold transition"
-                style="${b.color===c.val ? 'border-color:#1e293b;background:white' : 'border-color:transparent;background:white'}">
-                <span style="width:10px;height:10px;border-radius:50%;background:${c.bg};flex-shrink:0"></span>${c.label}
-              </button>`).join('')}
-          </div>
-        </div>
-      </div>`).join('');
-  }
-
   // ── TIPS SAFETY ──
-  const TIP_ICONS = ['✅','⚠️','🚫','💡','🔔','❌','🟢','🟡','🔴','ℹ️','📌','🛑'];
+  const TIP_ICONS = [
+    // Verificación y cumplimiento
+    '✅','☑️','🔍','📋','📝','🗂️',
+    // Advertencias y peligro
+    '⚠️','🛑','🚫','🔴','🟡','🟢','❌','‼️','❗',
+    // Información y comunicación
+    '💡','ℹ️','🔔','📌','📢','🗣️',
+    // Seguridad física
+    '🔒','🦺','⛑️','🧤','👟','🥽',
+    // Herramientas e inspección
+    '🔧','⚙️','🪛','🔨','🛠️','🪝',
+    // Alturas y trabajo en campo
+    '🏗️','🪜','⛓️','🪢','🧗','🪤',
+    // Fuego, emergencias y ambiente
+    '🧯','🚨','🆘','💧','🌿','♻️',
+    // Cuerpo y ergonomía
+    '💪','🖐️','👁️','🧠','🦴','🩺',
+    // Tiempo y proceso
+    '⏱️','⏰','🔄','📊','📈','🎯',
+  ];
   const TIP_COLORS = { '✅':'green', '⚠️':'yellow', '🚫':'red', '💡':'yellow', '🔔':'yellow', '❌':'red', '🟢':'green', '🟡':'yellow', '🔴':'red', 'ℹ️':'green', '📌':'yellow', '🛑':'red' };
 
   function tipColor(icon) { return TIP_COLORS[icon] || 'green'; }
@@ -2212,7 +1962,24 @@
   }
  
   // ── HEALTH TIPS ──
-  const HEALTH_TIP_ICONS = ['🔇','🖐️','⚠️','💡','🔔','ℹ️','📌','🛑','✅'];
+  const HEALTH_TIP_ICONS = [
+    // Señales y alertas
+    '⚠️','🛑','❌','✅','ℹ️','🔔','💡','📌','🟢','🟡','🔴',
+    // Ruido y auditivo
+    '🔇','🔈','🔉','🔊','👂','🎧',
+    // Cuerpo y salud
+    '🖐️','💪','🦴','🦷','👁️','🫁','❤️','🩺','🩹','💊','🧠',
+    // Ergonomía y postura
+    '🧍','🪑','🛏️','🏋️','🤸','🧘','🚶',
+    // Herramientas y trabajo
+    '🔧','⚙️','🦺','⛑️','🧤','👟','🥽',
+    // Temperatura y ambiente
+    '🌡️','🔥','❄️','💧','🌬️','☀️',
+    // Tiempo y descanso
+    '⏱️','⏰','🕐','😴','☕',
+    // Documentos y seguimiento
+    '📋','📝','📊','🗂️','✏️',
+  ];
   function addHealthTip() {
     healthTips.push({ icon: '🔇', texto: '' });
     renderHealthTips(); livePreview();
@@ -2263,7 +2030,7 @@
 
     // Portada
     const titulo = v('f-titulo') || 'SEGURIDAD SIN EXCUSAS';
-    pv('pv-titulo').innerHTML = titulo.split(' ').slice(0,3).join('<br>') || titulo;
+    pv('pv-titulo').textContent = titulo;
     const edicion = v('f-edicion');
     pv('pv-edition-badge').textContent = edicion ? `Edición ${edicion}` : 'Edición —';
     pv('pv-volumen').textContent = v('f-volumen') || 'Vol. 1';
@@ -2485,17 +2252,50 @@
     updatePreviewQrImg('ergo');
 
     // Environment
-    pv('pv-env-titulo').textContent = v('f-env-titulo') || 'MEDIO AMBIENTE';
-    pv('pv-env-contenido').textContent = v('f-env-contenido') || 'El contenido ambiental aparecerá aquí...';
-    pv('pv-env-derrames').textContent = v('f-env-derrames') || '0';
-    pv('pv-qr-ambiental-titulo').textContent = v('f-qr-ambiental-titulo') || 'Incidente Ambiental';
-    pv('pv-qr-ambiental-desc').textContent   = v('f-qr-ambiental-desc')   || 'Sin descripción';
+    pv('pv-env-titulo').textContent      = v('f-env-titulo') || 'CUIDADO AMBIENTAL';
+    pv('pv-env-derrames').textContent    = v('f-env-derrames') || '0';
+    pv('pv-env-left-titulo').textContent = v('f-env-left-titulo') || 'CONTROL Y CONTENCIÓN DE FLUIDOS';
+    pv('pv-env-protocolo-titulo').textContent = v('f-env-protocolo-titulo') || 'PROTOCOLO DE RESPUESTA A DERRAME';
+    pv('pv-qr-ambiental-titulo').textContent  = v('f-qr-ambiental-titulo') || 'Incidente Ambiental';
+    pv('pv-qr-ambiental-desc').textContent    = v('f-qr-ambiental-desc')   || 'Sin descripción';
     updatePreviewQrImg('ambiental');
+
+    // Tarjetas de fluidos
+    const fluidos = getEnvFluidos();
+    const fluidosDiv = document.getElementById('pv-env-fluidos');
+    if (fluidosDiv) {
+      if (fluidos.length === 0) {
+        fluidosDiv.innerHTML = '<p style="font-size:11px;color:#94a3b8">Agrega tarjetas de fluidos...</p>';
+      } else {
+        fluidosDiv.innerHTML = fluidos.map(f => `
+          <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid #bbf7d0;border-radius:10px;padding:12px;text-align:center">
+            <div style="font-size:26px;margin-bottom:6px">${f.icon}</div>
+            <p style="font-family:'Barlow Condensed';font-size:12px;font-weight:900;color:#065f46;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">${f.titulo||'Título'}</p>
+            <p style="font-size:10px;color:#374151;line-height:1.5">${f.desc||''}</p>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Pasos protocolo
+    const pasos = getEnvProtocolo();
+    const pasosDiv = document.getElementById('pv-env-protocolo-steps');
+    if (pasosDiv) {
+      pasosDiv.innerHTML = pasos.map((p,i) => `
+        <div style="text-align:center;flex:1;min-width:60px">
+          <div style="width:28px;height:28px;border-radius:50%;background:#10b981;color:white;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 4px">${i+1}</div>
+          <p style="font-size:10px;font-weight:800;text-transform:uppercase;color:#065f46;letter-spacing:.04em">${p.titulo}</p>
+          <p style="font-size:9px;color:#6b7280;margin-top:2px">${p.desc}</p>
+        </div>
+      `).join('');
+    }
 
     // Guardian
     const gNombre = v('f-g-nombre');
     pv('pv-g-nombre').textContent = gNombre || '[Nombre del Empleado]';
-    pv('pv-g-puesto').textContent = v('f-g-puesto') || '[Puesto — Área]';
+    const gPuesto = v('f-g-puesto') || '[Puesto]';
+    const gArea   = v('f-g-area')   || '[Área/Sede]';
+    pv('pv-g-puesto').textContent = `${gPuesto} — ${gArea}`;
     pv('pv-g-reportes').textContent = v('f-g-reportes') || '12';
     pv('pv-g-motivo').textContent = v('f-g-motivo') ? `"${v('f-g-motivo')}"` : '"Escribe el motivo del reconocimiento..."';
     pv('pv-g-mes').textContent = `Guardián QHSE del Mes — ${edicion || '—'}`;
@@ -2508,25 +2308,15 @@
 
     // Guardian badges
     const badgesEl = pv('pv-g-badges');
-    badgesEl.innerHTML = guardianBadges.map(b => `
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;padding:4px 10px;border-radius:100px;background:rgba(0,200,255,.15);border:1px solid rgba(0,200,255,.3);color:#00c8ff">
-        ${b.emoji} ${b.label}
-      </span>`).join('');
-
-    // Custom blocks
-    const colorMaps = {
-      blue:   { bg:'linear-gradient(135deg,#0a1628,#1a3160)', border:'rgba(30,136,229,.3)', accent:'#00c8ff' },
-      red:    { bg:'linear-gradient(135deg,#7f1d1d,#991b1b)',  border:'rgba(227,30,36,.3)',  accent:'#fca5a5' },
-      green:  { bg:'linear-gradient(135deg,#064e3b,#065f46)',   border:'rgba(16,185,129,.3)', accent:'#6ee7b7' },
-      yellow: { bg:'linear-gradient(135deg,#78350f,#92400e)',   border:'rgba(245,158,11,.3)', accent:'#fcd34d' },
+    const badgeColors = {
+      blue:   { bg:'rgba(0,200,255,.15)',   border:'rgba(0,200,255,.3)',   color:'#00c8ff' },
+      yellow: { bg:'rgba(245,158,11,.15)',  border:'rgba(245,158,11,.3)',  color:'#fbbf24' },
+      green:  { bg:'rgba(16,185,129,.15)', border:'rgba(16,185,129,.3)', color:'#6ee7b7' },
+      red:    { bg:'rgba(239,68,68,.15)',   border:'rgba(239,68,68,.3)',   color:'#fca5a5' },
     };
-    const cbContainer = pv('prev-custom-blocks');
-    cbContainer.innerHTML = customBlocks.map(b => {
-      const c = colorMaps[b.color] || colorMaps.blue;
-      return `<div class="prev-block" style="background:${c.bg};border:1px solid ${c.border}">
-        <h3 style="font-family:'Barlow Condensed';font-size:22px;font-weight:900;font-style:italic;color:${c.accent};margin-bottom:10px">${b.titulo || '(Sin título)'}</h3>
-        <p style="font-size:13px;color:rgba(255,255,255,.75);line-height:1.7;white-space:pre-line">${b.contenido || ''}</p>
-      </div>`;
+    badgesEl.innerHTML = guardianBadges.map(b => {
+      const c = badgeColors[b.color] || badgeColors.blue;
+      return `<span style="font-size:10px;font-weight:700;text-transform:uppercase;padding:4px 12px;border-radius:100px;background:${c.bg};border:1px solid ${c.border};color:${c.color}">${b.emoji} ${b.label}</span>`;
     }).join('');
   }
 
@@ -2659,8 +2449,37 @@
     { id:'pies',        icon:'👢', cat:'Protección Pies', items:[
       {e:'👢',n:'Botas punta de acero'},{e:'🥾',n:'Botas dieléctricas'},{e:'👟',n:'Calzado antideslizante'},{e:'🩴',n:'Botas impermeables'},
     ]},
-    { id:'alturas',     icon:'🔒', cat:'Alturas y Caídas', items:[
-      {e:'🔒',n:'Arnés 4 puntos'},{e:'🪝',n:'Gancho de seguridad'},{e:'⛓️',n:'Línea de vida'},{e:'🧗',n:'Equipo de descenso'},{e:'🪢',n:'Cuerda de seguridad'},
+    { id:'alturas', icon:'🔒', cat:'Alturas y Caídas', items:[
+      // Arneses y sujeción
+      {e:'🔒',n:'Arnés de cuerpo completo'},
+      {e:'🦺',n:'Arnés / Chaleco de seguridad'},
+      {e:'🪝',n:'Gancho de seguridad'},
+      {e:'🪢',n:'Cuerda de seguridad / Eslinga'},
+      {e:'⛓️',n:'Línea de vida horizontal'},
+      {e:'🔗',n:'Línea de vida vertical'},
+      // Equipos de descenso y rescate
+      {e:'🧗',n:'Equipo de descenso'},
+      {e:'🪜',n:'Escalera de acceso'},
+      {e:'🏗️',n:'Andamio / Estructura elevada'},
+      {e:'🚁',n:'Rescate en altura'},
+      // EPP para alturas
+      {e:'⛑️',n:'Casco con barbiquejo'},
+      {e:'👟',n:'Botas antideslizantes'},
+      {e:'🧤',n:'Guantes de agarre'},
+      // Señalización y control
+      {e:'🚧',n:'Perímetro de seguridad'},
+      {e:'⚠️',n:'Zona de caída de objetos'},
+      {e:'🚫',n:'Acceso restringido a altura'},
+      {e:'🔴',n:'Peligro de caída'},
+      {e:'📋',n:'Permiso de trabajo en altura'},
+      {e:'✅',n:'Inspección pre-tarea'},
+      // Específico In Hole Solutions
+      {e:'🛢️',n:'Trabajo en tanque elevado'},
+      {e:'🔧',n:'Mantenimiento en altura'},
+      {e:'⚙️',n:'Equipo rotativo en altura'},
+      {e:'🪤',n:'Anclaje estructural'},
+      {e:'🧲',n:'Punto de anclaje magnético'},
+      {e:'📏',n:'Distancia de caída libre'},
     ]},
     { id:'herramientas',icon:'🔧', cat:'Herramientas', items:[
       {e:'🔧',n:'Llave de torque'},{e:'🔨',n:'Martillo de seguridad'},{e:'🪛',n:'Destornillador aislado'},{e:'⚙️',n:'Equipo mecánico'},{e:'🛠️',n:'Kit de herramientas'},{e:'🪚',n:'Sierra de seguridad'},
@@ -2671,8 +2490,177 @@
     { id:'emergencias', icon:'🧯', cat:'Emergencias', items:[
       {e:'🧯',n:'Extinguidor'},{e:'🚒',n:'Equipo contra incendio'},{e:'🏥',n:'Botiquín primeros auxilios'},{e:'🩹',n:'Kit de primeros auxilios'},{e:'🆘',n:'Señal de emergencia'},{e:'🚨',n:'Alarma de emergencia'},
     ]},
-    { id:'ambiental',   icon:'🌿', cat:'Ambiental / Derrames', items:[
-      {e:'🧴',n:'Kit antiderrame'},{e:'🪣',n:'Contenedor de residuos'},{e:'♻️',n:'Manejo de residuos'},{e:'💧',n:'Control de fluidos'},{e:'🌿',n:'Control ambiental'},{e:'🗑️',n:'Disposición de residuos'},
+    { id:'ambiental', icon:'🌿', cat:'Ambiental / Derrames', items:[
+      {e:'🧴',n:'Kit antiderrame'},
+      {e:'🪣',n:'Contenedor de residuos'},
+      {e:'♻️',n:'Manejo de residuos'},
+      {e:'💧',n:'Control de fluidos'},
+      {e:'🌿',n:'Control ambiental'},
+      {e:'🗑️',n:'Disposición de residuos'},
+      {e:'🛢️',n:'Barril / Tambor de aceite'},
+      {e:'⛽',n:'Combustible / Gasolina'},
+      {e:'🚰',n:'Agua / Grifo'},
+      {e:'🌊',n:'Derrame líquido'},
+      {e:'💦',n:'Salpicadura de fluido'},
+      {e:'🫧',n:'Espuma / Jabón industrial'},
+      {e:'🧪',n:'Químico / Reactivo'},
+      {e:'🧫',n:'Muestra de fluido'},
+      {e:'⚗️',n:'Mezcla química'},
+      {e:'☣️',n:'Material biohazard'},
+      {e:'☢️',n:'Material radiactivo'},
+      {e:'⚠️',n:'Advertencia derrame'},
+      {e:'🚫',n:'Prohibido verter'},
+      {e:'🌱',n:'Impacto al suelo'},
+      {e:'🌍',n:'Impacto ambiental'},
+      {e:'🏭',n:'Planta / Instalación'},
+      {e:'🔩',n:'Sello / Empaque'},
+      {e:'🪝',n:'Gancho contenedor'},
+      {e:'🧱',n:'Barrera de contención'},
+      {e:'🛑',n:'Paro de emergencia'},
+    ]},
+    { id:'perforacion', icon:'🛢️', cat:'Fluidos Perforación', items:[
+      {e:'🛢️',n:'Lodo de perforación'},
+      {e:'🔧',n:'Fluido de terminación'},
+      {e:'⚙️',n:'Aceite hidráulico'},
+      {e:'🩸',n:'Fluido rojo / Hidráulico'},
+      {e:'🟤',n:'Lodo café / Base aceite'},
+      {e:'⬛',n:'Residuo oscuro'},
+      {e:'🟩',n:'Fluido verde / Inhibidor'},
+      {e:'🟦',n:'Agua base'},
+      {e:'🟨',n:'Fluido amarillo / Corrosivo'},
+      {e:'🌡️',n:'Temperatura de fluido'},
+      {e:'📊',n:'Control de volumen'},
+      {e:'📋',n:'Registro de fluidos'},
+      {e:'🚿',n:'Lavado / Enjuague'},
+      {e:'🪤',n:'Trampa / Separador'},
+      {e:'🏗️',n:'Equipo en sitio'},
+      {e:'🚛',n:'Transporte de residuos'},
+    ]},
+    { id: 'badges', icon: '🏅', cat: 'Badges & Reconocimientos', items: [
+      { e: '⭐', n: 'Estrella' },
+      { e: '🌟', n: 'Estrella brillante' },
+      { e: '🏆', n: 'Trofeo' },
+      { e: '🥇', n: 'Medalla de oro' },
+      { e: '🥈', n: 'Medalla de plata' },
+      { e: '🎖️', n: 'Medalla militar' },
+      { e: '🏅', n: 'Medalla deportiva' },
+      { e: '👑', n: 'Corona' },
+      { e: '🎯', n: 'Diana' },
+      { e: '💪', n: 'Fuerza' },
+      { e: '🛡️', n: 'Escudo' },
+      { e: '🔥', n: 'Fuego / Destacado' },
+      { e: '✅', n: 'Verificado' },
+      { e: '🚀', n: 'Rendimiento alto' },
+      { e: '🎗️', n: 'Cinta de reconocimiento' },
+      { e: '💎', n: 'Diamante / Excelencia' },
+    ]},
+    { id:'reconocimientos', icon:'🏆', cat:'Reconocimientos / Guardian', items:[
+      // Premios y trofeos
+      {e:'🏆',n:'Trofeo'},
+      {e:'🥇',n:'Medalla de oro'},
+      {e:'🥈',n:'Medalla de plata'},
+      {e:'🥉',n:'Medalla de bronce'},
+      {e:'🎖️',n:'Medalla de honor'},
+      {e:'🏅',n:'Medalla deportiva'},
+      {e:'🎗️',n:'Cinta de reconocimiento'},
+      {e:'🎯',n:'Objetivo cumplido'},
+      // Liderazgo y autoridad
+      {e:'👑',n:'Corona / Liderazgo'},
+      {e:'🛡️',n:'Escudo / Protección'},
+      {e:'⭐',n:'Estrella'},
+      {e:'🌟',n:'Estrella brillante'},
+      {e:'💫',n:'Destello / Destacado'},
+      {e:'✨',n:'Excelencia'},
+      // Seguridad específica
+      {e:'🦺',n:'Cultura de seguridad'},
+      {e:'⛑️',n:'Casco / Prevención'},
+      {e:'🚦',n:'Control seguro'},
+      {e:'🛑',n:'Stop Work Authority'},
+      {e:'👁️',n:'Ojo clínico / Observador'},
+      {e:'🔍',n:'Inspección / Detalle'},
+      {e:'📋',n:'Reporte / Documentación'},
+      // Ambiente y huella
+      {e:'🌱',n:'Cero huella / Sustentable'},
+      {e:'🌍',n:'Impacto ambiental positivo'},
+      {e:'♻️',n:'Reciclaje / Responsabilidad'},
+      {e:'💧',n:'Cuidado del agua'},
+      // Desempeño
+      {e:'💪',n:'Fuerza / Esfuerzo'},
+      {e:'🚀',n:'Alto rendimiento'},
+      {e:'🔥',n:'Destacado del mes'},
+      {e:'💎',n:'Excelencia / Diamante'},
+      {e:'🧠',n:'Innovación / Conocimiento'},
+      {e:'🤝',n:'Trabajo en equipo'},
+      {e:'📈',n:'Mejora continua'},
+      {e:'✅',n:'Cumplimiento total'},
+      {e:'🎓',n:'Capacitación / Formación'},
+    ]},
+    { id:'utiles', icon:'📓', cat:'Útiles y Documentos', items:[
+      {e:'📓',n:'Libreta de notas'},
+      {e:'📔',n:'Cuaderno decorado'},
+      {e:'📒',n:'Cuaderno amarillo'},
+      {e:'📕',n:'Libro rojo'},
+      {e:'📗',n:'Libro verde'},
+      {e:'📘',n:'Libro azul'},
+      {e:'📙',n:'Libro naranja'},
+      {e:'📚',n:'Pila de libros'},
+      {e:'📋',n:'Clipboard / Planilla'},
+      {e:'📄',n:'Documento'},
+      {e:'📃',n:'Hoja con doblez'},
+      {e:'📊',n:'Gráfica de barras'},
+      {e:'📈',n:'Gráfica creciente'},
+      {e:'📉',n:'Gráfica decreciente'},
+      {e:'🗂️',n:'Divisores / Carpeta'},
+      {e:'📁',n:'Carpeta cerrada'},
+      {e:'📂',n:'Carpeta abierta'},
+      {e:'🗃️',n:'Archivero'},
+      {e:'✏️',n:'Lápiz'},
+      {e:'✒️',n:'Pluma fuente'},
+      {e:'🖊️',n:'Bolígrafo'},
+      {e:'🖋️',n:'Estilógrafo'},
+      {e:'📝',n:'Bloc de notas'},
+      {e:'📌',n:'Chincheta roja'},
+      {e:'📍',n:'Chincheta mapa'},
+      {e:'📎',n:'Clip'},
+      {e:'🖇️',n:'Clips unidos'},
+      {e:'✂️',n:'Tijeras'},
+      {e:'🗒️',n:'Bloc espiral'},
+      {e:'🗓️',n:'Calendario'},
+    ]},
+    { id:'calidad', icon:'🔬', cat:'Calidad / Laboratorio', items:[
+      // Calibración e instrumentos
+      {e:'🔬',n:'Microscopio / Laboratorio'},
+      {e:'🔭',n:'Instrumento óptico'},
+      {e:'📏',n:'Regla / Calibrador'},
+      {e:'📐',n:'Escuadra de medición'},
+      {e:'⚖️',n:'Balanza de precisión'},
+      {e:'🌡️',n:'Termómetro calibrado'},
+      {e:'🧪',n:'Tubo de ensayo'},
+      {e:'⚗️',n:'Equipo de laboratorio'},
+      {e:'🧫',n:'Caja Petri / Muestra'},
+      {e:'🧲',n:'Instrumento de medición'},
+      {e:'💡',n:'Lámpara de inspección'},
+      {e:'🔦',n:'Linterna de inspección'},
+      {e:'🔩',n:'Tornillo micrométrico'},
+      {e:'🪛',n:'Calibrador de ajuste'},
+      {e:'🛠️',n:'Equipo de calibración'},
+      {e:'📊',n:'Registro de calibración'},
+      {e:'📋',n:'Certificado de calibración'},
+      {e:'✅',n:'Verificación aprobada'},
+      {e:'🏷️',n:'Etiqueta de calibración'},
+      {e:'🔍',n:'Lupa / Inspección visual'},
+      // Mandil / Protección de cuerpo QA
+      {e:'🥼',n:'Bata de laboratorio / Mandil'},
+      {e:'👘',n:'Mandil industrial'},
+      {e:'🧥',n:'Bata de protección química'},
+      {e:'🩻',n:'Inspección metrológica'},
+      {e:'🧤',n:'Guantes de laboratorio'},
+      {e:'🥽',n:'Gogles de laboratorio'},
+      {e:'😷',n:'Mascarilla de laboratorio'},
+      // Documentación calidad
+      {e:'📝',n:'Bitácora de calidad'},
+      {e:'📈',n:'Tendencia de calibración'},
+      {e:'🗂️',n:'Expediente metrológico'},
     ]},
   ];
 
@@ -2724,6 +2712,14 @@
 
   function getSelectedEmoji() {
     if (!pickerTarget) return '';
+    // Fluidos de environment: target especial
+    if (pickerTarget.section === 'env-fluido') {
+      const arr = getEnvFluidos();
+      return arr[pickerTarget.index]?.icon || '';
+    }
+    if (pickerTarget.section === 'guardian-badge') {
+      return guardianBadges[pickerTarget.index]?.emoji || '';
+    }
     const arr = pickerTarget.section === 'safety' ? eppSafety : eppQuality;
     return arr[pickerTarget.index]?.emoji || '';
   }
@@ -2784,6 +2780,30 @@
   function selectEmoji(emoji) {
     if (!pickerTarget) return;
     const { section, index } = pickerTarget;
+
+    // Caso especial: tarjetas de fluidos Environment
+    if (section === 'env-fluido') {
+      // Actualizar el hidden input del ícono y el botón visible
+      const hiddenInput = document.getElementById(`env-fluido-icon-${index}`);
+      if (hiddenInput) hiddenInput.value = emoji;
+      // Actualizar el botón emoji-trigger visualmente
+      const triggerBtn = pickerTarget.triggerEl;
+      if (triggerBtn) triggerBtn.textContent = emoji;
+      closePicker();
+      livePreview();
+      return;
+    }
+
+    if (section === 'guardian-badge') {
+      if (guardianBadges[index]) {
+        guardianBadges[index].emoji = emoji;
+        closePicker();
+        renderGuardianBadges();
+        livePreview();
+      }
+      return;
+    }
+
     updateEpp(section, index, 'emoji', emoji);
     closePicker();
     renderEpp(section);

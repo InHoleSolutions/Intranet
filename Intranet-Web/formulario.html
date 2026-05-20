@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafetyAlert | IN HOLE SOLUTIONS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --red: #cc1f26;
+      --red-dark: #a01820;
+      --navy: #1a1a2e;
+      --gray-light: #f4f6f8;
+      --border: #dde2e8;
+      --text: #1e293b;
+      --muted: #64748b;
+      --success: #16a34a;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: #eef1f5;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    /* Header stripe */
+    .header-bar {
+      background: white;
+      border-bottom: 3px solid var(--red);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    }
+    .logo-circle {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      border: 3px solid var(--red);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900; font-size: 18px;
+      color: var(--red);
+      flex-shrink: 0;
+      background: white;
+    }
+    .logo-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      color: var(--text);
+    }
+
+    /* Form container */
+    .form-wrap {
+      max-width: 620px;
+      margin: 32px auto 60px;
+      padding: 0 16px;
+    }
+
+    /* Intro card */
+    .intro-card {
+      background: white;
+      border-radius: 16px;
+      border-top: 6px solid var(--red);
+      padding: 28px 28px 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 16px rgba(0,0,0,.06);
+    }
+    .form-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: .01em;
+      margin-bottom: 10px;
+    }
+    .form-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .required-note {
+      font-size: 12px;
+      color: var(--red);
+      margin-top: 14px;
+      font-weight: 600;
+    }
+
+    /* Field cards */
+    .field-card {
+      background: white;
+      border-radius: 14px;
+      padding: 22px 24px 24px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.05);
+      border: 1.5px solid transparent;
+      transition: border-color .2s;
+    }
+    .field-card:focus-within {
+      border-color: var(--red);
+    }
+
+    .field-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .field-label .req { color: var(--red); font-size: 15px; }
+    .field-hint {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+    .field-hint ul {
+      margin: 6px 0 0 16px;
+      padding: 0;
+    }
+    .field-hint li {
+      margin-bottom: 3px;
+    }
+
+    /* Inputs */
+    .f-input, .f-select, .f-textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: 'Barlow', sans-serif;
+      color: var(--text);
+      background: #fafbfc;
+      outline: none;
+      transition: all .2s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .f-input:focus, .f-select:focus, .f-textarea:focus {
+      border-color: var(--red);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(204,31,38,.1);
+    }
+    .f-input::placeholder, .f-textarea::placeholder {
+      color: #b0bec5;
+    }
+    .f-textarea {
+      resize: vertical;
+      min-height: 110px;
+      line-height: 1.6;
+    }
+    .f-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+    .f-select option[value=""] { color: #b0bec5; }
+
+    /* Date / Time inputs */
+    input[type="date"], input[type="time"] {
+      color: var(--text);
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator {
+      opacity: 0.5;
+      cursor: pointer;
+    }
+
+    /* File upload */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+      background: #fafbfc;
+      position: relative;
+    }
+    .upload-zone:hover {
+      border-color: var(--red);
+      background: #fff5f5;
+    }
+    .upload-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0;
+      cursor: pointer; width: 100%; height: 100%;
+    }
+    .upload-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    .upload-label {
+      font-size: 13px; font-weight: 700; color: var(--red);
+    }
+    .upload-sub {
+      font-size: 12px; color: var(--muted); margin-top: 4px;
+    }
+    .file-list {
+      margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .file-chip {
+      background: #f0f4f8;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .file-chip button {
+      background: none; border: none;
+      color: #ef4444; cursor: pointer;
+      font-size: 14px; line-height: 1;
+      padding: 0;
+    }
+
+    /* Submit button */
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--red);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 20px rgba(204,31,38,.3);
+    }
+    .submit-btn:hover:not(:disabled) {
+      background: var(--red-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(204,31,38,.38);
+    }
+    .submit-btn:disabled {
+      opacity: .65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Success overlay */
+    #success-screen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10,22,40,.7);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    #success-screen.show { display: flex; }
+    .success-box {
+      background: white;
+      border-radius: 20px;
+      padding: 40px 36px;
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      animation: popIn .35s cubic-bezier(.175,.885,.32,1.275) both;
+    }
+    @keyframes popIn {
+      from { opacity:0; transform:scale(.88); }
+      to   { opacity:1; transform:scale(1); }
+    }
+    .success-icon {
+      width: 72px; height: 72px;
+      background: #dcfce7;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 34px;
+    }
+    .success-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 28px; font-weight: 900;
+      color: var(--text); margin-bottom: 10px;
+    }
+    .success-msg {
+      font-size: 14px; color: var(--muted); line-height: 1.7;
+    }
+    .success-new-btn {
+      margin-top: 22px;
+      padding: 12px 28px;
+      background: var(--red);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px; font-weight: 800;
+      cursor: pointer;
+      transition: all .2s;
+      letter-spacing: .05em;
+    }
+    .success-new-btn:hover { background: var(--red-dark); }
+
+    /* Error message */
+    .error-msg {
+      background: #fef2f2;
+      border: 1.5px solid #fca5a5;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #dc2626;
+      font-weight: 600;
+      margin-bottom: 14px;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+
+    /* Spinner */
+    .spinner {
+      width: 20px; height: 20px;
+      border: 3px solid rgba(255,255,255,.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Field error */
+    .f-input.invalid, .f-select.invalid, .f-textarea.invalid {
+      border-color: #ef4444;
+      background: #fff5f5;
+    }
+    .field-error {
+      font-size: 11.5px;
+      color: #ef4444;
+      font-weight: 600;
+      margin-top: 5px;
+      display: none;
+    }
+    .field-error.show { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header-bar">
+  <div class="logo-circle">IN</div>
+  <div>
+    <div class="logo-name">HOLE SOLUTIONS</div>
+    <div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.08em;text-transform:uppercase">Sistema de Reportes QHSE</div>
+  </div>
+</header>
+
+<!-- Form -->
+<div class="form-wrap">
+
+  <!-- Intro -->
+  <div class="intro-card">
+    <div class="form-title">SafetyAlert</div>
+    <p class="form-desc">
+      Este formulario permite reportar actos y condiciones inseguras, incidentes o accidentes que afecten al personal, equipos, medio ambiente, cliente o partes interesadas.
+      También se utiliza para reconocer <strong>actos seguros</strong> y fortalecer la cultura de seguridad en IN HOLE SOLUTIONS.
+    </p>
+    <p class="required-note">* Indica que la pregunta es obligatoria</p>
+  </div>
+
+  <!-- Error global -->
+  <div class="error-msg" id="global-error">
+    ⚠️ Hubo un error al enviar el reporte. Por favor intenta de nuevo.
+  </div>
+
+  <form id="safety-form" novalidate>
+
+    <!-- 1. Fecha de registro -->
+    <div class="field-card">
+      <div class="field-label">Fecha de registro <span class="req">*</span></div>
+      <input type="date" id="fecha_registro" class="f-input" required>
+      <div class="field-error" id="err-fecha_registro">Este campo es obligatorio.</div>
+    </div>
+
+    <!-- 2. Nombre -->
+    <div class="field-card">
+      <div class="field-label">Nombre de quien realiza el reporte <span class="req">*</span></div>
+      <input type="text" id="nombre_reporta" class="f-input" placeholder="Tu respuesta" required>
+      <div class="field-error" id="err-nombre_reporta">Este campo es obligatorio.</div>
+    </div>
+
+    <!-- 3. Fecha del evento -->
+    <div class="field-card">
+      <div class="field-label">Fecha en la que ocurrió el evento <span class="req">*</span></div>
+      <input type="date" id="fecha_evento" class="f-input" required>
+      <div class="field-error" id="err-fecha_evento">Este campo es obligatorio.</div>
+    </div>
+
+    <!-- 4. Hora del evento -->
+    <div class="field-card">
+      <div class="field-label">Hora en la que ocurrió el evento <span class="req">*</span></div>
+      <input type="time" id="hora_evento" class="f-input" required>
+      <div class="field-error" id="err-hora_evento">Este campo es obligatorio.</div>
+    </div>
+
+    <!-- 5. Tipo de evento -->
+    <div class="field-card">
+      <div class="field-label">Tipo de evento <span class="req">*</span></div>
+      <select id="tipo_evento" class="f-select" required>
+        <option value="">Elegir</option>
+        <option value="Acto inseguro">Acto inseguro</option>
+        <option value="Condición insegura">Condición insegura</option>
+        <option value="Incidente">Incidente</option>
+        <option value="Accidente">Accidente</option>
+        <option value="Near Miss">Near Miss (Cuasi accidente)</option>
+        <option value="Acto seguro">Acto seguro</option>
+        <option value="Daño a equipo">Daño a equipo</option>
+        <option value="Impacto ambiental">Impacto ambiental</option>
+      </select>
+      <div class="field-error" id="err-tipo_evento">Selecciona una opción.</div>
+    </div>
+
+    <!-- 6. Clasificación -->
+    <div class="field-card">
+      <div class="field-label">Clasificación <span class="req">*</span></div>
+      <select id="clasificacion" class="f-select" required>
+        <option value="">Elegir</option>
+        <option value="Seguridad">Seguridad</option>
+        <option value="Salud ocupacional">Salud ocupacional</option>
+        <option value="Medio ambiente">Medio ambiente</option>
+        <option value="Calidad">Calidad</option>
+        <option value="Activo / Equipo">Activo / Equipo</option>
+        <option value="Proceso">Proceso</option>
+      </select>
+      <div class="field-error" id="err-clasificacion">Selecciona una clasificación.</div>
+    </div>
+
+    <!-- 7. Cliente (opcional) -->
+    <div class="field-card">
+      <div class="field-label">Cliente (si aplica)</div>
+      <input type="text" id="cliente" class="f-input" placeholder="Tu respuesta">
+    </div>
+
+    <!-- 8. Detalles del incidente -->
+    <div class="field-card">
+      <div class="field-label">Detalles del incidente <span class="req">*</span></div>
+      <div class="field-hint">
+        Describa el incidente con el mayor detalle posible. Recomendamos tener en cuenta las siguientes preguntas en su reporte:
+        <ul>
+          <li>¿Quién cometió el incumplimiento?</li>
+          <li>¿Qué sucedió?</li>
+          <li>¿Dónde ocurrió?</li>
+          <li>¿Cuándo sucedió?</li>
+          <li>¿Fue testigo directo?</li>
+          <li>¿Tiene una estimación del monto económico involucrado?</li>
+        </ul>
+      </div>
+      <textarea id="detalles" class="f-textarea" placeholder="Tu respuesta" required></textarea>
+      <div class="field-error" id="err-detalles">Por favor describe el incidente.</div>
+    </div>
+
+    <!-- 9. Locación -->
+    <div class="field-card">
+      <div class="field-label">¿En qué locación ha ocurrido el incidente? <span class="req">*</span></div>
+      <div class="field-hint">Por favor indique la Sociedad, Planta, Obra-Proyecto, Pozo, Oficina o Empresa donde ha ocurrido el incidente.</div>
+      <input type="text" id="locacion" class="f-input" placeholder="Tu respuesta" required>
+      <div class="field-error" id="err-locacion">Este campo es obligatorio.</div>
+    </div>
+
+    <!-- 10. Relación -->
+    <div class="field-card">
+      <div class="field-label">¿Qué relación tiene quien cometió el incumplimiento con In Hole Solutions? <span class="req">*</span></div>
+      <select id="relacion" class="f-select" required>
+        <option value="">Elegir</option>
+        <option value="Empleado directo">Empleado directo</option>
+        <option value="Contratista">Contratista</option>
+        <option value="Subcontratista">Subcontratista</option>
+        <option value="Cliente">Cliente</option>
+        <option value="Proveedor">Proveedor</option>
+        <option value="Visitante">Visitante</option>
+        <option value="Otro">Otro</option>
+      </select>
+      <div class="field-error" id="err-relacion">Selecciona una opción.</div>
+    </div>
+
+    <!-- 11. Evidencia -->
+    <div class="field-card">
+      <div class="field-label">Adjuntar evidencia <span style="font-weight:400;color:var(--muted)">(Fotos, videos, correo electrónico, documentos)</span></div>
+      <div class="field-hint">Sube hasta 5 archivos. El tamaño máximo es de 10 MB por archivo.</div>
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" id="evidencia-input" multiple accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx" onchange="handleFiles(this.files)">
+        <div class="upload-icon">📎</div>
+        <div class="upload-label">Agregar archivo</div>
+        <div class="upload-sub">O arrastra y suelta aquí</div>
+      </div>
+      <div class="file-list" id="file-list"></div>
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="submit-btn" id="submit-btn">
+      <span id="btn-text">Enviar Reporte</span>
+      <div class="spinner" id="btn-spinner" style="display:none"></div>
+    </button>
+
+  </form>
+</div>
+
+<!-- Success screen -->
+<div id="success-screen">
+  <div class="success-box">
+    <div class="success-icon">✅</div>
+    <div class="success-title">¡Reporte Enviado!</div>
+    <p class="success-msg">
+      Tu reporte SafetyAlert ha sido registrado correctamente en el sistema. El equipo QHSE lo revisará a la brevedad.
+    </p>
+    <button class="success-new-btn" onclick="resetForm()">Enviar otro reporte</button>
+  </div>
+</div>
+
+<script>
+  // ── Supabase ──
+  const SUPABASE_URL = 'https://bgqlvkvlscujikhzzazf.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_mzHMY11jZ7OaMES008LTzA_d7Ya1A2g';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ── File handling ──
+  let selectedFiles = [];
+
+  function handleFiles(newFiles) {
+    const arr = Array.from(newFiles);
+    arr.forEach(f => {
+      if (selectedFiles.length >= 5) return;
+      if (f.size > 10 * 1024 * 1024) { alert(`"${f.name}" supera 10 MB y no se adjuntará.`); return; }
+      selectedFiles.push(f);
+    });
+    renderFileList();
+    // Reset input so same file can be re-added after removal
+    document.getElementById('evidencia-input').value = '';
+  }
+
+  function renderFileList() {
+    const list = document.getElementById('file-list');
+    list.innerHTML = selectedFiles.map((f, i) => `
+      <div class="file-chip">
+        📄 ${f.name.length > 25 ? f.name.slice(0,22)+'...' : f.name}
+        <button type="button" onclick="removeFile(${i})" title="Eliminar">×</button>
+      </div>
+    `).join('');
+  }
+
+  function removeFile(i) {
+    selectedFiles.splice(i, 1);
+    renderFileList();
+  }
+
+  // Drag and drop
+  const zone = document.getElementById('upload-zone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = 'var(--red)'; zone.style.background = '#fff5f5'; });
+  zone.addEventListener('dragleave', () => { zone.style.borderColor = ''; zone.style.background = ''; });
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.style.borderColor = ''; zone.style.background = '';
+    handleFiles(e.dataTransfer.files);
+  });
+
+  // ── Validation ──
+  const requiredFields = ['fecha_registro','nombre_reporta','fecha_evento','hora_evento','tipo_evento','clasificacion','detalles','locacion','relacion'];
+
+  function validateForm() {
+    let valid = true;
+    requiredFields.forEach(id => {
+      const el = document.getElementById(id);
+      const err = document.getElementById('err-' + id);
+      const empty = !el.value.trim();
+      el.classList.toggle('invalid', empty);
+      err.classList.toggle('show', empty);
+      if (empty) valid = false;
+    });
+    return valid;
+  }
+
+  // Clear error on input
+  requiredFields.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      if (el.value.trim()) {
+        el.classList.remove('invalid');
+        document.getElementById('err-' + id)?.classList.remove('show');
+      }
+    });
+  });
+
+  // ── Upload files to Supabase Storage ──
+  async function uploadFiles(reportId) {
+    if (!selectedFiles.length) return [];
+    const urls = [];
+    for (const file of selectedFiles) {
+      const ext = file.name.split('.').pop();
+      const path = `safety-alerts/${reportId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      const { data, error } = await db.storage.from('evidencias').upload(path, file, { upsert: false });
+      if (!error && data) {
+        const { data: urlData } = db.storage.from('evidencias').getPublicUrl(path);
+        urls.push(urlData?.publicUrl || path);
+      }
+    }
+    return urls;
+  }
+
+  // ── Submit ──
+  document.getElementById('safety-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    document.getElementById('global-error').classList.remove('show');
+
+    if (!validateForm()) {
+      // Scroll to first invalid field
+      const firstInvalid = document.querySelector('.f-input.invalid, .f-select.invalid, .f-textarea.invalid');
+      if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    // Loading state
+    const btn = document.getElementById('submit-btn');
+    document.getElementById('btn-text').textContent = 'Enviando...';
+    document.getElementById('btn-spinner').style.display = 'block';
+    btn.disabled = true;
+
+    try {
+      // Generate a temporary ID for file upload path
+      const tempId = crypto.randomUUID ? crypto.randomUUID() : Date.now().toString();
+
+      // Upload files first
+      const fileUrls = await uploadFiles(tempId);
+
+      // Build record
+      const record = {
+        fecha_registro:  document.getElementById('fecha_registro').value,
+        nombre_reporta:  document.getElementById('nombre_reporta').value.trim(),
+        fecha_evento:    document.getElementById('fecha_evento').value,
+        hora_evento:     document.getElementById('hora_evento').value,
+        tipo_evento:     document.getElementById('tipo_evento').value,
+        clasificacion:   document.getElementById('clasificacion').value,
+        cliente:         document.getElementById('cliente').value.trim() || null,
+        detalles:        document.getElementById('detalles').value.trim(),
+        locacion:        document.getElementById('locacion').value.trim(),
+        relacion:        document.getElementById('relacion').value,
+        evidencias:      fileUrls.length ? fileUrls : null,
+        created_at:      new Date().toISOString(),
+      };
+
+      const { error } = await db.from('safety_alerts').insert([record]);
+
+      if (error) throw error;
+
+      // Success
+      document.getElementById('success-screen').classList.add('show');
+
+    } catch (err) {
+      console.error('Error al guardar:', err);
+      document.getElementById('global-error').classList.add('show');
+      document.getElementById('global-error').textContent = '⚠️ Error: ' + (err.message || 'No se pudo guardar el reporte. Intenta nuevamente.');
+      document.getElementById('global-error').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } finally {
+      document.getElementById('btn-text').textContent = 'Enviar Reporte';
+      document.getElementById('btn-spinner').style.display = 'none';
+      btn.disabled = false;
+    }
+  });
+
+  // ── Reset ──
+  function resetForm() {
+    document.getElementById('safety-form').reset();
+    selectedFiles = [];
+    renderFileList();
+    requiredFields.forEach(id => {
+      document.getElementById(id)?.classList.remove('invalid');
+      document.getElementById('err-' + id)?.classList.remove('show');
+    });
+    document.getElementById('global-error').classList.remove('show');
+    document.getElementById('success-screen').classList.remove('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Set today's date as default for fecha_registro
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('fecha_registro').value = today;
+</script>
+</body>
+</html>
