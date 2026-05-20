@@ -84,18 +84,6 @@ body::after {
   align-items: center;
   gap: 10px;
 }
-.header-badge {
-  background: var(--red-soft);
-  border: 1px solid rgba(204, 31, 37, 0.562);
-  color: rgb(255, 0, 0);
-  font-family: 'Syne', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 5px 12px;
-  border-radius: 20px;
-}
 
 /* ── Form wrapper ── */
 .form-wrap {
