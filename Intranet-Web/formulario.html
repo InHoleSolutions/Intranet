@@ -7,357 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --red: #cc1f26;
-      --red-dark: #a01820;
-      --navy: #1a1a2e;
-      --gray-light: #f4f6f8;
-      --border: #dde2e8;
-      --text: #1e293b;
-      --muted: #64748b;
-      --success: #16a34a;
-    }
-
-    * { box-sizing: border-box; }
-    body {
-      font-family: 'Barlow', sans-serif;
-      background: #eef1f5;
-      min-height: 100vh;
-      margin: 0;
-    }
-
-    /* Header stripe */
-    .header-bar {
-      background: white;
-      border-bottom: 3px solid var(--red);
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      box-shadow: 0 2px 12px rgba(0,0,0,.08);
-    }
-    .logo-circle {
-      width: 52px; height: 52px;
-      border-radius: 50%;
-      border: 3px solid var(--red);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 900; font-size: 18px;
-      color: var(--red);
-      flex-shrink: 0;
-      background: white;
-    }
-    .logo-name {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: .04em;
-      color: var(--text);
-    }
-
-    /* Form container */
-    .form-wrap {
-      max-width: 620px;
-      margin: 32px auto 60px;
-      padding: 0 16px;
-    }
-
-    /* Intro card */
-    .intro-card {
-      background: white;
-      border-radius: 16px;
-      border-top: 6px solid var(--red);
-      padding: 28px 28px 24px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 16px rgba(0,0,0,.06);
-    }
-    .form-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 32px;
-      font-weight: 900;
-      color: var(--text);
-      letter-spacing: .01em;
-      margin-bottom: 10px;
-    }
-    .form-desc {
-      font-size: 14px;
-      color: var(--muted);
-      line-height: 1.7;
-    }
-    .required-note {
-      font-size: 12px;
-      color: var(--red);
-      margin-top: 14px;
-      font-weight: 600;
-    }
-
-    /* Field cards */
-    .field-card {
-      background: white;
-      border-radius: 14px;
-      padding: 22px 24px 24px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,.05);
-      border: 1.5px solid transparent;
-      transition: border-color .2s;
-    }
-    .field-card:focus-within {
-      border-color: var(--red);
-    }
-
-    .field-label {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .field-label .req { color: var(--red); font-size: 15px; }
-    .field-hint {
-      font-size: 12.5px;
-      color: var(--muted);
-      margin-bottom: 12px;
-      line-height: 1.6;
-    }
-    .field-hint ul {
-      margin: 6px 0 0 16px;
-      padding: 0;
-    }
-    .field-hint li {
-      margin-bottom: 3px;
-    }
-
-    /* Inputs */
-    .f-input, .f-select, .f-textarea {
-      width: 100%;
-      padding: 11px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      font-size: 14px;
-      font-family: 'Barlow', sans-serif;
-      color: var(--text);
-      background: #fafbfc;
-      outline: none;
-      transition: all .2s;
-      appearance: none;
-      -webkit-appearance: none;
-    }
-    .f-input:focus, .f-select:focus, .f-textarea:focus {
-      border-color: var(--red);
-      background: white;
-      box-shadow: 0 0 0 3px rgba(204,31,38,.1);
-    }
-    .f-input::placeholder, .f-textarea::placeholder {
-      color: #b0bec5;
-    }
-    .f-textarea {
-      resize: vertical;
-      min-height: 110px;
-      line-height: 1.6;
-    }
-    .f-select {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 14px center;
-      padding-right: 36px;
-      cursor: pointer;
-    }
-    .f-select option[value=""] { color: #b0bec5; }
-
-    /* Date / Time inputs */
-    input[type="date"], input[type="time"] {
-      color: var(--text);
-    }
-    input[type="date"]::-webkit-calendar-picker-indicator,
-    input[type="time"]::-webkit-calendar-picker-indicator {
-      opacity: 0.5;
-      cursor: pointer;
-    }
-
-    /* File upload */
-    .upload-zone {
-      border: 2px dashed var(--border);
-      border-radius: 12px;
-      padding: 24px 16px;
-      text-align: center;
-      cursor: pointer;
-      transition: all .2s;
-      background: #fafbfc;
-      position: relative;
-    }
-    .upload-zone:hover {
-      border-color: var(--red);
-      background: #fff5f5;
-    }
-    .upload-zone input[type="file"] {
-      position: absolute; inset: 0; opacity: 0;
-      cursor: pointer; width: 100%; height: 100%;
-    }
-    .upload-icon {
-      font-size: 28px;
-      margin-bottom: 8px;
-    }
-    .upload-label {
-      font-size: 13px; font-weight: 700; color: var(--red);
-    }
-    .upload-sub {
-      font-size: 12px; color: var(--muted); margin-top: 4px;
-    }
-    .file-list {
-      margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px;
-    }
-    .file-chip {
-      background: #f0f4f8;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      padding: 5px 10px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .file-chip button {
-      background: none; border: none;
-      color: #ef4444; cursor: pointer;
-      font-size: 14px; line-height: 1;
-      padding: 0;
-    }
-
-    /* Submit button */
-    .submit-btn {
-      width: 100%;
-      padding: 16px;
-      background: var(--red);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all .2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      box-shadow: 0 4px 20px rgba(204,31,38,.3);
-    }
-    .submit-btn:hover:not(:disabled) {
-      background: var(--red-dark);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 24px rgba(204,31,38,.38);
-    }
-    .submit-btn:disabled {
-      opacity: .65;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    /* Success overlay */
-    #success-screen {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(10,22,40,.7);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    #success-screen.show { display: flex; }
-    .success-box {
-      background: white;
-      border-radius: 20px;
-      padding: 40px 36px;
-      text-align: center;
-      max-width: 400px;
-      width: 100%;
-      animation: popIn .35s cubic-bezier(.175,.885,.32,1.275) both;
-    }
-    @keyframes popIn {
-      from { opacity:0; transform:scale(.88); }
-      to   { opacity:1; transform:scale(1); }
-    }
-    .success-icon {
-      width: 72px; height: 72px;
-      background: #dcfce7;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 20px;
-      font-size: 34px;
-    }
-    .success-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 28px; font-weight: 900;
-      color: var(--text); margin-bottom: 10px;
-    }
-    .success-msg {
-      font-size: 14px; color: var(--muted); line-height: 1.7;
-    }
-    .success-new-btn {
-      margin-top: 22px;
-      padding: 12px 28px;
-      background: var(--red);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 16px; font-weight: 800;
-      cursor: pointer;
-      transition: all .2s;
-      letter-spacing: .05em;
-    }
-    .success-new-btn:hover { background: var(--red-dark); }
-
-    /* Error message */
-    .error-msg {
-      background: #fef2f2;
-      border: 1.5px solid #fca5a5;
-      border-radius: 10px;
-      padding: 12px 16px;
-      font-size: 13px;
-      color: #dc2626;
-      font-weight: 600;
-      margin-bottom: 14px;
-      display: none;
-    }
-    .error-msg.show { display: block; }
-
-    /* Spinner */
-    .spinner {
-      width: 20px; height: 20px;
-      border: 3px solid rgba(255,255,255,.4);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Field error */
-    .f-input.invalid, .f-select.invalid, .f-textarea.invalid {
-      border-color: #ef4444;
-      background: #fff5f5;
-    }
-    .field-error {
-      font-size: 11.5px;
-      color: #ef4444;
-      font-weight: 600;
-      margin-top: 5px;
-      display: none;
-    }
-    .field-error.show { display: block; }
-  </style>
+  <link rel="stylesheet" href="assets/formulario.css">
 </head>
 <body>
 
@@ -390,10 +40,11 @@
 
   <form id="safety-form" novalidate>
 
-    <!-- 1. Fecha de registro -->
+    <!-- 1. Fecha de registro (automática) -->
     <div class="field-card">
       <div class="field-label">Fecha de registro <span class="req">*</span></div>
-      <input type="date" id="fecha_registro" class="f-input" required>
+      <div class="field-hint">Se registra automáticamente al abrir el formulario.</div>
+      <input type="date" id="fecha_registro" class="f-input" required readonly style="background:#f0f4f8;color:var(--muted);cursor:not-allowed;">
       <div class="field-error" id="err-fecha_registro">Este campo es obligatorio.</div>
     </div>
 
@@ -402,6 +53,13 @@
       <div class="field-label">Nombre de quien realiza el reporte <span class="req">*</span></div>
       <input type="text" id="nombre_reporta" class="f-input" placeholder="Tu respuesta" required>
       <div class="field-error" id="err-nombre_reporta">Este campo es obligatorio.</div>
+    </div>
+
+    <!-- 2b. Correo electrónico -->
+    <div class="field-card">
+      <div class="field-label">Correo electrónico <span class="req">*</span></div>
+      <input type="email" id="correo_electronico" class="f-input" placeholder="ejemplo@correo.com" required>
+      <div class="field-error" id="err-correo_electronico">Ingresa un correo electrónico válido.</div>
     </div>
 
     <!-- 3. Fecha del evento -->
@@ -427,10 +85,7 @@
         <option value="Condición insegura">Condición insegura</option>
         <option value="Incidente">Incidente</option>
         <option value="Accidente">Accidente</option>
-        <option value="Near Miss">Near Miss (Cuasi accidente)</option>
-        <option value="Acto seguro">Acto seguro</option>
-        <option value="Daño a equipo">Daño a equipo</option>
-        <option value="Impacto ambiental">Impacto ambiental</option>
+        <option value="Condición/Acto seguro">Condición/Acto seguro</option>
       </select>
       <div class="field-error" id="err-tipo_evento">Selecciona una opción.</div>
     </div>
@@ -440,20 +95,30 @@
       <div class="field-label">Clasificación <span class="req">*</span></div>
       <select id="clasificacion" class="f-select" required>
         <option value="">Elegir</option>
-        <option value="Seguridad">Seguridad</option>
-        <option value="Salud ocupacional">Salud ocupacional</option>
-        <option value="Medio ambiente">Medio ambiente</option>
-        <option value="Calidad">Calidad</option>
-        <option value="Activo / Equipo">Activo / Equipo</option>
-        <option value="Proceso">Proceso</option>
+        <option value="Safety">Safety</option>
+        <option value="Quality">Quality</option>
+        <option value="Health">Health</option>
+        <option value="Environment">Environment</option>
+        <option value="Security">Security</option>
       </select>
       <div class="field-error" id="err-clasificacion">Selecciona una clasificación.</div>
     </div>
 
-    <!-- 7. Cliente (opcional) -->
+    <!-- 7. Personal externo -->
     <div class="field-card">
-      <div class="field-label">Cliente (si aplica)</div>
-      <input type="text" id="cliente" class="f-input" placeholder="Tu respuesta">
+      <div class="field-label">Personal externo que realiza el reporte</div>
+      <div class="field-hint">Si quien reporta es personal externo, selecciona su tipo y proporciona sus datos.</div>
+      <select id="tipo_externo" class="f-select" style="margin-bottom:10px;" onchange="toggleExternoFields()">
+        <option value="">No aplica / Soy empleado</option>
+        <option value="Cliente">Cliente</option>
+        <option value="Proveedor">Proveedor</option>
+        <option value="Visitante">Visitante</option>
+        <option value="Contratista/Prestador de servicio">Contratista/Prestador de servicio</option>
+      </select>
+      <div id="externo-fields" style="display:none; margin-top:8px; display:none;">
+        <input type="text" id="nombre_externo" class="f-input" placeholder="Nombre completo del personal externo" style="margin-bottom:8px;">
+        <input type="text" id="compania_externo" class="f-input" placeholder="Compañía / Organización">
+      </div>
     </div>
 
     <!-- 8. Detalles del incidente -->
@@ -487,12 +152,9 @@
       <div class="field-label">¿Qué relación tiene quien cometió el incumplimiento con In Hole Solutions? <span class="req">*</span></div>
       <select id="relacion" class="f-select" required>
         <option value="">Elegir</option>
-        <option value="Empleado directo">Empleado directo</option>
-        <option value="Contratista">Contratista</option>
-        <option value="Subcontratista">Subcontratista</option>
-        <option value="Cliente">Cliente</option>
+        <option value="Empleado">Empleado</option>
         <option value="Proveedor">Proveedor</option>
-        <option value="Visitante">Visitante</option>
+        <option value="Cliente">Cliente</option>
         <option value="Otro">Otro</option>
       </select>
       <div class="field-error" id="err-relacion">Selecciona una opción.</div>
@@ -501,7 +163,7 @@
     <!-- 11. Evidencia -->
     <div class="field-card">
       <div class="field-label">Adjuntar evidencia <span style="font-weight:400;color:var(--muted)">(Fotos, videos, correo electrónico, documentos)</span></div>
-      <div class="field-hint">Sube hasta 5 archivos. El tamaño máximo es de 10 MB por archivo.</div>
+      <div class="field-hint">Sube hasta 10 archivos. El tamaño máximo es de 100 MB por archivo.</div>
       <div class="upload-zone" id="upload-zone">
         <input type="file" id="evidencia-input" multiple accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx" onchange="handleFiles(this.files)">
         <div class="upload-icon">📎</div>
@@ -533,6 +195,13 @@
 </div>
 
 <script>
+  // ── Toggle externo fields ──
+  function toggleExternoFields() {
+    const val = document.getElementById('tipo_externo').value;
+    const fields = document.getElementById('externo-fields');
+    fields.style.display = val ? 'block' : 'none';
+  }
+
   // ── Supabase ──
   const SUPABASE_URL = 'https://bgqlvkvlscujikhzzazf.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_mzHMY11jZ7OaMES008LTzA_d7Ya1A2g';
@@ -545,8 +214,8 @@
   function handleFiles(newFiles) {
     const arr = Array.from(newFiles);
     arr.forEach(f => {
-      if (selectedFiles.length >= 5) return;
-      if (f.size > 10 * 1024 * 1024) { alert(`"${f.name}" supera 10 MB y no se adjuntará.`); return; }
+      if (selectedFiles.length >= 10) return;
+      if (f.size > 100 * 1024 * 1024) { alert(`"${f.name}" supera 100 MB y no se adjuntará.`); return; }
       selectedFiles.push(f);
     });
     renderFileList();
@@ -580,17 +249,24 @@
   });
 
   // ── Validation ──
-  const requiredFields = ['fecha_registro','nombre_reporta','fecha_evento','hora_evento','tipo_evento','clasificacion','detalles','locacion','relacion'];
+  const requiredFields = ['fecha_registro','nombre_reporta','correo_electronico','fecha_evento','hora_evento','tipo_evento','clasificacion','detalles','locacion','relacion'];
 
   function validateForm() {
     let valid = true;
     requiredFields.forEach(id => {
       const el = document.getElementById(id);
       const err = document.getElementById('err-' + id);
-      const empty = !el.value.trim();
-      el.classList.toggle('invalid', empty);
-      err.classList.toggle('show', empty);
-      if (empty) valid = false;
+      let invalid = !el.value.trim();
+      // Extra: email format validation
+      if (id === 'correo_electronico' && !invalid) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(el.value.trim())) {
+          invalid = true;
+        }
+      }
+      el.classList.toggle('invalid', invalid);
+      err.classList.toggle('show', invalid);
+      if (invalid) valid = false;
     });
     return valid;
   }
@@ -649,20 +325,28 @@
       const fileUrls = await uploadFiles(tempId);
 
       // Build record
-      const record = {
-        fecha_registro:  document.getElementById('fecha_registro').value,
-        nombre_reporta:  document.getElementById('nombre_reporta').value.trim(),
-        fecha_evento:    document.getElementById('fecha_evento').value,
-        hora_evento:     document.getElementById('hora_evento').value,
-        tipo_evento:     document.getElementById('tipo_evento').value,
-        clasificacion:   document.getElementById('clasificacion').value,
-        cliente:         document.getElementById('cliente').value.trim() || null,
-        detalles:        document.getElementById('detalles').value.trim(),
-        locacion:        document.getElementById('locacion').value.trim(),
-        relacion:        document.getElementById('relacion').value,
-        evidencias:      fileUrls.length ? fileUrls : null,
-        created_at:      new Date().toISOString(),
-      };
+      // ✅ CORRECCIÓN - Cada dato va a su columna correspondiente
+        const tipoExterno    = document.getElementById('tipo_externo').value.trim() || null;
+        const nombreExterno  = document.getElementById('nombre_externo').value.trim() || null;
+        const companiaExterno = document.getElementById('compania_externo').value.trim() || null;
+
+        const record = {
+            fecha_registro:       document.getElementById('fecha_registro').value,
+            nombre_reporta:       document.getElementById('nombre_reporta').value.trim(),
+            correo_electronico:   document.getElementById('correo_electronico').value.trim(),
+            fecha_evento:         document.getElementById('fecha_evento').value,
+            hora_evento:          document.getElementById('hora_evento').value,
+            tipo_evento:          document.getElementById('tipo_evento').value,
+            clasificacion:        document.getElementById('clasificacion').value,
+            tipo_externo:         tipoExterno,       // ✅ columna correcta
+            nombre_externo:       nombreExterno,     // ✅ columna correcta
+            compania_externo:     companiaExterno,   // ✅ columna correcta
+            detalles:             document.getElementById('detalles').value.trim(),
+            locacion:             document.getElementById('locacion').value.trim(),
+            relacion:             document.getElementById('relacion').value,
+            evidencias:           fileUrls.length ? fileUrls : null,
+            created_at:           new Date().toISOString(),
+        };
 
       const { error } = await db.from('safety_alerts').insert([record]);
 

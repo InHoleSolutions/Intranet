@@ -271,7 +271,7 @@ const REVISTA_HTML = `
       <span style="margin-left:auto;font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em">Environment</span>
     </div>
     <div class="prev-section-body">
-      <div style="display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start">
+      <div style="display:grid;grid-template-columns:3fr 1fr;gap:20px;align-items:start">
         <!-- Left -->
         <div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
