@@ -4,19 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SafetyAlert | IN HOLE SOLUTIONS</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/formulario.css">
 </head>
 <body>
 
 <!-- Header -->
 <header class="header-bar">
-  <div class="logo-circle">IN</div>
-  <div>
-    <div class="logo-name">HOLE SOLUTIONS</div>
-    <div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.08em;text-transform:uppercase">Sistema de Reportes QHSE</div>
+  <img src="../assets/images/logo/logo-light.svg" alt="IN HOLE SOLUTIONS" style="height:85px;">
+  <div class="header-right">
+    <span class="header-badge">Sistema de Reportes QHSE</span>
   </div>
 </header>
 
@@ -25,12 +23,13 @@
 
   <!-- Intro -->
   <div class="intro-card">
-    <div class="form-title">SafetyAlert</div>
+    <div class="intro-eyebrow">Reporte de seguridad</div>
+    <div class="form-title">Safety<span>Alert</span></div>
     <p class="form-desc">
       Este formulario permite reportar actos y condiciones inseguras, incidentes o accidentes que afecten al personal, equipos, medio ambiente, cliente o partes interesadas.
       También se utiliza para reconocer <strong>actos seguros</strong> y fortalecer la cultura de seguridad en IN HOLE SOLUTIONS.
     </p>
-    <p class="required-note">* Indica que la pregunta es obligatoria</p>
+    <p class="required-note">Los campos marcados con * son obligatorios</p>
   </div>
 
   <!-- Error global -->
@@ -40,47 +39,61 @@
 
   <form id="safety-form" novalidate>
 
-    <!-- 1. Fecha de registro (automática) -->
+    <!-- Sección: Datos del reporte -->
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <span class="section-divider-label">Datos del reporte</span>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <!-- 1. Fecha de registro -->
     <div class="field-card">
       <div class="field-label">Fecha de registro <span class="req">*</span></div>
       <div class="field-hint">Se registra automáticamente al abrir el formulario.</div>
-      <input type="date" id="fecha_registro" class="f-input" required readonly style="background:#f0f4f8;color:var(--muted);cursor:not-allowed;">
+      <input type="date" id="fecha_registro" class="f-input" required readonly>
       <div class="field-error" id="err-fecha_registro">Este campo es obligatorio.</div>
     </div>
 
     <!-- 2. Nombre -->
     <div class="field-card">
       <div class="field-label">Nombre de quien realiza el reporte <span class="req">*</span></div>
-      <input type="text" id="nombre_reporta" class="f-input" placeholder="Tu respuesta" required>
+      <input type="text" id="nombre_reporta" class="f-input" placeholder="Nombre completo" required>
       <div class="field-error" id="err-nombre_reporta">Este campo es obligatorio.</div>
     </div>
 
-    <!-- 2b. Correo electrónico -->
+    <!-- 3. Correo electrónico -->
     <div class="field-card">
       <div class="field-label">Correo electrónico <span class="req">*</span></div>
-      <input type="email" id="correo_electronico" class="f-input" placeholder="ejemplo@correo.com" required>
+      <input type="email" id="correo_electronico" class="f-input" placeholder="ejemplo@inholesolutions.com" required>
       <div class="field-error" id="err-correo_electronico">Ingresa un correo electrónico válido.</div>
     </div>
 
-    <!-- 3. Fecha del evento -->
+    <!-- Sección: Detalles del evento -->
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <span class="section-divider-label">Detalles del evento</span>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <!-- 4. Fecha del evento -->
     <div class="field-card">
       <div class="field-label">Fecha en la que ocurrió el evento <span class="req">*</span></div>
       <input type="date" id="fecha_evento" class="f-input" required>
       <div class="field-error" id="err-fecha_evento">Este campo es obligatorio.</div>
     </div>
 
-    <!-- 4. Hora del evento -->
+    <!-- 5. Hora del evento -->
     <div class="field-card">
       <div class="field-label">Hora en la que ocurrió el evento <span class="req">*</span></div>
       <input type="time" id="hora_evento" class="f-input" required>
       <div class="field-error" id="err-hora_evento">Este campo es obligatorio.</div>
     </div>
 
-    <!-- 5. Tipo de evento -->
+    <!-- 6. Tipo de evento -->
     <div class="field-card">
       <div class="field-label">Tipo de evento <span class="req">*</span></div>
       <select id="tipo_evento" class="f-select" required>
-        <option value="">Elegir</option>
+        <option value="">Seleccionar tipo</option>
         <option value="Acto inseguro">Acto inseguro</option>
         <option value="Condición insegura">Condición insegura</option>
         <option value="Incidente">Incidente</option>
@@ -90,11 +103,11 @@
       <div class="field-error" id="err-tipo_evento">Selecciona una opción.</div>
     </div>
 
-    <!-- 6. Clasificación -->
+    <!-- 7. Clasificación -->
     <div class="field-card">
       <div class="field-label">Clasificación <span class="req">*</span></div>
       <select id="clasificacion" class="f-select" required>
-        <option value="">Elegir</option>
+        <option value="">Seleccionar clasificación</option>
         <option value="Safety">Safety</option>
         <option value="Quality">Quality</option>
         <option value="Health">Health</option>
@@ -104,7 +117,52 @@
       <div class="field-error" id="err-clasificacion">Selecciona una clasificación.</div>
     </div>
 
-    <!-- 7. Personal externo -->
+    <!-- 8. Detalles del incidente -->
+    <div class="field-card">
+      <div class="field-label">Descripción del evento <span class="req">*</span></div>
+      <div class="field-hint">
+        Describa el incidente con el mayor detalle posible:
+        <ul>
+          <li>¿Quién cometió el incumplimiento?</li>
+          <li>¿Qué sucedió y dónde ocurrió?</li>
+          <li>¿Fue testigo directo?</li>
+          <li>¿Tiene una estimación del monto económico involucrado?</li>
+        </ul>
+      </div>
+      <textarea id="detalles" class="f-textarea" placeholder="Describe el evento con detalle..." required></textarea>
+      <div class="field-error" id="err-detalles">Por favor describe el incidente.</div>
+    </div>
+
+    <!-- 9. Locación -->
+    <div class="field-card">
+      <div class="field-label">Locación del incidente <span class="req">*</span></div>
+      <div class="field-hint">Indique la Sociedad, Planta, Obra-Proyecto, Pozo, Oficina o Empresa donde ocurrió.</div>
+      <input type="text" id="locacion" class="f-input" placeholder="Ej. Planta Monterrey – Área de producción" required>
+      <div class="field-error" id="err-locacion">Este campo es obligatorio.</div>
+    </div>
+
+    <!-- 10. Relación -->
+    <div class="field-card">
+      <div class="field-label">Relación con IN HOLE SOLUTIONS <span class="req">*</span></div>
+      <div class="field-hint">¿Qué relación tiene quien cometió el incumplimiento con la empresa?</div>
+      <select id="relacion" class="f-select" required>
+        <option value="">Seleccionar relación</option>
+        <option value="Empleado">Empleado</option>
+        <option value="Proveedor">Proveedor</option>
+        <option value="Cliente">Cliente</option>
+        <option value="Otro">Otro</option>
+      </select>
+      <div class="field-error" id="err-relacion">Selecciona una opción.</div>
+    </div>
+
+    <!-- Sección: Personal externo -->
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <span class="section-divider-label">Personal externo (opcional)</span>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <!-- 11. Personal externo -->
     <div class="field-card">
       <div class="field-label">Personal externo que realiza el reporte</div>
       <div class="field-hint">Si quien reporta es personal externo, selecciona su tipo y proporciona sus datos.</div>
@@ -115,55 +173,23 @@
         <option value="Visitante">Visitante</option>
         <option value="Contratista/Prestador de servicio">Contratista/Prestador de servicio</option>
       </select>
-      <div id="externo-fields" style="display:none; margin-top:8px; display:none;">
+      <div id="externo-fields" style="display:none; margin-top:8px;">
         <input type="text" id="nombre_externo" class="f-input" placeholder="Nombre completo del personal externo" style="margin-bottom:8px;">
         <input type="text" id="compania_externo" class="f-input" placeholder="Compañía / Organización">
       </div>
     </div>
 
-    <!-- 8. Detalles del incidente -->
-    <div class="field-card">
-      <div class="field-label">Detalles del incidente <span class="req">*</span></div>
-      <div class="field-hint">
-        Describa el incidente con el mayor detalle posible. Recomendamos tener en cuenta las siguientes preguntas en su reporte:
-        <ul>
-          <li>¿Quién cometió el incumplimiento?</li>
-          <li>¿Qué sucedió?</li>
-          <li>¿Dónde ocurrió?</li>
-          <li>¿Cuándo sucedió?</li>
-          <li>¿Fue testigo directo?</li>
-          <li>¿Tiene una estimación del monto económico involucrado?</li>
-        </ul>
-      </div>
-      <textarea id="detalles" class="f-textarea" placeholder="Tu respuesta" required></textarea>
-      <div class="field-error" id="err-detalles">Por favor describe el incidente.</div>
+    <!-- Sección: Evidencia -->
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <span class="section-divider-label">Evidencia</span>
+      <div class="section-divider-line"></div>
     </div>
 
-    <!-- 9. Locación -->
+    <!-- 12. Evidencia -->
     <div class="field-card">
-      <div class="field-label">¿En qué locación ha ocurrido el incidente? <span class="req">*</span></div>
-      <div class="field-hint">Por favor indique la Sociedad, Planta, Obra-Proyecto, Pozo, Oficina o Empresa donde ha ocurrido el incidente.</div>
-      <input type="text" id="locacion" class="f-input" placeholder="Tu respuesta" required>
-      <div class="field-error" id="err-locacion">Este campo es obligatorio.</div>
-    </div>
-
-    <!-- 10. Relación -->
-    <div class="field-card">
-      <div class="field-label">¿Qué relación tiene quien cometió el incumplimiento con In Hole Solutions? <span class="req">*</span></div>
-      <select id="relacion" class="f-select" required>
-        <option value="">Elegir</option>
-        <option value="Empleado">Empleado</option>
-        <option value="Proveedor">Proveedor</option>
-        <option value="Cliente">Cliente</option>
-        <option value="Otro">Otro</option>
-      </select>
-      <div class="field-error" id="err-relacion">Selecciona una opción.</div>
-    </div>
-
-    <!-- 11. Evidencia -->
-    <div class="field-card">
-      <div class="field-label">Adjuntar evidencia <span style="font-weight:400;color:var(--muted)">(Fotos, videos, correo electrónico, documentos)</span></div>
-      <div class="field-hint">Sube hasta 10 archivos. El tamaño máximo es de 100 MB por archivo.</div>
+      <div class="field-label">Adjuntar evidencia <span style="font-weight:400;color:var(--text-3)">(Fotos, videos, documentos)</span></div>
+      <div class="field-hint">Sube hasta 10 archivos. Tamaño máximo: 100 MB por archivo.</div>
       <div class="upload-zone" id="upload-zone">
         <input type="file" id="evidencia-input" multiple accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx" onchange="handleFiles(this.files)">
         <div class="upload-icon">📎</div>
@@ -188,7 +214,7 @@
     <div class="success-icon">✅</div>
     <div class="success-title">¡Reporte Enviado!</div>
     <p class="success-msg">
-      Tu reporte SafetyAlert ha sido registrado correctamente en el sistema.
+      Tu reporte SafetyAlert ha sido registrado correctamente en el sistema de IN HOLE SOLUTIONS.
     </p>
     <button class="success-new-btn" onclick="resetForm()">Regresar al formulario</button>
   </div>
@@ -219,7 +245,6 @@
       selectedFiles.push(f);
     });
     renderFileList();
-    // Reset input so same file can be re-added after removal
     document.getElementById('evidencia-input').value = '';
   }
 
@@ -240,7 +265,7 @@
 
   // Drag and drop
   const zone = document.getElementById('upload-zone');
-  zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = 'var(--red)'; zone.style.background = '#fff5f5'; });
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = 'var(--red)'; zone.style.background = 'rgba(204,31,38,0.06)'; });
   zone.addEventListener('dragleave', () => { zone.style.borderColor = ''; zone.style.background = ''; });
   zone.addEventListener('drop', e => {
     e.preventDefault();
@@ -257,12 +282,9 @@
       const el = document.getElementById(id);
       const err = document.getElementById('err-' + id);
       let invalid = !el.value.trim();
-      // Extra: email format validation
       if (id === 'correo_electronico' && !invalid) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(el.value.trim())) {
-          invalid = true;
-        }
+        if (!emailRegex.test(el.value.trim())) invalid = true;
       }
       el.classList.toggle('invalid', invalid);
       err.classList.toggle('show', invalid);
@@ -271,7 +293,6 @@
     return valid;
   }
 
-  // Clear error on input
   requiredFields.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -291,7 +312,9 @@
       const ext = file.name.split('.').pop();
       const path = `safety-alerts/${reportId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
       const { data, error } = await db.storage.from('evidencias').upload(path, file, { upsert: false });
-      if (!error && data) {
+      if (error) {
+        console.error('❌ Error subiendo archivo:', file.name, error.message);
+      } else if (data) {
         const { data: urlData } = db.storage.from('evidencias').getPublicUrl(path);
         urls.push(urlData?.publicUrl || path);
       }
@@ -305,54 +328,45 @@
     document.getElementById('global-error').classList.remove('show');
 
     if (!validateForm()) {
-      // Scroll to first invalid field
       const firstInvalid = document.querySelector('.f-input.invalid, .f-select.invalid, .f-textarea.invalid');
       if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
-    // Loading state
     const btn = document.getElementById('submit-btn');
     document.getElementById('btn-text').textContent = 'Enviando...';
     document.getElementById('btn-spinner').style.display = 'block';
     btn.disabled = true;
 
     try {
-      // Generate a temporary ID for file upload path
       const tempId = crypto.randomUUID ? crypto.randomUUID() : Date.now().toString();
-
-      // Upload files first
       const fileUrls = await uploadFiles(tempId);
 
-      // Build record
-      // ✅ CORRECCIÓN - Cada dato va a su columna correspondiente
-        const tipoExterno    = document.getElementById('tipo_externo').value.trim() || null;
-        const nombreExterno  = document.getElementById('nombre_externo').value.trim() || null;
-        const companiaExterno = document.getElementById('compania_externo').value.trim() || null;
+      const tipoExterno     = document.getElementById('tipo_externo').value.trim() || null;
+      const nombreExterno   = document.getElementById('nombre_externo').value.trim() || null;
+      const companiaExterno = document.getElementById('compania_externo').value.trim() || null;
 
-        const record = {
-            fecha_registro:       document.getElementById('fecha_registro').value,
-            nombre_reporta:       document.getElementById('nombre_reporta').value.trim(),
-            correo_electronico:   document.getElementById('correo_electronico').value.trim(),
-            fecha_evento:         document.getElementById('fecha_evento').value,
-            hora_evento:          document.getElementById('hora_evento').value,
-            tipo_evento:          document.getElementById('tipo_evento').value,
-            clasificacion:        document.getElementById('clasificacion').value,
-            tipo_externo:         tipoExterno,       // ✅ columna correcta
-            nombre_externo:       nombreExterno,     // ✅ columna correcta
-            compania_externo:     companiaExterno,   // ✅ columna correcta
-            detalles:             document.getElementById('detalles').value.trim(),
-            locacion:             document.getElementById('locacion').value.trim(),
-            relacion:             document.getElementById('relacion').value,
-            evidencias:           fileUrls.length ? fileUrls : null,
-            created_at:           new Date().toISOString(),
-        };
+      const record = {
+        fecha_registro:     document.getElementById('fecha_registro').value,
+        nombre_reporta:     document.getElementById('nombre_reporta').value.trim(),
+        correo_electronico: document.getElementById('correo_electronico').value.trim(),
+        fecha_evento:       document.getElementById('fecha_evento').value,
+        hora_evento:        document.getElementById('hora_evento').value,
+        tipo_evento:        document.getElementById('tipo_evento').value,
+        clasificacion:      document.getElementById('clasificacion').value,
+        tipo_externo:       tipoExterno,
+        nombre_externo:     nombreExterno,
+        compania_externo:   companiaExterno,
+        detalles:           document.getElementById('detalles').value.trim(),
+        locacion:           document.getElementById('locacion').value.trim(),
+        relacion:           document.getElementById('relacion').value,
+        evidencias:         fileUrls.length ? fileUrls : null,
+        created_at:         new Date().toISOString(),
+      };
 
       const { error } = await db.from('safety_alerts').insert([record]);
-
       if (error) throw error;
 
-      // Success
       document.getElementById('success-screen').classList.add('show');
 
     } catch (err) {
@@ -376,14 +390,15 @@
       document.getElementById(id)?.classList.remove('invalid');
       document.getElementById('err-' + id)?.classList.remove('show');
     });
+    document.getElementById('externo-fields').style.display = 'none';
     document.getElementById('global-error').classList.remove('show');
     document.getElementById('success-screen').classList.remove('show');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('fecha_registro').value = new Date().toISOString().split('T')[0];
   }
 
-  // Set today's date as default for fecha_registro
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('fecha_registro').value = today;
+  // Set today's date
+  document.getElementById('fecha_registro').value = new Date().toISOString().split('T')[0];
 </script>
 </body>
 </html>
