@@ -132,8 +132,8 @@
           <h4 class="text-lg font-bold text-slate-800 mb-2">Directorio Interno</h4>
           <p class="text-slate-500 text-sm leading-relaxed">Contacta con responsables de área.</p>
         </a>
-        <a href="alerts.html"
-          class="group relative p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl transition-all cursor-pointer">
+        <a id="card-safety-alerts" href="alerts.html"
+          class="hidden group relative p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl transition-all cursor-pointer">
           <i class="fas fa-triangle-exclamation text-[#e31e24] text-4xl mb-6"></i>
           <h4 class="text-lg font-bold text-slate-800 mb-2">Safety Alerts</h4>
           <p class="text-slate-500 text-sm leading-relaxed">Consulta y gestiona los reportes de seguridad.</p>
@@ -326,8 +326,22 @@
     async function cargarDatos() {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) { window.location.href = "intranet-login.html"; return; }
-      const { data: perfil } = await supabaseClient.from('perfiles').select('*').eq('id', session.user.id).single();
-      if (perfil) { document.getElementById('user-welcome').innerText = `${obtenerSaludo()}, ${perfil.nombre_completo}`; }
+
+      const { data: perfil } = await supabaseClient
+        .from('perfiles').select('*').eq('id', session.user.id).single();
+
+      if (perfil) {
+        // Saludo con nombre
+        document.getElementById('user-welcome').innerText =
+          `${obtenerSaludo()}, ${perfil.nombre_completo}`;
+
+        // ── Control de visibilidad: Safety Alerts solo para admins ──
+        const rolesAdmin = ['admin', 'administrador', 'Administrador'];
+        if (rolesAdmin.includes(perfil.rol)) {
+          document.getElementById('card-safety-alerts').classList.remove('hidden');
+        }
+        // Si el rol NO está en la lista, la tarjeta permanece oculta (hidden por defecto)
+      }
     }
 
     async function cerrarSesion() { await supabaseClient.auth.signOut(); window.location.href = "../index.html"; }

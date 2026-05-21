@@ -419,16 +419,9 @@
       var companiaExterno = document.getElementById('compania_externo').value.trim() || null;
 
       var fechaRegistroVal = document.getElementById('fecha_registro').value;
-      var partes   = fechaRegistroVal.split('-').map(Number);
-      var anioReg  = partes[0];
-      var mesReg   = partes[1];
-      var diaReg   = partes[2];
 
       var record = {
         fecha_registro:     fechaRegistroVal,
-        dia_registro:       diaReg,
-        mes_registro:       mesReg,
-        anio_registro:      anioReg,
         nombre_reporta:     document.getElementById('nombre_reporta').value.trim(),
         correo_electronico: document.getElementById('correo_electronico').value.trim(),
         fecha_evento:       document.getElementById('fecha_evento').value,

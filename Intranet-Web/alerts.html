@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Safety Alerts | In Hole Solutions</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -65,6 +67,56 @@
     .badge-nivel-2 { background:#fef3c7; color:#92400e; }
     .badge-nivel-3 { background:#d1fae5; color:#065f46; }
     .badge-default { background:#e2e8f0; color:#475569; }
+
+    /* Cell expandable */
+    .cell-expandable {
+      cursor: pointer;
+      position: relative;
+    }
+    .cell-expandable:hover .cell-inner {
+      color: #b91c1c;
+    }
+    .cell-expandable::after {
+      content: '\f065';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      font-size: 9px;
+      color: #cbd5e1;
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+    .cell-expandable:hover::after { opacity: 1; }
+
+    /* Panel flotante */
+    #cellPanel {
+        position: fixed;
+        top: 0; right: -100%;
+        width: 100%;
+        max-width: 420px;
+        height: 100vh;
+        background: white;
+        z-index: 500;
+        box-shadow: -8px 0 40px -8px rgba(0,0,0,0.18);
+        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+    }
+    #cellPanel.open { right: 0; }
+    #cellPanelBackdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 499;
+      background: rgba(15,23,42,0.35);
+      backdrop-filter: blur(2px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    #cellPanelBackdrop.open { opacity: 1; pointer-events: all; }
   </style>
 </head>
 <body class="bg-[#f8fafc] min-h-screen">
@@ -117,7 +169,7 @@
   <div id="vista-meses" class="section-enter">
 
     <!-- Hero banner -->
-    <div class="relative bg-gradient-to-br from-red-700 via-red-800 to-slate-900 rounded-3xl p-10 mb-10 overflow-hidden">
+    <div class="relative bg-gradient-to-br from-red-700 via-red-800 to-slate-900 rounded-3xl p-6 md:p-10 mb-10 overflow-hidden">
       <div class="absolute inset-0 opacity-5" style="background-image:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:20px 20px;"></div>
       <i class="fas fa-helmet-safety absolute -right-8 -bottom-8 text-[220px] text-white opacity-5 rotate-12 pointer-events-none"></i>
       <div class="relative z-10 max-w-2xl">
@@ -131,7 +183,7 @@
           Centraliza y consulta todos los reportes de seguridad generados en campo. Navega por mes y año para acceder al historial completo de eventos, clasificaciones y evidencias documentadas.
         </p>
       </div>
-      <div class="relative z-10 flex flex-wrap gap-6 mt-8">
+      <div class="relative md:absolute md:top-8 md:right-10 z-10 flex flex-wrap gap-4 md:gap-6 mt-6 md:mt-0">
         <div class="bg-white/10 rounded-2xl px-6 py-4 border border-white/10">
           <p class="text-white/50 text-[10px] font-bold uppercase tracking-widest mb-1">Total Reportes</p>
           <p id="stat-total" class="text-3xl font-black text-white">—</p>
@@ -167,7 +219,7 @@
   <div id="vista-anios" class="hidden section-enter">
     <div class="flex items-center gap-4 mb-8">
       <button onclick="irAMeses()" class="flex items-center gap-2 text-slate-500 hover:text-red-600 transition-colors text-sm font-semibold">
-        <i class="fas fa-arrow-left"></i> Volver a Meses
+        <i class="fas fa-arrow-left"></i> Volver
       </button>
       <div class="h-5 w-px bg-slate-200"></div>
       <h2 id="titulo-anios" class="text-xl font-bold text-slate-800 uppercase italic">Enero</h2>
@@ -188,7 +240,7 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
       <div class="flex items-center gap-4">
         <button onclick="irAAnios()" class="flex items-center gap-2 text-slate-500 hover:text-red-600 transition-colors text-sm font-semibold">
-          <i class="fas fa-arrow-left"></i> Volver a Años
+          <i class="fas fa-arrow-left"></i> Volver
         </button>
         <div class="h-5 w-px bg-slate-200"></div>
         <div>
@@ -196,7 +248,15 @@
           <p class="text-xs text-slate-400 mt-0.5">Datos cargados desde la base de datos</p>
         </div>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="flex flex-wrap items-center gap-3">
+        <button onclick="abrirGraficaTipoEvento()"
+            class="flex items-center gap-2 bg-white border border-slate-200 hover:border-red-400 hover:text-red-600 text-slate-600 text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm w-full sm:w-auto justify-center">
+            <i class="fas fa-chart-pie text-xs"></i> Gráfica de tipo de evento
+        </button>
+        <button onclick="abrirGraficaClasificacion()"
+            class="flex items-center gap-2 bg-white border border-slate-200 hover:border-red-400 hover:text-red-600 text-slate-600 text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm w-full sm:w-auto justify-center">
+            <i class="fas fa-chart-pie text-xs"></i> Gráfica de clasificación
+        </button>
         <span id="badge-total-reportes" class="bg-red-50 text-red-700 text-xs font-black px-4 py-2 rounded-xl border border-red-100"></span>
       </div>
     </div>
@@ -218,6 +278,7 @@
           <table class="w-full text-left border-collapse text-sm">
             <thead>
               <tr class="bg-slate-50 border-b border-slate-100">
+                <th class="px-5 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Folio</th>
                 <th class="px-5 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Fecha Registro</th>
                 <th class="px-5 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Nombre Reporta</th>
                 <th class="px-5 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Fecha Evento</th>
@@ -251,19 +312,23 @@
 <div id="evidenceModal" class="hidden fixed inset-0 z-[200] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
   <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden">
     <!-- Header modal -->
-    <div class="flex items-center justify-between px-8 py-6 border-b border-slate-100">
+    <div class="flex flex-wrap items-center justify-between gap-3 px-4 md:px-8 py-4 md:py-6 border-b border-slate-100">
       <div>
         <h3 class="text-base font-bold text-slate-800 flex items-center gap-3">
           <i class="fas fa-camera text-red-600"></i> Evidencias del Reporte
         </h3>
         <p id="modal-subtitle" class="text-xs text-slate-400 mt-1"></p>
       </div>
+      <button id="btn-descargar-todo" onclick="descargarTodo()" 
+        class="h-10 px-4 rounded-xl bg-red-50 hover:bg-red-600 hover:text-white text-red-600 text-xs font-bold flex items-center gap-2 transition-all border border-red-100">
+        <i class="fas fa-download text-xs"></i> Descargar todo
+      </button>
       <button onclick="cerrarEvidencias()" class="h-10 w-10 rounded-xl bg-slate-100 hover:bg-red-50 hover:text-red-600 text-slate-500 flex items-center justify-center transition-all">
         <i class="fas fa-times"></i>
       </button>
     </div>
     <!-- Body modal -->
-    <div class="flex-1 overflow-y-auto p-8">
+    <div class="flex-1 overflow-y-auto p-4 md:p-8">
       <div id="ev-loading" class="flex flex-col items-center justify-center py-16 gap-3 text-slate-400">
         <i class="fas fa-circle-notch spin text-2xl text-red-500"></i>
         <p class="text-sm">Cargando evidencias...</p>
@@ -272,10 +337,107 @@
         <i class="fas fa-image text-5xl"></i>
         <p class="text-sm text-slate-400">No hay evidencias adjuntas</p>
       </div>
-      <div id="ev-grid" class="hidden grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div id="ev-grid" class="hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <!-- Imágenes generadas por JS -->
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PANEL FLOTANTE: DETALLE DE CELDA
+═══════════════════════════════════════════ -->
+
+<!-- ═══════════════════════════════════════════
+     PANEL FLOTANTE: GRÁFICA TIPO EVENTO
+═══════════════════════════════════════════ -->
+<div id="graficaTipoBackdrop" onclick="cerrarGraficaTipoEvento()"
+  style="position:fixed;inset:0;z-index:499;background:rgba(15,23,42,0.35);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity 0.3s ease;">
+</div>
+<div id="graficaTipoPanel"
+  style="position:fixed;top:0;right:-100%;width:100%;max-width:480px;height:100vh;background:white;z-index:500;box-shadow:-8px 0 40px -8px rgba(0,0,0,0.18);transition:right 0.3s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;">
+  <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50">
+    <div class="flex items-center gap-3">
+      <div class="h-9 w-9 rounded-xl bg-red-100 flex items-center justify-center">
+        <i class="fas fa-chart-pie text-red-600 text-sm"></i>
+      </div>
+      <div>
+        <p class="text-sm font-bold text-slate-800">Tipo de Evento</p>
+        <p id="graficaTipoSubtitle" class="text-xs text-slate-400"></p>
+      </div>
+    </div>
+    <button onclick="descargarGrafica('tipo')" 
+        class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm">
+        <i class="fas fa-download text-xs"></i> Descargar
+    </button>
+    <button onclick="cerrarGraficaTipoEvento()" class="h-9 w-9 rounded-xl bg-white hover:bg-red-50 hover:text-red-600 text-slate-400 border border-slate-200 flex items-center justify-center transition-all">
+      <i class="fas fa-times text-xs"></i>
+    </button>
+  </div>
+  <div class="flex-1 overflow-y-auto p-6">
+    <canvas id="chartTipoEvento" style="max-height:320px;"></canvas>
+    <div id="legendTipoEvento" class="mt-6 flex flex-col gap-2"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PANEL FLOTANTE: GRÁFICA CLASIFICACIÓN
+═══════════════════════════════════════════ -->
+<div id="graficaClasBackdrop" onclick="cerrarGraficaClasificacion()"
+  style="position:fixed;inset:0;z-index:499;background:rgba(15,23,42,0.35);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity 0.3s ease;">
+</div>
+<div id="graficaClasPanel"
+  style="position:fixed;top:0;right:-100%;width:100%;max-width:480px;height:100vh;background:white;z-index:500;box-shadow:-8px 0 40px -8px rgba(0,0,0,0.18);transition:right 0.3s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;">
+  <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50">
+    <div class="flex items-center gap-3">
+      <div class="h-9 w-9 rounded-xl bg-red-100 flex items-center justify-center">
+        <i class="fas fa-chart-pie text-red-600 text-sm"></i>
+      </div>
+      <div>
+        <p class="text-sm font-bold text-slate-800">Clasificación</p>
+        <p id="graficaClasSubtitle" class="text-xs text-slate-400"></p>
+      </div>
+    </div>
+    <button onclick="descargarGrafica('clas')" 
+        class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm">
+        <i class="fas fa-download text-xs"></i> Descargar
+    </button>
+    <button onclick="cerrarGraficaClasificacion()" class="h-9 w-9 rounded-xl bg-white hover:bg-red-50 hover:text-red-600 text-slate-400 border border-slate-200 flex items-center justify-center transition-all">
+      <i class="fas fa-times text-xs"></i>
+    </button>
+  </div>
+  <div class="flex-1 overflow-y-auto p-6">
+    <canvas id="chartClasificacion" style="max-height:320px;"></canvas>
+    <div id="legendClasificacion" class="mt-6 flex flex-col gap-2"></div>
+  </div>
+</div>
+
+<div id="cellPanelBackdrop" onclick="cerrarCellPanel()"></div>
+<div id="cellPanel">
+  <!-- Header -->
+  <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50">
+    <div class="flex items-center gap-3">
+      <div class="h-9 w-9 rounded-xl bg-red-100 flex items-center justify-center">
+        <i class="fas fa-expand-alt text-red-600 text-sm"></i>
+      </div>
+      <div>
+        <p id="cellPanelLabel" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Campo</p>
+        <p id="cellPanelFolio" class="text-xs text-slate-500 font-medium mt-0.5"></p>
+      </div>
+    </div>
+    <button onclick="cerrarCellPanel()"
+      class="h-9 w-9 rounded-xl bg-white hover:bg-red-50 hover:text-red-600 text-slate-400 border border-slate-200 flex items-center justify-center transition-all shadow-sm">
+      <i class="fas fa-times text-sm"></i>
+    </button>
+  </div>
+  <!-- Content -->
+  <div class="flex-1 overflow-y-auto px-6 py-6">
+    <div id="cellPanelContent" class="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap break-words">
+    </div>
+  </div>
+  <!-- Footer -->
+  <div class="px-6 py-4 border-t border-slate-100 bg-slate-50">
+    <p class="text-[10px] text-slate-400 text-center">Haz clic fuera o presiona <kbd class="bg-white border border-slate-200 rounded px-1.5 py-0.5 text-[9px] font-mono shadow-sm">Esc</kbd> para cerrar</p>
   </div>
 </div>
 
@@ -292,6 +454,8 @@ const supabaseClient = createClient(
   'https://bgqlvkvlscujikhzzazf.supabase.co',
   'sb_publishable_mzHMY11jZ7OaMES008LTzA_d7Ya1A2g'
 );
+let _urlsActuales = [];
+let _datosReportesActuales = [];
 
 /* ─── CONSTANTES ─── */
 const MESES = [
@@ -308,12 +472,6 @@ const MESES = [
   { num: 11, nombre: 'Noviembre' },
   { num: 12, nombre: 'Diciembre' }
 ];
-
-// Años disponibles: desde 2026 hasta el año actual
-const ANIO_INICIO = 2026;
-const ANIO_ACTUAL = new Date().getFullYear();
-const ANIOS = [];
-for (let y = ANIO_INICIO; y <= Math.max(ANIO_ACTUAL, ANIO_INICIO); y++) ANIOS.push(y);
 
 // Estado de navegación
 let estadoActual = { mes: null, anio: null };
@@ -377,7 +535,7 @@ function renderMeses() {
 }
 
 /* ─── NAVEGACIÓN ─── */
-function seleccionarMes(numMes, nombreMes) {
+async function seleccionarMes(numMes, nombreMes) {
   estadoActual.mes = numMes;
   estadoActual.mesNombre = nombreMes;
 
@@ -390,8 +548,8 @@ function seleccionarMes(numMes, nombreMes) {
   // Título
   document.getElementById('titulo-anios').textContent = nombreMes;
 
-  // Renderizar carpetas de año
-  renderAnios();
+  // Renderizar carpetas de año desde la BD
+  await renderAnios();
 
   // Cambiar vista
   document.getElementById('vista-meses').classList.add('hidden');
@@ -400,10 +558,48 @@ function seleccionarMes(numMes, nombreMes) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function renderAnios() {
+async function renderAnios() {
   const grid = document.getElementById('anios-grid');
   const anioActual = new Date().getFullYear();
-  grid.innerHTML = ANIOS.map(y => `
+
+  // Mostrar loading mientras consulta la BD
+  grid.innerHTML = `
+    <div class="col-span-full flex flex-col items-center justify-center py-16 gap-3 text-slate-400">
+      <i class="fas fa-circle-notch spin text-2xl text-red-500"></i>
+      <p class="text-sm font-medium">Buscando años disponibles...</p>
+    </div>`;
+
+  // Consultar a Supabase los años distintos que tienen reportes en el mes seleccionado
+  const { data, error } = await supabaseClient
+    .from('safety_alerts')
+    .select('anio_registro')
+    .eq('mes_registro', estadoActual.mes);
+
+  if (error || !data) {
+    grid.innerHTML = `
+      <div class="col-span-full flex flex-col items-center justify-center py-16 gap-3 text-slate-300">
+        <i class="fas fa-triangle-exclamation text-4xl"></i>
+        <p class="text-sm text-slate-400">Error al cargar los años. Intenta de nuevo.</p>
+      </div>`;
+    return;
+  }
+
+  // Obtener años únicos y ordenarlos de mayor a menor
+  const aniosUnicos = [...new Set(data.map(r => r.anio_registro))]
+    .filter(Boolean)
+    .sort((a, b) => b - a);
+
+  if (aniosUnicos.length === 0) {
+    grid.innerHTML = `
+      <div class="col-span-full flex flex-col items-center justify-center py-16 gap-3 text-slate-300">
+        <i class="fas fa-folder-open text-5xl"></i>
+        <p class="text-sm text-slate-400">No hay reportes registrados para este mes.</p>
+      </div>`;
+    return;
+  }
+
+  // Renderizar una carpeta por cada año encontrado en la BD
+  grid.innerHTML = aniosUnicos.map(y => `
     <div class="folder-card bg-white border-2 border-slate-100 rounded-2xl p-6 flex flex-col items-center gap-3 hover:border-red-200"
          onclick="seleccionarAnio(${y})">
       <div class="relative">
@@ -465,10 +661,10 @@ async function cargarReportes(mes, anio) {
   const { data, error } = await supabaseClient
     .from('safety_alerts')
     .select(`
-      fecha_registro, nombre_reporta, fecha_evento, hora_evento,
-      tipo_evento, clasificacion, detalles, locacion, relacion,
-      evidencias, correo_electronico, tipo_externo, nombre_externo,
-      compania_externo, dia_registro, mes_registro, anio_registro
+        folio, fecha_registro, nombre_reporta, fecha_evento, hora_evento,
+        tipo_evento, clasificacion, detalles, locacion, relacion,
+        evidencias, correo_electronico, tipo_externo, nombre_externo,
+        compania_externo, dia_registro, mes_registro, anio_registro
     `)
     .eq('mes_registro', mes)       // ← filtro directo por mes
     .eq('anio_registro', anio)     // ← filtro directo por año
@@ -483,33 +679,52 @@ async function cargarReportes(mes, anio) {
   }
 
   if (!data || data.length === 0) {
+    _datosReportesActuales = [];
     document.getElementById('tabla-empty').classList.remove('hidden');
     return;
   }
 
+  _datosReportesActuales = data;
   document.getElementById('badge-total-reportes').textContent =
     `${data.length} reporte${data.length !== 1 ? 's' : ''}`;
 
   const tbody = document.getElementById('tabla-body');
   tbody.innerHTML = data.map(r => `
     <tr class="hover:bg-red-50/20 transition-colors group">
+      <td class="px-5 py-4 whitespace-nowrap">
+        <span class="text-xs font-black text-red-700 bg-red-50 px-2.5 py-1 rounded-lg border border-red-100">${esc(r.folio)}</span>
+      </td>
       <td class="px-5 py-4 text-slate-600 whitespace-nowrap font-medium">${formatDate(r.fecha_registro)}</td>
-      <td class="px-5 py-4 text-slate-700 font-semibold whitespace-nowrap">${esc(r.nombre_reporta)}</td>
+      <td class="px-5 py-4 text-slate-700 font-semibold whitespace-nowrap cell-expandable" data-label="Nombre Reporta" data-folio="${escAttr(r.folio)}" data-val="${escAttr(r.nombre_reporta)}">
+        <span class="cell-inner">${esc(r.nombre_reporta)}</span>
+      </td>
       <td class="px-5 py-4 text-slate-600 whitespace-nowrap">${formatDate(r.fecha_evento)}</td>
       <td class="px-5 py-4 text-slate-500 whitespace-nowrap">${esc(r.hora_evento)}</td>
-      <td class="px-5 py-4 whitespace-nowrap">
-        <span class="text-xs font-semibold text-slate-700">${esc(r.tipo_evento)}</span>
+      <td class="px-5 py-4 whitespace-nowrap cell-expandable" data-label="Tipo Evento" data-folio="${escAttr(r.folio)}" data-val="${escAttr(r.tipo_evento)}">
+        <span class="cell-inner text-xs font-semibold text-slate-700">${esc(r.tipo_evento)}</span>
       </td>
       <td class="px-5 py-4 whitespace-nowrap">${badgeClasificacion(r.clasificacion)}</td>
-      <td class="px-5 py-4 text-slate-500 max-w-[220px]">
-        <p class="truncate text-xs leading-relaxed" title="${esc(r.detalles)}">${esc(r.detalles)}</p>
+      <td class="px-5 py-4 text-slate-500 max-w-[220px] cell-expandable" data-label="Detalles" data-folio="${escAttr(r.folio)}" data-val="${escAttr(r.detalles)}">
+        <p class="truncate text-xs leading-relaxed cell-inner">${esc(r.detalles)}</p>
       </td>
-      <td class="px-5 py-4 text-slate-600 whitespace-nowrap text-xs">${esc(r.locacion)}</td>
-      <td class="px-5 py-4 text-slate-600 whitespace-nowrap text-xs">${esc(r.relacion)}</td>
-      <td class="px-5 py-4 text-slate-500 whitespace-nowrap text-xs">${esc(r.correo_electronico)}</td>
-      <td class="px-5 py-4 text-slate-500 whitespace-nowrap text-xs">${esc(r.tipo_externo)}</td>
-      <td class="px-5 py-4 text-slate-500 whitespace-nowrap text-xs">${esc(r.nombre_externo)}</td>
-      <td class="px-5 py-4 text-slate-500 whitespace-nowrap text-xs">${esc(r.compania_externo)}</td>
+      <td class="px-5 py-4 text-slate-600 whitespace-nowrap text-xs cell-expandable" data-label="Ubicaci\u00f3n" data-folio="${escAttr(r.folio)}" data-val="${escAttr(r.locacion)}">
+        <span class="cell-inner">${esc(r.locacion)}</span>
+      </td>
+      <td class="px-5 py-4 text-slate-600 whitespace-nowrap text-xs cell-expandable" data-label="Relaci\u00f3n" data-folio="${escAttr(r.folio)}" data-val="${escAttr(r.relacion)}">
+        <span class="cell-inner">${esc(r.relacion)}</span>
+      </td>
+      <td class="px-5 py-4 text-slate-500 whitespace-nowrap text-xs cell-expandable" data-label="Correo Electr\u00f3nico" data-folio="${escAttr(r.folio)}" data-val="${escAttr(r.correo_electronico)}">
+        <span class="cell-inner">${esc(r.correo_electronico)}</span>
+      </td>
+      <td class="px-5 py-4 text-slate-500 whitespace-nowrap text-xs cell-expandable" data-label="Tipo Externo" data-folio="${escAttr(r.folio)}" data-val="${escAttr(r.tipo_externo)}">
+        <span class="cell-inner">${esc(r.tipo_externo)}</span>
+      </td>
+      <td class="px-5 py-4 text-slate-500 whitespace-nowrap text-xs cell-expandable" data-label="Nombre Externo" data-folio="${escAttr(r.folio)}" data-val="${escAttr(r.nombre_externo)}">
+        <span class="cell-inner">${esc(r.nombre_externo)}</span>
+      </td>
+      <td class="px-5 py-4 text-slate-500 whitespace-nowrap text-xs cell-expandable" data-label="Compa\u00f1\u00eda Externa" data-folio="${escAttr(r.folio)}" data-val="${escAttr(r.compania_externo)}">
+        <span class="cell-inner">${esc(r.compania_externo)}</span>
+      </td>
       <td class="px-5 py-4 text-center whitespace-nowrap">
         <button onclick='abrirEvidencias(${JSON.stringify(r.evidencias)}, "${esc(r.nombre_reporta)}", "${formatDate(r.fecha_evento)}")'
           class="h-9 w-9 rounded-xl bg-slate-100 hover:bg-red-600 text-slate-500 hover:text-white transition-all flex items-center justify-center mx-auto"
@@ -557,19 +772,15 @@ function badgeClasificacion(val) {
 const BUCKET_EVIDENCIAS = 'evidencias'; // ← Cambia aquí si tu bucket tiene otro nombre
 
 async function abrirEvidencias(evidenciasRaw, nombreReporta, fechaEvento) {
-  // Mostrar modal
   document.getElementById('evidenceModal').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
-  document.getElementById('modal-subtitle').textContent =
-    `${nombreReporta} · ${fechaEvento}`;
+  document.getElementById('modal-subtitle').textContent = `${nombreReporta} · ${fechaEvento}`;
 
-  // Reset estado
   document.getElementById('ev-loading').classList.remove('hidden');
   document.getElementById('ev-empty').classList.add('hidden');
   document.getElementById('ev-grid').classList.add('hidden');
   document.getElementById('ev-grid').innerHTML = '';
 
-  // Parsear evidencias
   let archivos = [];
   try {
     if (!evidenciasRaw) {
@@ -580,7 +791,6 @@ async function abrirEvidencias(evidenciasRaw, nombreReporta, fechaEvento) {
       archivos = JSON.parse(evidenciasRaw);
     }
   } catch(e) {
-    // Si no es JSON, intentar como string simple separado por comas
     archivos = evidenciasRaw ? String(evidenciasRaw).split(',').map(s => s.trim()).filter(Boolean) : [];
   }
 
@@ -591,26 +801,34 @@ async function abrirEvidencias(evidenciasRaw, nombreReporta, fechaEvento) {
     return;
   }
 
-  // Generar URLs públicas o firmadas para cada archivo
+  // ✅ NUEVO: detectar si ya es URL completa o solo nombre de archivo
   const urls = [];
   for (const archivo of archivos) {
     if (!archivo) continue;
+
+    // Si ya es una URL completa (http/https), usarla directamente
+    if (archivo.startsWith('http://') || archivo.startsWith('https://')) {
+      const nombre = archivo.split('/').pop();
+      urls.push({ url: archivo, nombre });
+      continue;
+    }
+
+    // Si es solo nombre/ruta, generar URL pública desde el bucket
     try {
-      // Intentar URL pública primero
       const { data: urlData } = supabaseClient
         .storage.from(BUCKET_EVIDENCIAS).getPublicUrl(archivo);
       if (urlData?.publicUrl) {
-        urls.push({ url: urlData.publicUrl, nombre: archivo });
+        urls.push({ url: urlData.publicUrl, nombre: archivo.split('/').pop() });
         continue;
       }
     } catch(e) {}
 
+    // Último recurso: URL firmada
     try {
-      // Si no es público, generar URL firmada (60 min)
       const { data: signed } = await supabaseClient
         .storage.from(BUCKET_EVIDENCIAS).createSignedUrl(archivo, 3600);
       if (signed?.signedUrl) {
-        urls.push({ url: signed.signedUrl, nombre: archivo });
+        urls.push({ url: signed.signedUrl, nombre: archivo.split('/').pop() });
       }
     } catch(e) {
       console.warn('No se pudo obtener URL para:', archivo);
@@ -622,33 +840,87 @@ async function abrirEvidencias(evidenciasRaw, nombreReporta, fechaEvento) {
     return;
   }
 
-  // Renderizar grid de imágenes
+  _urlsActuales = urls; // guarda las urls para el botón "descargar todo"
+
   const grid = document.getElementById('ev-grid');
   grid.innerHTML = urls.map(({ url, nombre }) => {
     const ext = nombre.split('.').pop().toLowerCase();
     const esImagen = ['jpg','jpeg','png','gif','webp','bmp','svg'].includes(ext);
     if (esImagen) {
       return `
-        <div class="rounded-xl overflow-hidden bg-slate-100 aspect-square border border-slate-100">
-          <img src="${url}" alt="${nombre}"
-            class="ev-img w-full h-full object-cover"
+        <div class="rounded-xl overflow-hidden bg-slate-100 border border-slate-100 relative group/ev flex items-center justify-center min-h-[140px]">
+        <img src="${url}" alt="${nombre}"
+            class="ev-img w-full h-auto max-h-[260px] object-contain"
             onclick="abrirLightbox('${url}')"
-            onerror="this.parentElement.innerHTML='<div class=\'flex flex-col items-center justify-center h-full gap-2 text-slate-300 p-4\'><i class=\'fas fa-image-slash text-3xl\'></i><span class=\'text-xs text-center\'>No se pudo cargar</span></div>'"
-          >
+            onerror="this.parentElement.innerHTML='<div class=\'flex flex-col items-center justify-center h-full gap-2 text-slate-300 p-4\'><i class=\'fas fa-image text-3xl\'></i><span class=\'text-xs text-center\'>No se pudo cargar</span></div>'"
+        >
+        <button onclick="event.stopPropagation(); descargarArchivo('${url}', '${nombre}')"
+            class="absolute top-2 right-2 h-8 w-8 rounded-lg bg-black/60 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover/ev:opacity-100 transition-all"
+            title="Descargar ${nombre}">
+            <i class="fas fa-download text-xs"></i>
+        </button>
         </div>`;
     } else {
-      // Archivo no imagen: mostrar como descarga
       return `
-        <a href="${url}" target="_blank"
-          class="rounded-xl overflow-hidden bg-slate-50 border-2 border-dashed border-slate-200 aspect-square flex flex-col items-center justify-center gap-2 hover:border-red-300 hover:bg-red-50 transition-all group">
-          <i class="fas fa-file text-3xl text-slate-300 group-hover:text-red-400 transition-colors"></i>
-          <span class="text-[10px] text-slate-400 group-hover:text-red-500 font-medium text-center px-2 break-all">${nombre}</span>
-          <span class="text-[9px] text-red-400 uppercase font-bold">${ext}</span>
-        </a>`;
+        <div class="rounded-xl overflow-hidden bg-slate-50 border-2 border-dashed border-slate-200 aspect-square flex flex-col items-center justify-center gap-2 hover:border-red-300 hover:bg-red-50 transition-all group relative">
+        <i class="fas fa-file text-3xl text-slate-300 group-hover:text-red-400 transition-colors"></i>
+        <span class="text-[10px] text-slate-400 group-hover:text-red-500 font-medium text-center px-2 break-all">${nombre}</span>
+        <span class="text-[9px] text-red-400 uppercase font-bold">${ext}</span>
+        <div class="flex gap-2 mt-1">
+            <a href="${url}" target="_blank"
+            class="text-[9px] bg-slate-200 hover:bg-slate-300 text-slate-600 px-2 py-1 rounded-lg font-bold transition-colors flex items-center gap-1">
+            <i class="fas fa-eye text-[8px]"></i> Ver
+            </a>
+            <button onclick="descargarArchivo('${url}', '${nombre}')"
+            class="text-[9px] bg-red-100 hover:bg-red-600 hover:text-white text-red-600 px-2 py-1 rounded-lg font-bold transition-colors flex items-center gap-1">
+            <i class="fas fa-download text-[8px]"></i> Bajar
+            </button>
+        </div>
+        </div>`;
     }
   }).join('');
 
   grid.classList.remove('hidden');
+}
+
+async function descargarTodo() {
+  if (_urlsActuales.length === 0) return;
+  for (const { url, nombre } of _urlsActuales) {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = nombre;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+      // pequeña pausa entre descargas para que el navegador no las bloquee
+      await new Promise(r => setTimeout(r, 400));
+    } catch (e) {
+      console.warn('No se pudo descargar:', nombre);
+    }
+  }
+}
+
+async function descargarArchivo(url, nombre) {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = nombre;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
+  } catch (e) {
+    alert('No se pudo descargar el archivo. Intenta abrirlo manualmente.');
+    window.open(url, '_blank');
+  }
 }
 
 function cerrarEvidencias() {
@@ -666,18 +938,334 @@ function cerrarLightbox() {
   document.getElementById('lightbox-img').src = '';
 }
 
-// Cerrar modales con Escape
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    cerrarEvidencias();
-    cerrarLightbox();
-  }
-});
-
 // Cerrar modal al clic en backdrop
 document.getElementById('evidenceModal').addEventListener('click', function(e) {
   if (e.target === this) cerrarEvidencias();
 });
+
+/* ─── HELPER escAttr ─── */
+function escAttr(v) {
+  if (v === null || v === undefined) return '';
+  return String(v)
+    .replace(/&/g,'&amp;')
+    .replace(/"/g,'&quot;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+}
+
+/* ─── PANEL FLOTANTE DE CELDA ─── */
+// Delegación de eventos en tbody: captura clics en celdas expandibles
+document.getElementById('tabla-body').addEventListener('click', function(e) {
+  const td = e.target.closest('td.cell-expandable');
+  if (!td) return;
+  const label = td.dataset.label || '';
+  const val   = td.dataset.val  || '';
+  const folio = td.dataset.folio || '';
+  abrirCellPanel(label, val, folio);
+});
+
+function abrirCellPanel(label, val, folio) {
+  document.getElementById('cellPanelLabel').textContent   = label;
+  document.getElementById('cellPanelFolio').textContent   = folio ? `Folio: ${folio}` : '';
+  const content = document.getElementById('cellPanelContent');
+  if (!val || val.trim() === '') {
+    content.innerHTML = '<span class="text-slate-300 italic text-sm">Sin información registrada</span>';
+  } else {
+    // Render plain text safely
+    content.textContent = val;
+  }
+  document.getElementById('cellPanel').classList.add('open');
+  document.getElementById('cellPanelBackdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarCellPanel() {
+  document.getElementById('cellPanel').classList.remove('open');
+  document.getElementById('cellPanelBackdrop').classList.remove('open');
+  document.body.style.overflow = 'auto';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    cerrarCellPanel();
+    cerrarEvidencias();
+    cerrarLightbox();
+    cerrarGraficaTipoEvento();
+    cerrarGraficaClasificacion();
+  }
+});
+
+/* ─── GRÁFICAS ─── */
+const COLORES_GRAFICAS = [
+  '#b91c1c','#dc2626','#ef4444','#f97316','#f59e0b',
+  '#eab308','#84cc16','#22c55e','#14b8a6','#06b6d4',
+  '#3b82f6','#6366f1','#8b5cf6','#a855f7','#ec4899'
+];
+
+let _chartTipoEvento     = null;
+let _chartClasificacion  = null;
+
+function contarPorCampo(datos, campo) {
+  const conteo = {};
+  datos.forEach(r => {
+    const val = r[campo] ? String(r[campo]).trim() : 'Sin datos';
+    conteo[val] = (conteo[val] || 0) + 1;
+  });
+  return conteo;
+}
+
+function construirLeyenda(conteo, colores, contenedorId) {
+  const total = Object.values(conteo).reduce((a, b) => a + b, 0);
+  const contenedor = document.getElementById(contenedorId);
+  contenedor.innerHTML = Object.entries(conteo)
+    .sort((a, b) => b[1] - a[1])
+    .map(([label, count], i) => {
+      const pct = ((count / total) * 100).toFixed(1);
+      return `
+        <div class="flex items-center justify-between gap-3 py-2 border-b border-slate-50">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="h-3 w-3 rounded-full flex-shrink-0" style="background:${colores[i % colores.length]}"></span>
+            <span class="text-xs text-slate-600 font-medium truncate">${label}</span>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <span class="text-xs font-black text-slate-800">${count}</span>
+            <span class="text-[10px] text-slate-400 w-10 text-right">${pct}%</span>
+          </div>
+        </div>`;
+    }).join('');
+}
+
+function abrirGraficaTipoEvento() {
+  if (!_datosReportesActuales || _datosReportesActuales.length === 0) {
+    alert('No hay datos cargados para graficar.');
+    return;
+  }
+
+  // Subtítulo con mes y año actual
+  document.getElementById('graficaTipoSubtitle').textContent =
+    `${estadoActual.mesNombre} ${estadoActual.anio} · ${_datosReportesActuales.length} reportes`;
+
+  // Contar datos
+  const conteo  = contarPorCampo(_datosReportesActuales, 'tipo_evento');
+  const labels  = Object.keys(conteo);
+  const valores = Object.values(conteo);
+  const colores = COLORES_GRAFICAS.slice(0, labels.length);
+
+  // Destruir gráfica anterior si existe
+  if (_chartTipoEvento) {
+    _chartTipoEvento.destroy();
+    _chartTipoEvento = null;
+  }
+
+  // Crear gráfica
+  const ctx = document.getElementById('chartTipoEvento').getContext('2d');
+  _chartTipoEvento = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels,
+      datasets: [{ data: valores, backgroundColor: colores, borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.label}: ${ctx.raw} (${((ctx.raw / valores.reduce((a,b)=>a+b,0))*100).toFixed(1)}%)`
+          }
+        }
+      }
+    }
+  });
+
+  // Leyenda personalizada
+  construirLeyenda(conteo, COLORES_GRAFICAS, 'legendTipoEvento');
+
+  // Abrir panel
+  document.getElementById('graficaTipoPanel').style.right = '0';
+  document.getElementById('graficaTipoBackdrop').style.opacity = '1';
+  document.getElementById('graficaTipoBackdrop').style.pointerEvents = 'all';
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarGraficaTipoEvento() {
+  document.getElementById('graficaTipoPanel').style.right = '-100%';
+  document.getElementById('graficaTipoBackdrop').style.opacity = '0';
+  document.getElementById('graficaTipoBackdrop').style.pointerEvents = 'none';
+  document.body.style.overflow = 'auto';
+}
+
+function abrirGraficaClasificacion() {
+  if (!_datosReportesActuales || _datosReportesActuales.length === 0) {
+    alert('No hay datos cargados para graficar.');
+    return;
+  }
+
+  // Subtítulo con mes y año actual
+  document.getElementById('graficaClasSubtitle').textContent =
+    `${estadoActual.mesNombre} ${estadoActual.anio} · ${_datosReportesActuales.length} reportes`;
+
+  // Contar datos
+  const conteo  = contarPorCampo(_datosReportesActuales, 'clasificacion');
+  const labels  = Object.keys(conteo);
+  const valores = Object.values(conteo);
+  const colores = COLORES_GRAFICAS.slice(0, labels.length);
+
+  // Destruir gráfica anterior si existe
+  if (_chartClasificacion) {
+    _chartClasificacion.destroy();
+    _chartClasificacion = null;
+  }
+
+  // Crear gráfica
+  const ctx = document.getElementById('chartClasificacion').getContext('2d');
+  _chartClasificacion = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels,
+      datasets: [{ data: valores, backgroundColor: colores, borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.label}: ${ctx.raw} (${((ctx.raw / valores.reduce((a,b)=>a+b,0))*100).toFixed(1)}%)`
+          }
+        }
+      }
+    }
+  });
+
+  // Leyenda personalizada
+  construirLeyenda(conteo, COLORES_GRAFICAS, 'legendClasificacion');
+
+  // Abrir panel
+  document.getElementById('graficaClasPanel').style.right = '0';
+  document.getElementById('graficaClasBackdrop').style.opacity = '1';
+  document.getElementById('graficaClasBackdrop').style.pointerEvents = 'all';
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarGraficaClasificacion() {
+  document.getElementById('graficaClasPanel').style.right = '-100%';
+  document.getElementById('graficaClasBackdrop').style.opacity = '0';
+  document.getElementById('graficaClasBackdrop').style.pointerEvents = 'none';
+  document.body.style.overflow = 'auto';
+}
+
+async function descargarGrafica(tipo) {
+  // 1. Identificar qué gráfica estamos exportando
+  const esTipo = tipo === 'tipo';
+  const canvasId    = esTipo ? 'chartTipoEvento'    : 'chartClasificacion';
+  const legendaId   = esTipo ? 'legendTipoEvento'   : 'legendClasificacion';
+  const descripcion = esTipo
+    ? 'Distribución de reportes de seguridad por Tipo de Evento'
+    : 'Distribución de reportes de seguridad por Clasificación de Nivel';
+  const titulo      = esTipo ? 'Tipo de Evento' : 'Clasificación';
+
+  // 2. Obtener datos de contexto (mes y año)
+  const mes  = estadoActual.mesNombre || '';
+  const anio = estadoActual.anio      || '';
+
+  // 3. Crear un contenedor temporal "invisible" que se renderizará como imagen
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = `
+    position: fixed;
+    top: -9999px;
+    left: -9999px;
+    width: 900px;
+    background: white;
+    padding: 32px;
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box;
+  `;
+
+  // 4. Logo (usamos el mismo src que el header)
+  const logoSrc = document.querySelector('header img')?.src || '';
+
+  wrapper.innerHTML = `
+    <!-- Encabezado con logo y empresa -->
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; padding-bottom:16px; border-bottom:3px solid #b91c1c;">
+      <img src="${logoSrc}" style="height:48px; object-fit:contain;" crossorigin="anonymous" />
+      <div style="text-align:right;">
+        <p style="margin:0; font-size:10px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.1em;">In Hole Solutions</p>
+        <p style="margin:0; font-size:13px; font-weight:800; color:#1e293b; text-transform:uppercase;">${mes} ${anio}</p>
+      </div>
+    </div>
+
+    <!-- Título y descripción -->
+    <div style="margin-bottom:20px;">
+      <p style="margin:0 0 4px 0; font-size:16px; font-weight:800; color:#1e293b; text-transform:uppercase;">${titulo}</p>
+      <p style="margin:0; font-size:11px; color:#64748b; line-height:1.5;">${descripcion}</p>
+    </div>
+
+    <!-- Gráfica -->
+    <div id="export-chart-slot" style="display:flex; justify-content:center; margin-bottom:20px;"></div>
+
+    <!-- Leyenda -->
+    <div id="export-legend-slot"></div>
+
+    <!-- Footer -->
+    <div style="margin-top:20px; padding-top:12px; border-top:1px solid #e2e8f0; text-align:center;">
+      <p style="margin:0; font-size:9px; color:#94a3b8;">Generado desde Safety Alerts · In Hole Solutions · ${mes} ${anio}</p>
+    </div>
+  `;
+
+  document.body.appendChild(wrapper);
+
+  // 5. Clonar la gráfica (canvas) y la leyenda dentro del wrapper
+  const canvasOrig = document.getElementById(canvasId);
+  const clonCanvas = document.createElement('canvas');
+  clonCanvas.width  = canvasOrig.width;
+  clonCanvas.height = canvasOrig.height;
+  clonCanvas.style.cssText = 'max-width:100%; height:auto;';
+  clonCanvas.getContext('2d').drawImage(canvasOrig, 0, 0);
+  wrapper.querySelector('#export-chart-slot').appendChild(clonCanvas);
+
+  const legendaOrig = document.getElementById(legendaId);
+  if (!legendaOrig) {
+    document.body.removeChild(wrapper);
+    alert('No se encontró la leyenda. Asegúrate de que la gráfica esté cargada.');
+    return;
+  }
+  const clonLeyenda = legendaOrig.cloneNode(true);
+  clonLeyenda.style.display = 'block';
+  clonLeyenda.style.whiteSpace = 'normal';
+  clonLeyenda.querySelectorAll('span').forEach(span => {
+    span.style.overflow = 'visible';
+    span.style.textOverflow = 'clip';
+    span.style.whiteSpace = 'normal';
+    span.style.maxWidth = 'none';
+  });
+  wrapper.querySelector('#export-legend-slot').appendChild(clonLeyenda);
+
+  // 6. Renderizar el wrapper a imagen con html2canvas
+  try {
+    const canvas = await html2canvas(wrapper, {
+      scale: 2,          // Alta resolución
+      useCORS: true,     // Para el logo
+      backgroundColor: '#ffffff'
+    });
+
+    // 7. Disparar la descarga siempre en PNG
+    const mimeType = 'image/png';
+    const extension = 'png';
+
+    const link = document.createElement('a');
+    link.download = `Gráfica-${tipo}-${mes}-${anio}.${extension}`;
+    link.href = canvas.toDataURL(mimeType, 0.95);
+    link.click();
+
+  } catch (err) {
+    console.error('Error al exportar gráfica:', err);
+    alert('Hubo un error al generar la imagen. Revisa la consola.');
+  }
+
+  // 8. Limpiar el wrapper temporal
+  document.body.removeChild(wrapper);
+}
 
 init();
 </script>
