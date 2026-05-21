@@ -104,6 +104,7 @@
     }
   </style>
   <script src="revista-render.js"></script>
+  <script src="revista-mobile.js"></script>
 </head>
 <body>
 
@@ -152,8 +153,8 @@
 </div>
 
 <!-- ── MAIN ── -->
-<main class="max-w-[1440px] mx-auto px-0 py-4">
-  <div id="revista-container" style="padding: 8px 0; background: #e8edf4; min-height: 100vh;"></div>
+<main class="mx-auto px-0 py-4" style="max-width:100%; overflow-x:auto;">
+  <div id="revista-container" style="padding: 8px 0; background: #e8edf4; min-height: 100vh; min-width: 1200px; overflow-x: auto;"></div>
 </main>
 
 <!-- ── TOAST ── -->
@@ -278,7 +279,7 @@
     }
     // Actualizar también la portada estática superior
     const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.textContent = val; };
-    if (data.titulo) document.getElementById('cover-title').textContent = data.titulo;
+    if (data.titulo) { const ct = document.getElementById('cover-title'); if (ct) ct.textContent = data.titulo; }
     set('cover-edition-badge', data.edicion ? `Edición ${data.edicion}` : '');
     set('edition-tag',  data.edicion ? `Edición ${data.edicion} — ${data.volumen || 'Vol.1'}` : '');
     set('issue-counter', data.id ? `ED-${String(data.id).padStart(3,'0')}` : '');
@@ -287,7 +288,66 @@
     set('stat-dias', data.stat_dias ?? 0);
     set('stat-obs',  data.stat_obs  ?? 0);
     set('stat-acc',  data.stat_acc  ?? 0);
+
+    // Extraer mes y año del campo "edicion" (ej: "Mayo 2026")
+    const mesesES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    const partes  = (data.edicion || '').toLowerCase().split(' ');
+    const mesEdicion  = mesesES.indexOf(partes[0]) + 1 || null;
+    const anioEdicion = parseInt(partes[1]) || null;
+    setTimeout(() => {
+      cargarStatsAutomaticos(mesEdicion, anioEdicion);
+      iniciarLibro();
+    }, 600);
   }
+
+  async function cargarStatsAutomaticos(mesRevista, anioRevista) {
+  const mes  = mesRevista  ?? new Date().getMonth() + 1;
+  const anio = anioRevista ?? new Date().getFullYear();
+
+  // 1. REPORTES DE RIESGO — todos los registros del mes/año
+  const { count: totalReportes } = await sb
+    .from('safety_alerts')
+    .select('id', { count: 'exact', head: true })
+    .eq('mes_registro',  mes)
+    .eq('anio_registro', anio);
+
+  // 2. NEAR MISS RESUELTOS — solo los de tipo "Incidente" del mes/año
+  const { count: totalNearMiss } = await sb
+    .from('safety_alerts')
+    .select('id', { count: 'exact', head: true })
+    .eq('mes_registro',  mes)
+    .eq('anio_registro', anio)
+    .eq('tipo_evento', 'Incidente');
+
+  // 3. DÍAS SIN ACCIDENTE — días desde el último accidente registrado
+  const { data: ultimoAccidente } = await sb
+    .from('safety_alerts')
+    .select('fecha_evento')
+    .eq('tipo_evento', 'Accidente')
+    .order('fecha_evento', { ascending: false })
+    .limit(1)
+    .single();
+
+  let diasSinAccidente = 0;
+  if (ultimoAccidente?.fecha_evento) {
+    const hoy        = new Date();
+    const fechaAcc   = new Date(ultimoAccidente.fecha_evento);
+    const diffMs     = hoy - fechaAcc;
+    diasSinAccidente = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  } else {
+    // Sin accidentes registrados, contar desde inicio del año
+    diasSinAccidente = Math.floor((new Date() - new Date(anio, 0, 1)) / (1000 * 60 * 60 * 24));
+  }
+
+  // 4. Pintar en la revista
+  const setEl = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val ?? 0;
+  };
+  setEl('pv-stat-dias', diasSinAccidente);
+  setEl('pv-stat-obs',  totalReportes ?? 0);
+  setEl('pv-stat-acc',  totalNearMiss ?? 0);
+}
 
   async function deleteEdition(id) {
     if (!isAdmin) return;
