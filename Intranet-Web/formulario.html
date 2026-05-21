@@ -13,15 +13,14 @@
 <!-- Header -->
 <header class="header-bar">
   <img src="../assets/images/logo/logo-light.svg" alt="IN HOLE SOLUTIONS" style="height:85px;">
-  <div class="header-right">
-  </div>
+  <div class="header-right"></div>
 </header>
 
 <!-- Form -->
 <div class="form-wrap">
 
   <!-- Intro -->
-  <div class="intro-card">
+  <div class="intro-card" style="position:relative;">
     <div class="intro-eyebrow">Reporte de seguridad</div>
     <div class="form-title">Safety<span>Alert</span></div>
     <p class="form-desc">
@@ -116,7 +115,7 @@
       <div class="field-error" id="err-clasificacion">Selecciona una clasificación.</div>
     </div>
 
-    <!-- 8. Detalles del incidente -->
+    <!-- 8. Descripción del evento -->
     <div class="field-card">
       <div class="field-label">Descripción del evento <span class="req">*</span></div>
       <div class="field-hint">
@@ -135,8 +134,26 @@
     <!-- 9. Locación -->
     <div class="field-card">
       <div class="field-label">Locación del incidente <span class="req">*</span></div>
-      <div class="field-hint">Indique la Sociedad, Planta, Obra-Proyecto, Pozo, Oficina o Empresa donde ocurrió.</div>
-      <input type="text" id="locacion" class="f-input" placeholder="Ej. Planta Monterrey – Área de producción" required>
+      <div class="field-hint">Selecciona el lugar donde ocurrió el evento.</div>
+      <select id="locacion_tipo" class="f-select" required onchange="toggleLocacionFields()">
+        <option value="">Seleccionar locación</option>
+        <option value="In Hole Solutions - Taller">In Hole Solutions - Taller</option>
+        <option value="Pozo/Campo">Pozo/Campo</option>
+        <option value="Instalación del cliente">Instalación del cliente</option>
+        <option value="Otro">Otro</option>
+      </select>
+      <div id="locacion-pozo-fields" style="display:none; margin-top:8px;">
+        <input type="text" id="locacion_pozo_nombre" class="f-input" placeholder="Nombre del pozo" style="margin-bottom:8px;">
+        <input type="text" id="locacion_campo_numero" class="f-input" placeholder="Campo (número)">
+      </div>
+      <div id="locacion-cliente-field" style="display:none; margin-top:8px;">
+        <input type="text" id="locacion_cliente_nombre" class="f-input" placeholder="Nombre del cliente">
+      </div>
+      <div id="locacion-otro-field" style="display:none; margin-top:8px;">
+        <input type="text" id="locacion_otro_texto" class="f-input" placeholder="Especifica la locación">
+      </div>
+      <!-- Campo oculto que almacena el valor final compuesto -->
+      <input type="hidden" id="locacion">
       <div class="field-error" id="err-locacion">Este campo es obligatorio.</div>
     </div>
 
@@ -191,7 +208,7 @@
       <div class="field-hint">Sube hasta 10 archivos. Tamaño máximo: 100 MB por archivo.</div>
       <div class="upload-zone" id="upload-zone">
         <input type="file" id="evidencia-input" multiple accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx" onchange="handleFiles(this.files)">
-        <div class="upload-icon">📎</div>
+        <div class="upload-icon">&#128206;</div>
         <div class="upload-label">Agregar archivo</div>
         <div class="upload-sub">O arrastra y suelta aquí</div>
       </div>
@@ -210,11 +227,12 @@
 <!-- Success screen -->
 <div id="success-screen">
   <div class="success-box">
-    <div class="success-icon">✅</div>
+    <div class="success-icon">&#9989;</div>
     <div class="success-title">¡Reporte Enviado!</div>
     <p class="success-msg">
       Tu reporte SafetyAlert ha sido registrado correctamente en el sistema de IN HOLE SOLUTIONS.
     </p>
+    <div id="success-folio" style="margin:12px 0 18px;font-family:'Syne',sans-serif;font-weight:700;font-size:20px;color:var(--red,#CC1F26);letter-spacing:2px;"></div>
     <button class="success-new-btn" onclick="resetForm()">Regresar al formulario</button>
   </div>
 </div>
@@ -222,25 +240,62 @@
 <script>
   // ── Toggle externo fields ──
   function toggleExternoFields() {
-    const val = document.getElementById('tipo_externo').value;
-    const fields = document.getElementById('externo-fields');
-    fields.style.display = val ? 'block' : 'none';
+    var val = document.getElementById('tipo_externo').value;
+    document.getElementById('externo-fields').style.display = val ? 'block' : 'none';
   }
 
+  // ── Toggle locacion fields ──
+  function toggleLocacionFields() {
+    var val = document.getElementById('locacion_tipo').value;
+    document.getElementById('locacion-pozo-fields').style.display  = val === 'Pozo/Campo'              ? 'block' : 'none';
+    document.getElementById('locacion-cliente-field').style.display = val === 'Instalación del cliente' ? 'block' : 'none';
+    document.getElementById('locacion-otro-field').style.display    = val === 'Otro'                    ? 'block' : 'none';
+    buildLocacion();
+  }
+
+  // ── Construye el valor compuesto de locacion ──
+  function buildLocacion() {
+    var tipo = document.getElementById('locacion_tipo').value;
+    var val  = tipo;
+    if (tipo === 'Pozo/Campo') {
+      var pozo  = document.getElementById('locacion_pozo_nombre').value.trim();
+      var campo = document.getElementById('locacion_campo_numero').value.trim();
+      if (pozo || campo) val += ': Pozo ' + (pozo || '-') + ', Campo ' + (campo || '-');
+    } else if (tipo === 'Instalación del cliente') {
+      var cli = document.getElementById('locacion_cliente_nombre').value.trim();
+      if (cli) val += ': ' + cli;
+    } else if (tipo === 'Otro') {
+      var otro = document.getElementById('locacion_otro_texto').value.trim();
+      if (otro) val += ': ' + otro;
+    }
+    document.getElementById('locacion').value = val;
+    if (val) {
+      document.getElementById('err-locacion').classList.remove('show');
+    }
+  }
+
+  // Escuchar cambios en subfields de locacion
+  ['locacion_pozo_nombre','locacion_campo_numero','locacion_cliente_nombre','locacion_otro_texto'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', buildLocacion);
+  });
+
   // ── Supabase ──
-  const SUPABASE_URL = 'https://bgqlvkvlscujikhzzazf.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_mzHMY11jZ7OaMES008LTzA_d7Ya1A2g';
-  const { createClient } = supabase;
-  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+  var SUPABASE_URL = 'https://bgqlvkvlscujikhzzazf.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_mzHMY11jZ7OaMES008LTzA_d7Ya1A2g';
+  var db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ── Folio ──
+  var folioActual = null;
 
   // ── File handling ──
-  let selectedFiles = [];
+  var selectedFiles = [];
 
   function handleFiles(newFiles) {
-    const arr = Array.from(newFiles);
-    arr.forEach(f => {
+    var arr = Array.from(newFiles);
+    arr.forEach(function(f) {
       if (selectedFiles.length >= 10) return;
-      if (f.size > 100 * 1024 * 1024) { alert(`"${f.name}" supera 100 MB y no se adjuntará.`); return; }
+      if (f.size > 100 * 1024 * 1024) { alert('"' + f.name + '" supera 100 MB y no se adjuntará.'); return; }
       selectedFiles.push(f);
     });
     renderFileList();
@@ -248,13 +303,14 @@
   }
 
   function renderFileList() {
-    const list = document.getElementById('file-list');
-    list.innerHTML = selectedFiles.map((f, i) => `
-      <div class="file-chip">
-        📄 ${f.name.length > 25 ? f.name.slice(0,22)+'...' : f.name}
-        <button type="button" onclick="removeFile(${i})" title="Eliminar">×</button>
-      </div>
-    `).join('');
+    var list = document.getElementById('file-list');
+    list.innerHTML = selectedFiles.map(function(f, i) {
+      var nombre = f.name.length > 25 ? f.name.slice(0, 22) + '...' : f.name;
+      return '<div class="file-chip">' +
+               '&#128196; ' + nombre +
+               '<button type="button" onclick="removeFile(' + i + ')" title="Eliminar">X</button>' +
+             '</div>';
+    }).join('');
   }
 
   function removeFile(i) {
@@ -262,43 +318,59 @@
     renderFileList();
   }
 
-  // Drag and drop
-  const zone = document.getElementById('upload-zone');
-  zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = 'var(--red)'; zone.style.background = 'rgba(204,31,38,0.06)'; });
-  zone.addEventListener('dragleave', () => { zone.style.borderColor = ''; zone.style.background = ''; });
-  zone.addEventListener('drop', e => {
+  // ── Drag and drop ──
+  var zone = document.getElementById('upload-zone');
+  zone.addEventListener('dragover', function(e) {
     e.preventDefault();
-    zone.style.borderColor = ''; zone.style.background = '';
+    zone.style.borderColor = 'var(--red)';
+    zone.style.background  = 'rgba(204,31,38,0.06)';
+  });
+  zone.addEventListener('dragleave', function() {
+    zone.style.borderColor = '';
+    zone.style.background  = '';
+  });
+  zone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    zone.style.borderColor = '';
+    zone.style.background  = '';
     handleFiles(e.dataTransfer.files);
   });
 
   // ── Validation ──
-  const requiredFields = ['fecha_registro','nombre_reporta','correo_electronico','fecha_evento','hora_evento','tipo_evento','clasificacion','detalles','locacion','relacion'];
+  var requiredFields = ['fecha_registro','nombre_reporta','correo_electronico','fecha_evento','hora_evento','tipo_evento','clasificacion','detalles','locacion','relacion'];
 
   function validateForm() {
-    let valid = true;
-    requiredFields.forEach(id => {
-      const el = document.getElementById(id);
-      const err = document.getElementById('err-' + id);
-      let invalid = !el.value.trim();
+    var valid = true;
+    buildLocacion();
+    requiredFields.forEach(function(id) {
+      var el  = document.getElementById(id);
+      var err = document.getElementById('err-' + id);
+      var invalid = !el.value.trim();
       if (id === 'correo_electronico' && !invalid) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(el.value.trim())) invalid = true;
       }
-      el.classList.toggle('invalid', invalid);
+      if (id === 'locacion') {
+        var tipoEl = document.getElementById('locacion_tipo');
+        if (!tipoEl.value) invalid = true;
+        document.getElementById('locacion_tipo').classList.toggle('invalid', invalid);
+      } else {
+        el.classList.toggle('invalid', invalid);
+      }
       err.classList.toggle('show', invalid);
       if (invalid) valid = false;
     });
     return valid;
   }
 
-  requiredFields.forEach(id => {
-    const el = document.getElementById(id);
+  requiredFields.forEach(function(id) {
+    var el = document.getElementById(id);
     if (!el) return;
-    el.addEventListener('input', () => {
+    el.addEventListener('input', function() {
       if (el.value.trim()) {
         el.classList.remove('invalid');
-        document.getElementById('err-' + id)?.classList.remove('show');
+        var errEl = document.getElementById('err-' + id);
+        if (errEl) errEl.classList.remove('show');
       }
     });
   });
@@ -306,47 +378,57 @@
   // ── Upload files to Supabase Storage ──
   async function uploadFiles(reportId) {
     if (!selectedFiles.length) return [];
-    const urls = [];
-    for (const file of selectedFiles) {
-      const ext = file.name.split('.').pop();
-      const path = `safety-alerts/${reportId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-      const { data, error } = await db.storage.from('evidencias').upload(path, file, { upsert: false });
-      if (error) {
-        console.error('❌ Error subiendo archivo:', file.name, error.message);
-      } else if (data) {
-        const { data: urlData } = db.storage.from('evidencias').getPublicUrl(path);
-        urls.push(urlData?.publicUrl || path);
+    var urls = [];
+    for (var i = 0; i < selectedFiles.length; i++) {
+      var file = selectedFiles[i];
+      var ext  = file.name.split('.').pop();
+      var path = 'safety-alerts/' + reportId + '/' + Date.now() + '_' + Math.random().toString(36).slice(2) + '.' + ext;
+      var up   = await db.storage.from('evidencias').upload(path, file, { upsert: false });
+      if (up.error) {
+        console.error('Error subiendo archivo:', file.name, up.error.message);
+      } else if (up.data) {
+        var urlData = db.storage.from('evidencias').getPublicUrl(path);
+        urls.push((urlData.data && urlData.data.publicUrl) ? urlData.data.publicUrl : path);
       }
     }
     return urls;
   }
 
   // ── Submit ──
-  document.getElementById('safety-form').addEventListener('submit', async (e) => {
+  document.getElementById('safety-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     document.getElementById('global-error').classList.remove('show');
 
     if (!validateForm()) {
-      const firstInvalid = document.querySelector('.f-input.invalid, .f-select.invalid, .f-textarea.invalid');
+      var firstInvalid = document.querySelector('.f-input.invalid, .f-select.invalid, .f-textarea.invalid');
       if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
-    const btn = document.getElementById('submit-btn');
-    document.getElementById('btn-text').textContent = 'Enviando...';
+    var btn = document.getElementById('submit-btn');
+    document.getElementById('btn-text').textContent      = 'Enviando...';
     document.getElementById('btn-spinner').style.display = 'block';
     btn.disabled = true;
 
     try {
-      const tempId = crypto.randomUUID ? crypto.randomUUID() : Date.now().toString();
-      const fileUrls = await uploadFiles(tempId);
+      var tempId   = (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString());
+      var fileUrls = await uploadFiles(tempId);
 
-      const tipoExterno     = document.getElementById('tipo_externo').value.trim() || null;
-      const nombreExterno   = document.getElementById('nombre_externo').value.trim() || null;
-      const companiaExterno = document.getElementById('compania_externo').value.trim() || null;
+      var tipoExterno     = document.getElementById('tipo_externo').value.trim()     || null;
+      var nombreExterno   = document.getElementById('nombre_externo').value.trim()   || null;
+      var companiaExterno = document.getElementById('compania_externo').value.trim() || null;
 
-      const record = {
-        fecha_registro:     document.getElementById('fecha_registro').value,
+      var fechaRegistroVal = document.getElementById('fecha_registro').value;
+      var partes   = fechaRegistroVal.split('-').map(Number);
+      var anioReg  = partes[0];
+      var mesReg   = partes[1];
+      var diaReg   = partes[2];
+
+      var record = {
+        fecha_registro:     fechaRegistroVal,
+        dia_registro:       diaReg,
+        mes_registro:       mesReg,
+        anio_registro:      anioReg,
         nombre_reporta:     document.getElementById('nombre_reporta').value.trim(),
         correo_electronico: document.getElementById('correo_electronico').value.trim(),
         fecha_evento:       document.getElementById('fecha_evento').value,
@@ -360,21 +442,24 @@
         locacion:           document.getElementById('locacion').value.trim(),
         relacion:           document.getElementById('relacion').value,
         evidencias:         fileUrls.length ? fileUrls : null,
-        created_at:         new Date().toISOString(),
+        created_at:         new Date().toISOString()
       };
 
-      const { error } = await db.from('safety_alerts').insert([record]);
-      if (error) throw error;
+      var ins = await db.from('safety_alerts').insert([record]).select('folio').single();
+      if (ins.error) throw ins.error;
 
+      var folioGenerado = ins.data.folio;
+      document.getElementById('success-folio').textContent = 'Folio: ' + folioGenerado;
       document.getElementById('success-screen').classList.add('show');
 
-    } catch (err) {
+    } catch(err) {
       console.error('Error al guardar:', err);
-      document.getElementById('global-error').classList.add('show');
-      document.getElementById('global-error').textContent = '⚠️ Error: ' + (err.message || 'No se pudo guardar el reporte. Intenta nuevamente.');
-      document.getElementById('global-error').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      var errBox = document.getElementById('global-error');
+      errBox.classList.add('show');
+      errBox.textContent = '⚠️ Error: ' + (err.message || 'No se pudo guardar el reporte. Intenta nuevamente.');
+      errBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } finally {
-      document.getElementById('btn-text').textContent = 'Enviar Reporte';
+      document.getElementById('btn-text').textContent      = 'Enviar Reporte';
       document.getElementById('btn-spinner').style.display = 'none';
       btn.disabled = false;
     }
@@ -385,11 +470,17 @@
     document.getElementById('safety-form').reset();
     selectedFiles = [];
     renderFileList();
-    requiredFields.forEach(id => {
-      document.getElementById(id)?.classList.remove('invalid');
-      document.getElementById('err-' + id)?.classList.remove('show');
+    requiredFields.forEach(function(id) {
+      var el  = document.getElementById(id);
+      var err = document.getElementById('err-' + id);
+      if (el)  el.classList.remove('invalid');
+      if (err) err.classList.remove('show');
     });
-    document.getElementById('externo-fields').style.display = 'none';
+    document.getElementById('locacion_tipo').classList.remove('invalid');
+    document.getElementById('locacion-pozo-fields').style.display  = 'none';
+    document.getElementById('locacion-cliente-field').style.display = 'none';
+    document.getElementById('locacion-otro-field').style.display    = 'none';
+    document.getElementById('externo-fields').style.display         = 'none';
     document.getElementById('global-error').classList.remove('show');
     document.getElementById('success-screen').classList.remove('show');
     window.scrollTo({ top: 0, behavior: 'smooth' });

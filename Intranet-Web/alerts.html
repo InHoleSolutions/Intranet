@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Safety Alerts | In Hole Solutions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .glass-nav { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); }
+
+    /* Month cards */
+    .month-card {
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      cursor: pointer;
+    }
+    .month-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px -10px rgba(227,30,36,0.18);
+    }
+    .month-card.active {
+      background: #b91c1c;
+      border-color: #b91c1c;
+      color: white;
+    }
+    .month-card.active .month-num { color: rgba(255,255,255,0.4); }
+    .month-card.active .month-name { color: white; }
+
+    /* Folder cards */
+    .folder-card {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .folder-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px -8px rgba(0,0,0,0.12); }
+
+    /* Table scrollbar */
+    .table-wrap::-webkit-scrollbar { height: 5px; width: 5px; }
+    .table-wrap::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+    /* Slide-in sections */
+    .section-enter { animation: slideIn 0.35s ease-out; }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Breadcrumb separator */
+    .bc-sep::before { content: '/'; margin: 0 6px; opacity: 0.4; }
+
+    /* Evidence modal backdrop */
+    #evidenceModal { transition: opacity 0.2s ease; }
+
+    /* Image grid in modal */
+    .ev-img { transition: transform 0.2s ease; cursor: zoom-in; }
+    .ev-img:hover { transform: scale(1.03); }
+
+    /* Loading spinner */
+    .spin { animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Badge clasificacion */
+    .badge-nivel-1 { background:#fee2e2; color:#b91c1c; }
+    .badge-nivel-2 { background:#fef3c7; color:#92400e; }
+    .badge-nivel-3 { background:#d1fae5; color:#065f46; }
+    .badge-default { background:#e2e8f0; color:#475569; }
+  </style>
+</head>
+<body class="bg-[#f8fafc] min-h-screen">
+
+<!-- ── HEADER ── -->
+<header class="bg-white border-b border-slate-200 sticky top-0 z-[60] glass-nav">
+  <div class="max-w-[1440px] mx-auto px-6 h-20 flex justify-between items-center">
+    <a href="dashboard.html" class="flex items-center gap-8 cursor-pointer">
+      <img src="../assets/images/logo/logo-dark.svg" alt="In Hole Solutions" class="h-12 md:h-20 w-auto">
+      <div class="hidden md:block h-8 w-[1px] bg-slate-200"></div>
+      <span class="hidden md:block text-slate-500 font-medium text-sm tracking-wide uppercase">Intranet Corporativa</span>
+    </a>
+    <div class="flex items-center gap-6">
+      <div class="text-right hidden sm:block">
+        <p id="user-welcome" class="text-slate-800 font-semibold text-sm">Cargando...</p>
+        <p class="text-slate-400 text-xs font-medium uppercase tracking-tighter">Miembro del Equipo</p>
+      </div>
+      <a href="dashboard.html" class="bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-700 h-10 w-10 rounded-xl border border-slate-200 transition-all flex items-center justify-center shadow-sm" title="Volver al Dashboard">
+        <i class="fas fa-arrow-left text-sm"></i>
+      </a>
+      <button onclick="cerrarSesion()" class="bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-600 h-10 w-10 rounded-xl border border-slate-200 transition-all flex items-center justify-center shadow-sm">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ── NAV ── -->
+<nav class="bg-red-700 shadow-lg sticky top-20 z-50">
+  <div class="max-w-[1440px] mx-auto px-6 h-14 flex items-center gap-2 text-xs font-bold text-white/70 uppercase tracking-widest">
+    <a href="dashboard.html" class="hover:text-white transition-colors">Dashboard</a>
+    <span class="opacity-40">/</span>
+    <span class="text-white flex items-center gap-2"><i class="fas fa-triangle-exclamation text-[10px]"></i> Safety Alerts</span>
+  </div>
+</nav>
+
+<!-- ── MAIN ── -->
+<main class="max-w-[1440px] mx-auto p-6 md:p-10">
+
+  <!-- BREADCRUMB dinámico -->
+  <div id="breadcrumb" class="flex items-center gap-1 text-xs font-semibold text-slate-400 uppercase tracking-widest mb-8">
+    <span class="text-slate-600 cursor-pointer hover:text-red-600 transition-colors" onclick="irAMeses()">Safety Alerts</span>
+    <span id="bc-mes" class="hidden bc-sep"></span>
+    <span id="bc-anio" class="hidden bc-sep"></span>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       VISTA 1: PANEL BIENVENIDA + MESES
+  ═══════════════════════════════════════════ -->
+  <div id="vista-meses" class="section-enter">
+
+    <!-- Hero banner -->
+    <div class="relative bg-gradient-to-br from-red-700 via-red-800 to-slate-900 rounded-3xl p-10 mb-10 overflow-hidden">
+      <div class="absolute inset-0 opacity-5" style="background-image:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:20px 20px;"></div>
+      <i class="fas fa-helmet-safety absolute -right-8 -bottom-8 text-[220px] text-white opacity-5 rotate-12 pointer-events-none"></i>
+      <div class="relative z-10 max-w-2xl">
+        <span class="inline-flex items-center gap-2 bg-white/10 text-white/80 text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full mb-6 border border-white/10">
+          <i class="fas fa-shield-halved text-[9px]"></i> Sistema de Reportes
+        </span>
+        <h1 class="text-3xl md:text-4xl font-black text-white leading-tight mb-4 uppercase italic">
+          Safety <span class="text-red-300">Alerts</span>
+        </h1>
+        <p class="text-white/70 text-sm leading-relaxed max-w-lg">
+          Centraliza y consulta todos los reportes de seguridad generados en campo. Navega por mes y año para acceder al historial completo de eventos, clasificaciones y evidencias documentadas.
+        </p>
+      </div>
+      <div class="relative z-10 flex flex-wrap gap-6 mt-8">
+        <div class="bg-white/10 rounded-2xl px-6 py-4 border border-white/10">
+          <p class="text-white/50 text-[10px] font-bold uppercase tracking-widest mb-1">Total Reportes</p>
+          <p id="stat-total" class="text-3xl font-black text-white">—</p>
+        </div>
+        <div class="bg-white/10 rounded-2xl px-6 py-4 border border-white/10">
+          <p class="text-white/50 text-[10px] font-bold uppercase tracking-widest mb-1">Este Mes</p>
+          <p id="stat-mes" class="text-3xl font-black text-white">—</p>
+        </div>
+        <div class="bg-white/10 rounded-2xl px-6 py-4 border border-white/10">
+          <p class="text-white/50 text-[10px] font-bold uppercase tracking-widest mb-1">Año Activo</p>
+          <p class="text-3xl font-black text-white">2026</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid de meses -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
+      <div class="flex items-center justify-between mb-8 pb-6 border-b border-slate-100">
+        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-3">
+          <i class="fas fa-calendar-days text-red-600"></i> Selecciona un Mes
+        </h2>
+        <span class="text-xs text-slate-400 font-medium">Haz clic en el mes para ver sus reportes</span>
+      </div>
+      <div id="meses-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <!-- Generado por JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       VISTA 2: CARPETAS POR AÑO
+  ═══════════════════════════════════════════ -->
+  <div id="vista-anios" class="hidden section-enter">
+    <div class="flex items-center gap-4 mb-8">
+      <button onclick="irAMeses()" class="flex items-center gap-2 text-slate-500 hover:text-red-600 transition-colors text-sm font-semibold">
+        <i class="fas fa-arrow-left"></i> Volver a Meses
+      </button>
+      <div class="h-5 w-px bg-slate-200"></div>
+      <h2 id="titulo-anios" class="text-xl font-bold text-slate-800 uppercase italic">Enero</h2>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
+      <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-8">Selecciona el año para ver los reportes</p>
+      <div id="anios-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+        <!-- Generado por JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       VISTA 3: TABLA DE REPORTES
+  ═══════════════════════════════════════════ -->
+  <div id="vista-tabla" class="hidden section-enter">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <div class="flex items-center gap-4">
+        <button onclick="irAAnios()" class="flex items-center gap-2 text-slate-500 hover:text-red-600 transition-colors text-sm font-semibold">
+          <i class="fas fa-arrow-left"></i> Volver a Años
+        </button>
+        <div class="h-5 w-px bg-slate-200"></div>
+        <div>
+          <h2 id="titulo-tabla" class="text-xl font-bold text-slate-800 uppercase italic">Reportes</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Datos cargados desde la base de datos</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="badge-total-reportes" class="bg-red-50 text-red-700 text-xs font-black px-4 py-2 rounded-xl border border-red-100"></span>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <!-- Estado cargando -->
+      <div id="tabla-loading" class="flex flex-col items-center justify-center py-24 gap-4 text-slate-400">
+        <i class="fas fa-circle-notch spin text-3xl text-red-500"></i>
+        <p class="text-sm font-medium">Cargando reportes...</p>
+      </div>
+      <!-- Estado vacío -->
+      <div id="tabla-empty" class="hidden flex flex-col items-center justify-center py-24 gap-4 text-slate-300">
+        <i class="fas fa-folder-open text-5xl"></i>
+        <p class="text-sm font-medium text-slate-400">No hay reportes para este período</p>
+      </div>
+      <!-- Tabla -->
+      <div id="tabla-contenedor" class="hidden">
+        <div class="overflow-x-auto table-wrap">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-100">
+                <th class="px-5 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Fecha Registro</th>
+                <th class="px-5 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Nombre Reporta</th>
+                <th class="px-5 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Fecha Evento</th>
+                <th class="px-5 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Hora Evento</th>
+                <th class="px-5 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Tipo Evento</th>
+                <th class="px-5 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Clasificación</th>
+                <th class="px-5 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Detalles</th>
+                <th class="px-5 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Ubicación</th>
+                <th class="px-5 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Relación</th>
+                <th class="px-5 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Correo</th>
+                <th class="px-5 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Tipo Externo</th>
+                <th class="px-5 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Nombre Externo</th>
+                <th class="px-5 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Compañía Externa</th>
+                <th class="px-5 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center whitespace-nowrap">Evidencias</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-body" class="divide-y divide-slate-50">
+              <!-- Filas generadas por JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: EVIDENCIAS
+═══════════════════════════════════════════ -->
+<div id="evidenceModal" class="hidden fixed inset-0 z-[200] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden">
+    <!-- Header modal -->
+    <div class="flex items-center justify-between px-8 py-6 border-b border-slate-100">
+      <div>
+        <h3 class="text-base font-bold text-slate-800 flex items-center gap-3">
+          <i class="fas fa-camera text-red-600"></i> Evidencias del Reporte
+        </h3>
+        <p id="modal-subtitle" class="text-xs text-slate-400 mt-1"></p>
+      </div>
+      <button onclick="cerrarEvidencias()" class="h-10 w-10 rounded-xl bg-slate-100 hover:bg-red-50 hover:text-red-600 text-slate-500 flex items-center justify-center transition-all">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <!-- Body modal -->
+    <div class="flex-1 overflow-y-auto p-8">
+      <div id="ev-loading" class="flex flex-col items-center justify-center py-16 gap-3 text-slate-400">
+        <i class="fas fa-circle-notch spin text-2xl text-red-500"></i>
+        <p class="text-sm">Cargando evidencias...</p>
+      </div>
+      <div id="ev-empty" class="hidden flex-col items-center justify-center py-16 gap-3 text-slate-300">
+        <i class="fas fa-image text-5xl"></i>
+        <p class="text-sm text-slate-400">No hay evidencias adjuntas</p>
+      </div>
+      <div id="ev-grid" class="hidden grid grid-cols-2 md:grid-cols-3 gap-4">
+        <!-- Imágenes generadas por JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox para imagen ampliada -->
+<div id="lightbox" class="hidden fixed inset-0 z-[300] bg-black/90 flex items-center justify-center p-4 cursor-zoom-out" onclick="cerrarLightbox()">
+  <img id="lightbox-img" src="" alt="Evidencia" class="max-w-full max-h-full rounded-xl shadow-2xl object-contain">
+</div>
+
+<!-- ── SCRIPTS ── -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const { createClient } = supabase;
+const supabaseClient = createClient(
+  'https://bgqlvkvlscujikhzzazf.supabase.co',
+  'sb_publishable_mzHMY11jZ7OaMES008LTzA_d7Ya1A2g'
+);
+
+/* ─── CONSTANTES ─── */
+const MESES = [
+  { num: 1,  nombre: 'Enero' },
+  { num: 2,  nombre: 'Febrero' },
+  { num: 3,  nombre: 'Marzo' },
+  { num: 4,  nombre: 'Abril' },
+  { num: 5,  nombre: 'Mayo' },
+  { num: 6,  nombre: 'Junio' },
+  { num: 7,  nombre: 'Julio' },
+  { num: 8,  nombre: 'Agosto' },
+  { num: 9,  nombre: 'Septiembre' },
+  { num: 10, nombre: 'Octubre' },
+  { num: 11, nombre: 'Noviembre' },
+  { num: 12, nombre: 'Diciembre' }
+];
+
+// Años disponibles: desde 2026 hasta el año actual
+const ANIO_INICIO = 2026;
+const ANIO_ACTUAL = new Date().getFullYear();
+const ANIOS = [];
+for (let y = ANIO_INICIO; y <= Math.max(ANIO_ACTUAL, ANIO_INICIO); y++) ANIOS.push(y);
+
+// Estado de navegación
+let estadoActual = { mes: null, anio: null };
+
+/* ─── INICIO ─── */
+async function init() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) { window.location.href = 'intranet-login.html'; return; }
+
+  const { data: perfil } = await supabaseClient
+    .from('perfiles').select('*').eq('id', session.user.id).single();
+  if (perfil) {
+    document.getElementById('user-welcome').innerText =
+      `${obtenerSaludo()}, ${perfil.nombre_completo}`;
+  }
+
+  cargarEstadisticas();
+  renderMeses();
+}
+
+function obtenerSaludo() {
+  const h = new Date().getHours();
+  if (h >= 6 && h < 12) return 'Buenos días';
+  if (h >= 12 && h < 19) return 'Buenas tardes';
+  return 'Buenas noches';
+}
+
+async function cerrarSesion() {
+  await supabaseClient.auth.signOut();
+  window.location.href = '../index.html';
+}
+
+/* ─── ESTADÍSTICAS EN EL BANNER ─── */
+async function cargarEstadisticas() {
+  const { count: total } = await supabaseClient
+    .from('safety_alerts')
+    .select('*', { count: 'exact', head: true });
+  document.getElementById('stat-total').textContent = total ?? '—';
+
+  const hoy = new Date();
+  const { count: esteMes } = await supabaseClient
+    .from('safety_alerts')
+    .select('*', { count: 'exact', head: true })
+    .eq('mes_registro',  hoy.getMonth() + 1)
+    .eq('anio_registro', hoy.getFullYear());
+  document.getElementById('stat-mes').textContent = esteMes ?? '—';
+}
+
+/* ─── RENDER MESES ─── */
+function renderMeses() {
+  const grid = document.getElementById('meses-grid');
+  const mesActual = new Date().getMonth() + 1;
+  grid.innerHTML = MESES.map(m => `
+    <div class="month-card bg-white border-2 border-slate-100 rounded-2xl p-5 flex flex-col items-center gap-1 select-none ${m.num === mesActual ? 'ring-2 ring-red-200' : ''}"
+         onclick="seleccionarMes(${m.num}, '${m.nombre}')">
+      <span class="month-num text-4xl font-black text-slate-100 leading-none">${String(m.num).padStart(2,'0')}</span>
+      <span class="month-name text-xs font-bold text-slate-600 uppercase tracking-widest">${m.nombre}</span>
+      ${m.num === mesActual ? '<span class="text-[9px] font-black text-red-500 uppercase tracking-widest mt-1">Actual</span>' : ''}
+    </div>
+  `).join('');
+}
+
+/* ─── NAVEGACIÓN ─── */
+function seleccionarMes(numMes, nombreMes) {
+  estadoActual.mes = numMes;
+  estadoActual.mesNombre = nombreMes;
+
+  // Actualizar breadcrumb
+  const bcMes = document.getElementById('bc-mes');
+  bcMes.textContent = nombreMes;
+  bcMes.classList.remove('hidden');
+  document.getElementById('bc-anio').classList.add('hidden');
+
+  // Título
+  document.getElementById('titulo-anios').textContent = nombreMes;
+
+  // Renderizar carpetas de año
+  renderAnios();
+
+  // Cambiar vista
+  document.getElementById('vista-meses').classList.add('hidden');
+  document.getElementById('vista-anios').classList.remove('hidden');
+  document.getElementById('vista-anios').classList.add('section-enter');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderAnios() {
+  const grid = document.getElementById('anios-grid');
+  const anioActual = new Date().getFullYear();
+  grid.innerHTML = ANIOS.map(y => `
+    <div class="folder-card bg-white border-2 border-slate-100 rounded-2xl p-6 flex flex-col items-center gap-3 hover:border-red-200"
+         onclick="seleccionarAnio(${y})">
+      <div class="relative">
+        <i class="fas fa-folder text-6xl text-amber-400"></i>
+        ${y === anioActual ? '<span class="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full border-2 border-white"></span>' : ''}
+      </div>
+      <span class="text-sm font-bold text-slate-700">${y}</span>
+      ${y === anioActual ? '<span class="text-[9px] font-black text-red-500 uppercase tracking-widest">Año actual</span>' : ''}
+    </div>
+  `).join('');
+}
+
+function seleccionarAnio(anio) {
+  estadoActual.anio = anio;
+
+  // Breadcrumb
+  const bcAnio = document.getElementById('bc-anio');
+  bcAnio.textContent = anio;
+  bcAnio.classList.remove('hidden');
+
+  // Título tabla
+  document.getElementById('titulo-tabla').textContent =
+    `${estadoActual.mesNombre} ${anio}`;
+
+  // Cambiar vista
+  document.getElementById('vista-anios').classList.add('hidden');
+  document.getElementById('vista-tabla').classList.remove('hidden');
+  document.getElementById('vista-tabla').classList.add('section-enter');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  cargarReportes(estadoActual.mes, anio);
+}
+
+function irAMeses() {
+  document.getElementById('vista-anios').classList.add('hidden');
+  document.getElementById('vista-tabla').classList.add('hidden');
+  document.getElementById('vista-meses').classList.remove('hidden');
+  document.getElementById('vista-meses').classList.add('section-enter');
+  document.getElementById('bc-mes').classList.add('hidden');
+  document.getElementById('bc-anio').classList.add('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function irAAnios() {
+  document.getElementById('vista-tabla').classList.add('hidden');
+  document.getElementById('vista-anios').classList.remove('hidden');
+  document.getElementById('vista-anios').classList.add('section-enter');
+  document.getElementById('bc-anio').classList.add('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ─── CARGAR REPORTES DESDE SUPABASE ─── */
+async function cargarReportes(mes, anio) {
+  document.getElementById('tabla-loading').classList.remove('hidden');
+  document.getElementById('tabla-empty').classList.add('hidden');
+  document.getElementById('tabla-contenedor').classList.add('hidden');
+  document.getElementById('badge-total-reportes').textContent = '';
+
+  const { data, error } = await supabaseClient
+    .from('safety_alerts')
+    .select(`
+      fecha_registro, nombre_reporta, fecha_evento, hora_evento,
+      tipo_evento, clasificacion, detalles, locacion, relacion,
+      evidencias, correo_electronico, tipo_externo, nombre_externo,
+      compania_externo, dia_registro, mes_registro, anio_registro
+    `)
+    .eq('mes_registro', mes)       // ← filtro directo por mes
+    .eq('anio_registro', anio)     // ← filtro directo por año
+    .order('dia_registro', { ascending: false });
+
+  document.getElementById('tabla-loading').classList.add('hidden');
+
+  if (error) {
+    console.error('Error cargando reportes:', error);
+    document.getElementById('tabla-empty').classList.remove('hidden');
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    document.getElementById('tabla-empty').classList.remove('hidden');
+    return;
+  }
+
+  document.getElementById('badge-total-reportes').textContent =
+    `${data.length} reporte${data.length !== 1 ? 's' : ''}`;
+
+  const tbody = document.getElementById('tabla-body');
+  tbody.innerHTML = data.map(r => `
+    <tr class="hover:bg-red-50/20 transition-colors group">
+      <td class="px-5 py-4 text-slate-600 whitespace-nowrap font-medium">${formatDate(r.fecha_registro)}</td>
+      <td class="px-5 py-4 text-slate-700 font-semibold whitespace-nowrap">${esc(r.nombre_reporta)}</td>
+      <td class="px-5 py-4 text-slate-600 whitespace-nowrap">${formatDate(r.fecha_evento)}</td>
+      <td class="px-5 py-4 text-slate-500 whitespace-nowrap">${esc(r.hora_evento)}</td>
+      <td class="px-5 py-4 whitespace-nowrap">
+        <span class="text-xs font-semibold text-slate-700">${esc(r.tipo_evento)}</span>
+      </td>
+      <td class="px-5 py-4 whitespace-nowrap">${badgeClasificacion(r.clasificacion)}</td>
+      <td class="px-5 py-4 text-slate-500 max-w-[220px]">
+        <p class="truncate text-xs leading-relaxed" title="${esc(r.detalles)}">${esc(r.detalles)}</p>
+      </td>
+      <td class="px-5 py-4 text-slate-600 whitespace-nowrap text-xs">${esc(r.locacion)}</td>
+      <td class="px-5 py-4 text-slate-600 whitespace-nowrap text-xs">${esc(r.relacion)}</td>
+      <td class="px-5 py-4 text-slate-500 whitespace-nowrap text-xs">${esc(r.correo_electronico)}</td>
+      <td class="px-5 py-4 text-slate-500 whitespace-nowrap text-xs">${esc(r.tipo_externo)}</td>
+      <td class="px-5 py-4 text-slate-500 whitespace-nowrap text-xs">${esc(r.nombre_externo)}</td>
+      <td class="px-5 py-4 text-slate-500 whitespace-nowrap text-xs">${esc(r.compania_externo)}</td>
+      <td class="px-5 py-4 text-center whitespace-nowrap">
+        <button onclick='abrirEvidencias(${JSON.stringify(r.evidencias)}, "${esc(r.nombre_reporta)}", "${formatDate(r.fecha_evento)}")'
+          class="h-9 w-9 rounded-xl bg-slate-100 hover:bg-red-600 text-slate-500 hover:text-white transition-all flex items-center justify-center mx-auto"
+          title="Ver evidencias">
+          <i class="fas fa-camera text-xs"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+
+  document.getElementById('tabla-contenedor').classList.remove('hidden');
+}
+
+/* ─── HELPERS DE FORMATO ─── */
+function esc(v) {
+  if (v === null || v === undefined) return '<span class="text-slate-300">—</span>';
+  return String(v).replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  const [y, m, dd] = d.split('-');
+  const meses = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  return `${dd} ${meses[parseInt(m)]} ${y}`;
+}
+
+function badgeClasificacion(val) {
+  if (!val) return '<span class="text-slate-300 text-xs">—</span>';
+  const v = val.toLowerCase();
+  let cls = 'badge-default';
+  if (v.includes('1') || v.includes('alto') || v.includes('grave')) cls = 'badge-nivel-1';
+  else if (v.includes('2') || v.includes('medio') || v.includes('moderado')) cls = 'badge-nivel-2';
+  else if (v.includes('3') || v.includes('bajo') || v.includes('leve')) cls = 'badge-nivel-3';
+  return `<span class="text-[10px] font-black uppercase px-2.5 py-1 rounded-lg ${cls}">${val}</span>`;
+}
+
+/* ─── EVIDENCIAS ─── */
+// El campo `evidencias` en Supabase puede ser:
+//   - Un array de rutas/nombres de archivo: ["foto1.jpg", "foto2.png"]
+//   - Un string JSON: '["foto1.jpg","foto2.png"]'
+//   - O null/vacío
+// Las imágenes se obtienen del bucket "evidencias" en Supabase Storage.
+// Ajusta el nombre del bucket si es diferente.
+
+const BUCKET_EVIDENCIAS = 'evidencias'; // ← Cambia aquí si tu bucket tiene otro nombre
+
+async function abrirEvidencias(evidenciasRaw, nombreReporta, fechaEvento) {
+  // Mostrar modal
+  document.getElementById('evidenceModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('modal-subtitle').textContent =
+    `${nombreReporta} · ${fechaEvento}`;
+
+  // Reset estado
+  document.getElementById('ev-loading').classList.remove('hidden');
+  document.getElementById('ev-empty').classList.add('hidden');
+  document.getElementById('ev-grid').classList.add('hidden');
+  document.getElementById('ev-grid').innerHTML = '';
+
+  // Parsear evidencias
+  let archivos = [];
+  try {
+    if (!evidenciasRaw) {
+      archivos = [];
+    } else if (Array.isArray(evidenciasRaw)) {
+      archivos = evidenciasRaw;
+    } else if (typeof evidenciasRaw === 'string') {
+      archivos = JSON.parse(evidenciasRaw);
+    }
+  } catch(e) {
+    // Si no es JSON, intentar como string simple separado por comas
+    archivos = evidenciasRaw ? String(evidenciasRaw).split(',').map(s => s.trim()).filter(Boolean) : [];
+  }
+
+  document.getElementById('ev-loading').classList.add('hidden');
+
+  if (!archivos || archivos.length === 0) {
+    document.getElementById('ev-empty').classList.remove('hidden');
+    return;
+  }
+
+  // Generar URLs públicas o firmadas para cada archivo
+  const urls = [];
+  for (const archivo of archivos) {
+    if (!archivo) continue;
+    try {
+      // Intentar URL pública primero
+      const { data: urlData } = supabaseClient
+        .storage.from(BUCKET_EVIDENCIAS).getPublicUrl(archivo);
+      if (urlData?.publicUrl) {
+        urls.push({ url: urlData.publicUrl, nombre: archivo });
+        continue;
+      }
+    } catch(e) {}
+
+    try {
+      // Si no es público, generar URL firmada (60 min)
+      const { data: signed } = await supabaseClient
+        .storage.from(BUCKET_EVIDENCIAS).createSignedUrl(archivo, 3600);
+      if (signed?.signedUrl) {
+        urls.push({ url: signed.signedUrl, nombre: archivo });
+      }
+    } catch(e) {
+      console.warn('No se pudo obtener URL para:', archivo);
+    }
+  }
+
+  if (urls.length === 0) {
+    document.getElementById('ev-empty').classList.remove('hidden');
+    return;
+  }
+
+  // Renderizar grid de imágenes
+  const grid = document.getElementById('ev-grid');
+  grid.innerHTML = urls.map(({ url, nombre }) => {
+    const ext = nombre.split('.').pop().toLowerCase();
+    const esImagen = ['jpg','jpeg','png','gif','webp','bmp','svg'].includes(ext);
+    if (esImagen) {
+      return `
+        <div class="rounded-xl overflow-hidden bg-slate-100 aspect-square border border-slate-100">
+          <img src="${url}" alt="${nombre}"
+            class="ev-img w-full h-full object-cover"
+            onclick="abrirLightbox('${url}')"
+            onerror="this.parentElement.innerHTML='<div class=\'flex flex-col items-center justify-center h-full gap-2 text-slate-300 p-4\'><i class=\'fas fa-image-slash text-3xl\'></i><span class=\'text-xs text-center\'>No se pudo cargar</span></div>'"
+          >
+        </div>`;
+    } else {
+      // Archivo no imagen: mostrar como descarga
+      return `
+        <a href="${url}" target="_blank"
+          class="rounded-xl overflow-hidden bg-slate-50 border-2 border-dashed border-slate-200 aspect-square flex flex-col items-center justify-center gap-2 hover:border-red-300 hover:bg-red-50 transition-all group">
+          <i class="fas fa-file text-3xl text-slate-300 group-hover:text-red-400 transition-colors"></i>
+          <span class="text-[10px] text-slate-400 group-hover:text-red-500 font-medium text-center px-2 break-all">${nombre}</span>
+          <span class="text-[9px] text-red-400 uppercase font-bold">${ext}</span>
+        </a>`;
+    }
+  }).join('');
+
+  grid.classList.remove('hidden');
+}
+
+function cerrarEvidencias() {
+  document.getElementById('evidenceModal').classList.add('hidden');
+  document.body.style.overflow = 'auto';
+}
+
+function abrirLightbox(url) {
+  document.getElementById('lightbox-img').src = url;
+  document.getElementById('lightbox').classList.remove('hidden');
+}
+
+function cerrarLightbox() {
+  document.getElementById('lightbox').classList.add('hidden');
+  document.getElementById('lightbox-img').src = '';
+}
+
+// Cerrar modales con Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    cerrarEvidencias();
+    cerrarLightbox();
+  }
+});
+
+// Cerrar modal al clic en backdrop
+document.getElementById('evidenceModal').addEventListener('click', function(e) {
+  if (e.target === this) cerrarEvidencias();
+});
+
+init();
+</script>
+</body>
+</html>
