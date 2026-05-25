@@ -25,7 +25,6 @@
         <div class="container-fluid">
     
           <a class="navbar-brand logo-independiente" href="index.html">
-            <img src="assets/images/logo/logo-light.svg" class="logo-light" alt="logo">
             <img src="assets/images/logo/logo-dark.svg" class="logo-dark" alt="logo">
           </a>
     
@@ -34,7 +33,7 @@
           </button>
     
           <div class="collapse navbar-collapse" id="mainNavigation">
-            <ul class="navbar-nav mx-auto">
+            <ul class="navbar-nav mr-auto ml-50">
               <li class="nav__item">
                 <a href="index.html" class="nav__item-link active">Inicio</a>
               </li>
@@ -43,7 +42,6 @@
               </li>
               <li class="nav__item with-dropdown">
                 <a href="javascript:void(0)" class="dropdown-toggle nav__item-link mobile-trigger">Productos</a>
-                <i class="fa fa-angle-right"></i>
                 <ul class="dropdown-menu">
                   <li class="nav__item"><a class="nav__item-link" href="productos-maquina-torsion-continua.html">Máquina de
                       Torsión</a></li>
@@ -56,7 +54,6 @@
               
               <li class="nav__item with-dropdown">
                 <a href="javascript:void(0)" class="dropdown-toggle nav__item-link mobile-trigger">Servicios</a>
-                <i class="fa fa-angle-right"></i>
                 <ul class="dropdown-menu">
                   <li class="nav__item"><a href="#" class="nav__item-link">Apriete en banco horizontal</a></li>
                   <li class="nav__item"><a href="#" class="nav__item-link">Calibración de equipos</a></li>
@@ -82,101 +79,103 @@
     </header>
 		   
     <section id="navegaslider">
-      <video id="slider3" autoplay loop muted>
-        <source src="assets/images/sliders/Video360.mp4" type="video/mp4">
-      </video>
-    
-      <br><br><br><br><br><br><br><br><br>
-      <div class="container">
-        <div class="row">
-          <div class="col-sm-12 col-md-12 col-lg-8">
-            <h2 class="slide__title2" id="q1" style="display: block">IN HOLE SOLUTIONS es el socio de primera elección para
-              servicios de Apriete con
-              Máquina de Torsión Continua en banco horizontal y productos asociados.</h2>
-    
-            <h2 class="slide__title2" id="q2" style="display: none">
-              <br><br><br><br><br><br><br><br><br>
-            </h2>
-    
-    
-            <p class="slide__desc">Accesorios de Cementación y Equipos para Terminación de Pozos
-            </p>
-            <a href="nosotros.html" class="btn btn__primary btn__hover2 mr-30">
-              <span>Busque más acerca de Nosotros</span><i class="icon-arrow-right"></i>
-            </a>
+  <video id="slider3" autoplay loop muted>
+    <source src="assets/images/sliders/Video360.mp4" type="video/mp4">
+  </video>
+
+  <!-- Contenedor fijo con título, subtítulo y cuadros -->
+  <div class="slider-contenido">
+
+    <!-- Título -->
+    <h2 class="slide__title2" id="q1" style="display: block; text-align: center;">
+      <br>
+      SOLUCIONES ESPECIALIZADAS <br> PARA OPERACIONES DE PETRÓLEO Y GAS
+    </h2>
+    <!-- Subtítulo -->
+    <p class="slide__desc" style="margin-top: 10px;">TORQUE SERVICES • PRESSURE TESTING • CEMENTING ACCESSORIES • COMPLETIONS EQUIPMENT • WELL REMEDIATION
+    </p>
+
+    <!-- Tres cuadros -->
+    <ul class="navegacionslider-fija">
+      <li onclick="cargarVideo('assets/images/sliders/DSC07423.mp4'),togglenew('q1','q2');">
+        <img src="assets/images/sliders/DSC07423.jpg">
+      </li>
+      <li onclick="cargarVideo('assets/images/sliders/Video360.mp4'),togglenew('q1','q2');">
+        <img src="assets/images/sliders/play.png">
+      </li>
+      <li onclick="cargarVideo('assets/images/sliders/herramientas.mp4'),toggle('q1','q2');">
+        <img src="assets/images/sliders/herramientas.png">
+      </li>
+    </ul>
+
+  </div>
+</section>
+
+    <!-- ========================
+  About Layout 2
+=========================== -->
+<section id="aboutLayout2">
+  <div class="container">
+    <div class="row align-items-center">
+
+      <!-- Columna izquierda: texto -->
+      <div class="col-12 col-lg-6 about-texto-col">
+
+        <h2 class="about-titulo">
+          Integramos tecnología avanzada, ingeniería y soluciones integrales para garantizar eficiencia, seguridad y confiabilidad en cada operación en México y América Latina.
+        </h2>
+
+        <div class="about-linea"></div>
+
+        <p class="about-parrafo">
+          Nuestras líneas especializadas en servicios de apriete con máquina de torsión continua en banco horizontal, pruebas hidrostáticas y completación de pozos respaldan operaciones eficientes y confiables para el sector energético.
+        </p>
+      </div>
+
+      <!-- Columna derecha: imagen -->
+      <div class="col-12 col-lg-6 about-imagen-col">
+        <div class="about-imagen-wrapper">
+          <img src="assets/images/product/DSC07410.jpg" alt="In Hole Solutions" class="about-imagen-principal">
+          <div class="about-imagen-badge">
+            <i class="icon-factory-2"></i>
+            <p>Construyendo el futuro, restaurando el pasado.</p>
           </div>
         </div>
       </div>
-      <ul class="navegacionslider">
-    
-        <li onclick="cargarVideo('assets/images/sliders/DSC07423.mp4'),togglenew('q1','q2');">
-          <img src="assets/images/sliders/DSC07423.jpg">
-        </li>
-        <li onclick="cargarVideo('assets/images/sliders/Video360.mp4'),togglenew('q1','q2');">
-          <img src="assets/images/sliders/play.png">
-        </li>
-        <li onclick="cargarVideo('assets/images/sliders/herramientas.mp4'),toggle('q1','q2');">
-          <img src="assets/images/sliders/herramientas.png">
-        </li>
-    
-      </ul>
-    
-    
-    
-    </section>
+
+    </div>
+  </div>
+</section>
 
 
-    <!-- ========================
-      About Layout 2
-    =========================== --><br>
-    <section id="aboutLayout2" class="about about-layout2 pt-120 pb-80">
-      <div class="container">
-        <div class="row">
-          <div class="col-sm-12 col-md-12 col-lg-12 col-xl-6">
-            <div class="heading heading-2 mb-50">
-              
-              <h3 class="heading__title" style="color: gray;" align="justify">
-				  Nuestros equipos con tecnología de vanguardia y  herramientas adecuadas garantizan el éxito en las operaciones de cada cliente, tanto en México como en toda América Latina. 
-                </h3>
-            </div>
-            <div class="row">
-              <div class="col-sm-6 col-md-6 col-lg-8 about__text">
-                <p align="justify">Destacamos por nuestro profesionalismo y compromiso, diferenciándonos con resultados tangibles al ofrecer servicios de excelencia. Diseñamos y fabricamos equipos personalizados que se ajustan a las necesidades específicas de cada cliente.
-                  
-                </p>
-                <a href="#" class="btn btn__secondary mt-20">
-                  <i class="icon-arrow-right"></i><span>Tenemos lo que buscas</span>
-                </a>
-              </div><!-- /.col-lg-6 -->
-            </div><!-- /.row -->
-          </div><!-- /.col-xl-7 -->
-          <div class="col-sm-12 col-md-10 col-lg-8 col-xl-5 position-static">
-            <div class="row mt-50 about__imgs-container">
-              <div class="col-7">
-                <div class="about__img">
-                  <img src="assets/images/product/DSC07410.jpg" alt="about" class="img-fluid w-100">
-                  <div class="cta__banner">
-                    <div class="cta__icon">
-                      <i class="icon-factory-2"></i>
-                    </div>
-                    <h5 class="cta__title mb-0">Construyendo el futuro, restaurando el pasado.</h5>
-                  </div><!-- /.cta__banner -->
-                </div><!-- /.about-img -->
-              </div><!-- /.col-7 -->
-              <div class="col-5">
-                <div class="about__img mt-40">
-                  <img src="assets/images/product/DSC07381.jpg" alt="about" class="img-fluid w-100">
-                </div><!-- /.about-img -->
-              </div><!-- /.col-5 -->
-            </div><!-- /.row -->
-          </div><!-- /.col-xl-5 -->
-        </div><!-- /.row -->
-      </div><!-- /.container -->
-    </section><!-- /.About Layout 2 -->
+<!-- ========================
+  <section id="franjaNumeros">
+    <div class="container">
+      <div class="row text-center">
+        <div class="col-6 col-md-3 franja-stat">
+          <span class="franja-numero">15+</span>
+          <span class="franja-label">Años de experiencia</span>
+        </div>
+        <div class="col-6 col-md-3 franja-stat">
+          <span class="franja-numero">200+</span>
+          <span class="franja-label">Proyectos completados</span>
+        </div>
+        <div class="col-6 col-md-3 franja-stat">
+          <span class="franja-numero">5</span>
+          <span class="franja-label">Países atendidos</span>
+        </div>
+        <div class="col-6 col-md-3 franja-stat">
+          <span class="franja-numero">100%</span>
+          <span class="franja-label">Compromiso operativo</span>
+        </div>
+      </div>
+    </div>
+  </section>
+=========================== -->
 
     <!-- ========================
         services Layout 2
-    =========================== -->
+    =========================== 
     <section id="servicesLayout2" class="services services-layout2 pt-120 pb-90 bg-gray">
       <div class="container">
         <div class="row">
@@ -187,7 +186,7 @@
                 en Banco Horizontal
                 </h2>
             </div><!-- /.heading -->
-          </div><!-- /.col-lg-10 -->
+          </div><!-- /.col-lg-10 
         </div>
         <div class="row">
           <div class="col-sm-12 col-md-6 col-lg-4">
@@ -198,13 +197,13 @@
 				  <a href="productos-equipos-flotacion.html"><h4 class="service__title">Float Equipment</h4></a>
                <!-- <a href="productos-maquina-torsion-continua.html" class="btn btn__secondary btn__link">-->
                   <!--<span>Leer m&aacute;s</span>
-                  <i class="icon-arrow-right">dvsdvfdvfd</i>-->
+                  <i class="icon-arrow-right">dvsdvfdvfd</i>
 				 
 				  
 				  
               </div><!-- /.service-content -->
             </div><!-- /.service-item -->
-          </div><!-- /.col-lg-4 -->
+          </div><!-- /.col-lg-4 
           <div class="col-sm-12 col-md-6 col-lg-4">
             <div class="service-item">
               <div class="service__content">
@@ -220,7 +219,7 @@
             </div><!-- /.service-item -->
 			 
 			  
-          </div><!-- /.col-lg-4 -->
+          </div><!-- /.col-lg-4 -
 			
 			
 			<div class="col-sm-12 col-md-6 col-lg-4">
@@ -236,7 +235,7 @@
 				  
               </div><!-- /.service-content -->
             </div><!-- /.service-item -->
-          </div><!-- /.col-lg-4 -->
+          </div><!-- /.col-lg-4 
 		  
 		  
 		  
@@ -247,9 +246,9 @@
             <p class="text__link mb-0">&Uacute;ltimas soluciones y décadas de experiencia
               <a href="#">Explorar todos los servicios</a>
             </p>
-          </div><!-- /.col-lg-12 -->
+          </div><!-- /.col-lg-12 
         </div>
-      </div><!-- /.container --> </div>
+      </div><!-- /.container - </div>
     </section><!-- /.services Layout 2 -->
 
     <!-- ========================= 
@@ -278,7 +277,6 @@
                 <li>Cabezales Flotantes(para apriete exc&eacute;ntrico)</li>
                 <li>Velocidad de roscado: .3 @ 5 RPM</li>
               </ul>
-              <a href="contacto.php" class="btn btn__white btn__bordered btn__lg">Agendar una cita</a>
             </div>
           </div><!-- /.col-xl-6 -->
           <div class="col-sm-12 col-md-12 col-lg-12 col-xl-6 bg-parallax" style="min-height: 700px;">
@@ -302,17 +300,17 @@
     <!-- =========================
       portfolio carousel
       =========================== -->
-    <section id="portfolioCarousel" class="portfolio-carousel pt-120 pb-90">
+    <section id="portfolioCarousel" class="portfolio-carousel">
       <div class="container">
         <div class="row heading heading-2 mb-40">
           <div class="col-sm-12 col-md-12 col-lg-12">
             <span class="heading__subtitle">Servicios de clase mundial</span>
           </div><!-- /.col-lg-12 -->
           <div class="col-sm-12 col-md-12 col-lg-6">
-            <h2 class="heading__title">Proporcionando soluciones innovadoras y sostenibles.</h2>
+            <h2 class="heading__title5">Proporcionando soluciones innovadoras y sostenibles.</h2>
           </div><!-- /heading -->
           <div class="col-sm-12 col-md-12 col-lg-6">
-            <p class="heading__desc" align="justify">En <strong>IN HOLE SOLUTIONS</strong> nos enfocamos en desarrollar relaciones y proyectos de largo plazo, respaldados por experiencias, compromiso operativo y conocimiento especializado en la industria energética. Impulsamos relaciones de largo plazo mediante un enfoque basado en la eficiencia operativa, la innovación y la capacidad de adaptarnos a las necesidades de cada proyecto.</p>
+            <p class="heading__desc">Nos enfocamos en desarrollar relaciones y proyectos de largo plazo, respaldados por experiencias, compromiso operativo y conocimiento especializado en la industria energética. Impulsamos relaciones de largo plazo mediante un enfoque basado en la eficiencia operativa, la innovación y la capacidad de adaptarnos a las necesidades de cada proyecto.</p>
           </div><!-- /heading -->
         </div><!-- /.row -->
         <div class="row">
@@ -324,11 +322,11 @@
                   <img src="assets/images/sliders/asistenciaoperativa.jpeg" alt="portfolio img">
                 </div><!-- /.portfolio-img -->
                 <div class="portfolio__content">
-                  <h4 class="portfolio__title" align="center"><a href="#">SERVICIO DE TORQUE Y ASISTENCIA OPERATIVA</a></h4>
+                  <h4 class="portfolio__title"><a href="#">SERVICIO DE TORQUE Y ASISTENCIA OPERATIVA</a></h4>
                   <div class="portfolio__cat">
                   </div><!-- /.portfolio-cat -->
                   <div class="divider__line divider__lg"></div>
-                  <p class="portfolio__desc" align="justify">Servicios especilizados para operaciones seguras, precisas y eficientes en cada proyecto.</p>
+                  <p class="portfolio__desc">Servicios especilizados para operaciones seguras, precisas y eficientes en cada proyecto.</p>
                   <a href="#" class="btn btn__secondary btn__link">
                    <!-- <span>Explorar m&aacute;s</span><i class="icon-arrow-right"></i>-->
                   </a>
@@ -339,11 +337,11 @@
                   <img src="assets/images/sliders/Pruebas hidrostraticas.jpeg" alt="portfolio img">
                 </div><!-- /.portfolio-img -->
                 <div class="portfolio__content">
-                  <h4 class="portfolio__title" align="center"><a href="#">PRUEBAS HIDROSTÁTICAS</a></h4>
+                  <h4 class="portfolio__title"><a href="#">PRUEBAS HIDROSTÁTICAS</a></h4>
                   <div class="portfolio__cat">
                   </div><!-- /.portfolio-cat -->
                   <div class="divider__line divider__lg"></div>
-                  <p class="portfolio__desc" align="justify">Verificación de integridad y desempeño mediante pruebas hidrostáticas computarizadas y procesos de alta confiabilidad.
+                  <p class="portfolio__desc">Verificación de integridad y desempeño mediante pruebas hidrostáticas computarizadas y procesos de alta confiabilidad.
                     </p>
                   <a href="#" class="btn btn__secondary btn__link">
                     <!--<span>Explorar m&aacute;s</span><i class="icon-arrow-right"></i>-->
@@ -356,11 +354,11 @@
                   <img src="assets/images/sliders/Calibracion.jpeg" alt="portfolio img">
                 </div><!-- /.portfolio-img -->
                 <div class="portfolio__content">
-                  <h4 class="portfolio__title" align="center"><a href="#">CALIBRACIÓN E INSPECCIÓN</a></h4>
+                  <h4 class="portfolio__title"><a href="#">CALIBRACIÓN E INSPECCIÓN</a></h4>
                   <div class="portfolio__cat">
                   </div><!-- /.portfolio-cat -->
                   <div class="divider__line divider__lg"></div>
-                  <p class="portfolio__desc" align="justify">Inspección y verificación técnicas de herramientas y accesorios para asegurar confiablidad, precisión y cumplimiento operativo.
+                  <p class="portfolio__desc">Inspección y verificación técnicas de herramientas y accesorios para asegurar confiablidad, precisión y cumplimiento operativo.
                     </p>
                   <a href="#" class="btn btn__secondary btn__link">
                    <!-- <span>Explorar m&aacute;s</span><i class="icon-arrow-right"></i>-->
@@ -376,117 +374,87 @@
       </div><!-- /.container -->
     </section><!-- /.portfolio carousel -->
 
+<!-- =========================
+      CTA Contacto
+    <section id="ctaContacto">
+      <div class="container text-center">
+        <h2 class="cta-titulo">¿Listo para tu próximo proyecto?</h2>
+        <p class="cta-desc">Contáctanos y un especialista te atenderá a la brevedad.</p>
+        <a href="contacto.php" class="cta-boton">Hablar con un especialista</a>
+      </div>
+    </section>
+
     <!-- ========================
       Footer
     ========================== -->
-    <footer id="footer" class="footer">
-      <div class="footer-top">
-        <div class="container">
-          <div class="row">
-            <div class="col-sm-12 col-md-12 col-lg-8 col-xl-3 footer__widget footer__widget-about">
-              
-              <div class="footer__widget-content">
-				  
-				  <h6 class="footer__widget-title"><img src="assets/images/sliders/24-7.png" alt="client"></h6>
-				  
-                <!--<p class="color-gray">Si tiene alguna pregunta o necesita ayuda, no dude en contactar con nuestro equipo.</p>-->
-               
-                <p>Estamos aquí para ayudarte<br>
-				  ¿Tienes alguna duda? <br> Contáctanos.<br>
-				  +52 993 142 7257<br>
-				  contacto@inholesolutions.com
-				  
-				  </p>
-                <ul class="social__icons">
-                  <li><a href="https://www.linkedin.com/company/in-hole-solutions/"><i class="fa fa-linkedin-square"></i></a></li>
-                  
-                </ul><!-- /.social-icons -->
-              </div>
-            </div><!-- /.col-xl-3 -->
-            <div class="col-6 col-sm-6 col-md-6 col-lg-2 col-xl-3 offset-xl-1 footer__widget footer__widget-nav">
-              <h6 class="footer__widget-title">In Hole Solutions</h6>
-              <div class="footer__widget-content">
-                <nav>
-                  <ul class="list-unstyled">
-                    <li><a href="#">Sobre Nosotros</a></li>
-                    <li><a href="#">Misión</a></li>
-                    <li><a href="#">Visión</a></li>
-                  </ul>
-                </nav>
-              </div><!-- /.footer-widget-content -->
-            </div><!-- /.col-xl-2 -->
-            <div class="col-6 col-sm-6 col-md-6 col-lg-3 col-xl-2 footer__widget footer__widget-nav">
-              <h6 class="footer__widget-title">Industria</h6>
-              <div class="footer__widget-content">
-                <nav>
-                  <ul class="list-unstyled">
-                    <li><a href="#">Fully Rotational Torque Machine (FR)</a></li>
-                    <li><a href="#">Calibración</a></li>
-                    <li><a href="#">Servicio</a></li>
-                    <li><a href="#">Pruebas Hidrostáticas</a></li>
-                  </ul>
-                </nav>
-              </div><!-- /.footer-widget-content -->
-            </div><!-- /.col-xl-2 -->
-            <div class="col-sm-12 col-md-10 col-lg-6 col-xl-3 footer__widget footer__widget-newsletter">
-              <div class="footer__widget-content">
-				  <h6 class="footer__widget-title">Linea de Ética</h6>
-                <p>Reportar conductas contrarias a las Políticas de In Hole Solutions o sus principios.</p>
-               
-                  
-                    <p class="footer__contact-phone">
-                  <i class="icon-arrow-right-2"></i>
-                  <a href="mailto:contacto@inholesolutions.com">Reportar</a>
-                </p>
-               
-           
-              
-                <!--<p>Suscribete para recibir nuestras últimas
-					noticias, información y actualizaciones
-					sobre nuestros productos y servicios.</p>
-                
-                  
-                    <p class="footer__contact-phone">
-                  <i class="icon-arrow-right-2"></i>
-                  <a href="mailto:contacto@inholesolutions.com">Correo eléctronico</a>
-                </p>-->
-            
-            
-              </div>
-				
-				
-				
-				<!-- /.footer-widget-content -->
-              <!--<p class="text-right fz-13 mt-20 mb-0">Puedes darte de baja de nuestra lista de suscriptores en cualquier momento</p>-->
-            </div><!-- /.col-xl-4 -->
-          </div><!-- /.row -->
-        </div><!-- /.container -->
-      </div><!-- /.footer-top -->
-      <div class="footer-bottom">
-        <div class="container">
-          <div class="row">
-            <div class="col-sm-12 col-md-3 col-lg-3">
-              <img src="assets/images/logo/logo-dark.svg" alt="logo">
-            </div><!-- /.col-lg-3 -->
-            <div class="col-sm-12 col-md-9 col-lg-9 text-right">
-              <div class="footer__copyright">
-                <nav>
-                  <ul class="footer__copyright-links list-unstyled d-flex flex-wrap justify-content-end">
-                    <li><a href="assets/docs/Aviso de Privacidad In Hole Solutions .pdf">Aviso de privacidad</a></li>
-                    <li><a href="assets/docs/Política de Calidad, Seguridad, Salud y Medio Ambiente.pdf">Política QHSE</a></li>
-                    <li><a href="assets/docs/Política Esclavitud Moderna IHS.pdf">Esclavitud Moderna</a></li>
-					  <li><a href="assets/docs/Política de ética empresarial IHS.pdf">Ética Empresarial</a></li>
-                  </ul>
-                </nav>
-                <p class="mb-0"> &copy; 2025 In Hole Solutions, Todos los derechos reservados.
-                </p>
-              </div><!-- /.Footer-copyright -->
-            </div><!-- /.col-lg-9 -->
-          </div><!-- /.row -->
-        </div><!-- /.container -->
-      </div><!-- /.Footer-bottom -->
-    </footer><!-- /.Footer -->
-    <button id="scrollTopBtn"><i class="fa fa-long-arrow-up"></i></button>
+    <!-- ========================
+  Footer
+========================== -->
+<footer id="footer" class="footer">
+  <div class="footer-top">
+    <div class="container">
+      <div class="row">
+
+        <!-- Columna 1: Contacto -->
+        <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 footer__widget footer__widget-about">
+          <div class="footer__widget-content">
+            <p>Soporte Operativo y Comercial<br>
+              Soluciones especializadas para la industria Oil &amp; Gas.<br><br>
+              contacto@inholesolutions.com
+            </p>
+            <h6 class="footer__widget-title">
+              <img src="assets/images/sliders/24-7.png" alt="24/7 Service" style="max-width: 200px; margin-top: 20px;">
+            </h6>
+          </div>
+        </div>
+
+        <!-- Columna 2: Cumplimiento y Políticas -->
+        <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4 footer__widget footer__widget-nav">
+          <h6 class="footer__widget-title">Cumplimiento y Políticas</h6>
+          <div class="footer__widget-content">
+            <nav>
+              <ul class="list-unstyled">
+                <li><a href="assets/docs/Política de ética empresarial IHS.pdf">Código de Ética Empresarial</a></li>
+                <li><a href="assets/docs/Política Esclavitud Moderna IHS.pdf">Declaración sobre Esclavitud Moderna</a></li>
+                <li><a href="assets/docs/Política de Calidad, Seguridad, Salud y Medio Ambiente.pdf">Política Integrada QHSE</a></li>
+                <li><a href="assets/docs/Aviso de Privacidad In Hole Solutions .pdf">Aviso de Privacidad</a></li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+
+        <!-- Columna 3: Línea de Ética -->
+        <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4 footer__widget footer__widget-newsletter">
+          <div class="footer__widget-content">
+            <h6 class="footer__widget-title">Linea de Ética</h6>
+            <p>Reportar conductas contrarias a las Políticas de In Hole Solutions o sus principios.</p>
+            <p class="footer__contact-phone">
+              <i class="icon-arrow-right-2"></i>
+              <a href="mailto:contacto@inholesolutions.com">Reportar</a>
+            </p>
+          </div>
+        </div>
+
+      </div><!-- /.row -->
+    </div><!-- /.container -->
+  </div><!-- /.footer-top -->
+
+  <div class="footer-bottom">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-sm-12 col-md-6 col-lg-6">
+          <div class="footer__copyright">
+            <p class="mb-0">&copy; 2026 In Hole Solutions</p>
+          </div>
+        </div>
+        <div class="col-sm-12 col-md-6 col-lg-6 text-right">
+          <img src="assets/images/logo/logo-dark.svg" alt="logo" style="max-height: 70px;">
+        </div>
+      </div><!-- /.row -->
+    </div><!-- /.container -->
+  </div><!-- /.footer-bottom -->
+
+</footer><!-- /.Footer -->
 
     <div class="module__search-container">
       <i class="fa fa-times close-search"></i>

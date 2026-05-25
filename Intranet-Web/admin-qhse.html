@@ -535,23 +535,6 @@
             <label class="field-label">Mensaje</label>
             <textarea id="f-mensaje" class="field-input field-textarea" placeholder="Escribe el mensaje de gerencia..." oninput="livePreview()"></textarea>
           </div>
-
-          <div class="section-divider"></div>
-          <div class="section-label"><i class="fas fa-chart-bar text-slate-400"></i>KPIs de portada</div>
-          <div class="field-row">
-            <div class="field-group">
-              <label class="field-label">Días sin accidente</label>
-              <input id="f-stat-dias" class="field-input" type="number" placeholder="" min="0" oninput="livePreview()">
-            </div>
-            <div class="field-group">
-              <label class="field-label">Reportes de riesgo</label>
-              <input id="f-stat-obs" class="field-input" type="number" placeholder="" min="0" oninput="livePreview()">
-            </div>
-          </div>
-          <div class="field-group">
-            <label class="field-label">Near miss resueltos</label>
-            <input id="f-stat-acc" class="field-input" type="number" placeholder="" min="0" oninput="livePreview()">
-          </div>
         </div>
 
         <!-- ── TAB SAFETY ── -->
@@ -1116,7 +1099,6 @@
   function resetForm() {
     document.getElementById('edit-id').value = '';
     const fields = ['f-titulo','f-edicion','f-volumen','f-director','f-mensaje',
-      'f-stat-dias','f-stat-obs','f-stat-acc',
       'f-safety-titulo','f-safety-contenido','f-safety-epp-titulo',
       'f-nm-titulo','f-nm-area','f-nm-desc','f-nm-causa','f-nm-accion',
       'f-qr-torque-titulo','f-qr-torque-desc',
@@ -1218,9 +1200,6 @@
     document.getElementById('f-volumen').value       = ed.volumen || '';
     document.getElementById('f-director').value      = ed.nombre_director || '';
     document.getElementById('f-mensaje').value       = ed.mensaje_director || '';
-    document.getElementById('f-stat-dias').value     = ed.stat_dias ?? '';
-    document.getElementById('f-stat-obs').value      = ed.stat_obs ?? '';
-    document.getElementById('f-stat-acc').value      = ed.stat_acc ?? '';
     document.getElementById('f-safety-titulo').value    = ed.safety_titulo || '';
     document.getElementById('f-safety-contenido').value = ed.safety_contenido || '';
     // EPP titulo
@@ -1388,9 +1367,6 @@
       volumen:           document.getElementById('f-volumen').value.trim() || 'Vol. 1',
       nombre_director:   document.getElementById('f-director').value.trim(),
       mensaje_director:  document.getElementById('f-mensaje').value.trim(),
-      stat_dias:         parseInt(document.getElementById('f-stat-dias').value) || 0,
-      stat_obs:          parseInt(document.getElementById('f-stat-obs').value)  || 0,
-      stat_acc:          parseInt(document.getElementById('f-stat-acc').value)  || 0,
       safety_titulo:     document.getElementById('f-safety-titulo').value.trim(),
       safety_contenido:  document.getElementById('f-safety-contenido').value.trim(),
       safety_epp_titulo: document.getElementById('f-safety-epp-titulo')?.value.trim() || '',
@@ -2036,9 +2012,45 @@
     pv('pv-volumen').textContent = v('f-volumen') || 'Vol. 1';
     pv('pv-director').textContent = v('f-director') ? `Ing. ${v('f-director')}` : 'Ing. —';
     pv('pv-mensaje').textContent = v('f-mensaje') || 'Ingresa el mensaje del gerente de operaciones en el panel izquierdo...';
-    pv('pv-stat-dias').textContent = v('f-stat-dias') || '247';
-    pv('pv-stat-obs').textContent  = v('f-stat-obs')  || '18';
-    pv('pv-stat-acc').textContent  = v('f-stat-acc')  || '3';
+    // Stats automáticos desde safety_alerts
+    const edicionTexto = v('f-edicion') || '';
+    const mesesES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    const partesEd = edicionTexto.toLowerCase().split(' ');
+    const mesAdmin  = mesesES.indexOf(partesEd[0]) + 1 || new Date().getMonth() + 1;
+    const anioAdmin = parseInt(partesEd[1]) || new Date().getFullYear();
+
+    sb.from('safety_alerts')
+      .select('id', { count: 'exact', head: true })
+      .eq('mes_registro', mesAdmin)
+      .eq('anio_registro', anioAdmin)
+      .then(({ count }) => {
+        if (pv('pv-stat-obs')) pv('pv-stat-obs').textContent = count ?? 0;
+      });
+
+    sb.from('safety_alerts')
+      .select('id', { count: 'exact', head: true })
+      .eq('mes_registro', mesAdmin)
+      .eq('anio_registro', anioAdmin)
+      .eq('tipo_evento', 'Incidente')
+      .then(({ count }) => {
+        if (pv('pv-stat-acc')) pv('pv-stat-acc').textContent = count ?? 0;
+      });
+
+    sb.from('safety_alerts')
+      .select('fecha_evento')
+      .eq('tipo_evento', 'Accidente')
+      .order('fecha_evento', { ascending: false })
+      .limit(1)
+      .single()
+      .then(({ data: ult }) => {
+        let dias = 0;
+        if (ult?.fecha_evento) {
+          dias = Math.floor((new Date() - new Date(ult.fecha_evento)) / (1000 * 60 * 60 * 24));
+        } else {
+          dias = Math.floor((new Date() - new Date(anioAdmin, 0, 1)) / (1000 * 60 * 60 * 24));
+        }
+        if (pv('pv-stat-dias')) pv('pv-stat-dias').textContent = dias;
+      });
 
     // Safety
     pv('pv-safety-titulo').textContent = v('f-safety-titulo') || 'ALERTA DE SEGURIDAD';
