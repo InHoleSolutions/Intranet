@@ -194,11 +194,24 @@
       </div>
     </div>
   </div><!-- /page-body -->
+
+  <!-- MODAL VER TEXTO COMPLETO -->
+  <div id="modal-texto" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:16px;padding:2rem;max-width:520px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2);position:relative;">
+      <p style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#64748b;margin-bottom:0.5rem;" id="modal-texto-label">Campo</p>
+      <textarea id="modal-texto-area" style="width:100%;min-height:120px;border:1px solid #e2e8f0;border-radius:10px;padding:10px 14px;font-family:'Barlow',sans-serif;font-size:14px;color:#1e293b;resize:vertical;outline:none;line-height:1.6;" onblur="guardarDesdeModal()"></textarea>
+      <div style="display:flex;justify-content:flex-end;margin-top:1rem;">
+        <button onclick="cerrarModal()" style="background:#c8181e;color:#fff;border:none;border-radius:10px;padding:8px 22px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;cursor:pointer;">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST -->
   <div id="toast">
     <i class="fas fa-check-circle"></i>
     <span id="toast-msg">Guardado</span>
   </div>
+
   <script>
     const { createClient } = supabase;
     const sb = createClient(
@@ -255,8 +268,6 @@
 
       document.getElementById('stat-total').textContent = data.length;
       document.getElementById('stat-today').textContent = todayCount;
-      if (currentUser)
-        document.getElementById('stat-user').textContent = data.filter(r => r.capturado_por === currentUser).length;
       actualizarEmptyState();
     }
     function escAttr(s) { return String(s || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
@@ -268,17 +279,17 @@
       tr.dataset.id = data.id || '';
 
       const cols = [
-        { key: 'coc_no',                    placeholder: 'COC-001',     cls: 'wide' },
-        { key: 'descripcion', placeholder: 'Descripción…', cls: 'xl', addBtn: true },
-        { key: 'qty',                        placeholder: '0',           cls: '' },
-        { key: 'serial_lote',               placeholder: 'S/N ó LOTE',  cls: 'wide' },
-        { key: 'part_no',                   placeholder: 'Part No.',     cls: 'wide' },
-        { key: 'work_order_no',             placeholder: 'W/O No.',      cls: 'wide' },
-        { key: 'customer_supply_order_no',  placeholder: 'C.S.O No.',    cls: 'wide' },
-        { key: 'customer',                  placeholder: 'Cliente',      cls: 'wide' },
-        { key: 'comentario',                placeholder: 'Comentario…',  cls: 'xl' },
-        { key: 'quality_grade',  placeholder: 'Quality Grade…', cls: 'wide' },
-        { key: 'fecha_emision',  placeholder: 'DD-MM-YYYY',      cls: 'wide', type: 'date' },
+        { key: 'coc_no',                   placeholder: 'COC-001',      cls: 'wide' },
+        { key: 'descripcion',              placeholder: 'Descripción…', cls: 'xl',   addBtn: true,   expandBtn: true, label: 'Description' },
+        { key: 'qty',                      placeholder: '0',            cls: '' },
+        { key: 'serial_lote',              placeholder: 'S/N ó LOTE',  cls: 'wide', expandBtn: true, label: 'Serial No. / LOTE' },
+        { key: 'part_no',                  placeholder: 'Part No.',     cls: 'wide', expandBtn: true, label: 'Part No.' },
+        { key: 'work_order_no',            placeholder: 'W/O No.',      cls: 'wide' },
+        { key: 'customer_supply_order_no', placeholder: 'C.S.O No.',    cls: 'wide' },
+        { key: 'customer',                 placeholder: 'Cliente',      cls: 'wide' },
+        { key: 'comentario',               placeholder: 'Comentario…',  cls: 'xl',   expandBtn: true, label: 'Comentario' },
+        { key: 'quality_grade',            placeholder: 'Quality Grade…',cls: 'wide' },
+        { key: 'fecha_emision',            placeholder: 'DD-MM-YYYY',   cls: 'wide', type: 'date' },
       ];
 
       let html = `<td style="padding-left:1.5rem;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--muted);">${rowCount}</td>`;
@@ -287,11 +298,15 @@
         if (col.addBtn) {
           html += `<td style="position:relative;">
             <input type="text" class="cell-input ${col.cls}" data-key="${col.key}" placeholder="${col.placeholder}" value="${val}" onblur="guardarCelda(this)" onkeydown="if(event.key==='Enter')this.blur()">
-            <button onclick="agregarSubfila(this)" ...>+</button>
+            <button onclick=\"agregarSubfila(this)\" style=\"background:#f9e5e6;border:none;border-radius:6px;padding:2px 8px;cursor:pointer;color:#c8181e;font-size:13px;font-weight:bold;\">+</button>
+            ${col.expandBtn ? `<button onclick=\"abrirModal(this.closest('td').querySelector('input'), '${col.label}')\" style=\"background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;\" title=\"Ver texto completo\"><i class='fas fa-expand-alt'></i></button>` : ''}
             <div class="subfilas-container"></div>
           </td>`;
         } else {
-         html += `<td><input type="${col.type || 'text'}" class="cell-input ${col.cls}" data-key="${col.key}" placeholder="${col.placeholder}" value="${val}" onblur="guardarCelda(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>`;
+          html += `<td style="position:relative;">
+            <input type="${col.type || 'text'}" class="cell-input ${col.cls}" data-key="${col.key}" placeholder="${col.placeholder}" value="${val}" onblur="guardarCelda(this)" onkeydown="if(event.key==='Enter')this.blur()">
+            ${col.expandBtn ? `<button onclick=\"abrirModal(this.closest('td').querySelector('input'), '${col.label}')\" style=\"background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;\" title=\"Ver texto completo\"><i class='fas fa-expand-alt'></i></button>` : ''}
+          </td>`;
         }
       });
       html += `<td style="display:flex;gap:6px;justify-content:center;align-items:center;">
@@ -304,18 +319,32 @@
 
       // Renderizar subfilas existentes
       subfilas.forEach(sf => {
-        const container = tr.querySelector('.subfilas-container');
-        const div = document.createElement('div');
-        div.className = 'subfila-group';
-        div.style.cssText = 'display:flex; gap:6px; margin-top:4px; align-items:center;';
-        div.innerHTML = `
-          <input type="text" class="cell-input xl" data-subfila-key="descripcion" placeholder="Descripción…" value="${sf.descripcion || ''}">
-          <input type="text" class="cell-input" data-subfila-key="qty" placeholder="0" style="width:60px;" value="${sf.qty || ''}">
-          <input type="text" class="cell-input wide" data-subfila-key="serial_lote" placeholder="S/N ó LOTE" value="${sf.serial_lote || ''}">
-          <input type="text" class="cell-input wide" data-subfila-key="part_no" placeholder="Part No." value="${sf.part_no || ''}">
-          <button onclick="this.parentElement.remove()" style="background:#f9e5e6;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#c8181e;font-size:12px;">✕</button>
+        const trSub = document.createElement('tr');
+        trSub.className = 'subfila-group';
+        trSub.dataset.parentId = data.id;
+
+        trSub.innerHTML = `
+          <td></td>
+          <td></td>
+          <td style="position:relative;">
+            <input type="text" class="cell-input xl" data-subfila-key="descripcion" placeholder="Descripción…" value="${escAttr(sf.description || '')}" onblur="guardarSubfilas(this)">
+            <button onclick="abrirModal(this.closest('td').querySelector('input'), 'Description')" style="background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;" title="Ver texto completo"><i class="fas fa-expand-alt"></i></button>
+          </td>
+          <td><input type="text" class="cell-input" data-subfila-key="qty" placeholder="0" value="${escAttr(sf.qty || '')}" onblur="guardarSubfilas(this)"></td>
+          <td style="position:relative;">
+            <input type="text" class="cell-input wide" data-subfila-key="serial_lote" placeholder="S/N ó LOTE" value="${escAttr(sf.serial_lote || '')}" onblur="guardarSubfilas(this)">
+            <button onclick="abrirModal(this.closest('td').querySelector('input'), 'Serial No. / LOTE')" style="background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;" title="Ver texto completo"><i class="fas fa-expand-alt"></i></button>
+          </td>
+          <td style="position:relative;">
+            <input type="text" class="cell-input wide" data-subfila-key="part_no" placeholder="Part No." value="${escAttr(sf.part_no || '')}" onblur="guardarSubfilas(this)">
+            <button onclick="abrirModal(this.closest('td').querySelector('input'), 'Part No.')" style="background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;" title="Ver texto completo"><i class="fas fa-expand-alt"></i></button>
+          </td>
+          <td colspan="7" style="text-align:right;">
+            <button onclick="this.closest('tr').remove()" style="background:#f9e5e6;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#c8181e;font-size:12px;">✕</button>
+          </td>
         `;
-        container.appendChild(div);
+
+        tbody.appendChild(trSub);
       });
 
       actualizarEmptyState();
@@ -328,25 +357,37 @@
     }
 
     function agregarSubfila(btn) {
-      const tdDescripcion = btn.closest('td');
-      const trOrigen = tdDescripcion.closest('tr');
-      const container = tdDescripcion.querySelector('.subfilas-container');
+      const trOrigen = btn.closest('tr');
+      const tbody = trOrigen.parentElement;
 
-      // Crear un nuevo grupo de inputs para la subfila
-      const subfila = document.createElement('div');
-      subfila.className = 'subfila-group';
-      subfila.style.cssText = 'display:flex; gap:6px; margin-top:4px; align-items:center;';
+      const trSub = document.createElement('tr');
+      trSub.className = 'subfila-group';
+      trSub.dataset.parentId = trOrigen.dataset.id;
 
-      subfila.innerHTML = `
-        <input type="text" class="cell-input xl" data-subfila-key="descripcion" placeholder="Descripción…">
-        <input type="text" class="cell-input" data-subfila-key="qty" placeholder="0" style="width:60px;">
-        <input type="text" class="cell-input wide" data-subfila-key="serial_lote" placeholder="S/N ó LOTE">
-        <input type="text" class="cell-input wide" data-subfila-key="part_no" placeholder="Part No.">
-        <button onclick="this.parentElement.remove()" style="background:#f9e5e6;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#c8181e;font-size:12px;">✕</button>
+      trSub.innerHTML = `
+        <td></td>
+        <td></td>
+        <td style="position:relative;">
+          <input type="text" class="cell-input xl" data-subfila-key="descripcion" placeholder="Descripción…" onblur="guardarSubfilas(this)">
+          <button onclick="abrirModal(this.closest('td').querySelector('input'), 'Description')" style="background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;" title="Ver texto completo"><i class="fas fa-expand-alt"></i></button>
+        </td>
+        <td><input type="text" class="cell-input" data-subfila-key="qty" placeholder="0" onblur="guardarSubfilas(this)"></td>
+        <td style="position:relative;">
+          <input type="text" class="cell-input wide" data-subfila-key="serial_lote" placeholder="S/N ó LOTE" onblur="guardarSubfilas(this)">
+          <button onclick="abrirModal(this.closest('td').querySelector('input'), 'Serial No. / LOTE')" style="background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;" title="Ver texto completo"><i class="fas fa-expand-alt"></i></button>
+        </td>
+        <td style="position:relative;">
+          <input type="text" class="cell-input wide" data-subfila-key="part_no" placeholder="Part No." onblur="guardarSubfilas(this)">
+          <button onclick="abrirModal(this.closest('td').querySelector('input'), 'Part No.')" style="background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;" title="Ver texto completo"><i class="fas fa-expand-alt"></i></button>
+        </td>
+        <td colspan="7" style="text-align:right;">
+          <button onclick="this.closest('tr').remove()" style="background:#f9e5e6;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#c8181e;font-size:12px;">✕</button>
+        </td>
       `;
 
-      container.appendChild(subfila);
-      subfila.querySelector('[data-subfila-key="descripcion"]').focus();
+      // Insertar la subfila justo después de la fila principal
+      trOrigen.insertAdjacentElement('afterend', trSub);
+      trSub.querySelector('[data-subfila-key="descripcion"]').focus();
     }
 
     async function guardarCelda(input) {
@@ -364,33 +405,109 @@
 
       setSaving(true);
       let error;
+
+      // 1. Guardar o actualizar el registro principal en 'coc_registros'
       if (existingId) {
         ({ error } = await sb.from(TABLE).update(payload).eq('id', existingId));
       } else {
         const { data, error: err } = await sb.from(TABLE).insert([payload]).select().single();
         error = err;
         if (data) tr.dataset.id = data.id;
-        if (error) {
-          showToast('Error al guardar: ' + error.message, 'error');
-          } else {
-            showToast('Registro guardado');
-            await actualizarEstadisticas();
-
-            // ✅ Solo guardar subfilas si el registro principal se guardó bien
-            const registroId = tr.dataset.id;
-            const subfilasData = [];
-            tr.querySelectorAll('.subfila-group').forEach(sf => {subfilasData.push({registro_id: registroId, descripcion: sf.querySelector('[data-subfila-key="descripcion"]')?.value?.trim() || '', qty: sf.querySelector('[data-subfila-key="qty"]')?.value?.trim() || '', serial_lote: sf.querySelector('[data-subfila-key="serial_lote"]')?.value?.trim() || '', part_no: sf.querySelector('[data-subfila-key="part_no"]')?.value?.trim() || '',});});
-            await sb.from('coc_subfilas').delete().eq('registro_id', registroId);
-            if (subfilasData.length > 0) {
-              await sb.from('coc_subfilas').insert(subfilasData);
-            }
-          }
       }
-      setSaving(false);
 
-      
+      // Si hubo un error guardando el registro principal, detenemos el proceso
+      if (error) {
+        showToast('Error al guardar: ' + error.message, 'error');
+        setSaving(false);
+        return;
+      }
+
+      // 2. PROCESO CORRECTO PARA SUBFILAS: Se ejecuta SIEMPRE (tanto para filas nuevas como existentes)
+      const registroId = tr.dataset.id;
+      if (!registroId) {
+        showToast('Guarda primero un campo principal antes de agregar subfilas', 'error');
+        setSaving(false);
+        return;
+      }
+      const subfilasData = [];
+
+      // Recorremos los grupos de subfilas que tenga esta fila en el HTML
+      tr.querySelectorAll('.subfila-group').forEach(sf => {
+        const desc = sf.querySelector('[data-subfila-key="descripcion"]')?.value?.trim();
+        const qty = sf.querySelector('[data-subfila-key="qty"]')?.value?.trim();
+        const serial = sf.querySelector('[data-subfila-key="serial_lote"]')?.value?.trim();
+        const part = sf.querySelector('[data-subfila-key="part_no"]')?.value?.trim();
+
+        // Solo la tomamos en cuenta si al menos tiene una descripción o datos
+        if (desc || qty || serial || part) {
+          subfilasData.push({
+            registro_id: registroId,
+            description: desc || '',
+            qty: qty || '',
+            serial_lote: serial || '',
+            part_no: part || ''
+          });
+        }
+      });
+
+      // Limpiamos las subfilas anteriores en la BD de este registro para evitar duplicados
+      await sb.from('coc_subfilas').delete().eq('registro_id', registroId);
+
+      // Si hay subfilas actuales en la interfaz, las insertamos
+      if (subfilasData.length > 0) {
+        const { error: subfilaErr } = await sb.from('coc_subfilas').insert(subfilasData);
+        if (subfilaErr) {
+          showToast('Error en subfilas: ' + subfilaErr.message, 'error');
+        } else {
+          showToast('Registro y subfilas actualizados');
+        }
+      } else {
+        showToast('Registro guardado');
+      }
+
+      await actualizarEstadisticas();
+      setSaving(false);
     }
+
+    async function guardarSubfilas(input) {
+      const trSub = input.closest('tr');
+      const registroId = trSub.dataset.parentId;
+      if (!registroId) return;
+
+      setSaving(true);
+      const subfilasData = [];
+
+      // Buscar todas las subfila-tr que pertenecen a este registro
+      document.querySelectorAll(`tr.subfila-group[data-parent-id="${registroId}"]`).forEach(sf => {
+        const desc   = sf.querySelector('[data-subfila-key="descripcion"]')?.value?.trim();
+        const qty    = sf.querySelector('[data-subfila-key="qty"]')?.value?.trim();
+        const serial = sf.querySelector('[data-subfila-key="serial_lote"]')?.value?.trim();
+        const part   = sf.querySelector('[data-subfila-key="part_no"]')?.value?.trim();
+
+        if (desc || qty || serial || part) {
+          subfilasData.push({
+            registro_id: registroId,
+            description: desc || '',
+            qty:         qty  || '',
+            serial_lote: serial || '',
+            part_no:     part  || ''
+          });
+        }
+      });
+
+      await sb.from('coc_subfilas').delete().eq('registro_id', registroId);
+
+      if (subfilasData.length > 0) {
+        const { error } = await sb.from('coc_subfilas').insert(subfilasData);
+        if (error) showToast('Error en subfilas: ' + error.message, 'error');
+        else showToast('Subfila guardada');
+      }
+
+      setSaving(false);
+    }
+
     async function eliminarFila(btn) {
+      if (!confirm('¿Estás seguro de que quieres eliminar este registro? Esta acción no se puede deshacer.')) return;
       const tr = btn.closest('tr');
       const id = tr.dataset.id;
       if (id) {
@@ -450,9 +567,10 @@
         : '';
       const fecha       = new Date().toLocaleDateString('es-MX', { day:'2-digit', month:'2-digit', year:'numeric' });
 
-      // Recolectar subfilas
+      // Recolectar subfilas (ahora son <tr> hermanos con data-parent-id)
+      const registroId = tr.dataset.id;
       const subfilas = [];
-      tr.querySelectorAll('.subfila-group').forEach(sf => {
+      document.querySelectorAll(`tr.subfila-group[data-parent-id="${registroId}"]`).forEach(sf => {
         subfilas.push({
           descripcion: sf.querySelector('[data-subfila-key="descripcion"]')?.value?.trim() || '',
           qty:         sf.querySelector('[data-subfila-key="qty"]')?.value?.trim() || '',
@@ -537,7 +655,7 @@
       doc.setFont('helvetica', 'normal');
       doc.text('Quality Grade:', 14, yPost + 14);
       doc.setFont('helvetica', 'bold');
-      doc.text(quality_grade, 42, yPost + 14);
+      doc.text(quality_grade, 36, yPost + 14);
       doc.text('PREMIUM', 100, yPost + 19);
 
       // ── Cuerpo del certificado ──
@@ -556,7 +674,7 @@
 
       doc.text('DATE:', 140, yBody + 69);
       doc.setFont('helvetica', 'bold');
-      doc.text(fecha_emision, 157, yBody + 69);
+      doc.text(fecha_emision, 154, yBody + 69);
 
       // ── PIE DE PÁGINA ──
       doc.setDrawColor(180, 180, 180);
@@ -571,8 +689,40 @@
       doc.text('contacto@inholesolutions.com', 14, 261);
 
       // ── Descargar ──
-      doc.save(`COC-${coc_no || 'registro'}.pdf`);
+      doc.save(`Formato-${coc_no || 'registro'}.pdf`);
     }
+
+    // ── MODAL TEXTO COMPLETO ──
+    let _modalInput = null; // referencia al input original
+
+    function abrirModal(input, labelTexto) {
+      _modalInput = input;
+      document.getElementById('modal-texto-label').textContent = labelTexto;
+      document.getElementById('modal-texto-area').value = input.value;
+      const modal = document.getElementById('modal-texto');
+      modal.style.display = 'flex';
+      setTimeout(() => document.getElementById('modal-texto-area').focus(), 50);
+    }
+
+    function cerrarModal() {
+      guardarDesdeModal();
+      document.getElementById('modal-texto').style.display = 'none';
+      _modalInput = null;
+    }
+
+    function guardarDesdeModal() {
+      if (!_modalInput) return;
+      const nuevoValor = document.getElementById('modal-texto-area').value;
+      _modalInput.value = nuevoValor;
+      // Disparar el blur del input original para que se guarde en Supabase
+      _modalInput.dispatchEvent(new Event('blur'));
+    }
+
+    // Cerrar modal al hacer clic fuera
+    document.getElementById('modal-texto').addEventListener('click', function(e) {
+      if (e.target === this) cerrarModal();
+    });
+
     init();
   </script>
 </body>

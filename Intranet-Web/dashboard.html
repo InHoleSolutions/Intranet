@@ -137,6 +137,33 @@
         </a>
       </div>
     </div>
+
+    <!-- Panel visitas index (solo admins) -->
+    <div id="panel-visitas" class="hidden bg-white rounded-3xl border border-slate-200 shadow-sm p-8 mb-10">
+      <div class="flex items-center justify-between mb-6 border-b border-slate-100 pb-5">
+        <h3 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+          <i class="fas fa-chart-line text-[#e31e24]"></i> Visitas al Sitio Web — Este Mes
+        </h3>
+        <span class="text-xs font-semibold tracking-widest uppercase text-slate-400" id="visitas-mes-label"></span>
+      </div>
+      <div class="flex flex-wrap gap-8 items-center">
+        <div class="flex flex-col gap-1">
+          <span class="text-[3rem] font-bold text-slate-800 leading-none" id="visitas-total-mes">—</span>
+          <span class="text-xs font-semibold uppercase tracking-widest text-slate-400">Visitas este mes</span>
+        </div>
+        <div class="w-px self-stretch bg-slate-200"></div>
+        <div class="flex flex-col gap-1">
+          <span class="text-[3rem] font-bold text-slate-800 leading-none" id="visitas-total-hoy">—</span>
+          <span class="text-xs font-semibold uppercase tracking-widest text-slate-400">Visitas hoy</span>
+        </div>
+        <div class="w-px self-stretch bg-slate-200"></div>
+        <div class="flex flex-col gap-1">
+          <span class="text-[3rem] font-bold text-slate-800 leading-none" id="visitas-total-general">—</span>
+          <span class="text-xs font-semibold uppercase tracking-widest text-slate-400">Total histórico</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Sección tabla apriete -->
     <div id="seccion-tabla-apriete" class="hidden bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
       <div class="p-8 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -317,6 +344,45 @@
       return "Buenas noches";
     }
 
+    async function cargarVisitas() {
+      const ahora = new Date();
+
+      // Rango de este mes
+      const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1).toISOString();
+      const finMes    = new Date(ahora.getFullYear(), ahora.getMonth() + 1, 0, 23, 59, 59).toISOString();
+
+      // Rango de hoy
+      const inicioHoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()).toISOString();
+      const finHoy    = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), 23, 59, 59).toISOString();
+
+      // Etiqueta del mes
+      const nombreMes = ahora.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+      document.getElementById('visitas-mes-label').textContent = nombreMes;
+
+      // Visitas este mes
+      const { count: countMes } = await supabaseClient
+        .from('visitas_index')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', inicioMes)
+        .lte('created_at', finMes);
+
+      // Visitas hoy
+      const { count: countHoy } = await supabaseClient
+        .from('visitas_index')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', inicioHoy)
+        .lte('created_at', finHoy);
+
+      // Total histórico
+      const { count: countTotal } = await supabaseClient
+        .from('visitas_index')
+        .select('*', { count: 'exact', head: true });
+
+      document.getElementById('visitas-total-mes').textContent     = countMes    ?? 0;
+      document.getElementById('visitas-total-hoy').textContent     = countHoy    ?? 0;
+      document.getElementById('visitas-total-general').textContent = countTotal  ?? 0;
+    }
+
     async function cargarDatos() {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) { window.location.href = "intranet-login.html"; return; }
@@ -334,6 +400,8 @@
         if (rolesAdmin.includes(perfil.rol)) {
           document.getElementById('card-safety-alerts').classList.remove('hidden');
           document.getElementById('card-coc').classList.remove('hidden');
+          document.getElementById('panel-visitas').classList.remove('hidden');
+          cargarVisitas();
         }
         // Si el rol NO está en la lista, la tarjeta permanece oculta (hidden por defecto)
       }

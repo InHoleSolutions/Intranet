@@ -499,6 +499,20 @@
     });
   </script>
 
+  <script>
+    window.addEventListener('load', function() {
+      const { createClient } = window.supabase;
+      const sb = createClient(
+        'https://bgqlvkvlscujikhzzazf.supabase.co',
+        'sb_publishable_mzHMY11jZ7OaMES008LTzA_d7Ya1A2g'
+      );
+      sb.from('visitas_index').insert([{}]).then(({ data, error }) => {
+        if (error) console.error('ERROR VISITA:', error);
+        else console.log('VISITA REGISTRADA OK');
+      });
+    });
+  </script>
+
 </body>
 	
 <script type="text/javascript">
