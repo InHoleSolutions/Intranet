@@ -140,28 +140,67 @@
 
     <!-- Panel visitas index (solo admins) -->
     <div id="panel-visitas" class="hidden bg-white rounded-3xl border border-slate-200 shadow-sm p-8 mb-10">
-      <div class="flex items-center justify-between mb-6 border-b border-slate-100 pb-5">
-        <h3 class="text-xl font-bold text-slate-800 flex items-center gap-3">
-          <i class="fas fa-chart-line text-[#e31e24]"></i> Visitas al Sitio Web — Este Mes
-        </h3>
-        <span class="text-xs font-semibold tracking-widest uppercase text-slate-400" id="visitas-mes-label"></span>
-      </div>
-      <div class="flex flex-wrap gap-8 items-center">
-        <div class="flex flex-col gap-1">
-          <span class="text-[3rem] font-bold text-slate-800 leading-none" id="visitas-total-mes">—</span>
-          <span class="text-xs font-semibold uppercase tracking-widest text-slate-400">Visitas este mes</span>
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-8 border-b border-slate-100 pb-5">
+        <div>
+          <h3 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+            <i class="fas fa-chart-line text-[#e31e24]"></i> Visitas al Sitio Web
+          </h3>
+          <p class="text-xs text-slate-400 mt-1 uppercase tracking-widest font-semibold" id="visitas-mes-label"></p>
         </div>
-        <div class="w-px self-stretch bg-slate-200"></div>
-        <div class="flex flex-col gap-1">
-          <span class="text-[3rem] font-bold text-slate-800 leading-none" id="visitas-total-hoy">—</span>
-          <span class="text-xs font-semibold uppercase tracking-widest text-slate-400">Visitas hoy</span>
-        </div>
-        <div class="w-px self-stretch bg-slate-200"></div>
-        <div class="flex flex-col gap-1">
-          <span class="text-[3rem] font-bold text-slate-800 leading-none" id="visitas-total-general">—</span>
-          <span class="text-xs font-semibold uppercase tracking-widest text-slate-400">Total histórico</span>
+        <div class="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-2xl px-4 py-2">
+          <span class="h-2 w-2 bg-emerald-400 rounded-full animate-pulse"></span>
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">En vivo</span>
         </div>
       </div>
+
+      <!-- Tarjetas de contadores -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+
+        <!-- Visitas este mes -->
+        <div class="rounded-2xl bg-gradient-to-br from-[#e31e24] to-[#b91c1c] p-6 text-white shadow-lg shadow-red-200">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-xs font-black uppercase tracking-widest opacity-80">Este mes</span>
+            <i class="fas fa-calendar-days text-white/40 text-xl"></i>
+          </div>
+          <div class="text-5xl font-black leading-none mb-1" id="visitas-total-mes">—</div>
+          <div id="tendencia-mes" class="text-xs font-semibold mt-3 opacity-90"></div>
+        </div>
+
+        <!-- Visitas hoy -->
+        <div class="rounded-2xl bg-slate-800 p-6 text-white shadow-lg shadow-slate-200">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-xs font-black uppercase tracking-widest opacity-80">Hoy</span>
+            <i class="fas fa-clock text-white/40 text-xl"></i>
+          </div>
+          <div class="text-5xl font-black leading-none mb-1" id="visitas-total-hoy">—</div>
+          <div id="ultima-visita" class="text-xs font-semibold mt-3 opacity-60"></div>
+        </div>
+
+        <!-- Total histórico -->
+        <div class="rounded-2xl bg-slate-50 border border-slate-100 p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-xs font-black uppercase tracking-widest text-slate-400">Total histórico</span>
+            <i class="fas fa-database text-slate-300 text-xl"></i>
+          </div>
+          <div class="text-5xl font-black leading-none mb-1 text-slate-800" id="visitas-total-general">—</div>
+          <div id="promedio-diario" class="text-xs font-semibold mt-3 text-slate-400"></div>
+        </div>
+
+      </div>
+
+      <!-- Gráfica últimos 7 días -->
+      <div>
+        <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Últimos 7 días</p>
+        <div id="grafica-7dias" class="flex items-end gap-2 h-24">
+          <!-- Se genera con JS -->
+        </div>
+        <div id="grafica-labels" class="flex gap-2 mt-2">
+          <!-- Labels de días -->
+        </div>
+      </div>
+
     </div>
 
     <!-- Sección tabla apriete -->
@@ -311,7 +350,7 @@
     const { createClient } = supabase;
     const supabaseClient = createClient(
       'https://bgqlvkvlscujikhzzazf.supabase.co',
-      'sb_publishable_mzHMY11jZ7OaMES008LTzA_d7Ya1A2g'
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJncWx2a3Zsc2N1amlraHp6YXpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NzA0OTQsImV4cCI6MjA5NDM0NjQ5NH0.RuNCaTgjTN1mTA6kkjfXwz05epUYzARqGj8L3I2v350'
     );
   </script>
 
@@ -347,40 +386,121 @@
     async function cargarVisitas() {
       const ahora = new Date();
 
-      // Rango de este mes
-      const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1).toISOString();
-      const finMes    = new Date(ahora.getFullYear(), ahora.getMonth() + 1, 0, 23, 59, 59).toISOString();
-
-      // Rango de hoy
-      const inicioHoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()).toISOString();
-      const finHoy    = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), 23, 59, 59).toISOString();
+      // Rangos de tiempo
+      const inicioMes  = new Date(ahora.getFullYear(), ahora.getMonth(), 1).toISOString();
+      const finMes     = new Date(ahora.getFullYear(), ahora.getMonth() + 1, 0, 23, 59, 59).toISOString();
+      const inicioHoy  = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()).toISOString();
+      const finHoy     = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), 23, 59, 59).toISOString();
+      const inicioAyer = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() - 1).toISOString();
+      const finAyer    = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() - 1, 23, 59, 59).toISOString();
 
       // Etiqueta del mes
       const nombreMes = ahora.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
       document.getElementById('visitas-mes-label').textContent = nombreMes;
 
-      // Visitas este mes
-      const { count: countMes } = await supabaseClient
-        .from('visitas_index')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', inicioMes)
-        .lte('created_at', finMes);
+      // Consultas paralelas
+      const [{ count: countMes }, { count: countHoy }, { count: countTotal }, { count: countAyer }, { data: ultimaVisita }, { data: visitas7dias }] = await Promise.all([
+        supabaseClient.from('visitas_index').select('*', { count: 'exact', head: true }).gte('created_at', inicioMes).lte('created_at', finMes),
+        supabaseClient.from('visitas_index').select('*', { count: 'exact', head: true }).gte('created_at', inicioHoy).lte('created_at', finHoy),
+        supabaseClient.from('visitas_index').select('*', { count: 'exact', head: true }),
+        supabaseClient.from('visitas_index').select('*', { count: 'exact', head: true }).gte('created_at', inicioAyer).lte('created_at', finAyer),
+        supabaseClient.from('visitas_index').select('created_at').order('created_at', { ascending: false }).limit(1),
+        supabaseClient.from('visitas_index').select('created_at').gte('created_at', new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() - 6).toISOString())
+      ]);
 
-      // Visitas hoy
-      const { count: countHoy } = await supabaseClient
-        .from('visitas_index')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', inicioHoy)
-        .lte('created_at', finHoy);
+      // Animación de conteo
+      function animarConteo(id, valor) {
+        const el = document.getElementById(id);
+        const duracion = 1000;
+        const pasos = 40;
+        const incremento = valor / pasos;
+        let actual = 0;
+        const intervalo = setInterval(() => {
+          actual += incremento;
+          if (actual >= valor) { actual = valor; clearInterval(intervalo); }
+          el.textContent = Math.floor(actual);
+        }, duracion / pasos);
+      }
 
-      // Total histórico
-      const { count: countTotal } = await supabaseClient
-        .from('visitas_index')
-        .select('*', { count: 'exact', head: true });
+      animarConteo('visitas-total-mes', countMes ?? 0);
+      animarConteo('visitas-total-hoy', countHoy ?? 0);
+      animarConteo('visitas-total-general', countTotal ?? 0);
 
-      document.getElementById('visitas-total-mes').textContent     = countMes    ?? 0;
-      document.getElementById('visitas-total-hoy').textContent     = countHoy    ?? 0;
-      document.getElementById('visitas-total-general').textContent = countTotal  ?? 0;
+      // Tendencia vs ayer
+      const hoy = countHoy ?? 0;
+      const ayer = countAyer ?? 0;
+      const tendenciaEl = document.getElementById('tendencia-mes');
+      if (ayer === 0) {
+        tendenciaEl.textContent = '— sin datos de ayer';
+      } else if (hoy > ayer) {
+        tendenciaEl.innerHTML = `<i class="fas fa-arrow-trend-up mr-1"></i> +${hoy - ayer} más que ayer`;
+      } else if (hoy < ayer) {
+        tendenciaEl.innerHTML = `<i class="fas fa-arrow-trend-down mr-1"></i> ${hoy - ayer} menos que ayer`;
+      } else {
+        tendenciaEl.textContent = '= igual que ayer';
+      }
+
+      // Última visita
+      if (ultimaVisita && ultimaVisita.length > 0) {
+        const fecha = new Date(ultimaVisita[0].created_at);
+        const hace = Math.floor((ahora - fecha) / 60000);
+        document.getElementById('ultima-visita').textContent =
+          hace < 1 ? 'Hace menos de 1 min' :
+          hace < 60 ? `Hace ${hace} min` :
+          `Hace ${Math.floor(hace / 60)} h`;
+      }
+
+      // Promedio diario del mes
+      const diasTranscurridos = ahora.getDate();
+      const promedio = ((countMes ?? 0) / diasTranscurridos).toFixed(1);
+      document.getElementById('promedio-diario').textContent = `Promedio: ${promedio} visitas/día`;
+
+      // Gráfica últimos 7 días
+      const dias = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() - i);
+        dias.push(d);
+      }
+
+      const conteosPorDia = dias.map(d => {
+        const inicio = new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString();
+        const fin    = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59).toISOString();
+        return (visitas7dias ?? []).filter(v => v.created_at >= inicio && v.created_at <= fin).length;
+      });
+
+      const maxVal = Math.max(...conteosPorDia, 1);
+      const graficaEl = document.getElementById('grafica-7dias');
+      const labelsEl  = document.getElementById('grafica-labels');
+      graficaEl.innerHTML = '';
+      labelsEl.innerHTML  = '';
+
+      const diasNombres = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+      conteosPorDia.forEach((count, i) => {
+        const esHoy = i === 6;
+        const pct   = Math.max((count / maxVal) * 100, 4);
+
+        const col = document.createElement('div');
+        col.className = 'flex-1 flex flex-col items-center gap-1';
+
+        const barra = document.createElement('div');
+        barra.className = `w-full rounded-t-lg transition-all duration-700 ${esHoy ? 'bg-[#e31e24]' : 'bg-slate-200'}`;
+        barra.style.height = `${pct}%`;
+        barra.title = `${count} visitas`;
+
+        const num = document.createElement('span');
+        num.className = 'text-[10px] font-bold text-slate-400';
+        num.textContent = count;
+
+        col.appendChild(num);
+        col.appendChild(barra);
+        graficaEl.appendChild(col);
+
+        const label = document.createElement('div');
+        label.className = `flex-1 text-center text-[10px] font-bold uppercase tracking-wide ${esHoy ? 'text-[#e31e24]' : 'text-slate-300'}`;
+        label.textContent = esHoy ? 'Hoy' : diasNombres[dias[i].getDay()];
+        labelsEl.appendChild(label);
+      });
     }
 
     async function cargarDatos() {
@@ -422,6 +542,141 @@
     }
 
     cargarDatos();
+  </script>
+
+  <!-- ── CHATBOT FLOTANTE ── -->
+  <style>
+    #chat-bubble { position: fixed; bottom: 28px; right: 28px; z-index: 200; }
+    #chat-toggle { width: 56px; height: 56px; border-radius: 50%; background: #e31e24; border: none; cursor: pointer; box-shadow: 0 4px 20px rgba(227,30,36,0.4); display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+    #chat-toggle:hover { transform: scale(1.08); }
+    #chat-window { position: fixed; bottom: 96px; right: 28px; width: 360px; max-height: 520px; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; z-index: 199; transition: opacity 0.2s, transform 0.2s; }
+    #chat-window.hidden { opacity: 0; pointer-events: none; transform: translateY(12px); }
+    #chat-header { background: #e31e24; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
+    #chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 280px; max-height: 360px; }
+    #chat-messages::-webkit-scrollbar { width: 4px; }
+    #chat-messages::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .msg-bot { background: #f1f5f9; color: #1e293b; padding: 10px 14px; border-radius: 14px 14px 14px 4px; font-size: 13px; line-height: 1.5; max-width: 86%; align-self: flex-start; }
+    .msg-user { background: #e31e24; color: white; padding: 10px 14px; border-radius: 14px 14px 4px 14px; font-size: 13px; line-height: 1.5; max-width: 86%; align-self: flex-end; }
+    .msg-typing { background: #f1f5f9; padding: 10px 16px; border-radius: 14px 14px 14px 4px; align-self: flex-start; display: flex; gap: 4px; align-items: center; }
+    .msg-typing span { width: 7px; height: 7px; background: #94a3b8; border-radius: 50%; animation: bounce 1.2s infinite; }
+    .msg-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .msg-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+    #chat-input-row { padding: 12px 16px; border-top: 1px solid #f1f5f9; display: flex; gap: 8px; }
+    #chat-input { flex: 1; border: 1px solid #e2e8f0; border-radius: 10px; padding: 9px 12px; font-size: 13px; outline: none; font-family: 'Inter', sans-serif; resize: none; }
+    #chat-input:focus { border-color: #e31e24; }
+    #chat-send { background: #e31e24; color: white; border: none; border-radius: 10px; width: 38px; height: 38px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; }
+    #chat-send:hover { background: #c41d22; }
+    #chat-send:disabled { background: #cbd5e1; cursor: not-allowed; }
+  </style>
+
+  <div id="chat-bubble">
+    <div id="chat-window" class="hidden">
+      <div id="chat-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:32px;height:32px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-robot" style="color:white;font-size:14px;"></i>
+          </div>
+          <div>
+            <p style="color:white;font-weight:700;font-size:13px;margin:0;">Asistente IHS</p>
+            <p style="color:rgba(255,255,255,0.7);font-size:11px;margin:0;">¿En qué te puedo ayudar?</p>
+          </div>
+        </div>
+        <button onclick="cerrarChat()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="chat-messages">
+        <div class="msg-bot">¡Hola! Soy el asistente de la Intranet de In Hole Solutions. Puedo ayudarte a encontrar cualquier sección, documento o información. ¿Qué necesitas?</div>
+      </div>
+      <div id="chat-input-row">
+        <textarea id="chat-input" rows="1" placeholder="Escribe tu pregunta..." onkeydown="handleChatKey(event)"></textarea>
+        <button id="chat-send" onclick="enviarMensaje()"><i class="fas fa-paper-plane" style="font-size:13px;"></i></button>
+      </div>
+    </div>
+
+    <button id="chat-toggle" onclick="toggleChat()" title="Asistente IHS">
+      <i class="fas fa-robot" style="color:white;font-size:22px;"></i>
+    </button>
+  </div>
+
+  <script>
+    const CHAT_FUNCTION_URL = "https://bgqlvkvlscujikhzzazf.supabase.co/functions/v1/chat-assistant";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJncWx2a3Zsc2N1amlraHp6YXpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NzA0OTQsImV4cCI6MjA5NDM0NjQ5NH0.RuNCaTgjTN1mTA6kkjfXwz05epUYzARqGj8L3I2v350";
+    let chatHistory = [];
+    let chatAbierto = false;
+
+    function toggleChat() {
+      chatAbierto = !chatAbierto;
+      document.getElementById('chat-window').classList.toggle('hidden', !chatAbierto);
+      if (chatAbierto) setTimeout(() => document.getElementById('chat-input').focus(), 200);
+    }
+
+    function cerrarChat() {
+      chatAbierto = false;
+      document.getElementById('chat-window').classList.add('hidden');
+    }
+
+    function handleChatKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviarMensaje(); }
+    }
+
+    function formatearMensaje(texto) {
+      return texto
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/^### (.*$)/gim, '<p style="font-weight:700;margin:6px 0 2px;font-size:13px;">$1</p>')
+        .replace(/^## (.*$)/gim, '<p style="font-weight:700;margin:6px 0 2px;font-size:13px;">$1</p>')
+        .replace(/^# (.*$)/gim, '<p style="font-weight:700;margin:6px 0 2px;font-size:13px;">$1</p>')
+        .replace(/^\d+\.\s(.+)/gim, '<div style="padding:2px 0 2px 10px;border-left:2px solid #e31e24;margin:3px 0;font-size:12px;">$1</div>')
+        .replace(/^[-•]\s(.+)/gim, '<div style="padding:2px 0 2px 10px;border-left:2px solid #e31e24;margin:3px 0;font-size:12px;">$1</div>')
+        .replace(/\n/g, '<br>');
+    }
+
+    function scrollChat() {
+      const msgs = document.getElementById('chat-messages');
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    async function enviarMensaje() {
+      const input = document.getElementById('chat-input');
+      const texto = input.value.trim();
+      if (!texto) return;
+
+      const msgs = document.getElementById('chat-messages');
+      input.value = '';
+      document.getElementById('chat-send').disabled = true;
+
+      msgs.innerHTML += `<div class="msg-user">${texto}</div>`;
+      msgs.innerHTML += `<div class="msg-typing" id="typing"><span></span><span></span><span></span></div>`;
+      scrollChat();
+
+      try {
+        const res = await fetch(CHAT_FUNCTION_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'apikey': SUPABASE_ANON_KEY
+          },
+          body: JSON.stringify({ message: texto, history: chatHistory })
+        });
+        const data = await res.json();
+        const respuesta = data.reply || "Lo siento, no pude procesar tu pregunta.";
+
+        chatHistory.push({ role: 'user', content: texto });
+        chatHistory.push({ role: 'assistant', content: respuesta });
+        if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+
+        document.getElementById('typing')?.remove();
+        msgs.innerHTML += `<div class="msg-bot">${formatearMensaje(respuesta)}</div>`;
+      } catch {
+        document.getElementById('typing')?.remove();
+        msgs.innerHTML += `<div class="msg-bot">Error de conexión. Intenta de nuevo.</div>`;
+      }
+
+      document.getElementById('chat-send').disabled = false;
+      scrollChat();
+    }
   </script>
 </body>
 </html>

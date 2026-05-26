@@ -56,6 +56,35 @@
   .delay-1 { animation-delay:0.1s; }
   .delay-2 { animation-delay:0.2s; }
   .delay-3 { animation-delay:0.3s; }
+
+  /* Tooltip nativo para inputs de tabla */
+  .cell-input[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 0;
+    background: #1e293b;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    white-space: pre-wrap;
+    max-width: 280px;
+    z-index: 100;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+
+  .badge-estado { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:0.05em; white-space:nowrap; }
+  .badge-completo   { background:#dcfce7; color:#16a34a; }
+  .badge-incompleto { background:#fef9c3; color:#ca8a04; }
+  .badge-pdf        { background:#dbeafe; color:#2563eb; }
+
+  @keyframes shimmer { 0%{background-position:-700px 0} 100%{background-position:700px 0} }
+  .skeleton-row td { padding: 14px; }
+  .skeleton-cell { height:14px; border-radius:6px; background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%); background-size:700px 100%; animation:shimmer 1.4s infinite; }
+
+  .coc-table tbody tr.fila-activa { background:#fef8f8 !important; box-shadow: inset 3px 0 0 #c8181e; }
 </style>
 </head>
 <body>
@@ -149,22 +178,37 @@
           </button>
         </div>
       </div>
+      <!-- BARRA DE BÚSQUEDA -->
+      <div class="px-8 py-4 border-b border-slate-100 flex flex-wrap gap-3 items-center bg-white">
+        <div class="relative flex-1 min-w-[200px] max-w-[320px]">
+          <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[12px]"></i>
+          <input id="buscador-global" type="text" placeholder="Buscar en toda la tabla…" oninput="filtrarTabla()" class="w-full pl-9 pr-4 py-2 text-[13px] border border-slate-200 rounded-[10px] outline-none focus:border-red-300 focus:ring-2 focus:ring-red-50 transition-all" style="font-family:'Barlow',sans-serif;">
+        </div>
+        <select id="filtro-customer" onchange="filtrarTabla()" class="text-[13px] border border-slate-200 rounded-[10px] px-3 py-2 outline-none focus:border-red-300 transition-all" style="font-family:'Barlow',sans-serif;">
+          <option value="">Todos los Customers</option>
+        </select>
+        <button onclick="limpiarFiltros()" class="text-[12px] text-slate-400 hover:text-red-500 transition-colors px-2 py-2 flex items-center gap-1">
+          <i class="fas fa-times-circle"></i> Limpiar
+        </button>
+        <span id="filtro-resultado" class="text-[12px] text-slate-400 ml-auto"></span>
+      </div>
       <div class="overflow-x-auto">
         <table class="coc-table">
           <thead>
             <tr>
               <th>#</th>
-              <th>COC No.</th>
+              <th onclick="ordenarPor('coc_no', this)" style="cursor:pointer;user-select:none;">COC No. <i class="fas fa-sort text-slate-300 ml-1"></i></th>
               <th>Description</th>
               <th>Qty</th>
               <th>Serial No. / LOTE</th>
               <th>Part No.</th>
-              <th>Work Order No.</th>
-              <th>Customer Supply Order No.</th>
-              <th>Customer</th>
+              <th onclick="ordenarPor('work_order_no', this)" style="cursor:pointer;user-select:none;">Work Order No. <i class="fas fa-sort text-slate-300 ml-1"></i></th>
+              <th onclick="ordenarPor('customer_supply_order_no', this)" style="cursor:pointer;user-select:none;">Customer Supply Order No. <i class="fas fa-sort text-slate-300 ml-1"></i></th>
+              <th onclick="ordenarPor('customer', this)" style="cursor:pointer;user-select:none;">Customer <i class="fas fa-sort text-slate-300 ml-1"></i></th>
               <th>Comentario</th>
               <th>Quality Grade</th>
-              <th>Date</th>
+              <th onclick="ordenarPor('fecha_emision', this)" style="cursor:pointer;user-select:none;">Date <i class="fas fa-sort text-slate-300 ml-1"></i></th>
+              <th>Estado</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -212,11 +256,24 @@
     <span id="toast-msg">Guardado</span>
   </div>
 
+  <!-- MODAL CONFIRMAR ELIMINAR -->
+  <div id="modal-eliminar" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:20px;padding:2rem;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.25);text-align:center;">
+      <div style="width:56px;height:56px;background:#fef2f2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;"><i class="fas fa-trash text-red-500 text-xl"></i></div>
+      <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem;">¿Eliminar registro?</h3>
+      <p style="font-size:13px;color:#64748b;margin-bottom:1.5rem;">Esta acción no se puede deshacer. Se eliminará el registro y todas sus subfilas.</p>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button onclick="cerrarModalEliminar()" style="padding:9px 24px;border:1px solid #e2e8f0;border-radius:10px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:#fff;color:#64748b;">Cancelar</button>
+        <button id="btn-confirmar-eliminar" style="padding:9px 24px;background:#c8181e;border:none;border-radius:10px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:#fff;">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const { createClient } = supabase;
     const sb = createClient(
       'https://bgqlvkvlscujikhzzazf.supabase.co',
-      'sb_publishable_mzHMY11jZ7OaMES008LTzA_d7Ya1A2g'
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJncWx2a3Zsc2N1amlraHp6YXpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NzA0OTQsImV4cCI6MjA5NDM0NjQ5NH0.RuNCaTgjTN1mTA6kkjfXwz05epUYzARqGj8L3I2v350'
     );
     const TABLE = 'coc_registros';
     let rowCount = 0;
@@ -234,7 +291,10 @@
     }
     async function init() {
       const { data: { session } } = await sb.auth.getSession();
-      if (!session) { window.location.href = 'intranet-login.html'; return; }
+      if (!session) { 
+        window.location.href = 'intranet-login.html'; 
+        return; 
+      }
 
       const { data: perfil } = await sb.from('perfiles').select('*').eq('id', session.user.id).single();
       if (perfil) {
@@ -249,7 +309,16 @@
       await cargarRegistros();
     }
     async function cargarRegistros() {
+      // Mostrar skeleton
+      const tbody = document.getElementById('coc-tbody');
+      document.getElementById('empty-state').style.display = 'none';
+      tbody.innerHTML = Array(4).fill('').map(() => `
+        <tr class="skeleton-row">
+          ${Array(13).fill('').map(() => `<td><div class="skeleton-cell" style="width:${60+Math.random()*40}%"></div></td>`).join('')}
+        </tr>`).join('');
+
       const { data, error } = await sb.from(TABLE).select('*').order('created_at', { ascending: true });
+      tbody.innerHTML = ''; // limpiar skeleton
       if (error) {
         document.getElementById('info-conexion').textContent = 'Error de conexión';
         document.getElementById('info-conexion').style.color = '#ef4444';
@@ -269,6 +338,7 @@
       document.getElementById('stat-total').textContent = data.length;
       document.getElementById('stat-today').textContent = todayCount;
       actualizarEmptyState();
+      poblarFiltroCustomer(data);
     }
     function escAttr(s) { return String(s || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 
@@ -288,16 +358,20 @@
         { key: 'customer_supply_order_no', placeholder: 'C.S.O No.',    cls: 'wide' },
         { key: 'customer',                 placeholder: 'Cliente',      cls: 'wide' },
         { key: 'comentario',               placeholder: 'Comentario…',  cls: 'xl',   expandBtn: true, label: 'Comentario' },
-        { key: 'quality_grade',            placeholder: 'Quality Grade…',cls: 'wide' },
+        { key: 'quality_grade',            placeholder: 'PREMIUM',       cls: 'wide', default: 'PREMIUM' },
         { key: 'fecha_emision',            placeholder: 'DD-MM-YYYY',   cls: 'wide', type: 'date' },
       ];
 
-      let html = `<td style="padding-left:1.5rem;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--muted);">${rowCount}</td>`;
+      const numSubfilas = subfilas.length;
+      const badgeSub = numSubfilas > 0
+        ? `<span style="display:inline-block;margin-left:4px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:20px;padding:1px 7px;font-size:10px;color:#64748b;">+${numSubfilas}</span>`
+        : '';
+      let html = `<td style="padding-left:1.5rem;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--muted);">${rowCount}${badgeSub}</td>`;
       cols.forEach(col => {
-        const val = escAttr(data[col.key] || '');
+        const val = escAttr(data[col.key] || col.default || '');
         if (col.addBtn) {
           html += `<td style="position:relative;">
-            <input type="text" class="cell-input ${col.cls}" data-key="${col.key}" placeholder="${col.placeholder}" value="${val}" onblur="guardarCelda(this)" onkeydown="if(event.key==='Enter')this.blur()">
+            <input type="text" class="cell-input ${col.cls}" data-key="${col.key}" placeholder="${col.placeholder}" value="${val}" onfocus="this.closest('tr').classList.add('fila-activa')" onblur="this.closest('tr').classList.remove('fila-activa');guardarCelda(this)" onkeydown="if(event.key==='Enter')this.blur()">
             <button onclick=\"agregarSubfila(this)\" style=\"background:#f9e5e6;border:none;border-radius:6px;padding:2px 8px;cursor:pointer;color:#c8181e;font-size:13px;font-weight:bold;\">+</button>
             ${col.expandBtn ? `<button onclick=\"abrirModal(this.closest('td').querySelector('input'), '${col.label}')\" style=\"background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;\" title=\"Ver texto completo\"><i class='fas fa-expand-alt'></i></button>` : ''}
             <div class="subfilas-container"></div>
@@ -309,6 +383,7 @@
           </td>`;
         }
       });
+      html += `<td><span class="badge-estado badge-incompleto" data-badge><i class="fas fa-circle-dot"></i> Incompleto</span></td>`;
       html += `<td style="display:flex;gap:6px;justify-content:center;align-items:center;">
         <button class="btn btn-danger-ghost" onclick="eliminarFila(this)" title="Eliminar"><i class="fas fa-trash"></i></button>
         <button class="btn" onclick="generarPDF(this)" title="Generar PDF" style="background:#f9e5e6;border:none;border-radius:8px;padding:6px 10px;cursor:pointer;color:#c8181e;"><i class="fas fa-file-pdf"></i></button>
@@ -340,7 +415,7 @@
             <button onclick="abrirModal(this.closest('td').querySelector('input'), 'Part No.')" style="background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;" title="Ver texto completo"><i class="fas fa-expand-alt"></i></button>
           </td>
           <td colspan="7" style="text-align:right;">
-            <button onclick="this.closest('tr').remove()" style="background:#f9e5e6;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#c8181e;font-size:12px;">✕</button>
+            <button onclick="eliminarSubfila(this)" style="background:#f9e5e6;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#c8181e;font-size:12px;">✕</button>
           </td>
         `;
 
@@ -381,7 +456,7 @@
           <button onclick="abrirModal(this.closest('td').querySelector('input'), 'Part No.')" style="background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;" title="Ver texto completo"><i class="fas fa-expand-alt"></i></button>
         </td>
         <td colspan="7" style="text-align:right;">
-          <button onclick="this.closest('tr').remove()" style="background:#f9e5e6;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#c8181e;font-size:12px;">✕</button>
+          <button onclick="eliminarSubfila(this)" style="background:#f9e5e6;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#c8181e;font-size:12px;">✕</button>
         </td>
       `;
 
@@ -398,6 +473,12 @@
       const payload = { capturado_por: currentUser };
       inputs.forEach(inp => { 
         payload[inp.dataset.key] = inp.value.trim() || null; 
+      });
+
+      // Actualizar tooltip con el valor actual
+      inputs.forEach(inp => {
+        if (inp.value.trim()) inp.setAttribute('title', inp.value.trim());
+        else inp.removeAttribute('title');
       });
 
       const hayAlgo = Object.entries(payload).some(([k,v]) => k !== 'capturado_por' && v);
@@ -467,6 +548,7 @@
 
       await actualizarEstadisticas();
       setSaving(false);
+      actualizarBadge(tr);
     }
 
     async function guardarSubfilas(input) {
@@ -506,9 +588,20 @@
       setSaving(false);
     }
 
-    async function eliminarFila(btn) {
-      if (!confirm('¿Estás seguro de que quieres eliminar este registro? Esta acción no se puede deshacer.')) return;
-      const tr = btn.closest('tr');
+    let _btnEliminarPendiente = null;
+    function eliminarFila(btn) {
+      _btnEliminarPendiente = btn;
+      const modal = document.getElementById('modal-eliminar');
+      modal.style.display = 'flex';
+    }
+    function cerrarModalEliminar() {
+      document.getElementById('modal-eliminar').style.display = 'none';
+      _btnEliminarPendiente = null;
+    }
+    document.getElementById('btn-confirmar-eliminar').addEventListener('click', async () => {
+      if (!_btnEliminarPendiente) return;
+      cerrarModalEliminar();
+      const tr = _btnEliminarPendiente.closest('tr');
       const id = tr.dataset.id;
       if (id) {
         setSaving(true);
@@ -517,21 +610,25 @@
         setSaving(false);
         if (error) { showToast('Error al eliminar', 'error'); return; }
       }
+      // Eliminar subfilas del DOM
+      document.querySelectorAll(`tr.subfila-group[data-parent-id="${id}"]`).forEach(sf => sf.remove());
       tr.remove();
-        rowCount = 0;
-        document.querySelectorAll('#coc-tbody tr').forEach(r => { rowCount++; r.cells[0].textContent = rowCount; });
-        actualizarEmptyState();
-        showToast('Fila eliminada');
-      
+      rowCount = 0;
+      document.querySelectorAll('#coc-tbody tr:not(.subfila-group)').forEach(r => {
+        rowCount++;
+        r.cells[0].textContent = rowCount;
+      });
+      actualizarEmptyState();
+      showToast('Fila eliminada');
       await actualizarEstadisticas();
-    }
+    });
+
     async function actualizarEstadisticas() {
       const { data } = await sb.from(TABLE).select('id, created_at, capturado_por');
       if (!data) return;
       const hoyStr = new Date().toISOString().slice(0, 10);
       document.getElementById('stat-total').textContent = data.length;
       document.getElementById('stat-today').textContent = data.filter(r => r.created_at && r.created_at.slice(0, 10) === hoyStr).length;
-      if (currentUser) document.getElementById('stat-user').textContent = data.filter(r => r.capturado_por === currentUser).length;
     }
     function actualizarEmptyState() {
       const n = document.querySelectorAll('#coc-tbody tr').length;
@@ -586,107 +683,196 @@
       doc.addImage(HEADER_IMG_BASE64, 'PNG', 0, 0, W, 45);
 
       // ── TÍTULO ──
-      doc.setFontSize(16);
-      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.setFont('times', 'bold');
       doc.setTextColor(30, 30, 30);
       doc.text('CERTIFICATE OF COMPLIANCE', W / 2, 55, { align: 'center' });
 
       // ── Subtítulo tabla ──
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+      doc.setFont('times', 'normal');
       doc.text('ITEMS COVERED UNDER THIS CERTIFICATE ARE:', 14, 68);
 
       // ── TABLA de ítems ──
       // Encabezados
-      const colX   = [14, 38, 100, 115, 145, 165];
-      const colW   = [24, 62,  15,  30,  20,  37];
-      const headers = ['COC No.', 'Description', 'Qty', 'Serial No.', 'PN.', 'Work Order No.'];
+      const colX   = [14, 30, 105, 120, 143, 173];
+      const colW   = [16, 75,  15,  23,  30,  29];
+      const headers = ['COC No.', 'Description', 'Qty', 'Serial No.', 'Part No.', 'Work Order No.'];
       doc.setFillColor(230, 230, 230);
-      doc.rect(14, 73, W - 28, 8, 'F');
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(8);
+      doc.rect(14, 73, W - 28, 12, 'F');
+      doc.setFont('times', 'bold');
+      doc.setFontSize(11);
       doc.setTextColor(30, 30, 30);
-      headers.forEach((h, i) => doc.text(h, colX[i] + 1, 78.5));
+      headers.forEach((h, i) => {
+        const centerX = colX[i] + colW[i] / 2;
+        doc.text(h, centerX, 80, { align: 'center' });
+      });
 
       // Borde encabezado
       doc.setDrawColor(180, 180, 180);
-      doc.rect(14, 73, W - 28, 8);
+      doc.rect(14, 73, W - 28, 12);
 
       // Todas las filas a dibujar (principal + subfilas)
       const todasLasFilas = [
         [coc_no, descripcion, qty, serial, part_no, work_order],
-        ...subfilas.map(sf => [coc_no, sf.descripcion, sf.qty, sf.serial, sf.part_no, work_order])
+        ...subfilas.map(sf => ['', sf.descripcion, sf.qty, sf.serial, sf.part_no, ''])
       ];
 
-      const alturaFila = 12;
-      let yFila = 81;
+      const alturaHoja = 279.4; // alto de hoja carta en mm
+      const margenPie  = 18;
 
-      todasLasFilas.forEach((fila, idx) => {
-        doc.setFillColor(255, 255, 255);
-        doc.rect(14, yFila, W - 28, alturaFila, 'F');
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(8);
+      function verificarPagina(y, alturaNeeded) {
+        if (y + alturaNeeded > alturaHoja - margenPie) {
+          doc.addPage();
+          doc.addImage(HEADER_IMG_BASE64, 'PNG', 0, 0, W, 45); // ← dibuja el header en la nueva hoja
+          return 50; // empieza el contenido debajo del header
+        }
+        return y;
+      }
+
+      let yFila = 85;
+
+      // Calcular altura de cada fila primero
+      const alturasPorFila = todasLasFilas.map(fila => {
+        doc.setFont('times', 'normal');
+        doc.setFontSize(11);
+        const lineHeight = 5;
+        let maxLines = 1;
         fila.forEach((v, i) => {
           const lines = doc.splitTextToSize(v, colW[i] - 2);
-          doc.text(lines, colX[i] + 1, yFila + 5);
+          if (lines.length > maxLines) maxLines = lines.length;
         });
+        return Math.max(12, maxLines * lineHeight + 6);
+      });
+
+      const alturaTotal = alturasPorFila.reduce((a, b) => a + b, 0);
+      const yFilaInicio = yFila;
+
+      todasLasFilas.forEach((fila, idx) => {
+        const alturaFila = alturasPorFila[idx];
+        const lineHeight = 5;
+
+        doc.setFillColor(255, 255, 255);
+        doc.rect(14, yFila, W - 28, alturaFila, 'F');
+
+        // Dibujar solo columnas 1-4 (Description, Qty, Serial No., Part No.)
+        doc.setFont('times', 'normal');
+        doc.setFontSize(11);
+        doc.setTextColor(30, 30, 30);
+        for (let i = 1; i <= 4; i++) {
+          const lines = doc.splitTextToSize(fila[i], colW[i] - 2);
+          const centerX = colX[i] + colW[i] / 2;
+          const textBlockHeight = lines.length * lineHeight;
+          const startY = yFila + (alturaFila - textBlockHeight) / 2 + lineHeight - 1;
+          doc.text(lines, centerX, startY, { align: 'center' });
+        }
+
         doc.setDrawColor(180, 180, 180);
-        doc.rect(14, yFila, W - 28, alturaFila);
+        // Borde completo solo si es la primera o última fila
+        if (idx === 0) {
+          // Línea superior completa solo en la primera fila
+          doc.line(14, yFila, 14 + (W - 28), yFila);
+        }
+        if (idx === todasLasFilas.length - 1) {
+          // Línea inferior completa solo en la última fila
+          doc.line(14, yFila + alturaFila, 14 + (W - 28), yFila + alturaFila);
+        }
+        // Línea horizontal solo entre columnas 1-4 (no toca COC No. ni Work Order No.)
+        if (idx > 0) {
+          doc.line(colX[1], yFila, colX[5], yFila);
+        }
+        // Bordes izquierdo y derecho exteriores
+        doc.line(14, yFila, 14, yFila + alturaFila);
+        doc.line(14 + (W - 28), yFila, 14 + (W - 28), yFila + alturaFila);
         yFila += alturaFila;
       });
+
+      // COC No. y Work Order No. centrados verticalmente sobre todas las filas
+      doc.setFont('times', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(30, 30, 30);
+      const lineHeight = 5;
+      const yCentro = yFilaInicio + alturaTotal / 2;
+
+      // COC No. (col 0)
+      const linesCoc = doc.splitTextToSize(coc_no, colW[0] - 2);
+      const startYCoc = yCentro - (linesCoc.length * lineHeight) / 2 + lineHeight - 1;
+      doc.text(linesCoc, colX[0] + colW[0] / 2, startYCoc, { align: 'center' });
+
+      // Work Order No. (col 5)
+      const linesWo = doc.splitTextToSize(work_order, colW[5] - 2);
+      const startYWo = yCentro - (linesWo.length * lineHeight) / 2 + lineHeight - 1;
+      doc.text(linesWo, colX[5] + colW[5] / 2, startYWo, { align: 'center' });
 
       // Líneas verticales (de header hasta fin de todas las filas)
       colX.slice(1).forEach(x => doc.line(x, 73, x, yFila));
 
-      // ── Campos Customer / CSO / Quality Grade ──
-      const yPost = yFila + 13;   // margen de 13mm después de la tabla
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'normal');
+      // ── Todo el bloque inferior: Customer + Párrafos + Firma ──
+      // Mide 19 (customer/premium) + 8 (gap) + 75 (párrafos+firma) = ~102mm total
+      // Si no cabe completo en esta página, salta a la siguiente de una vez.
+      // ── Bloque Customer + Párrafos + Firma ──
+      // Se escribe todo junto: primero Customer/PREMIUM, luego párrafos, luego firma.
+      // Antes de cada sección verificamos si cabe, si no, nueva página.
+
+      // — Customer / Quality Grade (ocupa ~27mm) —
+      let yPost = verificarPagina(yFila + 13, 27);
+      doc.setFontSize(11);
+      doc.setFont('times', 'normal');
       doc.setTextColor(30, 30, 30);
       doc.text('Customer Supply Order No.:', 14, yPost);
-      doc.setFont('helvetica', 'bold');
-      doc.text(cso_no, 55, yPost);
-
-      doc.setFont('helvetica', 'normal');
+      doc.setFont('times', 'bold');
+      doc.text(cso_no, 64, yPost);
+      doc.setFont('times', 'normal');
       doc.text('Customer:', 14, yPost + 7);
-      doc.setFont('helvetica', 'bold');
-      doc.text(customer, 30, yPost + 7);
-
-      doc.setFont('helvetica', 'normal');
+      doc.setFont('times', 'bold');
+      doc.text(customer, 33, yPost + 7);
+      doc.setFont('times', 'normal');
       doc.text('Quality Grade:', 14, yPost + 14);
-      doc.setFont('helvetica', 'bold');
-      doc.text(quality_grade, 36, yPost + 14);
-      doc.text('PREMIUM', 100, yPost + 19);
+      doc.setFont('times', 'bold');
+      doc.text(quality_grade, 40, yPost + 14);
 
-      // ── Cuerpo del certificado ──
-      doc.setFont('helvetica', 'normal');
+      // — Párrafos uno por uno: cada uno verifica si cabe antes de escribirse —
+      doc.setFont('times', 'normal');
       doc.setFontSize(11);
       doc.setTextColor(30, 30, 30);
+
       const p1 = 'We certify all the required material certificate will be held on file for minimum period of Ten (10) years from the date of manufacture.';
       const p2 = 'We also  certify that the products enlisted above meet the conditions and requirements  of the contract or purchase order, unless otherwise specified, and conform in all respect to the Inhole Solutions procedures and specifications.';
       const p3 = 'This Certificate is issued under our quality management system.';
-      const yBody = yPost + 27;   // después del bloque Customer
-      doc.text(doc.splitTextToSize(p1, W - 28), 14, yBody);
-      doc.text(doc.splitTextToSize(p2, W - 28), 14, yBody + 16);
-      doc.text(p3, 14, yBody + 38);
 
-      doc.addImage(FIRMA_IMG_BASE64, 'PNG', 30, yBody + 44, 90, 30);
+      // p1: ocupa ~14mm (2 líneas de texto)
+      let yP = verificarPagina(yPost + 27, 14);
+      doc.text(doc.splitTextToSize(p1, W - 28), 14, yP);
 
-      doc.text('DATE:', 140, yBody + 69);
-      doc.setFont('helvetica', 'bold');
-      doc.text(fecha_emision, 154, yBody + 69);
+      // p2: ocupa ~18mm (3 líneas de texto)
+      let yP2 = verificarPagina(yP + 16, 18);
+      doc.text(doc.splitTextToSize(p2, W - 28), 14, yP2);
 
-      // ── PIE DE PÁGINA ──
-      doc.setDrawColor(180, 180, 180);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(8);
-      doc.text('IN HOLE SOLUTIONS S. DE R.L DE C.V', 14, 246);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(0, 0, 200);
-      doc.text('www.inholesolutions.com', 14, 251);
-      doc.setTextColor(30, 30, 30);
-      doc.text('Av. San Pío, Mz.6 Lt.14 Bg-4, Parque Logístico Industrial Tabasco, CP: 86287, Villahermosa, Tabasco, México.', 14, 256);
-      doc.text('contacto@inholesolutions.com', 14, 261);
+      // p3 + firma: ocupa ~45mm (texto + imagen firma + DATE)
+      let yP3 = verificarPagina(yP2 + 22, 45);
+      doc.text(p3, 14, yP3);
+      doc.addImage(FIRMA_IMG_BASE64, 'PNG', 30, yP3 + 6, 90, 30);
+      doc.text('DATE:', 140, yP3 + 31);
+      doc.setFont('times', 'bold');
+      doc.text(fecha_emision, 154, yP3 + 31);
+
+      // ── PIE DE PÁGINA (dinámico, se adapta a cualquier página) ──
+      const totalPages = doc.getNumberOfPages();
+      for (let p = 1; p <= totalPages; p++) {
+        doc.setPage(p);
+        const yPie = alturaHoja - 20; // siempre al fondo de cada hoja
+        doc.setDrawColor(180, 180, 180);
+        doc.setFont('times', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(30, 30, 30);
+        doc.text('IN HOLE SOLUTIONS S. DE R.L DE C.V', 14, yPie);
+        doc.setFont('times', 'normal');
+        doc.setTextColor(0, 0, 200);
+        doc.text('www.inholesolutions.com', 14, yPie + 5);
+        doc.setTextColor(30, 30, 30);
+        doc.text('Av. San Pío, Mz.6 Lt.14 Bg-4, Parque Logístico Industrial Tabasco, CP: 86287, Villahermosa, Tabasco, México.', 14, yPie + 10);
+        doc.text('contacto@inholesolutions.com', 14, yPie + 15);
+      }
 
       // ── Descargar ──
       doc.save(`Formato-${coc_no || 'registro'}.pdf`);
@@ -722,6 +908,126 @@
     document.getElementById('modal-texto').addEventListener('click', function(e) {
       if (e.target === this) cerrarModal();
     });
+
+    function filtrarTabla() {
+      const texto = document.getElementById('buscador-global').value.toLowerCase().trim();
+      const customer = document.getElementById('filtro-customer').value.toLowerCase();
+      const filas = document.querySelectorAll('#coc-tbody tr:not(.subfila-group)');
+      let visibles = 0;
+
+      filas.forEach(tr => {
+        const contenido = tr.innerText.toLowerCase();
+        const customerVal = tr.querySelector('[data-key="customer"]')?.value?.toLowerCase() || '';
+        const coincideTexto = !texto || contenido.includes(texto);
+        const coincideCustomer = !customer || customerVal.includes(customer);
+        const mostrar = coincideTexto && coincideCustomer;
+
+        tr.style.display = mostrar ? '' : 'none';
+        // También ocultar/mostrar sus subfilas
+        const id = tr.dataset.id;
+        if (id) {
+          document.querySelectorAll(`tr.subfila-group[data-parent-id="${id}"]`).forEach(sf => {
+            sf.style.display = mostrar ? '' : 'none';
+          });
+        }
+        if (mostrar) visibles++;
+      });
+
+      document.getElementById('filtro-resultado').textContent =
+        texto || customer ? `${visibles} resultado(s)` : '';
+    }
+
+    function limpiarFiltros() {
+      document.getElementById('buscador-global').value = '';
+      document.getElementById('filtro-customer').value = '';
+      filtrarTabla();
+    }
+
+    function poblarFiltroCustomer() {
+      const customers = new Set();
+      document.querySelectorAll('[data-key="customer"]').forEach(inp => {
+        if (inp.value.trim()) customers.add(inp.value.trim());
+      });
+      const sel = document.getElementById('filtro-customer');
+      // Conservar solo la opción "Todos"
+      sel.innerHTML = '<option value="">Todos los Customers</option>';
+      customers.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c; opt.textContent = c;
+        sel.appendChild(opt);
+      });
+    }
+
+    let _sortCol = null, _sortAsc = true;
+    function ordenarPor(key, th) {
+      if (_sortCol === key) _sortAsc = !_sortAsc;
+      else { _sortCol = key; _sortAsc = true; }
+
+      // Resetear iconos
+      document.querySelectorAll('.coc-table th i.fa-sort, .coc-table th i.fa-sort-up, .coc-table th i.fa-sort-down')
+        .forEach(i => { i.className = 'fas fa-sort text-slate-300 ml-1'; });
+      th.querySelector('i').className = `fas fa-sort-${_sortAsc ? 'up' : 'down'} text-red-400 ml-1`;
+
+      const tbody = document.getElementById('coc-tbody');
+      const filasPrincipales = [...tbody.querySelectorAll('tr:not(.subfila-group)')];
+
+      filasPrincipales.sort((a, b) => {
+        const va = a.querySelector(`[data-key="${key}"]`)?.value?.toLowerCase() || '';
+        const vb = b.querySelector(`[data-key="${key}"]`)?.value?.toLowerCase() || '';
+        return _sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+      });
+
+      filasPrincipales.forEach(tr => {
+        tbody.appendChild(tr);
+        const id = tr.dataset.id;
+        if (id) {
+          document.querySelectorAll(`tr.subfila-group[data-parent-id="${id}"]`).forEach(sf => tbody.appendChild(sf));
+        }
+      });
+    }
+
+    function actualizarBadge(tr) {
+      const campos = ['coc_no','descripcion','qty','serial_lote','part_no','work_order_no','customer'];
+      const completo = campos.every(k => {
+        const inp = tr.querySelector(`[data-key="${k}"]`);
+        return inp && inp.value.trim() !== '';
+      });
+      const badge = tr.querySelector('[data-badge]');
+      if (!badge) return;
+      if (completo) {
+        badge.className = 'badge-estado badge-completo';
+        badge.innerHTML = '<i class="fas fa-check-circle"></i> Completo';
+      } else {
+        badge.className = 'badge-estado badge-incompleto';
+        badge.innerHTML = '<i class="fas fa-circle-dot"></i> Incompleto';
+      }
+    }
+
+    async function eliminarSubfila(btn) {
+      const trSub = btn.closest('tr');
+      const registroId = trSub.dataset.parentId;
+
+      // Eliminar del DOM primero
+      trSub.remove();
+
+      // Luego re-guardar todas las subfilas restantes en Supabase
+      const subfilasData = [];
+      document.querySelectorAll(`tr.subfila-group[data-parent-id="${registroId}"]`).forEach(sf => {
+        const desc   = sf.querySelector('[data-subfila-key="descripcion"]')?.value?.trim();
+        const qty    = sf.querySelector('[data-subfila-key="qty"]')?.value?.trim();
+        const serial = sf.querySelector('[data-subfila-key="serial_lote"]')?.value?.trim();
+        const part   = sf.querySelector('[data-subfila-key="part_no"]')?.value?.trim();
+        if (desc || qty || serial || part) {
+          subfilasData.push({ registro_id: registroId, description: desc, qty, serial_lote: serial, part_no: part });
+        }
+      });
+
+      await sb.from('coc_subfilas').delete().eq('registro_id', registroId);
+      if (subfilasData.length > 0) {
+        await sb.from('coc_subfilas').insert(subfilasData);
+      }
+      showToast('Subfila eliminada');
+    }
 
     init();
   </script>

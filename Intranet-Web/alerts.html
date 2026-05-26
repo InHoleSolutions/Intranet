@@ -199,6 +199,25 @@
       </div>
     </div>
 
+    <!-- ── FEED ALERTAS RECIENTES ── -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 mb-8">
+      <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+        <h2 class="text-base font-bold text-slate-800 flex items-center gap-3">
+          <i class="fas fa-bell text-red-600"></i> Alertas Recientes
+        </h2>
+        <span class="flex items-center gap-2 text-xs text-slate-400 font-medium">
+          <span id="feed-pulse" class="inline-block w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+          Últimos 5 registros
+        </span>
+      </div>
+      <div id="feed-lista" class="divide-y divide-slate-50">
+        <div class="flex items-center justify-center py-10 text-slate-300 gap-3">
+          <i class="fas fa-circle-notch spin text-xl text-red-400"></i>
+          <span class="text-sm">Cargando...</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Grid de meses -->
     <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
       <div class="flex items-center justify-between mb-8 pb-6 border-b border-slate-100">
@@ -489,7 +508,8 @@ async function init() {
   }
 
   cargarEstadisticas();
-  renderMeses();
+  await renderMeses();
+  cargarFeedRecientes();
 }
 
 function obtenerSaludo() {
@@ -518,20 +538,96 @@ async function cargarEstadisticas() {
     .eq('mes_registro',  hoy.getMonth() + 1)
     .eq('anio_registro', hoy.getFullYear());
   document.getElementById('stat-mes').textContent = esteMes ?? '—';
+
+  const { count: sinClasificar } = await supabaseClient
+    .from('safety_alerts')
+    .select('*', { count: 'exact', head: true })
+    .is('clasificacion', null);
+  document.getElementById('stat-sin-clasificar').textContent = sinClasificar ?? '—';
+}
+
+async function cargarFeedRecientes() {
+  const { data, error } = await supabaseClient
+    .from('safety_alerts')
+    .select('folio, fecha_evento, tipo_evento, clasificacion, locacion')
+    .order('fecha_registro', { ascending: false })
+    .limit(5);
+
+  const feed = document.getElementById('feed-lista');
+  if (error || !data || data.length === 0) {
+    feed.innerHTML = `<p class="text-center text-slate-400 text-sm py-8">No hay registros recientes.</p>`;
+    return;
+  }
+
+  const badgeClass = {
+    'Nivel 1': 'badge-nivel-1',
+    'Nivel 2': 'badge-nivel-2',
+    'Nivel 3': 'badge-nivel-3',
+  };
+
+  feed.innerHTML = data.map(r => `
+    <div class="flex items-center gap-4 py-3.5">
+      <div class="h-9 w-9 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
+        <i class="fas fa-triangle-exclamation text-red-500 text-sm"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-slate-700 truncate">${esc(r.tipo_evento || 'Sin tipo')}</p>
+        <p class="text-xs text-slate-400 mt-0.5">${esc(r.fecha_evento || '')} · ${esc(r.locacion || 'Sin ubicación')}</p>
+      </div>
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <span class="text-[10px] font-black px-2.5 py-1 rounded-lg ${badgeClass[r.clasificacion] || 'badge-default'}">
+          ${esc(r.clasificacion || 'Sin nivel')}
+        </span>
+        <span class="text-[10px] font-bold text-slate-400">${esc(r.folio || '')}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function cargarConteoMeses() {
+  const anio = new Date().getFullYear();
+  const { data } = await supabaseClient
+    .from('safety_alerts')
+    .select('mes_registro')
+    .eq('anio_registro', anio);
+
+  const conteo = {};
+  if (data) data.forEach(r => {
+    conteo[r.mes_registro] = (conteo[r.mes_registro] || 0) + 1;
+  });
+  return conteo;
 }
 
 /* ─── RENDER MESES ─── */
-function renderMeses() {
+async function renderMeses() {
   const grid = document.getElementById('meses-grid');
   const mesActual = new Date().getMonth() + 1;
-  grid.innerHTML = MESES.map(m => `
-    <div class="month-card bg-white border-2 border-slate-100 rounded-2xl p-5 flex flex-col items-center gap-1 select-none ${m.num === mesActual ? 'ring-2 ring-red-200' : ''}"
-         onclick="seleccionarMes(${m.num}, '${m.nombre}')">
-      <span class="month-num text-4xl font-black text-slate-100 leading-none">${String(m.num).padStart(2,'0')}</span>
-      <span class="month-name text-xs font-bold text-slate-600 uppercase tracking-widest">${m.nombre}</span>
-      ${m.num === mesActual ? '<span class="text-[9px] font-black text-red-500 uppercase tracking-widest mt-1">Actual</span>' : ''}
-    </div>
-  `).join('');
+  const conteo = await cargarConteoMeses();
+
+  // Determina el máximo para escalar los colores
+  const valores = Object.values(conteo);
+  const maximo = valores.length ? Math.max(...valores) : 1;
+
+  grid.innerHTML = MESES.map(m => {
+    const n = conteo[m.num] || 0;
+    let calor = '';
+    if (n === 0) calor = '';
+    else if (n / maximo <= 0.33) calor = 'bg-green-50 border-green-200';
+    else if (n / maximo <= 0.66) calor = 'bg-amber-50 border-amber-200';
+    else calor = 'bg-red-50 border-red-200';
+
+    const dotColor = n === 0 ? '' : (n / maximo <= 0.33 ? 'bg-green-400' : (n / maximo <= 0.66 ? 'bg-amber-400' : 'bg-red-500'));
+
+    return `
+      <div class="month-card bg-white border-2 ${calor || 'border-slate-100'} rounded-2xl p-5 flex flex-col items-center gap-1 select-none ${m.num === mesActual ? 'ring-2 ring-red-300' : ''}"
+           onclick="seleccionarMes(${m.num}, '${m.nombre}')">
+        <span class="month-num text-4xl font-black text-slate-100 leading-none">${String(m.num).padStart(2,'0')}</span>
+        <span class="month-name text-xs font-bold text-slate-600 uppercase tracking-widest">${m.nombre}</span>
+        ${n > 0 ? `<span class="inline-flex items-center gap-1 text-[9px] font-black text-slate-500 mt-1"><span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>${n} reporte${n !== 1 ? 's' : ''}</span>` : ''}
+        ${m.num === mesActual ? '<span class="text-[9px] font-black text-red-500 uppercase tracking-widest mt-0.5">Actual</span>' : ''}
+      </div>
+    `;
+  }).join('');
 }
 
 /* ─── NAVEGACIÓN ─── */
