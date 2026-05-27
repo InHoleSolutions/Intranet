@@ -71,7 +71,7 @@
         <!-- OPERACIONES -->
         <div class="relative dropdown w-full lg:w-auto">
           <button onclick="toggleSubmenu(this)" class="w-full h-full px-5 py-3 lg:py-0 text-[11px] md:text-xs font-bold text-white/90 hover:text-white lg:hover:bg-white/10 transition-all uppercase tracking-widest flex items-center justify-between lg:justify-center gap-2">
-            Operaciones <i class="fas fa-chevron-down text-[9px] opacity-70"></i>
+            Completions <i class="fas fa-chevron-down text-[9px] opacity-70"></i>
           </button>
           <div class="dropdown-menu hidden lg:absolute left-0 w-full lg:w-64 bg-white shadow-2xl rounded-b-xl border border-slate-100 py-3 mt-0">
             <div class="relative group/sub">
@@ -128,6 +128,14 @@
           <i class="fas fa-triangle-exclamation text-[#e31e24] text-4xl mb-6"></i>
           <h4 class="text-lg font-bold text-slate-800 mb-2">Safety Alerts</h4>
           <p class="text-slate-500 text-sm leading-relaxed">Consulta y gestiona los reportes de seguridad.</p>
+        </a>
+        <a id="card-accesos" href="accesos.html"
+          class="hidden group relative p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl transition-all cursor-pointer overflow-hidden">
+          <div class="absolute top-0 right-0 w-24 h-24 bg-red-50 rounded-full -translate-y-8 translate-x-8 group-hover:scale-150 transition-transform duration-500"></div>
+          <i class="fas fa-users-cog text-[#e31e24] text-4xl mb-6 relative z-10"></i>
+          <h4 class="text-lg font-bold text-slate-800 mb-2 relative z-10">Gestión de Usuarios</h4>
+          <p class="text-slate-500 text-sm leading-relaxed relative z-10">Crea, edita y administra el acceso del equipo a la intranet.</p>
+          <span class="absolute bottom-4 right-4 text-[10px] font-black uppercase tracking-widest text-red-300 bg-red-50 px-3 py-1 rounded-full">Solo Admin</span>
         </a>
         <a id="card-coc" href="formatos_coc.html"
           class="hidden group relative p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl transition-all cursor-pointer">
@@ -521,6 +529,7 @@
           document.getElementById('card-safety-alerts').classList.remove('hidden');
           document.getElementById('card-coc').classList.remove('hidden');
           document.getElementById('panel-visitas').classList.remove('hidden');
+          document.getElementById('card-accesos').classList.remove('hidden');
           cargarVisitas();
         }
         // Si el rol NO está en la lista, la tarjeta permanece oculta (hidden por defecto)
@@ -546,57 +555,174 @@
 
   <!-- ── CHATBOT FLOTANTE ── -->
   <style>
-    #chat-bubble { position: fixed; bottom: 28px; right: 28px; z-index: 200; }
-    #chat-toggle { width: 56px; height: 56px; border-radius: 50%; background: #e31e24; border: none; cursor: pointer; box-shadow: 0 4px 20px rgba(227,30,36,0.4); display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
-    #chat-toggle:hover { transform: scale(1.08); }
-    #chat-window { position: fixed; bottom: 96px; right: 28px; width: 360px; max-height: 520px; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; z-index: 199; transition: opacity 0.2s, transform 0.2s; }
-    #chat-window.hidden { opacity: 0; pointer-events: none; transform: translateY(12px); }
-    #chat-header { background: #e31e24; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
-    #chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 280px; max-height: 360px; }
+    /* ── CHATBOT IHS ── */
+    #chat-bubble { position: fixed; bottom: 28px; right: 28px; z-index: 9999; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+
+    /* Botón flotante */
+    #chat-toggle {
+      width: 62px; height: 62px; border-radius: 50%;
+      background: linear-gradient(135deg, #c41d22, #e31e24);
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 24px rgba(227,30,36,0.5);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+    }
+    #chat-toggle:hover { transform: scale(1.1) rotate(8deg); box-shadow: 0 12px 32px rgba(227,30,36,0.65); }
+    #chat-toggle::before {
+      content: ''; position: absolute; inset: -4px; border-radius: 50%;
+      border: 2px solid rgba(227,30,36,0.4);
+      animation: pulse-ring 2s ease-out infinite;
+    }
+    @keyframes pulse-ring { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.7); opacity: 0; } }
+
+    /* Ventana */
+    #chat-window {
+      width: 360px;
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06);
+      display: flex; flex-direction: column;
+      transform-origin: bottom right;
+      animation: chatOpen 0.3s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+    }
+    #chat-window.hidden { display: none; }
+    @keyframes chatOpen { from { opacity: 0; transform: scale(0.85) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+    /* Header */
+    #chat-header {
+      background: linear-gradient(135deg, #b91c1c 0%, #e31e24 60%, #ef4444 100%);
+      padding: 16px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: relative; overflow: hidden;
+    }
+    #chat-header::before {
+      content: ''; position: absolute; top: -30px; right: -20px;
+      width: 100px; height: 100px; border-radius: 50%;
+      background: rgba(255,255,255,0.07);
+    }
+    #chat-header::after {
+      content: ''; position: absolute; bottom: -40px; left: 30px;
+      width: 80px; height: 80px; border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+    }
+
+    /* Avatar en header */
+    .chat-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      border: 2px solid rgba(255,255,255,0.35);
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .chat-avatar::after {
+      content: ''; position: absolute; bottom: 1px; right: 1px;
+      width: 9px; height: 9px; background: #4ade80;
+      border-radius: 50%; border: 2px solid white;
+    }
+
+    /* Mensajes */
+    #chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 280px; max-height: 340px; background: #f8fafc; }
     #chat-messages::-webkit-scrollbar { width: 4px; }
     #chat-messages::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-    .msg-bot { background: #f1f5f9; color: #1e293b; padding: 10px 14px; border-radius: 14px 14px 14px 4px; font-size: 13px; line-height: 1.5; max-width: 86%; align-self: flex-start; }
-    .msg-user { background: #e31e24; color: white; padding: 10px 14px; border-radius: 14px 14px 4px 14px; font-size: 13px; line-height: 1.5; max-width: 86%; align-self: flex-end; }
-    .msg-typing { background: #f1f5f9; padding: 10px 16px; border-radius: 14px 14px 14px 4px; align-self: flex-start; display: flex; gap: 4px; align-items: center; }
-    .msg-typing span { width: 7px; height: 7px; background: #94a3b8; border-radius: 50%; animation: bounce 1.2s infinite; }
+
+    .msg-bot {
+      background: white; color: #1e293b;
+      padding: 10px 14px; border-radius: 16px 16px 16px 4px;
+      font-size: 13px; line-height: 1.55; max-width: 86%; align-self: flex-start;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      border: 1px solid #f1f5f9;
+    }
+    .msg-user {
+      background: linear-gradient(135deg, #c41d22, #e31e24);
+      color: white; padding: 10px 14px;
+      border-radius: 16px 16px 4px 16px;
+      font-size: 13px; line-height: 1.55; max-width: 86%; align-self: flex-end;
+      box-shadow: 0 4px 12px rgba(227,30,36,0.35);
+    }
+    .msg-typing { background: white; padding: 12px 16px; border-radius: 16px 16px 16px 4px; align-self: flex-start; display: flex; gap: 5px; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .msg-typing span { width: 7px; height: 7px; background: #e31e24; border-radius: 50%; animation: bounce 1.2s infinite; opacity: 0.7; }
     .msg-typing span:nth-child(2) { animation-delay: 0.2s; }
     .msg-typing span:nth-child(3) { animation-delay: 0.4s; }
     @keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
-    #chat-input-row { padding: 12px 16px; border-top: 1px solid #f1f5f9; display: flex; gap: 8px; }
-    #chat-input { flex: 1; border: 1px solid #e2e8f0; border-radius: 10px; padding: 9px 12px; font-size: 13px; outline: none; font-family: 'Inter', sans-serif; resize: none; }
-    #chat-input:focus { border-color: #e31e24; }
-    #chat-send { background: #e31e24; color: white; border: none; border-radius: 10px; width: 38px; height: 38px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; }
-    #chat-send:hover { background: #c41d22; }
-    #chat-send:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+    /* Input */
+    #chat-input-row { padding: 12px 14px; border-top: 1px solid #f1f5f9; display: flex; gap: 8px; background: white; }
+    #chat-input { flex: 1; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 9px 12px; font-size: 13px; outline: none; font-family: 'Inter', sans-serif; resize: none; background: #f8fafc; transition: border-color 0.2s; }
+    #chat-input:focus { border-color: #e31e24; background: white; }
+    #chat-send { background: linear-gradient(135deg, #c41d22, #e31e24); color: white; border: none; border-radius: 12px; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 10px rgba(227,30,36,0.4); }
+    #chat-send:hover { transform: scale(1.08); box-shadow: 0 6px 16px rgba(227,30,36,0.5); }
+    #chat-send:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; transform: none; }
+
+    /* Chips */
+    .chat-chip {
+      background: white; color: #e31e24;
+      border: 1.5px solid #fecaca; border-radius: 20px;
+      padding: 5px 12px; font-size: 11.5px; font-weight: 500;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+    .chat-chip:hover { background: #e31e24; color: white; border-color: #e31e24; transform: translateY(-1px); }
+
+    /* Animación de entrada de mensajes */
+    .msg-bot, .msg-user {
+      animation: msgIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
   </style>
 
   <div id="chat-bubble">
     <div id="chat-window" class="hidden">
       <div id="chat-header">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <div style="width:32px;height:32px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;">
-            <i class="fas fa-robot" style="color:white;font-size:14px;"></i>
+        <div style="display:flex; align-items:center; gap:12px; position:relative; z-index:1;">
+          <div class="chat-avatar">
+            <i class="fas fa-robot" style="color:white; font-size:15px;"></i>
           </div>
           <div>
-            <p style="color:white;font-weight:700;font-size:13px;margin:0;">Asistente IHS</p>
-            <p style="color:rgba(255,255,255,0.7);font-size:11px;margin:0;">¿En qué te puedo ayudar?</p>
+            <p style="color:white; font-weight:700; font-size:14px; margin:0; letter-spacing:0.3px;">Asistente IHS</p>
+            <p style="color:rgba(255,255,255,0.75); font-size:11px; margin:0; display:flex; align-items:center; gap:5px;">
+              <span style="width:7px;height:7px;background:#4ade80;border-radius:50%;display:inline-block;box-shadow:0 0 6px #4ade80;"></span>
+              En línea · Listo para ayudarte
+            </p>
           </div>
         </div>
-        <button onclick="cerrarChat()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">
+        <button onclick="cerrarChat()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);color:white;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:background 0.2s;position:relative;z-index:1;" onmouseover="this.style.background='rgba(255,255,255,0.28)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
           <i class="fas fa-times"></i>
         </button>
       </div>
       <div id="chat-messages">
-        <div class="msg-bot">¡Hola! Soy el asistente de la Intranet de In Hole Solutions. Puedo ayudarte a encontrar cualquier sección, documento o información. ¿Qué necesitas?</div>
+        <div class="msg-bot">
+          👋 ¡Hola! Mi nombre es Kimberly, soy la asistente de la Intranet de <strong>In Hole Solutions</strong>.<br><br>
+          Puedo ayudarte a encontrar secciones, documentos, contactos o información operativa. ¿Qué necesitas?
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:7px; padding: 2px 0 4px;">
+          <button onclick="usarChip(this)" class="chat-chip">📋 Políticas</button>
+          <button onclick="usarChip(this)" class="chat-chip">📁 Formatos de campo</button>
+          <button onclick="usarChip(this)" class="chat-chip">👥 Directorio interno</button>
+          <button onclick="usarChip(this)" class="chat-chip">⚠️ Alertas QHSE</button>
+        </div>
       </div>
       <div id="chat-input-row">
         <textarea id="chat-input" rows="1" placeholder="Escribe tu pregunta..." onkeydown="handleChatKey(event)"></textarea>
-        <button id="chat-send" onclick="enviarMensaje()"><i class="fas fa-paper-plane" style="font-size:13px;"></i></button>
+        <button id="chat-send" onclick="enviarMensaje()">
+          <i class="fas fa-paper-plane" style="font-size:13px;"></i>
+        </button>
+      </div>
+      <div style="padding: 7px 16px 10px; display:flex; align-items:center; justify-content:center; gap:6px; background:white; border-top: 1px solid #f8fafc;">
+        <span style="font-size:10px; color:#94a3b8; font-family:'Inter',sans-serif; letter-spacing:0.3px;">Powered by</span>
+        <span style="font-size:10px; font-weight:700; color:#e31e24; font-family:'Inter',sans-serif; letter-spacing:0.5px;">IN HOLE SOLUTIONS</span>
+        <span style="width:5px;height:5px;background:#e31e24;border-radius:50%;opacity:0.5;"></span>
+        <span style="font-size:10px; color:#94a3b8; font-family:'Inter',sans-serif;">Intranet IA</span>
       </div>
     </div>
 
     <button id="chat-toggle" onclick="toggleChat()" title="Asistente IHS">
       <i class="fas fa-robot" style="color:white;font-size:22px;"></i>
+      <span id="chat-badge" style="display:none; position:absolute; top:-4px; right:-4px; background:#4ade80; color:#14532d; font-size:10px; font-weight:700; width:18px; height:18px; border-radius:50%; border:2px solid white; align-items:center; justify-content:center;">1</span>
     </button>
   </div>
 
@@ -606,10 +732,56 @@
     let chatHistory = [];
     let chatAbierto = false;
 
+    // ── SONIDOS ──
+    const audio = new (window.AudioContext || window.webkitAudioContext)();
+
+    function sonido(tipo) {
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      osc.connect(gain);
+      gain.connect(audio.destination);
+
+      if (tipo === 'enviar') {
+        osc.frequency.setValueAtTime(520, audio.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(820, audio.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.08, audio.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.15);
+        osc.start(); osc.stop(audio.currentTime + 0.15);
+      }
+
+      if (tipo === 'recibir') {
+        osc.frequency.setValueAtTime(440, audio.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(660, audio.currentTime + 0.08);
+        osc.frequency.exponentialRampToValueAtTime(540, audio.currentTime + 0.18);
+        gain.gain.setValueAtTime(0.07, audio.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.22);
+        osc.start(); osc.stop(audio.currentTime + 0.22);
+      }
+
+      if (tipo === 'abrir') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(300, audio.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(600, audio.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.06, audio.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.25);
+        osc.start(); osc.stop(audio.currentTime + 0.25);
+      }
+    }
+
+    function usarChip(btn) {
+      document.getElementById('chat-input').value = btn.textContent.trim().replace(/^[^\w]+/, '');
+      btn.closest('div').remove();
+      enviarMensaje();
+    }
+
     function toggleChat() {
       chatAbierto = !chatAbierto;
       document.getElementById('chat-window').classList.toggle('hidden', !chatAbierto);
-      if (chatAbierto) setTimeout(() => document.getElementById('chat-input').focus(), 200);
+      if (chatAbierto) {
+        sonido('abrir');
+        document.getElementById('chat-badge').style.display = 'none';
+        setTimeout(() => document.getElementById('chat-input').focus(), 200);
+      }
     }
 
     function cerrarChat() {
@@ -646,8 +818,21 @@
       input.value = '';
       document.getElementById('chat-send').disabled = true;
 
-      msgs.innerHTML += `<div class="msg-user">${texto}</div>`;
-      msgs.innerHTML += `<div class="msg-typing" id="typing"><span></span><span></span><span></span></div>`;
+      sonido('enviar');
+      const msgUser = document.createElement('div');
+      msgUser.className = 'msg-user';
+      msgUser.textContent = texto;
+      msgs.appendChild(msgUser);
+
+      const typing = document.createElement('div');
+      typing.className = 'msg-typing';
+      typing.id = 'typing';
+      typing.innerHTML = '<span></span><span></span><span></span>';
+      msgs.appendChild(typing);
+      if (!chatAbierto) {
+        const badge = document.getElementById('chat-badge');
+        badge.style.display = 'flex';
+      }
       scrollChat();
 
       try {
@@ -668,10 +853,17 @@
         if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
 
         document.getElementById('typing')?.remove();
-        msgs.innerHTML += `<div class="msg-bot">${formatearMensaje(respuesta)}</div>`;
+        sonido('recibir');
+        const msgBot = document.createElement('div');
+        msgBot.className = 'msg-bot';
+        msgBot.innerHTML = formatearMensaje(respuesta);
+        msgs.appendChild(msgBot);
       } catch {
         document.getElementById('typing')?.remove();
-        msgs.innerHTML += `<div class="msg-bot">Error de conexión. Intenta de nuevo.</div>`;
+        const msgErr = document.createElement('div');
+        msgErr.className = 'msg-bot';
+        msgErr.textContent = 'Error de conexión. Intenta de nuevo.';
+        msgs.appendChild(msgErr);
       }
 
       document.getElementById('chat-send').disabled = false;

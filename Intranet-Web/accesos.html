@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Usuarios | In Hole Solutions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+
+    /* Animación entrada */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.4s ease forwards; }
+
+    /* Filas de tabla */
+    .user-row { transition: background 0.15s; }
+    .user-row:hover { background: #fff5f5; }
+
+    /* Badge roles */
+    .badge-admin    { background:#fee2e2; color:#991b1b; }
+    .badge-usuario  { background:#f1f5f9; color:#475569; }
+    .badge-qhse     { background:#fef9c3; color:#854d0e; }
+    .badge-ops      { background:#e0f2fe; color:#075985; }
+
+    /* Scrollbar tabla */
+    .table-wrap::-webkit-scrollbar { height: 5px; }
+    .table-wrap::-webkit-scrollbar-thumb { background:#e2e8f0; border-radius:4px; }
+
+    /* Modal backdrop */
+    #modal-usuario {
+      backdrop-filter: blur(6px);
+      background: rgba(15,23,42,0.6);
+    }
+
+    /* Input focus rojo */
+    .inp:focus { outline: none; border-color: #e31e24 !important; box-shadow: 0 0 0 3px rgba(227,30,36,0.1); }
+
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { animation: spin 0.7s linear infinite; }
+  </style>
+</head>
+<body class="bg-[#f8fafc] min-h-screen">
+
+  <!-- ── HEADER ── -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50" style="backdrop-filter:blur(10px);">
+    <div class="max-w-[1440px] mx-auto px-6 h-20 flex justify-between items-center">
+      <div class="flex items-center gap-6">
+        <a href="dashboard.html" class="flex items-center gap-3 text-slate-400 hover:text-red-600 transition-colors text-sm font-semibold">
+          <i class="fas fa-arrow-left"></i>
+          <span class="hidden sm:inline">Volver</span>
+        </a>
+        <div class="h-6 w-px bg-slate-200"></div>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center">
+            <i class="fas fa-users-cog text-[#e31e24] text-sm"></i>
+          </div>
+          <div>
+            <p class="text-slate-800 font-bold text-sm leading-none">Gestión de Usuarios</p>
+            <p class="text-slate-400 text-xs mt-0.5">Administración de accesos · In Hole Solutions</p>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="hidden sm:flex items-center gap-2 text-xs font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100">
+          <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+          Conectado a la Base de Datos
+        </span>
+        <button onclick="cerrarSesion()" class="w-9 h-9 rounded-xl bg-slate-50 border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all flex items-center justify-center">
+          <i class="fas fa-sign-out-alt text-sm"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── MAIN ── -->
+  <main class="max-w-[1440px] mx-auto px-6 py-10">
+
+    <!-- Título + botón nuevo -->
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 fade-up">
+      <div>
+        <p class="text-xs font-black uppercase tracking-[0.2em] text-red-500 mb-1">Panel Administrativo</p>
+        <h1 class="text-3xl font-black text-slate-800 tracking-tight">Usuarios de la Intranet</h1>
+        <p class="text-slate-400 text-sm mt-1">Crea, edita y controla el acceso del equipo.</p>
+      </div>
+      <button onclick="abrirModal()" class="flex items-center gap-2 bg-[#e31e24] hover:bg-red-700 text-white font-bold px-5 py-3 rounded-xl transition-all shadow-lg shadow-red-200 hover:shadow-red-300 hover:-translate-y-0.5 text-sm">
+        <i class="fas fa-plus"></i> Nuevo Usuario
+      </button>
+    </div>
+
+    <!-- Tarjetas resumen -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 fade-up" style="animation-delay:0.05s">
+      <div class="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+        <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Total usuarios</p>
+        <p class="text-4xl font-black text-slate-800" id="stat-total">—</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+        <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Administradores</p>
+        <p class="text-4xl font-black text-red-600" id="stat-admins">—</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+        <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Activos hoy</p>
+        <p class="text-4xl font-black text-emerald-600" id="stat-activos">—</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+        <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Sin rol asignado</p>
+        <p class="text-4xl font-black text-amber-500" id="stat-sinrol">—</p>
+      </div>
+    </div>
+
+    <!-- Buscador + filtro -->
+    <div class="flex flex-col sm:flex-row gap-3 mb-5 fade-up" style="animation-delay:0.1s">
+      <div class="relative flex-1">
+        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-sm"></i>
+        <input id="buscador" type="text" placeholder="Buscar por nombre, correo o puesto..."
+          class="inp w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-700 placeholder-slate-300"
+          oninput="filtrarTabla()">
+      </div>
+      <select id="filtro-rol" class="inp bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-600 font-medium" onchange="filtrarTabla()">
+        <option value="">Todos los roles</option>
+        <option value="admin">Administrador</option>
+        <option value="usuario">Usuario</option>
+        <option value="qhse">QHSE</option>
+        <option value="operaciones">Operaciones</option>
+      </select>
+    </div>
+
+    <!-- Tabla -->
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden fade-up" style="animation-delay:0.15s">
+      <div class="table-wrap overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="border-b border-slate-100 bg-slate-50">
+              <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Usuario</th>
+              <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Correo</th>
+              <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Puesto</th>
+              <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Rol</th>
+              <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Creado</th>
+              <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-usuarios">
+            <tr>
+              <td colspan="6" class="px-6 py-16 text-center text-slate-300">
+                <i class="fas fa-circle-notch spinner text-2xl block mx-auto mb-3"></i>
+                <span class="text-sm">Cargando usuarios...</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL y SCRIPT van en el siguiente paso -->
+
+</body>
+</html>
