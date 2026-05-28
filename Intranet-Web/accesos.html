@@ -124,10 +124,10 @@
       </div>
       <select id="filtro-rol" class="inp bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-600 font-medium" onchange="filtrarTabla()">
         <option value="">Todos los roles</option>
-        <option value="admin">Administrador</option>
-        <option value="usuario">Usuario</option>
-        <option value="qhse">QHSE</option>
-        <option value="operaciones">Operaciones</option>
+        <option value="Administrador">Administrador</option>
+        <option value="Empleado">Empleado</option>
+        <option value="QHSE">QHSE</option>
+        <option value="Operaciones">Operaciones</option>
       </select>
     </div>
 
@@ -159,7 +159,430 @@
 
   </main>
 
-  <!-- MODAL y SCRIPT van en el siguiente paso -->
+  <!-- ── MODAL USUARIO ── -->
+  <div id="modal-usuario" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden" style="animation: fadeUp 0.3s cubic-bezier(0.175,0.885,0.32,1.275) forwards;">
+
+      <!-- Header modal -->
+      <div class="bg-gradient-to-r from-[#b91c1c] to-[#e31e24] p-6 flex items-center justify-between relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-12 translate-x-12"></div>
+        <div class="absolute bottom-0 left-20 w-20 h-20 bg-white/5 rounded-full translate-y-8"></div>
+        <div class="flex items-center gap-3 relative z-10">
+          <div class="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center">
+            <i id="modal-icono" class="fas fa-user-plus text-white"></i>
+          </div>
+          <div>
+            <p class="text-white font-black text-base leading-none" id="modal-titulo">Nuevo Usuario</p>
+            <p class="text-white/60 text-xs mt-1">In Hole Solutions · Intranet</p>
+          </div>
+        </div>
+        <button onclick="cerrarModal()" class="relative z-10 w-8 h-8 bg-white/15 hover:bg-white/25 rounded-lg flex items-center justify-center text-white transition-all">
+          <i class="fas fa-times text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Cuerpo modal -->
+      <div class="p-6 space-y-4">
+
+        <!-- Nombre -->
+        <div>
+          <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Nombre completo</label>
+          <input id="f-nombre" type="text" placeholder="Ej. Juan Pérez García"
+            class="inp w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 bg-slate-50">
+        </div>
+
+        <!-- Puesto -->
+        <div>
+          <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Puesto</label>
+          <input id="f-puesto" type="text" placeholder="Ej. Técnico de Campo"
+            class="inp w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 bg-slate-50">
+        </div>
+
+        <!-- Rol -->
+        <div>
+          <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Rol</label>
+          <select id="f-rol" class="inp w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-600 bg-slate-50">
+            <option value="Empleado">Empleado</option>
+            <option value="Administrador">Administrador</option>
+            <option value="QHSE">QHSE</option>
+            <option value="Operaciones">Operaciones</option>
+          </select>
+        </div>
+
+        <!-- Correo y contraseña (solo al crear) -->
+        <div id="campos-auth">
+          <div class="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 flex gap-3 mb-4">
+            <i class="fas fa-triangle-exclamation text-amber-400 mt-0.5 flex-shrink-0"></i>
+            <p class="text-xs text-amber-700 leading-relaxed">El correo y contraseña se usarán para crear la cuenta en Supabase Auth. El usuario podrá iniciar sesión con estos datos.</p>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Correo electrónico</label>
+              <input id="f-correo" type="email" placeholder="correo@inholesolutions.com"
+                class="inp w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 bg-slate-50">
+            </div>
+            <div>
+              <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Contraseña temporal</label>
+              <div class="relative">
+                <input id="f-password" type="password" placeholder="Mínimo 8 caracteres"
+                  class="inp w-full border border-slate-200 rounded-xl px-4 py-2.5 pr-12 text-sm text-slate-700 bg-slate-50">
+                <button type="button" onclick="togglePass()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors">
+                  <i id="ojo-icon" class="fas fa-eye text-sm"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div id="modal-error" class="hidden bg-red-50 border border-red-100 text-red-600 text-xs px-4 py-3 rounded-xl flex items-center gap-2">
+          <i class="fas fa-circle-exclamation"></i>
+          <span id="modal-error-texto"></span>
+        </div>
+
+      </div>
+
+      <!-- Footer modal -->
+      <div class="px-6 pb-6 flex gap-3">
+        <button onclick="cerrarModal()" class="flex-1 border border-slate-200 text-slate-500 font-bold py-3 rounded-xl hover:bg-slate-50 transition-all text-sm">
+          Cancelar
+        </button>
+        <button id="btn-guardar" onclick="guardarUsuario()" class="flex-1 bg-[#e31e24] hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-all text-sm shadow-lg shadow-red-200 flex items-center justify-center gap-2">
+          <i class="fas fa-save"></i>
+          <span id="btn-guardar-texto">Crear Usuario</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // ── SUPABASE ── 
+    const { createClient } = supabase;
+    const supabaseClient = createClient(
+      'https://bgqlvkvlscujikhzzazf.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJncWx2a3Zsc2N1amlraHp6YXpmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODc3MDQ5NCwiZXhwIjoyMDk0MzQ2NDk0fQ.JGKlzJKeyZatCG2LtvHCv5CCtNaKRZhj7fn0hXcCviI'
+    );
+
+    let todosLosUsuarios = [];
+
+    // ── INIT ──
+    async function init() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) { window.location.href = 'intranet-login.html'; return; }
+
+      const { data: perfil } = await supabaseClient
+        .from('perfiles').select('*').eq('id', session.user.id).single();
+
+      const rolesAdmin = ['admin', 'administrador', 'Administrador'];
+      if (!perfil || !rolesAdmin.includes(perfil.rol)) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+
+      cargarUsuarios();
+    }
+
+    // ── CARGAR USUARIOS ──
+    async function cargarUsuarios() {
+      const { data, error } = await supabaseClient
+        .from('perfiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        document.getElementById('tabla-usuarios').innerHTML = `
+          <tr><td colspan="6" class="px-6 py-12 text-center text-red-400 text-sm">
+            <i class="fas fa-triangle-exclamation text-2xl block mx-auto mb-2"></i>
+            Error al cargar usuarios
+          </td></tr>`;
+        return;
+      }
+
+      todosLosUsuarios = data || [];
+      actualizarEstadisticas(todosLosUsuarios);
+      renderTabla(todosLosUsuarios);
+    }
+
+    // ── ESTADÍSTICAS ──
+    function actualizarEstadisticas(usuarios) {
+      document.getElementById('stat-total').textContent   = usuarios.length;
+      document.getElementById('stat-admins').textContent  = usuarios.filter(u => ['admin','administrador','Administrador'].includes(u.rol)).length;
+      document.getElementById('stat-activos').textContent = usuarios.filter(u => u.updated_at && new Date(u.updated_at) > new Date(Date.now() - 86400000)).length;
+      document.getElementById('stat-sinrol').textContent  = usuarios.filter(u => !u.rol || u.rol.trim() === '').length;
+    }
+
+    // ── RENDER TABLA ──
+    function renderTabla(usuarios) {
+      const tbody = document.getElementById('tabla-usuarios');
+
+      if (usuarios.length === 0) {
+        tbody.innerHTML = `
+          <tr><td colspan="6" class="px-6 py-16 text-center text-slate-300">
+            <i class="fas fa-users-slash text-3xl block mx-auto mb-3"></i>
+            <span class="text-sm">No se encontraron usuarios</span>
+          </td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = usuarios.map(u => {
+        const iniciales = (u.nombre_completo || '?').split(' ').map(p => p[0]).slice(0,2).join('').toUpperCase();
+        const rol       = (u.rol || '').toLowerCase();
+        const badgeClass = rol.includes('admin') ? 'badge-admin' :
+                           rol.includes('qhse')  ? 'badge-qhse'  :
+                           rol.includes('oper')  ? 'badge-ops'   : 'badge-usuario';
+        const rolLabel   = u.rol || 'Sin rol';
+        const fecha      = u.created_at ? new Date(u.created_at).toLocaleDateString('es-MX', { day:'2-digit', month:'short', year:'numeric' }) : '—';
+
+        return `
+        <tr class="user-row border-b border-slate-50" data-nombre="${(u.nombre_completo||'').toLowerCase()}" data-correo="${(u.correo||'').toLowerCase()}" data-puesto="${(u.puesto||'').toLowerCase()}" data-rol="${(u.rol||'').toLowerCase()}">
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-white text-xs font-black flex-shrink-0">${iniciales}</div>
+              <div>
+                <p class="text-sm font-bold text-slate-700 leading-none">${u.nombre_completo || '—'}</p>
+                <p class="text-xs text-slate-400 mt-0.5">${u.puesto || 'Sin puesto'}</p>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4">
+            ${u.correo
+              ? `<span class="flex items-center gap-2 text-sm text-slate-500">
+                   <i class="fas fa-envelope text-slate-300 text-xs"></i>
+                   ${u.correo}
+                 </span>`
+              : `<span class="text-xs text-slate-300 italic">Sin correo</span>`
+            }
+          </td>
+          <td class="px-6 py-4 text-sm text-slate-500">${u.puesto || '—'}</td>
+          <td class="px-6 py-4">
+            <span class="text-[11px] font-black uppercase tracking-wide px-3 py-1 rounded-full ${badgeClass}">${rolLabel}</span>
+          </td>
+          <td class="px-6 py-4 text-xs text-slate-400">${fecha}</td>
+          <td class="px-6 py-4 text-right">
+            <div class="flex items-center justify-end gap-2">
+              <button onclick='abrirModal(${JSON.stringify(u)})' class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 text-slate-400 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 transition-all flex items-center justify-center" title="Editar">
+                <i class="fas fa-pen text-xs"></i>
+              </button>
+              <button onclick="confirmarEliminar('${u.id}', '${(u.nombre_completo||'').replace(/'/g,'')}')" class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 hover:border-red-200 transition-all flex items-center justify-center" title="Eliminar">
+                <i class="fas fa-trash text-xs"></i>
+              </button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    // ── BUSCADOR Y FILTRO ──
+    function filtrarTabla() {
+      const texto = document.getElementById('buscador').value.toLowerCase();
+      const rol   = document.getElementById('filtro-rol').value.toLowerCase();
+
+      const filtrados = todosLosUsuarios.filter(u => {
+        const coincideTexto = !texto ||
+          (u.nombre_completo||'').toLowerCase().includes(texto) ||
+          (u.correo||'').toLowerCase().includes(texto) ||
+          (u.puesto||'').toLowerCase().includes(texto);
+        const coincideRol = !rol || (u.rol||'').toLowerCase().includes(rol);
+        return coincideTexto && coincideRol;
+      });
+
+      renderTabla(filtrados);
+    }
+
+    // ── ELIMINAR ──
+    function confirmarEliminar(id, nombre) {
+      // Crear modal de confirmación personalizado
+      const overlay = document.createElement('div');
+      overlay.id = 'modal-confirm';
+      overlay.className = 'fixed inset-0 z-[200] flex items-center justify-center p-4';
+      overlay.style.cssText = 'backdrop-filter:blur(6px); background:rgba(15,23,42,0.6);';
+      overlay.innerHTML = `
+        <div style="animation: fadeUp 0.25s cubic-bezier(0.175,0.885,0.32,1.275) forwards;"
+             class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+          <!-- Header rojo -->
+          <div class="bg-gradient-to-r from-red-600 to-red-500 px-6 pt-6 pb-5 text-center relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-8 translate-x-8"></div>
+            <div class="w-14 h-14 bg-white/15 rounded-2xl flex items-center justify-center mx-auto mb-3 relative z-10">
+              <i class="fas fa-user-xmark text-white text-xl"></i>
+            </div>
+            <p class="text-white font-black text-base relative z-10">¿Eliminar usuario?</p>
+          </div>
+          <!-- Cuerpo -->
+          <div class="px-6 py-5 text-center">
+            <p class="text-slate-700 font-semibold text-sm mb-1">${nombre}</p>
+            <p class="text-slate-400 text-xs leading-relaxed">Perderá acceso inmediato a la intranet.<br>Esta acción <strong class="text-red-500">no se puede deshacer</strong>.</p>
+          </div>
+          <!-- Botones -->
+          <div class="px-6 pb-6 flex gap-3">
+            <button onclick="document.getElementById('modal-confirm').remove()"
+              class="flex-1 border border-slate-200 text-slate-500 font-bold py-2.5 rounded-xl hover:bg-slate-50 transition-all text-sm">
+              Cancelar
+            </button>
+            <button onclick="document.getElementById('modal-confirm').remove(); eliminarUsuario('${id}')"
+              class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl transition-all text-sm shadow-lg shadow-red-200 flex items-center justify-center gap-2">
+              <i class="fas fa-trash"></i> Eliminar
+            </button>
+          </div>
+        </div>`;
+      document.body.appendChild(overlay);
+    }
+
+    async function eliminarUsuario(id) {
+      try {
+        // 1. Borrar de la tabla perfiles
+        const { error: errorPerfil } = await supabaseClient
+          .from('perfiles').delete().eq('id', id);
+        if (errorPerfil) throw errorPerfil;
+
+        // 2. Borrar de Supabase Auth (requiere service role key)
+        const { error: errorAuth } = await supabaseClient.auth.admin.deleteUser(id);
+        if (errorAuth) {
+          // Si falla Auth, igual borramos de la interfaz
+          // porque el perfil ya fue eliminado
+          console.warn('No se pudo borrar de Auth:', errorAuth.message);
+        }
+
+        mostrarToast('Usuario eliminado correctamente', 'red');
+        cargarUsuarios();
+
+      } catch (err) {
+        mostrarToast('Error al eliminar: ' + err.message, 'red');
+      }
+    }
+
+    // ── TOAST ──
+    function mostrarToast(msg, color = 'green') {
+      const colores = {
+        green: 'bg-emerald-500',
+        red:   'bg-red-500',
+        blue:  'bg-blue-500'
+      };
+      const t = document.createElement('div');
+      t.className = `fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] ${colores[color]} text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-xl flex items-center gap-2 transition-all`;
+      t.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
+    }
+
+    async function cerrarSesion() {
+      await supabaseClient.auth.signOut();
+      window.location.href = 'intranet-login.html';
+    }
+
+    // ── MODAL ──
+    let modoEdicion = false;
+    let idEditando  = null;
+
+    function abrirModal(usuario = null) {
+      modoEdicion = !!usuario;
+      idEditando  = usuario ? usuario.id : null;
+
+      document.getElementById('f-nombre').value  = usuario?.nombre_completo || '';
+      document.getElementById('f-puesto').value  = usuario?.puesto || '';
+      document.getElementById('f-rol').value     = usuario?.rol || 'usuario';
+      document.getElementById('modal-error').classList.add('hidden');
+
+      if (modoEdicion) {
+        document.getElementById('modal-titulo').textContent  = 'Editar Usuario';
+        document.getElementById('modal-icono').className     = 'fas fa-user-pen text-white';
+        document.getElementById('btn-guardar-texto').textContent = 'Guardar Cambios';
+        document.getElementById('campos-auth').classList.add('hidden');
+      } else {
+        document.getElementById('modal-titulo').textContent  = 'Nuevo Usuario';
+        document.getElementById('modal-icono').className     = 'fas fa-user-plus text-white';
+        document.getElementById('btn-guardar-texto').textContent = 'Crear Usuario';
+        document.getElementById('campos-auth').classList.remove('hidden');
+        document.getElementById('f-correo').value   = '';
+        document.getElementById('f-password').value = '';
+      }
+
+      document.getElementById('modal-usuario').classList.remove('hidden');
+    }
+
+    function cerrarModal() {
+      document.getElementById('modal-usuario').classList.add('hidden');
+    }
+
+    function togglePass() {
+      const inp  = document.getElementById('f-password');
+      const icon = document.getElementById('ojo-icon');
+      const esPass = inp.type === 'password';
+      inp.type       = esPass ? 'text' : 'password';
+      icon.className = esPass ? 'fas fa-eye-slash text-sm' : 'fas fa-eye text-sm';
+    }
+
+    function mostrarErrorModal(msg) {
+      document.getElementById('modal-error-texto').textContent = msg;
+      document.getElementById('modal-error').classList.remove('hidden');
+    }
+
+    async function guardarUsuario() {
+      const nombre   = document.getElementById('f-nombre').value.trim();
+      const puesto   = document.getElementById('f-puesto').value.trim();
+      const rol      = document.getElementById('f-rol').value;
+      const correo   = document.getElementById('f-correo')?.value.trim();
+      const password = document.getElementById('f-password')?.value;
+
+      document.getElementById('modal-error').classList.add('hidden');
+
+      if (!nombre) { mostrarErrorModal('El nombre es obligatorio.'); return; }
+      if (!puesto)  { mostrarErrorModal('El puesto es obligatorio.'); return; }
+
+      const btn = document.getElementById('btn-guardar');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch spinner"></i> Procesando...';
+
+      try {
+        if (modoEdicion) {
+          // ── EDITAR: solo actualiza tabla perfiles ──
+          const { error } = await supabaseClient
+            .from('perfiles')
+            .update({ nombre_completo: nombre, puesto, rol })
+            .eq('id', idEditando);
+
+          if (error) throw error;
+          mostrarToast('Usuario actualizado correctamente', 'green');
+
+        } else {
+          // ── CREAR: primero crea en Auth, luego inserta en perfiles ──
+          if (!correo)        { mostrarErrorModal('El correo es obligatorio.'); return; }
+          if (!password || password.length < 8) { mostrarErrorModal('La contraseña debe tener al menos 8 caracteres.'); return; }
+
+          const { data: authData, error: authError } = await supabaseClient.auth.admin.createUser({
+            email: correo,
+            password: password,
+            email_confirm: true
+          });
+
+          if (authError) throw authError;
+
+          const { error: perfilError } = await supabaseClient
+            .from('perfiles')
+            .insert({ id: authData.user.id, nombre_completo: nombre, puesto, rol, correo: correo });
+
+          if (perfilError) throw perfilError;
+          mostrarToast('Usuario creado correctamente', 'green');
+        }
+
+        cerrarModal();
+        cargarUsuarios();
+
+      } catch (err) {
+        mostrarErrorModal(err.message || 'Ocurrió un error inesperado.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fas fa-save"></i> <span id="btn-guardar-texto">${modoEdicion ? 'Guardar Cambios' : 'Crear Usuario'}</span>`;
+      }
+    }
+
+    // Cerrar modal al click fuera
+    document.getElementById('modal-usuario').addEventListener('click', function(e) {
+      if (e.target === this) cerrarModal();
+    });
+
+    init();
+  </script>
 
 </body>
 </html>

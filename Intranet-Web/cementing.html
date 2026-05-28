@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cementing | In Hole Solutions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .glass-nav { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); }
+    @media (min-width: 1024px) {
+      .dropdown:hover > .dropdown-menu { display: block; }
+      .group\/sub:hover > .submenu-content { display: block; }
+    }
+    .mobile-active { display: block !important; }
+
+    /* Pestañas del formulario */
+    .tab-btn.active {
+      border-bottom: 3px solid #e31e24;
+      color: #e31e24;
+      font-weight: 700;
+    }
+
+    /* KPI cards */
+    .kpi-card {
+      background: white;
+      border-radius: 1rem;
+      border: 1px solid #e2e8f0;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    /* Estado badge */
+    .badge-planificado  { background:#dbeafe; color:#1d4ed8; }
+    .badge-en-proceso   { background:#fef9c3; color:#92400e; }
+    .badge-terminado    { background:#dcfce7; color:#15803d; }
+    .badge-alerta       { background:#fee2e2; color:#b91c1c; }
+  </style>
+</head>
+<body class="bg-[#f8fafc] min-h-screen">
+    <!-- HEADER -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-[60] glass-nav">
+    <div class="max-w-[1440px] mx-auto px-6 h-20 flex justify-between items-center">
+      <div class="flex items-center gap-8 cursor-pointer" onclick="window.location='dashboard.html'">
+        <img src="../assets/images/logo/logo-dark.svg" alt="In Hole Solutions" class="h-12 md:h-20 w-auto">
+        <div class="hidden md:block h-8 w-[1px] bg-slate-200"></div>
+        <span class="hidden md:block text-slate-500 font-medium text-sm tracking-wide uppercase">Intranet Corporativa</span>
+      </div>
+      <div class="flex items-center gap-6">
+        <div class="text-right hidden sm:block">
+          <p class="text-slate-800 font-semibold text-sm">Completions</p>
+          <p class="text-slate-400 text-xs font-medium uppercase tracking-tighter">Cementing</p>
+        </div>
+        <a href="dashboard.html" class="bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-600 h-10 w-10 rounded-xl border border-slate-200 transition-all flex items-center justify-center shadow-sm" title="Volver al dashboard">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+  <!-- MAIN -->
+  <main class="max-w-[1440px] mx-auto p-6 md:p-10">
+    <!-- TÍTULO DE PÁGINA -->
+    <div class="mb-8">
+    <h2 class="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+        <i class="fas fa-oil-well text-[#e31e24]"></i> Cementing
+    </h2>
+    <p class="text-slate-500 mt-1 text-sm">Registro y seguimiento de operaciones de cementación.</p>
+    </div>
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+    <div class="kpi-card">
+        <div class="bg-blue-50 rounded-xl p-3">
+        <i class="fas fa-list-check text-blue-600 text-xl"></i>
+        </div>
+        <div>
+        <p class="text-xs text-slate-400 uppercase tracking-wider">Total Operaciones</p>
+        <p id="kpi-total" class="text-2xl font-bold text-slate-800">—</p>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="bg-yellow-50 rounded-xl p-3">
+        <i class="fas fa-spinner text-yellow-500 text-xl"></i>
+        </div>
+        <div>
+        <p class="text-xs text-slate-400 uppercase tracking-wider">En Proceso</p>
+        <p id="kpi-proceso" class="text-2xl font-bold text-slate-800">—</p>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="bg-green-50 rounded-xl p-3">
+        <i class="fas fa-circle-check text-green-600 text-xl"></i>
+        </div>
+        <div>
+        <p class="text-xs text-slate-400 uppercase tracking-wider">Terminadas</p>
+        <p id="kpi-terminadas" class="text-2xl font-bold text-slate-800">—</p>
+        </div>
+    </div>
+    </div>
+    <!-- BARRA DE FILTROS -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-6">
+        <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+            <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+
+            <!-- Buscar por pozo -->
+            <div class="relative">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input id="filtro-pozo" type="text" placeholder="Buscar pozo..."
+                class="pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200 w-full sm:w-48">
+            </div>
+
+            <!-- Filtro cliente -->
+            <select id="filtro-cliente" class="px-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200 text-slate-600">
+                <option value="">Todos los clientes</option>
+                <option value="Pemex">Pemex</option>
+                <option value="ENI">ENI</option>
+                <option value="Hokchi">Hokchi</option>
+            </select>
+
+            <!-- Filtro estatus -->
+            <select id="filtro-estatus" class="px-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200 text-slate-600">
+                <option value="">Todos los estatus</option>
+                <option value="Planificado">Planificado</option>
+                <option value="En Proceso">En Proceso</option>
+                <option value="Terminado Exitoso">Terminado Exitoso</option>
+                <option value="Alerta Técnica">Alerta Técnica</option>
+            </select>
+
+            </div>
+
+            <!-- Botón nuevo -->
+            <button onclick="mostrarFormulario()" class="bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-sm whitespace-nowrap">
+            <i class="fas fa-plus"></i> Registrar Nueva Operación
+            </button>
+        </div>
+    </div>
+    <!-- TABLA DE OPERACIONES -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-400">
+                <th class="px-6 py-4 text-left">Pozo / Plataforma</th>
+                <th class="px-6 py-4 text-left">Cliente</th>
+                <th class="px-6 py-4 text-left">Ingeniero Resp.</th>
+                <th class="px-6 py-4 text-left">Fecha Inicio</th>
+                <th class="px-6 py-4 text-left">Estatus</th>
+                <th class="px-6 py-4 text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-operaciones">
+                <!-- Las filas se generan con JavaScript -->
+                <tr id="fila-vacia">
+                <td colspan="6" class="px-6 py-16 text-center text-slate-400">
+                    <i class="fas fa-inbox text-3xl mb-3 block"></i>
+                    No hay operaciones registradas aún.
+                </td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- PANEL FORMULARIO (oculto por defecto) -->
+    <div id="panel-formulario" class="hidden fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-start justify-center overflow-y-auto py-10 px-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl">
+
+            <!-- Cabecera del panel -->
+            <div class="flex items-center justify-between px-8 py-6 border-b border-slate-100">
+            <div>
+                <h3 id="form-titulo" class="text-xl font-bold text-slate-800">Nueva Operación de Cementación</h3>
+                <p class="text-slate-400 text-sm mt-0.5">Completa los 3 pasos para registrar la operación.</p>
+            </div>
+            <button onclick="cerrarFormulario()" class="text-slate-400 hover:text-red-600 transition-colors h-9 w-9 rounded-xl border border-slate-200 flex items-center justify-center">
+                <i class="fas fa-times"></i>
+            </button>
+            </div>
+
+            <!-- Pestañas de pasos -->
+            <div class="flex border-b border-slate-100 px-8">
+            <button onclick="irPaso(1)" id="tab-1" class="tab-btn active px-5 py-4 text-sm text-slate-500 transition-all">
+                <i class="fas fa-calendar-days mr-2"></i> 1. Logística y Tiempos
+            </button>
+            <button onclick="irPaso(2)" id="tab-2" class="tab-btn px-5 py-4 text-sm text-slate-500 transition-all">
+                <i class="fas fa-boxes-stacked mr-2"></i> 2. Inventario
+            </button>
+            <button onclick="irPaso(3)" id="tab-3" class="tab-btn px-5 py-4 text-sm text-slate-500 transition-all">
+                <i class="fas fa-flask-vial mr-2"></i> 3. Datos Técnicos
+            </button>
+            </div>
+
+            <!-- Contenido de pasos -->
+            <div class="px-8 py-7">
+
+            <!-- ══ PASO 1 ══ -->
+            <div id="paso-1">
+
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5">Datos de Identificación</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-7">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Cliente *</label>
+                    <select id="f-cliente" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200 text-slate-700">
+                    <option value="">Seleccionar...</option>
+                    <option>Pemex</option>
+                    <option>ENI</option>
+                    <option>Hokchi</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nombre del Pozo / Plataforma *</label>
+                    <input id="f-pozo" type="text" placeholder="Ej. Quesqui-4" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Equipo de Perforación / Rig</label>
+                    <input id="f-rig" type="text" placeholder="Ej. PM-101" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Ingeniero de Campo Responsable *</label>
+                    <input id="f-ingeniero" type="text" placeholder="Nombre completo" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Estatus de la Operación</label>
+                    <select id="f-estatus" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200 text-slate-700">
+                    <option>Planificado</option>
+                    <option>En Proceso</option>
+                    <option>Terminado Exitoso</option>
+                    <option>Alerta Técnica</option>
+                    </select>
+                </div>
+                </div>
+
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5">Fechas de Estancia en Pozo</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-7">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Llegada al Pozo</label>
+                    <input id="f-llegada" type="datetime-local" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Salida del Pozo</label>
+                    <input id="f-salida" type="datetime-local" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                </div>
+                </div>
+
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5">Ventana de Bombeo de Cemento</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Inicio del Bombeo</label>
+                    <input id="f-inicio-bombeo" type="datetime-local" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Fin del Bombeo</label>
+                    <input id="f-fin-bombeo" type="datetime-local" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                </div>
+                </div>
+
+                <!-- KPIs automáticos calculados -->
+                <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                    <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">⏱️ Duración del Bombeo</p>
+                    <p id="calc-bombeo" class="text-lg font-bold text-slate-700">— h — min</p>
+                </div>
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                    <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">🚛 Días de Estancia en Pozo</p>
+                    <p id="calc-estancia" class="text-lg font-bold text-slate-700">— días</p>
+                </div>
+                </div>
+
+            </div><!-- /paso-1 -->
+
+            <!-- ══ PASO 2 ══ -->
+            <div id="paso-2" class="hidden">
+
+                <div class="flex items-center justify-between mb-5">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Inventario de Herramientas</p>
+                <button onclick="agregarHerramienta()" class="bg-red-50 hover:bg-red-100 text-[#e31e24] text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 transition-all border border-red-100">
+                    <i class="fas fa-plus"></i> Agregar Herramienta
+                </button>
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                <table class="w-full text-xs">
+                    <thead>
+                    <tr class="bg-slate-50 text-slate-400 uppercase tracking-wider">
+                        <th class="px-4 py-3 text-left">ID</th>
+                        <th class="px-4 py-3 text-left">N° Serie</th>
+                        <th class="px-4 py-3 text-left">Descripción</th>
+                        <th class="px-4 py-3 text-left">Medida</th>
+                        <th class="px-4 py-3 text-left">Rosca</th>
+                        <th class="px-4 py-3 text-left">Estado Final</th>
+                        <th class="px-4 py-3 text-center">Quitar</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tabla-herramientas">
+                    <tr id="fila-vacia-tools">
+                        <td colspan="7" class="px-4 py-10 text-center text-slate-400">
+                        <i class="fas fa-toolbox text-2xl mb-2 block"></i>
+                        Agrega herramientas con el botón de arriba.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                </div>
+
+            </div><!-- /paso-2 -->
+
+            <!-- ══ PASO 3 ══ -->
+            <div id="paso-3" class="hidden">
+
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5">Datos Técnicos de Flotación</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-7">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Presión de Ruptura del Tapón — Bump Pressure (PSI)</label>
+                    <input id="f-presion" type="number" placeholder="Ej. 2800" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Densidad de la Lechada (gr/cm³ o PPG)</label>
+                    <input id="f-densidad" type="number" step="0.01" placeholder="Ej. 1.89" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Prueba de Retención de Válvula</label>
+                    <select id="f-valvula" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200 text-slate-700">
+                    <option value="">Sin registrar</option>
+                    <option>Exitosa</option>
+                    <option>Fallida</option>
+                    </select>
+                </div>
+                </div>
+
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5">Notas y Archivos Adjuntos</p>
+                <div class="mb-5">
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Notas Operativas</label>
+                <textarea id="f-notas" rows="4" placeholder="Observaciones relevantes de la operación..." class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200 resize-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Adjuntar Gráfica de Presión (PDF)</label>
+                    <div id="zona-archivo" class="border-2 border-dashed border-slate-200 rounded-xl p-6 text-center hover:border-red-300 transition-colors cursor-pointer" onclick="document.getElementById('f-archivo').click()">
+                        <i class="fas fa-cloud-arrow-up text-slate-300 text-2xl mb-2 block"></i>
+                        <p class="text-sm text-slate-400">Haz clic para seleccionar un archivo PDF</p>
+                    </div>
+
+                    <!-- Estado del archivo -->
+                    <div id="archivo-estado" class="hidden mt-3 flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                        <div class="flex items-center gap-3">
+                        <i class="fas fa-file-pdf text-red-500 text-lg"></i>
+                        <div>
+                            <p id="archivo-nombre" class="text-sm font-semibold text-slate-700"></p>
+                            <p id="archivo-sub-estado" class="text-xs text-slate-400"></p>
+                        </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                        <a id="archivo-ver-link" href="#" target="_blank" class="hidden text-blue-500 hover:text-blue-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-blue-200 hover:bg-blue-50 transition-all">
+                            <i class="fas fa-eye mr-1"></i> Ver
+                        </a>
+                        <button onclick="quitarArchivo()" class="text-slate-300 hover:text-red-500 transition-colors">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        </div>
+                    </div>
+
+                    <input id="f-archivo" type="file" accept=".pdf" class="hidden" onchange="seleccionarArchivo(this)">
+                </div>
+            </div><!-- /paso-3 -->
+
+            </div><!-- /contenido pasos -->
+
+            <!-- Footer del panel -->
+            <div class="px-8 py-5 border-t border-slate-100 flex items-center justify-between">
+            <button id="btn-anterior" onclick="pasoAnterior()" class="hidden text-slate-500 hover:text-slate-700 text-sm font-semibold px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all">
+                <i class="fas fa-arrow-left mr-2"></i> Anterior
+            </button>
+            <div class="flex-1"></div>
+            <div class="flex gap-3">
+                <button onclick="cerrarFormulario()" class="text-slate-400 text-sm px-5 py-2.5 rounded-xl hover:bg-slate-50 transition-all">Cancelar</button>
+                <button id="btn-siguiente" onclick="pasoSiguiente()" class="bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
+                Siguiente <i class="fas fa-arrow-right"></i>
+                </button>
+                <button id="btn-guardar" onclick="guardarOperacion()" class="hidden bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
+                <i class="fas fa-floppy-disk"></i> Guardar Operación
+                </button>
+            </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- PANEL VISTA GERENCIAL (solo lectura) -->
+    <div id="panel-reporte" class="hidden fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-start justify-center overflow-y-auto py-10 px-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl">
+
+            <!-- Cabecera -->
+            <div class="flex items-center justify-between px-8 py-6 border-b border-slate-100">
+            <div class="flex items-center gap-4">
+                <div class="bg-green-100 rounded-xl p-2.5">
+                <i class="fas fa-file-contract text-green-600 text-xl"></i>
+                </div>
+                <div>
+                <h3 id="rep-titulo" class="text-xl font-bold text-slate-800">Reporte de Operación</h3>
+                <p id="rep-subtitulo" class="text-slate-400 text-sm mt-0.5">Vista gerencial — Solo lectura</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="exportarPDF()" class="bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-sm">
+                <i class="fas fa-file-arrow-down"></i> Exportar PDF
+                </button>
+                <button onclick="cerrarReporte()" class="text-slate-400 hover:text-red-600 h-9 w-9 rounded-xl border border-slate-200 flex items-center justify-center transition-colors">
+                <i class="fas fa-times"></i>
+                </button>
+            </div>
+            </div>
+
+            <!-- KPIs automáticos -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 px-8 py-6 bg-slate-50 border-b border-slate-100">
+            <div class="bg-white rounded-xl p-4 border border-slate-200 text-center shadow-sm">
+                <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">⏱️ Duración del Bombeo</p>
+                <p id="rep-duracion-bombeo" class="text-xl font-bold text-slate-800">—</p>
+            </div>
+            <div class="bg-white rounded-xl p-4 border border-slate-200 text-center shadow-sm">
+                <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">🚛 Estancia en Pozo</p>
+                <p id="rep-estancia" class="text-xl font-bold text-slate-800">—</p>
+            </div>
+            <div class="bg-white rounded-xl p-4 border border-slate-200 text-center shadow-sm">
+                <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">📈 Estatus del Servicio</p>
+                <p id="rep-estatus-badge" class="text-xl font-bold">—</p>
+            </div>
+            </div>
+
+            <!-- Cuerpo del reporte -->
+            <div class="px-8 py-7 grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+            <!-- Columna izquierda -->
+            <div class="space-y-6">
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
+                    <i class="fas fa-id-card mr-2"></i>Identificación
+                </p>
+                <div class="space-y-3">
+                    <div class="flex justify-between text-sm">
+                    <span class="text-slate-400">Cliente</span>
+                    <span id="rep-cliente" class="font-semibold text-slate-700 text-right">—</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                    <span class="text-slate-400">Pozo / Plataforma</span>
+                    <span id="rep-pozo" class="font-semibold text-slate-700 text-right">—</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                    <span class="text-slate-400">Rig</span>
+                    <span id="rep-rig" class="font-semibold text-slate-700 text-right">—</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                    <span class="text-slate-400">Ingeniero Responsable</span>
+                    <span id="rep-ingeniero" class="font-semibold text-slate-700 text-right">—</span>
+                    </div>
+                </div>
+                </div>
+
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
+                    <i class="fas fa-calendar-days mr-2"></i>Fechas de Estancia
+                </p>
+                <div class="space-y-3">
+                    <div class="flex justify-between text-sm">
+                    <span class="text-slate-400">Llegada al Pozo</span>
+                    <span id="rep-llegada" class="font-semibold text-slate-700">—</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                    <span class="text-slate-400">Salida del Pozo</span>
+                    <span id="rep-salida" class="font-semibold text-slate-700">—</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                    <span class="text-slate-400">Inicio del Bombeo</span>
+                    <span id="rep-inicio-bombeo" class="font-semibold text-slate-700">—</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                    <span class="text-slate-400">Fin del Bombeo</span>
+                    <span id="rep-fin-bombeo" class="font-semibold text-slate-700">—</span>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            <!-- Columna derecha -->
+            <div class="space-y-6">
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
+                    <i class="fas fa-flask-vial mr-2"></i>Datos Técnicos
+                </p>
+                    <div class="space-y-3">
+                        <div class="flex justify-between text-sm">
+                        <span class="text-slate-400">Bump Pressure</span>
+                        <span id="rep-presion" class="font-semibold text-slate-700">—</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                        <span class="text-slate-400">Densidad de Lechada</span>
+                        <span id="rep-densidad" class="font-semibold text-slate-700">—</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                        <span class="text-slate-400">Prueba de Válvula</span>
+                        <span id="rep-valvula" class="font-semibold text-slate-700">—</span>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-200 mt-2">
+                        <a id="rep-ver-pdf" href="#" target="_blank" class="hidden text-blue-600 hover:text-blue-800 text-xs font-bold flex items-center gap-2">
+                            <i class="fas fa-file-pdf text-red-500"></i> Ver Gráfica de Presión (PDF)
+                        </a>
+                        <p id="rep-sin-pdf" class="text-xs text-slate-400">Sin gráfica adjunta.</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
+                    <i class="fas fa-note-sticky mr-2"></i>Notas Operativas
+                </p>
+                <p id="rep-notas" class="text-sm text-slate-600 leading-relaxed">—</p>
+                </div>
+            </div>
+
+            </div>
+
+            <!-- Tabla de herramientas en el reporte -->
+            <div class="px-8 pb-8">
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
+                <i class="fas fa-boxes-stacked mr-2"></i>Inventario de Herramientas
+            </p>
+            <div class="overflow-x-auto rounded-xl border border-slate-200">
+                <table class="w-full text-xs">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-400 uppercase tracking-wider">
+                    <th class="px-4 py-3 text-left">ID</th>
+                    <th class="px-4 py-3 text-left">N° Serie</th>
+                    <th class="px-4 py-3 text-left">Descripción</th>
+                    <th class="px-4 py-3 text-left">Medida</th>
+                    <th class="px-4 py-3 text-left">Rosca</th>
+                    <th class="px-4 py-3 text-left">Estado Final</th>
+                    </tr>
+                </thead>
+                <tbody id="rep-tabla-herramientas">
+                    <tr>
+                    <td colspan="6" class="px-4 py-8 text-center text-slate-400">Sin herramientas registradas.</td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>
+            </div>
+
+            <!-- Footer con firma -->
+            <div class="px-8 py-5 bg-slate-50 rounded-b-3xl border-t border-slate-100 flex items-center justify-between">
+            <p class="text-xs text-slate-400">Generado por In Hole Solutions · Intranet Corporativa</p>
+            <button onclick="editarDesdeReporte()" class="text-slate-500 hover:text-red-600 text-xs font-bold px-4 py-2 rounded-xl border border-slate-200 hover:bg-red-50 transition-all">
+                <i class="fas fa-pen mr-1"></i> Editar esta operación
+            </button>
+            </div>
+
+        </div>
+    </div>
+    <!-- MODAL DE CONFIRMACIÓN PERSONALIZADO -->
+    <div id="modal-confirm" class="hidden fixed inset-0 z-[300] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-7 text-center">
+            <div id="modal-icono" class="text-4xl mb-4">⚠️</div>
+            <h4 id="modal-titulo" class="text-slate-800 font-bold text-lg mb-2">¿Estás seguro?</h4>
+            <p id="modal-mensaje" class="text-slate-500 text-sm leading-relaxed mb-7"></p>
+            <div class="flex gap-3 justify-center">
+            <button id="modal-cancelar" class="px-6 py-2.5 rounded-xl border border-slate-200 text-slate-500 text-sm font-semibold hover:bg-slate-50 transition-all">
+                Cancelar
+            </button>
+            <button id="modal-aceptar" class="px-6 py-2.5 rounded-xl text-white text-sm font-bold transition-all">
+                Aceptar
+            </button>
+            </div>
+        </div>
+    </div>
+  </main>
+
+  <script>
+    // ── CONFIGURACIÓN SUPABASE ──
+    const SUPABASE_URL = 'https://bgqlvkvlscujikhzzazf.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJncWx2a3Zsc2N1amlraHp6YXpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NzA0OTQsImV4cCI6MjA5NDM0NjQ5NH0.RuNCaTgjTN1mTA6kkjfXwz05epUYzARqGj8L3I2v350';
+
+    const headers = {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+    };
+
+    let operaciones = []; // cache local
+    let herramientasDelReporte = [];
+
+    // ── CARGAR OPERACIONES ──
+    async function cargarOperaciones() {
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/cementing_operaciones?select=*&order=created_at.desc`, { headers });
+            operaciones = await res.json();
+            renderTabla(operaciones);
+            actualizarKPIs(operaciones);
+        } catch (e) {
+            console.error('Error cargando operaciones:', e);
+        }
+    }
+
+    // ── RENDER TABLA ──
+    function renderTabla(datos) {
+        const tbody = document.getElementById('tabla-operaciones');
+        const filaVacia = document.getElementById('fila-vacia');
+
+        // Limpia filas anteriores (excepto la fila vacía)
+        tbody.querySelectorAll('tr:not(#fila-vacia)').forEach(r => r.remove());
+
+        if (!datos.length) {
+            filaVacia.classList.remove('hidden');
+            return;
+        }
+        filaVacia.classList.add('hidden');
+
+        datos.forEach(op => {
+            const badge = badgeEstatus(op.estatus);
+            const tr = document.createElement('tr');
+            tr.className = 'border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer';
+            tr.innerHTML = `
+            <td class="px-6 py-4 font-semibold text-slate-800">${op.nombre_pozo || '—'}</td>
+            <td class="px-6 py-4 text-slate-600">${op.cliente || '—'}</td>
+            <td class="px-6 py-4 text-slate-600">${op.ingeniero || '—'}</td>
+            <td class="px-6 py-4 text-slate-500">${formatearFecha(op.fecha_llegada)}</td>
+            <td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-xs font-bold ${badge.clase}">${badge.texto}</span></td>
+            <td class="px-6 py-4 text-center flex items-center justify-center gap-2">
+                <button onclick="abrirOperacion('${op.id}')" class="text-blue-500 hover:text-blue-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-blue-200 hover:bg-blue-50 transition-all">
+                <i class="fas fa-eye mr-1"></i> Ver
+                </button>
+                <button onclick="editarOperacion('${op.id}')" class="text-slate-500 hover:text-red-600 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-red-50 transition-all">
+                <i class="fas fa-pen mr-1"></i> Editar
+                </button>
+                <button onclick="eliminarOperacion('${op.id}')" class="text-slate-300 hover:text-red-500 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-100 hover:bg-red-50 hover:border-red-200 transition-all">
+                    <i class="fas fa-trash-can"></i>
+                </button>
+            </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // ── KPIs ──
+    function actualizarKPIs(datos) {
+        document.getElementById('kpi-total').textContent     = datos.length;
+        document.getElementById('kpi-proceso').textContent   = datos.filter(o => o.estatus === 'En Proceso').length;
+        document.getElementById('kpi-terminadas').textContent = datos.filter(o => o.estatus === 'Terminado Exitoso').length;
+    }
+
+    // ── BADGE DE ESTATUS ──
+    function badgeEstatus(estatus) {
+        const mapa = {
+            'Planificado':       { clase: 'badge-planificado', texto: 'Planificado' },
+            'En Proceso':        { clase: 'badge-en-proceso',  texto: 'En Proceso' },
+            'Terminado Exitoso': { clase: 'badge-terminado',   texto: 'Terminado Exitoso' },
+            'Alerta Técnica':    { clase: 'badge-alerta',      texto: 'Alerta Técnica' },
+        };
+        return mapa[estatus] || { clase: 'bg-slate-100 text-slate-500', texto: estatus || 'Sin estatus' };
+    }
+
+    // ── FORMATO FECHA ──
+    function formatearFecha(iso) {
+        if (!iso) return '—';
+        const d = new Date(iso);
+        return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    // ── FILTROS ──
+    document.getElementById('filtro-pozo').addEventListener('input', aplicarFiltros);
+    document.getElementById('filtro-cliente').addEventListener('change', aplicarFiltros);
+    document.getElementById('filtro-estatus').addEventListener('change', aplicarFiltros);
+
+    function aplicarFiltros() {
+        const pozo    = document.getElementById('filtro-pozo').value.toLowerCase();
+        const cliente = document.getElementById('filtro-cliente').value;
+        const estatus = document.getElementById('filtro-estatus').value;
+
+        const filtradas = operaciones.filter(op => {
+            const coincidePozo    = !pozo    || (op.nombre_pozo || '').toLowerCase().includes(pozo);
+            const coincideCliente = !cliente || op.cliente === cliente;
+            const coincideEstatus = !estatus || op.estatus === estatus;
+            return coincidePozo && coincideCliente && coincideEstatus;
+        });
+
+        renderTabla(filtradas);
+    }
+
+    // ── NAVEGACIÓN (placeholder por ahora) ──
+    function mostrarFormulario(id = null) {
+        alert('Sección 3: Formulario — lo construimos en el siguiente paso.');
+    }
+    function abrirOperacion(id) {
+        alert('Sección 4: Vista gerencial — la construimos después.');
+    }
+    function editarOperacion(id) {
+        mostrarFormulario(id);
+    }
+
+    // ── INICIO ──
+    cargarOperaciones();
+
+    // ── ESTADO DEL FORMULARIO ──
+    let pasoActual = 1;
+    let operacionEditandoId = null;
+    let herramientas = [];
+    let contadorHerramientas = 1;
+
+    // ── ABRIR / CERRAR ──
+    async function mostrarFormulario(id = null) {
+        operacionEditandoId = id;
+        herramientas = [];
+        contadorHerramientas = 1;
+        limpiarFormulario();
+        irPaso(1);
+
+        if (id) {
+            document.getElementById('form-titulo').textContent = 'Editar Operación';
+            const op = operaciones.find(o => o.id === id);
+            if (op) cargarDatosEnFormulario(op);
+            await cargarHerramientasEnFormulario(id); // <-- carga las herramientas guardadas
+        } else {
+            document.getElementById('form-titulo').textContent = 'Nueva Operación de Cementación';
+        }
+
+        document.getElementById('panel-formulario').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarFormulario() {
+        document.getElementById('panel-formulario').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    // ── NAVEGACIÓN ENTRE PASOS ──
+    function irPaso(n) {
+        [1, 2, 3].forEach(i => {
+            document.getElementById(`paso-${i}`).classList.add('hidden');
+            document.getElementById(`tab-${i}`).classList.remove('active');
+        });
+        document.getElementById(`paso-${n}`).classList.remove('hidden');
+        document.getElementById(`tab-${n}`).classList.add('active');
+        pasoActual = n;
+
+        document.getElementById('btn-anterior').classList.toggle('hidden', n === 1);
+        document.getElementById('btn-siguiente').classList.toggle('hidden', n === 3);
+        document.getElementById('btn-guardar').classList.toggle('hidden', n !== 3);
+    }
+
+    function pasoSiguiente() { if (pasoActual < 3) irPaso(pasoActual + 1); }
+    function pasoAnterior()  { if (pasoActual > 1) irPaso(pasoActual - 1); }
+
+    // ── CÁLCULOS AUTOMÁTICOS DE TIEMPO ──
+    ['f-inicio-bombeo','f-fin-bombeo','f-llegada','f-salida'].forEach(id => {
+    document.getElementById(id).addEventListener('change', calcularTiempos);
+    });
+
+    function calcularTiempos() {
+        const ini  = new Date(document.getElementById('f-inicio-bombeo').value);
+        const fin  = new Date(document.getElementById('f-fin-bombeo').value);
+        const lleg = new Date(document.getElementById('f-llegada').value);
+        const sal  = new Date(document.getElementById('f-salida').value);
+
+        if (ini && fin && fin > ini) {
+            const diff = fin - ini;
+            const h    = Math.floor(diff / 3600000);
+            const min  = Math.floor((diff % 3600000) / 60000);
+            document.getElementById('calc-bombeo').textContent = `${h} h ${min} min`;
+        }
+
+        if (lleg && sal && sal > lleg) {
+            const dias = ((sal - lleg) / 86400000).toFixed(1);
+            document.getElementById('calc-estancia').textContent = `${dias} días`;
+        }
+    }
+
+    // ── INVENTARIO DE HERRAMIENTAS ──
+    function agregarHerramienta() {
+        document.getElementById('fila-vacia-tools').classList.add('hidden');
+        const tbody = document.getElementById('tabla-herramientas');
+        const id = contadorHerramientas++;
+        const tr = document.createElement('tr');
+        tr.id = `tool-row-${id}`;
+        tr.className = 'border-t border-slate-100';
+        tr.innerHTML = `
+            <td class="px-3 py-2 text-slate-400 font-mono">#${String(id).padStart(3,'0')}</td>
+            <td class="px-3 py-2"><input type="text" placeholder="SN-00001" class="w-28 px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-red-300"></td>
+            <td class="px-3 py-2">
+            <select class="px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-red-300">
+                <option>Zapata Guía</option>
+                <option>Cople Flotador</option>
+                <option>Centralizador</option>
+                <option>Empacadura</option>
+                <option>Camisa de Circulación</option>
+            </select>
+            </td>
+            <td class="px-3 py-2">
+            <select class="px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-red-300">
+                <option>5 1/2"</option>
+                <option>7"</option>
+                <option>9 5/8"</option>
+                <option>13 3/8"</option>
+                <option>20"</option>
+            </select>
+            </td>
+            <td class="px-3 py-2">
+            <select class="px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-red-300">
+                <option>BTC</option>
+                <option>LTC</option>
+                <option>Premium VAM</option>
+                <option>STC</option>
+            </select>
+            </td>
+            <td class="px-3 py-2">
+            <select class="px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-red-300">
+                <option>Dejado en Pozo</option>
+                <option>Devuelto a Taller</option>
+                <option>Dañado / Rechazado</option>
+            </select>
+            </td>
+            <td class="px-3 py-2 text-center">
+            <button onclick="quitarHerramienta(${id})" class="text-slate-300 hover:text-red-500 transition-colors">
+                <i class="fas fa-trash-can"></i>
+            </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    }
+
+    function quitarHerramienta(id) {
+        document.getElementById(`tool-row-${id}`)?.remove();
+        if (!document.querySelectorAll('#tabla-herramientas tr:not(#fila-vacia-tools)').length) {
+            document.getElementById('fila-vacia-tools').classList.remove('hidden');
+        }
+    }
+
+    // ── ARCHIVO PDF ──
+    let archivoSeleccionado = null;
+    let archivoUrlExistente = null; // URL ya guardada en Supabase (modo edición)
+
+    function seleccionarArchivo(input) {
+        const archivo = input.files[0];
+        if (!archivo) return;
+        archivoSeleccionado = archivo;
+        archivoUrlExistente = null;
+
+        document.getElementById('zona-archivo').classList.add('hidden');
+        document.getElementById('archivo-estado').classList.remove('hidden');
+        document.getElementById('archivo-nombre').textContent      = archivo.name;
+        document.getElementById('archivo-sub-estado').textContent  = `${(archivo.size / 1024).toFixed(0)} KB · Listo para subir`;
+        document.getElementById('archivo-ver-link').classList.add('hidden');
+    }
+
+    async function quitarArchivo() {
+        // Si hay un archivo guardado en Supabase, pedir confirmación y eliminarlo
+        if (archivoUrlExistente && operacionEditandoId) {
+            const ok = await confirmar({
+            icono: '🗑️',
+            titulo: 'Eliminar archivo',
+            mensaje: 'Se eliminará el PDF y no podrás recuperarlo. ¿Continuar?',
+            textoAceptar: 'Sí, eliminar',
+            colorAceptar: 'bg-[#e31e24] hover:bg-red-700'
+            });
+            if (!ok) return;
+
+            // Extraer la ruta relativa desde "cementing-archivos/" en adelante
+            const rutaArchivo = archivoUrlExistente.split('/cementing-archivos/')[1];
+
+            // Eliminar del Storage usando el endpoint correcto con el nombre del bucket en el body
+            await fetch(`${SUPABASE_URL}/storage/v1/object/cementing-archivos/${rutaArchivo}`, {
+            method: 'DELETE',
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json'
+            }
+            });
+
+            // Eliminar la URL de la base de datos
+            await fetch(`${SUPABASE_URL}/rest/v1/cementing_operaciones?id=eq.${operacionEditandoId}`, {
+            method: 'PATCH',
+            headers,
+            body: JSON.stringify({ archivo_presion_url: null })
+            });
+
+            mostrarToast('🗑️ Archivo eliminado.', 'info');
+        }
+
+        // Limpiar estado local
+        archivoSeleccionado = null;
+        archivoUrlExistente = null;
+        document.getElementById('f-archivo').value = '';
+        document.getElementById('zona-archivo').classList.remove('hidden');
+        document.getElementById('archivo-estado').classList.add('hidden');
+        document.getElementById('archivo-ver-link').classList.add('hidden');
+    }
+
+    function mostrarArchivoExistente(url) {
+        if (!url) return;
+        archivoUrlExistente = url;
+        archivoSeleccionado = null;
+
+        const nombre = url.split('/').pop().replace(/^[^_]+_/, '').replace(/_/g, ' ');
+        document.getElementById('zona-archivo').classList.add('hidden');
+        document.getElementById('archivo-estado').classList.remove('hidden');
+        document.getElementById('archivo-nombre').textContent     = decodeURIComponent(nombre);
+        document.getElementById('archivo-sub-estado').textContent = 'Archivo guardado';
+
+        const linkVer = document.getElementById('archivo-ver-link');
+        linkVer.href = url;
+        linkVer.classList.remove('hidden');
+    }
+
+    // ── SUBIR ARCHIVO A SUPABASE STORAGE ──
+    async function subirArchivoPDF(operacionId) {
+        // Sin archivo nuevo seleccionado
+        if (!archivoSeleccionado) {
+            // Si hay URL existente la conserva, si no hay nada devuelve undefined (no toca nada)
+            return archivoUrlExistente !== null ? archivoUrlExistente : undefined;
+        }
+
+        const extension  = archivoSeleccionado.name.split('.').pop();
+        const nombreOriginal = archivoSeleccionado.name.replace(/\s+/g, '_');
+        const nombreFinal = `${operacionId}_${nombreOriginal}`;
+
+        mostrarToast('⬆️ Subiendo archivo...', 'info');
+
+        const res = await fetch(
+            `${SUPABASE_URL}/storage/v1/object/cementing-archivos/${nombreFinal}`,
+            {
+                method: 'POST',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'Content-Type': 'application/pdf',
+                    'x-upsert': 'true'
+                },
+                body: archivoSeleccionado
+            }
+        );
+
+        if (!res.ok) {
+            const err = await res.json();
+            console.error('Error Storage:', err);
+            mostrarToast('❌ Error al subir el archivo PDF.', 'error');
+            return undefined;
+        }
+
+        return `${SUPABASE_URL}/storage/v1/object/public/cementing-archivos/${nombreFinal}`;
+    }
+
+    // ── LIMPIAR FORMULARIO ──
+    function limpiarFormulario() {
+        ['f-cliente','f-pozo','f-rig','f-ingeniero','f-llegada','f-salida',
+        'f-inicio-bombeo','f-fin-bombeo','f-presion','f-densidad','f-valvula','f-notas'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        document.getElementById('calc-bombeo').textContent   = '— h — min';
+        document.getElementById('calc-estancia').textContent = '— días';
+        document.getElementById('tabla-herramientas').querySelectorAll('tr:not(#fila-vacia-tools)').forEach(r => r.remove());
+        document.getElementById('fila-vacia-tools').classList.remove('hidden');
+        quitarArchivo();
+    }
+
+    // ── CARGAR DATOS (modo edición) ──
+    function cargarDatosEnFormulario(op) {
+        document.getElementById('f-cliente').value         = op.cliente || '';
+        document.getElementById('f-pozo').value            = op.nombre_pozo || '';
+        document.getElementById('f-rig').value             = op.rig || '';
+        document.getElementById('f-ingeniero').value       = op.ingeniero || '';
+        document.getElementById('f-estatus').value         = op.estatus || 'Planificado';
+        document.getElementById('f-llegada').value         = op.fecha_llegada?.slice(0,16) || '';
+        document.getElementById('f-salida').value          = op.fecha_salida?.slice(0,16) || '';
+        document.getElementById('f-inicio-bombeo').value   = op.fecha_inicio_bombeo?.slice(0,16) || '';
+        document.getElementById('f-fin-bombeo').value      = op.fecha_fin_bombeo?.slice(0,16) || '';
+        document.getElementById('f-presion').value         = op.presion_asentamiento || '';
+        document.getElementById('f-densidad').value        = op.densidad_lechada || '';
+        document.getElementById('f-valvula').value         = op.prueba_valvula || '';
+        document.getElementById('f-notas').value           = op.notas || '';
+        calcularTiempos();
+        // Cargar archivo existente si lo tiene
+        quitarArchivo(); // limpia primero
+        if (op.archivo_presion_url) {
+        mostrarArchivoExistente(op.archivo_presion_url);
+        }
+    }
+
+    // ── GUARDAR EN SUPABASE ──
+    async function guardarOperacion() {
+        const btnGuardar = document.getElementById('btn-guardar');
+        // ── VALIDACIÓN ──
+        const cliente  = document.getElementById('f-cliente').value.trim();
+        const pozo     = document.getElementById('f-pozo').value.trim();
+        const ingeniero = document.getElementById('f-ingeniero').value.trim();
+
+        if (!cliente || !pozo || !ingeniero) {
+            // Regresa al paso 1 para mostrar los campos vacíos
+            irPaso(1);
+            ['f-cliente','f-pozo','f-ingeniero'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el.value.trim()) {
+                el.classList.add('border-red-400','ring-2','ring-red-200');
+                el.addEventListener('input', () => {
+                el.classList.remove('border-red-400','ring-2','ring-red-200');
+                }, { once: true });
+            }
+            });
+            btnGuardar.disabled = false;
+            btnGuardar.innerHTML = '<i class="fas fa-floppy-disk"></i> Guardar Operación';
+            return;
+        }
+        btnGuardar.disabled = true;
+        btnGuardar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
+        const payload = {
+            cliente:               document.getElementById('f-cliente').value,
+            nombre_pozo:           document.getElementById('f-pozo').value,
+            rig:                   document.getElementById('f-rig').value,
+            ingeniero:             document.getElementById('f-ingeniero').value,
+            estatus:               document.getElementById('f-estatus').value,
+            fecha_llegada:         document.getElementById('f-llegada').value || null,
+            fecha_salida:          document.getElementById('f-salida').value || null,
+            fecha_inicio_bombeo:   document.getElementById('f-inicio-bombeo').value || null,
+            fecha_fin_bombeo:      document.getElementById('f-fin-bombeo').value || null,
+            presion_asentamiento:  parseFloat(document.getElementById('f-presion').value) || null,
+            densidad_lechada:      parseFloat(document.getElementById('f-densidad').value) || null,
+            prueba_valvula:        document.getElementById('f-valvula').value || null,
+            notas:                 document.getElementById('f-notas').value || null,
+            // archivo se actualiza por separado después de subir
+        };
+
+        try {
+            let res;
+            if (operacionEditandoId) {
+            // ACTUALIZAR
+            res = await fetch(`${SUPABASE_URL}/rest/v1/cementing_operaciones?id=eq.${operacionEditandoId}`, {
+                method: 'PATCH',
+                headers: { ...headers, 'Prefer': 'return=representation' },
+                body: JSON.stringify(payload)
+            });
+            } else {
+            // INSERTAR
+            res = await fetch(`${SUPABASE_URL}/rest/v1/cementing_operaciones`, {
+                method: 'POST',
+                headers: { ...headers, 'Prefer': 'return=representation' },
+                body: JSON.stringify(payload)
+            });
+            }
+
+            if (res.ok) {
+                const data = await res.json();
+                const opId = operacionEditandoId || data[0]?.id;
+
+                if (opId) {
+                    await guardarHerramientas(opId);
+
+                    // Subir PDF si hay uno seleccionado
+                    const urlArchivo = await subirArchivoPDF(opId);
+                    // Solo actualiza la URL si subió un archivo nuevo o hay una existente
+                    if (urlArchivo !== undefined) {
+                        await fetch(`${SUPABASE_URL}/rest/v1/cementing_operaciones?id=eq.${opId}`, {
+                            method: 'PATCH',
+                            headers,
+                            body: JSON.stringify({ archivo_presion_url: urlArchivo })
+                        });
+                    }
+                }
+
+                cerrarFormulario(false); // sin confirmación, ya se guardó
+                await cargarOperaciones();
+                mostrarToast('✅ Operación guardada correctamente.');
+                } else {
+                    const err = await res.json();
+                    alert('Error al guardar: ' + JSON.stringify(err));
+            }
+        } catch (e) {
+            alert('Error de conexión con Supabase.');
+            console.error(e);
+        }
+
+        btnGuardar.disabled = false;
+        btnGuardar.innerHTML = '<i class="fas fa-floppy-disk"></i> Guardar Operación';
+    }
+
+    // ── OPERACIÓN ACTIVA EN EL REPORTE ──
+    let operacionViendoId = null;
+
+    // ── ABRIR REPORTE ──
+    async function abrirOperacion(id) {
+        const op = operaciones.find(o => o.id === id);
+        if (!op) return;
+        operacionViendoId = id;
+
+        // Título
+        document.getElementById('rep-titulo').textContent    = op.nombre_pozo || 'Operación sin nombre';
+        document.getElementById('rep-subtitulo').textContent = `${op.cliente || '—'} · ${op.rig || '—'}`;
+
+        // KPIs
+        document.getElementById('rep-duracion-bombeo').textContent = calcDuracion(op.fecha_inicio_bombeo, op.fecha_fin_bombeo);
+        document.getElementById('rep-estancia').textContent        = calcEstancia(op.fecha_llegada, op.fecha_salida);
+
+        const badge = badgeEstatus(op.estatus);
+        const repEstatus = document.getElementById('rep-estatus-badge');
+        repEstatus.textContent  = badge.texto;
+        repEstatus.className    = `text-base font-bold px-3 py-1 rounded-full ${badge.clase}`;
+
+        // Identificación
+        document.getElementById('rep-cliente').textContent   = op.cliente    || '—';
+        document.getElementById('rep-pozo').textContent      = op.nombre_pozo || '—';
+        document.getElementById('rep-rig').textContent       = op.rig        || '—';
+        document.getElementById('rep-ingeniero').textContent = op.ingeniero  || '—';
+
+        // Fechas
+        document.getElementById('rep-llegada').textContent       = formatearFechaHora(op.fecha_llegada);
+        document.getElementById('rep-salida').textContent        = formatearFechaHora(op.fecha_salida);
+        document.getElementById('rep-inicio-bombeo').textContent = formatearFechaHora(op.fecha_inicio_bombeo);
+        document.getElementById('rep-fin-bombeo').textContent    = formatearFechaHora(op.fecha_fin_bombeo);
+
+        // Técnicos
+        document.getElementById('rep-presion').textContent  = op.presion_asentamiento ? `${op.presion_asentamiento} PSI` : '—';
+        document.getElementById('rep-densidad').textContent = op.densidad_lechada     ? `${op.densidad_lechada} gr/cm³`  : '—';
+        document.getElementById('rep-valvula').textContent  = op.prueba_valvula       || '—';
+        document.getElementById('rep-notas').textContent    = op.notas                || 'Sin notas.';
+
+        // Herramientas (por ahora vacío — se integrará con la tabla de herramientas en Sección 6)
+        await cargarHerramientasEnReporte(id);
+
+        document.getElementById('panel-reporte').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+
+        // Botón ver PDF en el reporte
+        const btnVerPDF = document.getElementById('rep-ver-pdf');
+        if (op.archivo_presion_url) {
+            btnVerPDF.href = op.archivo_presion_url;
+            btnVerPDF.classList.remove('hidden');
+        } else {
+            btnVerPDF.classList.add('hidden');
+        }
+    }
+
+    function cerrarReporte() {
+        document.getElementById('panel-reporte').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    function editarDesdeReporte() {
+        cerrarReporte();
+        mostrarFormulario(operacionViendoId);
+    }
+
+    // ── HELPERS DE TIEMPO ──
+    function calcDuracion(ini, fin) {
+        if (!ini || !fin) return '—';
+        const diff = new Date(fin) - new Date(ini);
+        if (diff <= 0) return '—';
+        const h   = Math.floor(diff / 3600000);
+        const min = Math.floor((diff % 3600000) / 60000);
+        return `${h} h ${min} min`;
+    }
+
+    function calcEstancia(llegada, salida) {
+        if (!llegada || !salida) return '—';
+        const diff = new Date(salida) - new Date(llegada);
+        if (diff <= 0) return '—';
+        return `${(diff / 86400000).toFixed(1)} días`;
+    }
+
+    function formatearFechaHora(iso) {
+        if (!iso) return '—';
+        return new Date(iso).toLocaleString('es-MX', {
+            day: '2-digit', month: 'short', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+    }
+
+    // ── EXPORTAR PDF ──
+    async function exportarPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+        const op = operaciones.find(o => o.id === operacionViendoId);
+        if (!op) return;
+
+        const rojo  = [227, 30, 36];
+        const gris  = [100, 116, 139];
+        const negro = [30, 41, 59];
+
+        // ── Encabezado rojo ──
+        doc.setFillColor(...rojo);
+        doc.rect(0, 0, 210, 28, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text('IN HOLE SOLUTIONS', 14, 11);
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Reporte Post-Operativo · Cementing', 14, 18);
+        doc.text(`Generado: ${new Date().toLocaleString('es-MX')}`, 14, 24);
+
+        // ── Título del pozo ──
+        doc.setTextColor(...negro);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text(op.nombre_pozo || 'Sin nombre', 14, 38);
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...gris);
+        doc.text(`${op.cliente || '—'} · Rig: ${op.rig || '—'} · Ingeniero: ${op.ingeniero || '—'}`, 14, 44);
+
+        // ── KPIs ──
+        doc.setFillColor(248, 250, 252);
+        doc.roundedRect(14, 49, 55, 18, 3, 3, 'F');
+        doc.roundedRect(77, 49, 55, 18, 3, 3, 'F');
+        doc.roundedRect(140, 49, 57, 18, 3, 3, 'F');
+
+        const kpiLabel = (x, y, label, valor) => {
+            doc.setFontSize(7);
+            doc.setTextColor(...gris);
+            doc.setFont('helvetica', 'normal');
+            doc.text(label, x, y);
+            doc.setFontSize(11);
+            doc.setTextColor(...negro);
+            doc.setFont('helvetica', 'bold');
+            doc.text(valor, x, y + 7);
+        };
+
+        kpiLabel(17, 55, 'DURACIÓN DEL BOMBEO',  calcDuracion(op.fecha_inicio_bombeo, op.fecha_fin_bombeo));
+        kpiLabel(80, 55, 'ESTANCIA EN POZO',     calcEstancia(op.fecha_llegada, op.fecha_salida));
+        kpiLabel(143, 55, 'ESTATUS',             op.estatus || '—');
+
+        // ── Sección Identificación ──
+        let y = 76;
+        const seccion = (titulo, yPos) => {
+            doc.setFillColor(...rojo);
+            doc.rect(14, yPos, 3, 5, 'F');
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...negro);
+            doc.text(titulo, 19, yPos + 4);
+            return yPos + 10;
+        };
+
+        const fila = (label, valor, yPos) => {
+            doc.setFontSize(8.5);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(...gris);
+            doc.text(label, 14, yPos);
+            doc.setTextColor(...negro);
+            doc.setFont('helvetica', 'bold');
+            doc.text(String(valor || '—'), 75, yPos);
+            doc.setDrawColor(226, 232, 240);
+            doc.line(14, yPos + 2, 196, yPos + 2);
+            return yPos + 8;
+        };
+
+        y = seccion('IDENTIFICACIÓN DE LA OPERACIÓN', y);
+        y = fila('Cliente',                  op.cliente,     y);
+        y = fila('Pozo / Plataforma',        op.nombre_pozo, y);
+        y = fila('Equipo de Perforación',    op.rig,         y);
+        y = fila('Ingeniero Responsable',    op.ingeniero,   y);
+
+        y = seccion('TIEMPOS DE OPERACIÓN', y + 4);
+        y = fila('Llegada al Pozo',    formatearFechaHora(op.fecha_llegada),         y);
+        y = fila('Salida del Pozo',    formatearFechaHora(op.fecha_salida),          y);
+        y = fila('Inicio del Bombeo',  formatearFechaHora(op.fecha_inicio_bombeo),   y);
+        y = fila('Fin del Bombeo',     formatearFechaHora(op.fecha_fin_bombeo),      y);
+
+        y = seccion('DATOS TÉCNICOS DE FLOTACIÓN', y + 4);
+        y = fila('Bump Pressure (PSI)',      op.presion_asentamiento ? `${op.presion_asentamiento} PSI` : '—', y);
+        y = fila('Densidad de Lechada',      op.densidad_lechada     ? `${op.densidad_lechada} gr/cm³`  : '—', y);
+        y = fila('Prueba de Retención',      op.prueba_valvula || '—', y);
+
+        if (op.notas) {
+            y = seccion('NOTAS OPERATIVAS', y + 4);
+            doc.setFontSize(8.5);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(...negro);
+            const lines = doc.splitTextToSize(op.notas, 180);
+            doc.text(lines, 14, y);
+            y += lines.length * 5 + 4;
+        }
+
+        // ── Footer ──
+        doc.setFillColor(...rojo);
+        doc.rect(0, 282, 210, 15, 'F');
+        doc.setFontSize(8);
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'normal');
+        doc.text('In Hole Solutions · Documento confidencial · Uso interno y para cliente final', 14, 291);
+        doc.text(`Página 1`, 186, 291);
+
+        // ── Tabla de herramientas en PDF ──
+        if (herramientasDelReporte.length) {
+            y = seccion('INVENTARIO DE HERRAMIENTAS', y + 4);
+            doc.autoTable({
+            startY: y,
+            margin: { left: 14, right: 14 },
+            headStyles: { fillColor: rojo, textColor: 255, fontStyle: 'bold', fontSize: 7 },
+            bodyStyles: { fontSize: 7.5, textColor: negro },
+            alternateRowStyles: { fillColor: [248, 250, 252] },
+            head: [['#', 'N° Serie', 'Descripción', 'Medida', 'Rosca', 'Estado Final']],
+            body: herramientasDelReporte.map((h, i) => [
+                `#${String(i+1).padStart(3,'0')}`,
+                h.numero_serie  || '—',
+                h.descripcion   || '—',
+                h.medida        || '—',
+                h.rosca         || '—',
+                h.estado_final  || '—'
+            ])
+            });
+        }
+
+        // ── Guardar ──
+        const nombreArchivo = `PostJob_${(op.nombre_pozo || 'operacion').replace(/\s+/g,'-')}_${new Date().toISOString().slice(0,10)}.pdf`;
+        doc.save(nombreArchivo);
+    }
+
+    // ── LEER HERRAMIENTAS DE LA TABLA DEL FORMULARIO ──
+    function leerHerramientasDelFormulario() {
+        const filas = document.querySelectorAll('#tabla-herramientas tr:not(#fila-vacia-tools)');
+        const resultado = [];
+
+        filas.forEach(fila => {
+            const inputs   = fila.querySelectorAll('input');
+            const selects  = fila.querySelectorAll('select');
+
+            const numeroSerie  = inputs[0]?.value?.trim()   || '';
+            const descripcion  = selects[0]?.value          || '';
+            const medida       = selects[1]?.value          || '';
+            const rosca        = selects[2]?.value          || '';
+            const estadoFinal  = selects[3]?.value          || '';
+
+            // Solo agrega si al menos tiene número de serie o descripción
+            if (numeroSerie || descripcion) {
+            resultado.push({ numeroSerie, descripcion, medida, rosca, estadoFinal });
+            }
+        });
+
+    return resultado;
+    }
+
+    // ── GUARDAR HERRAMIENTAS EN SUPABASE ──
+    async function guardarHerramientas(operacionId) {
+        // 1. Borrar herramientas anteriores de esta operación (para reemplazarlas limpiamente)
+        await fetch(`${SUPABASE_URL}/rest/v1/cementing_herramientas?operacion_id=eq.${operacionId}`, {
+            method: 'DELETE',
+            headers
+        });
+
+        // 2. Leer las filas actuales del formulario
+        const herramientas = leerHerramientasDelFormulario();
+        if (!herramientas.length) return;
+
+        // 3. Construir el payload para insertar
+        const payload = herramientas.map(h => ({
+            operacion_id: operacionId,
+            numero_serie: h.numeroSerie,
+            descripcion:  h.descripcion,
+            medida:       h.medida,
+            rosca:        h.rosca,
+            estado_final: h.estadoFinal
+        }));
+
+        // 4. Insertar todas de una sola vez
+        await fetch(`${SUPABASE_URL}/rest/v1/cementing_herramientas`, {
+            method: 'POST',
+            headers: { ...headers, 'Prefer': 'return=representation' },
+            body: JSON.stringify(payload)
+        });
+    }
+
+    // ── CARGAR HERRAMIENTAS EN EL REPORTE ──
+    async function cargarHerramientasEnReporte(operacionId) {
+        const tbody = document.getElementById('rep-tabla-herramientas');
+        tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-slate-300"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando...</td></tr>`;
+
+        try {
+            const res = await fetch(
+            `${SUPABASE_URL}/rest/v1/cementing_herramientas?operacion_id=eq.${operacionId}&order=created_at.asc`,
+            { headers }
+            );
+            const data = await res.json();
+
+            if (!data.length) {
+            tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-slate-400">Sin herramientas registradas.</td></tr>`;
+            return;
+            }
+
+            tbody.innerHTML = '';
+            data.forEach((h, i) => {
+            const estadoClase = {
+                'Dejado en Pozo':       'bg-blue-100 text-blue-700',
+                'Devuelto a Taller':    'bg-green-100 text-green-700',
+                'Dañado / Rechazado':   'bg-red-100 text-red-700',
+            }[h.estado_final] || 'bg-slate-100 text-slate-600';
+
+            const tr = document.createElement('tr');
+            tr.className = 'border-t border-slate-100';
+            tr.innerHTML = `
+                <td class="px-4 py-3 text-slate-400 font-mono">#${String(i+1).padStart(3,'0')}</td>
+                <td class="px-4 py-3 font-semibold text-slate-700">${h.numero_serie || '—'}</td>
+                <td class="px-4 py-3 text-slate-600">${h.descripcion || '—'}</td>
+                <td class="px-4 py-3 text-slate-600">${h.medida || '—'}</td>
+                <td class="px-4 py-3 text-slate-600">${h.rosca || '—'}</td>
+                <td class="px-4 py-3">
+                <span class="px-2.5 py-1 rounded-full text-xs font-bold ${estadoClase}">
+                    ${h.estado_final || '—'}
+                </span>
+                </td>
+            `;
+            tbody.appendChild(tr);
+            });
+
+            // Guardar en variable global para el PDF
+            herramientasDelReporte = data;
+
+        } catch(e) {
+            tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-6 text-center text-red-400">Error al cargar herramientas.</td></tr>`;
+            console.error(e);
+        }
+    }
+
+    // ── CARGAR HERRAMIENTAS EN EL FORMULARIO (modo edición) ──
+    async function cargarHerramientasEnFormulario(operacionId) {
+        try {
+            const res = await fetch(
+            `${SUPABASE_URL}/rest/v1/cementing_herramientas?operacion_id=eq.${operacionId}&order=created_at.asc`,
+            { headers }
+            );
+            const data = await res.json();
+            if (!data.length) return;
+
+            // Limpia la tabla primero
+            document.getElementById('tabla-herramientas')
+            .querySelectorAll('tr:not(#fila-vacia-tools)')
+            .forEach(r => r.remove());
+            document.getElementById('fila-vacia-tools').classList.add('hidden');
+
+            // Recrea cada fila con los datos guardados
+            data.forEach(h => {
+            agregarHerramienta(); // crea la fila vacía
+
+            // Apunta a la última fila creada
+            const filas = document.querySelectorAll('#tabla-herramientas tr:not(#fila-vacia-tools)');
+            const ultimaFila = filas[filas.length - 1];
+
+            const inputs  = ultimaFila.querySelectorAll('input');
+            const selects = ultimaFila.querySelectorAll('select');
+
+            if (inputs[0])  inputs[0].value  = h.numero_serie  || '';
+            if (selects[0]) selects[0].value = h.descripcion   || '';
+            if (selects[1]) selects[1].value = h.medida        || '';
+            if (selects[2]) selects[2].value = h.rosca         || '';
+            if (selects[3]) selects[3].value = h.estado_final  || '';
+            });
+
+        } catch(e) {
+            console.error('Error cargando herramientas en formulario:', e);
+        }
+    }
+    // ── TOAST DE CONFIRMACIÓN ──
+    function mostrarToast(mensaje, tipo = 'exito') {
+        const colores = {
+            exito: 'bg-green-600',
+            error: 'bg-red-600',
+            info:  'bg-blue-600'
+        };
+        const toast = document.createElement('div');
+        toast.className = `fixed bottom-6 right-6 z-[200] ${colores[tipo]} text-white text-sm font-semibold px-5 py-3 rounded-2xl shadow-lg flex items-center gap-3 transition-all`;
+        toast.innerHTML = `<span>${mensaje}</span>`;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(10px)';
+            toast.style.transition = 'all 0.4s ease';
+            setTimeout(() => toast.remove(), 400);
+        }, 3000);
+    }
+
+    // ── CERRAR CON CONFIRMACIÓN ──
+    async function cerrarFormulario(confirmarSiHayDatos = true) {
+        const tieneDatos = document.getElementById('f-pozo').value.trim() ||
+                            document.getElementById('f-cliente').value.trim();
+
+        if (confirmarSiHayDatos && tieneDatos) {
+            const ok = await confirmar({
+            icono: '📋',
+            titulo: '¿Cerrar formulario?',
+            mensaje: 'Los cambios no guardados se perderán.',
+            textoAceptar: 'Sí, cerrar',
+            colorAceptar: 'bg-slate-600 hover:bg-slate-700'
+            });
+            if (!ok) return;
+        }
+
+        document.getElementById('panel-formulario').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    // ── ELIMINAR OPERACIÓN ──
+    async function eliminarOperacion(id) {
+        const op = operaciones.find(o => o.id === id);
+        const ok = await confirmar({
+            icono: '🗑️',
+            titulo: 'Eliminar operación',
+            mensaje: `¿Eliminar la operación del pozo "${op?.nombre_pozo || id}"? Esto también eliminará sus herramientas y no se puede deshacer.`,
+            textoAceptar: 'Sí, eliminar',
+            colorAceptar: 'bg-[#e31e24] hover:bg-red-700'
+            });
+            if (!ok) return;
+
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/cementing_operaciones?id=eq.${id}`, {
+            method: 'DELETE',
+            headers
+            });
+
+            if (res.ok) {
+            await cargarOperaciones();
+            mostrarToast('🗑️ Operación eliminada.', 'info');
+            } else {
+            mostrarToast('Error al eliminar.', 'error');
+            }
+        } catch(e) {
+            mostrarToast('Error de conexión.', 'error');
+            console.error(e);
+        }
+    }
+
+    // ── MODAL DE CONFIRMACIÓN PERSONALIZADO ──
+    function confirmar({ icono = '⚠️', titulo = '¿Estás seguro?', mensaje = '', textoAceptar = 'Aceptar', colorAceptar = 'bg-[#e31e24] hover:bg-red-700' } = {}) {
+        return new Promise(resolve => {
+            document.getElementById('modal-icono').textContent   = icono;
+            document.getElementById('modal-titulo').textContent  = titulo;
+            document.getElementById('modal-mensaje').textContent = mensaje;
+
+            const btnAceptar  = document.getElementById('modal-aceptar');
+            const btnCancelar = document.getElementById('modal-cancelar');
+
+            btnAceptar.className = `px-6 py-2.5 rounded-xl text-white text-sm font-bold transition-all ${colorAceptar}`;
+            btnAceptar.textContent  = textoAceptar;
+
+            document.getElementById('modal-confirm').classList.remove('hidden');
+
+            // Limpia listeners anteriores clonando los botones
+            const nuevoAceptar  = btnAceptar.cloneNode(true);
+            const nuevoCancelar = btnCancelar.cloneNode(true);
+            btnAceptar.replaceWith(nuevoAceptar);
+            btnCancelar.replaceWith(nuevoCancelar);
+
+            nuevoAceptar.addEventListener('click', () => {
+            document.getElementById('modal-confirm').classList.add('hidden');
+            resolve(true);
+            });
+            nuevoCancelar.addEventListener('click', () => {
+            document.getElementById('modal-confirm').classList.add('hidden');
+            resolve(false);
+            });
+        });
+    }
+  </script>
+</body>
+</html>

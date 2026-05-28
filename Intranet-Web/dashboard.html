@@ -80,10 +80,15 @@
                 <i class="fas fa-chevron-right text-[10px]"></i>
               </button>
               <div class="submenu-content hidden lg:absolute lg:left-full lg:top-0 w-full lg:w-64 bg-slate-50 lg:bg-white shadow-2xl border border-slate-100 py-3 lg:rounded-r-xl">
-                <a href="javascript:void(0)" onclick="mostrarSeccionApriete()" class="block px-8 lg:px-5 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-[#e31e24]">Apriete</a>
+                <a href="cementing.html" class="block px-8 lg:px-5 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-[#e31e24]">Cementing</a>
+                <a href="#" class="block px-8 lg:px-5 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-[#e31e24]">Cased Hole Completions</a>
+                <a href="#" class="block px-8 lg:px-5 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-[#e31e24]">Gas Lift</a>
                 <a href="#" class="block px-8 lg:px-5 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-[#e31e24]">Pruebas Hidrostáticas</a>
               </div>
             </div>
+            <a href="javascript:void(0)" class="flex items-center gap-3 px-5 py-3 text-sm text-slate-600 hover:bg-red-50 hover:text-[#e31e24] transition-colors font-medium">
+              <i class="fas fa-wrench w-5"></i> Apriete
+            </a>
             <a href="#" class="flex items-center gap-3 px-5 py-3 text-sm text-slate-600 hover:bg-red-50 hover:text-[#e31e24] transition-colors font-medium">
               <i class="fas fa-toolbox w-5"></i> Suministros
             </a>
@@ -209,67 +214,6 @@
         </div>
       </div>
 
-    </div>
-
-    <!-- Sección tabla apriete -->
-    <div id="seccion-tabla-apriete" class="hidden bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-      <div class="p-8 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div class="flex items-center gap-2 text-red-600 mb-1">
-            <i class="fa-brands fa-whmcs text-xs"></i>
-            <span class="text-[10px] font-black uppercase tracking-[0.2em]">Operaciones / Apriete</span>
-          </div>
-          <h3 class="text-xl font-bold text-slate-800 italic uppercase">Control de Servicios Realizados</h3>
-        </div>
-        <div class="flex gap-2">
-          <button class="bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-50 transition-all flex items-center gap-2">
-            <i class="fas fa-download"></i> Exportar
-          </button>
-          <button class="bg-red-700 text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-red-600 transition-all flex items-center gap-2">
-            <i class="fas fa-plus"></i> Nuevo Servicio
-          </button>
-        </div>
-      </div>
-      <div class="overflow-x-auto table-container">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-100">
-              <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Nº Servicio</th>
-              <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Cliente</th>
-              <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipo de Servicio</th>
-              <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Fecha</th>
-              <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Estado</th>
-              <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-50">
-            <tr class="hover:bg-red-50/30 transition-colors group">
-              <td class="px-8 py-5 text-sm font-bold text-slate-700">#APR-2026-001</td>
-              <td class="px-6 py-5 text-sm font-medium text-slate-600">Pemex Exploración</td>
-              <td class="px-6 py-5 text-xs font-semibold text-slate-500 italic">Apriete Controlado</td>
-              <td class="px-6 py-5 text-sm text-slate-500">12 Mayo, 2026</td>
-              <td class="px-6 py-5">
-                <span class="flex items-center gap-2 text-emerald-600 text-[10px] font-black uppercase">
-                  <span class="h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Finalizado
-                </span>
-              </td>
-              <td class="px-8 py-5 text-right text-slate-300 group-hover:text-red-600"><i class="fas fa-ellipsis-v"></i></td>
-            </tr>
-            <tr class="hover:bg-red-50/30 transition-colors group">
-              <td class="px-8 py-5 text-sm font-bold text-slate-700">#APR-2026-002</td>
-              <td class="px-6 py-5 text-sm font-medium text-slate-600">Halliburton</td>
-              <td class="px-6 py-5 text-xs font-semibold text-slate-500 italic">Torque de Bridas</td>
-              <td class="px-6 py-5 text-sm text-slate-500">14 Mayo, 2026</td>
-              <td class="px-6 py-5">
-                <span class="flex items-center gap-2 text-amber-600 text-[10px] font-black uppercase">
-                  <span class="h-1.5 w-1.5 bg-amber-500 rounded-full"></span> En Proceso
-                </span>
-              </td>
-              <td class="px-8 py-5 text-right text-slate-300 group-hover:text-red-600"><i class="fas fa-ellipsis-v"></i></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
     </div>
   </main>
   <!-- ── MODAL PDF ── -->
