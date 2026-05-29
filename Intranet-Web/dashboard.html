@@ -34,6 +34,10 @@
     }
     .table-container::-webkit-scrollbar { height: 6px; }
     .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+    #boletin-panel::-webkit-scrollbar { width: 4px; }
+  #boletin-panel::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+  #boletin-panel::-webkit-scrollbar-track { background: transparent; }
   </style>
 </head>
 <body class="bg-[#f8fafc] min-h-screen">
@@ -99,7 +103,85 @@
     </div>
   </nav>
   <!-- ── MAIN ── -->
-  <main class="max-w-[1440px] mx-auto p-6 md:p-10">
+  <main class="max-w-[1440px] mx-auto p-6 md:p-10 flex gap-6 items-start">
+    <!-- ══ BOLETÍN INFORMATIVO PETRÓLEO & GAS ══ -->
+    <aside id="boletin-panel" class="flex flex-col w-80 xl:w-96 flex-shrink-0 gap-4 sticky top-36 max-h-[calc(100vh-9rem)] overflow-y-auto">
+
+      <!-- Encabezado del boletín -->
+      <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-5 text-white shadow-xl">
+        <div class="flex items-center justify-between mb-1">
+          <div class="flex items-center gap-2">
+            <i class="fas fa-oil-well text-amber-400 text-lg"></i>
+            <span class="text-xs font-black uppercase tracking-widest text-amber-400">Boletín</span>
+          </div>
+          <span class="h-2 w-2 bg-emerald-400 rounded-full animate-pulse"></span>
+        </div>
+        <h2 class="text-lg font-black uppercase tracking-tight">Petróleo & Gas</h2>
+        <p id="boletin-fecha" class="text-xs text-slate-400 mt-0.5"></p>
+      </div>
+
+      <!-- Tipo de cambio y precios -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Mercados</p>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="bg-slate-50 rounded-xl p-3 text-center">
+            <p class="text-[9px] font-bold uppercase text-slate-400 tracking-wider mb-1">USD/MXN</p>
+            <p id="tc-usd" class="text-lg font-black text-slate-800">—</p>
+          </div>
+          <div class="bg-amber-50 rounded-xl p-3 text-center">
+            <p class="text-[9px] font-bold uppercase text-amber-600 tracking-wider mb-1">WTI</p>
+            <p id="tc-wti" class="text-lg font-black text-amber-700">—</p>
+          </div>
+          <div class="bg-blue-50 rounded-xl p-3 text-center">
+            <p class="text-[9px] font-bold uppercase text-blue-600 tracking-wider mb-1">Brent</p>
+            <p id="tc-brent" class="text-lg font-black text-blue-700">—</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Noticias Tabasco -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="bg-gradient-to-r from-green-700 to-green-600 px-4 py-3 flex items-center gap-2">
+          <i class="fas fa-map-marker-alt text-white text-sm"></i>
+          <span class="text-xs font-black uppercase tracking-widest text-white">Tabasco</span>
+        </div>
+        <div id="noticias-estatal" class="p-3 space-y-2">
+          <div class="text-xs text-slate-400 text-center py-4">Cargando...</div>
+        </div>
+      </div>
+
+      <!-- Noticias México -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="bg-gradient-to-r from-red-700 to-red-600 px-4 py-3 flex items-center gap-2">
+          <span class="text-white font-black text-sm">🇲🇽</span>
+          <span class="text-xs font-black uppercase tracking-widest text-white">Nacional</span>
+        </div>
+        <div id="noticias-nacional" class="p-3 space-y-2">
+          <div class="text-xs text-slate-400 text-center py-4">Cargando...</div>
+        </div>
+      </div>
+
+      <!-- Noticias Internacional -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="bg-gradient-to-r from-slate-800 to-slate-700 px-4 py-3 flex items-center gap-2">
+          <i class="fas fa-globe text-white text-sm"></i>
+          <span class="text-xs font-black uppercase tracking-widest text-white">Internacional</span>
+        </div>
+        <div id="noticias-internacional" class="p-3 space-y-2">
+          <div class="text-xs text-slate-400 text-center py-4">Cargando...</div>
+        </div>
+      </div>
+
+      <!-- Botón actualizar manual -->
+      <button onclick="actualizarBoletin()" id="btn-actualizar-boletin"
+        class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold uppercase tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2">
+        <i class="fas fa-rotate-right"></i> Actualizar ahora
+      </button>
+
+    </aside>
+
+    <!-- Contenido principal (wrapper) -->
+    <div class="flex-1 min-w-0">
     <div class="mb-10">
       <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Panel de Control</h2>
       <p class="text-slate-500 mt-1">Gestión interna y monitoreo operativo de In Hole Solutions.</p>
@@ -814,6 +896,63 @@
       document.getElementById('chat-send').disabled = false;
       scrollChat();
     }
+
+    // ══ BOLETÍN PETRÓLEO & GAS ══
+    async function cargarBoletin() {
+      const hoy = new Date().toISOString().split("T")[0];
+      document.getElementById('boletin-fecha').textContent =
+        new Date().toLocaleDateString('es-MX', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+      // Tipo de cambio
+      const { data: tc } = await supabaseClient
+        .from('tipo_cambio').select('*').eq('fecha', hoy).order('created_at', { ascending: false }).limit(1);
+      if (tc && tc.length > 0) {
+        document.getElementById('tc-usd').textContent = `$${parseFloat(tc[0].usd_mxn).toFixed(2)}`;
+        document.getElementById('tc-wti').textContent = `$${parseFloat(tc[0].usd_precio_wti).toFixed(2)}`;
+        document.getElementById('tc-brent').textContent = `$${parseFloat(tc[0].usd_precio_brent).toFixed(2)}`;
+      }
+
+      // Noticias por categoría
+      for (const cat of ['estatal','nacional','internacional']) {
+        const { data: noticias } = await supabaseClient
+          .from('boletin_noticias').select('*').eq('categoria', cat).eq('fecha_publicacion', hoy).limit(3);
+        renderNoticias(cat, noticias || []);
+      }
+    }
+
+    function renderNoticias(categoria, noticias) {
+      const el = document.getElementById(`noticias-${categoria}`);
+      if (!noticias.length) {
+        el.innerHTML = `<p class="text-xs text-slate-400 text-center py-3">Sin noticias hoy. <button onclick="actualizarBoletin()" class="text-red-600 underline font-bold">Cargar</button></p>`;
+        return;
+      }
+      el.innerHTML = noticias.map(n => `
+        <a href="${n.url || '#'}" target="_blank" rel="noopener"
+          class="block p-3 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all group">
+          <p class="text-xs font-bold text-slate-700 group-hover:text-red-700 leading-snug line-clamp-2 mb-1">${n.titulo}</p>
+          ${n.resumen ? `<p class="text-[11px] text-slate-400 leading-snug line-clamp-2">${n.resumen}</p>` : ''}
+          <p class="text-[10px] font-bold text-slate-300 uppercase tracking-widest mt-1">${n.fuente || ''}</p>
+        </a>
+      `).join('<hr class="border-slate-100">');
+    }
+
+    async function actualizarBoletin() {
+      const btn = document.getElementById('btn-actualizar-boletin');
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
+      btn.disabled = true;
+      try {
+        await fetch(`https://bgqlvkvlscujikhzzazf.supabase.co/functions/v1/actualizar-boletin`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY }
+        });
+        await cargarBoletin();
+      } catch(e) { console.error(e); }
+      btn.innerHTML = '<i class="fas fa-rotate-right"></i> Actualizar ahora';
+      btn.disabled = false;
+    }
+
+    // Cargar al inicio
+    cargarBoletin();
   </script>
 </body>
 </html>
