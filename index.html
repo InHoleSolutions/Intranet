@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -49,6 +48,7 @@
                   </li>
                   <li class="nav__item"><a class="nav__item-link" href="productos-equipos-terminacion-pozos.html">Terminación de
                       pozos</a></li>
+                  <li class="nav__item"><a class="nav__item-link" href="Intranet-Web/venta-equipos-herramientas.html">Venta de Equipos / Herramientas</a></li>
                 </ul>
               </li>
               
@@ -466,6 +466,215 @@
 
   </div><!-- /.wrapper -->
 
+  <!-- ===== PANEL FLOTANTE: BUCKING UNIT ===== -->
+  <style>
+    @keyframes slideIn {
+      from { transform: translateX(150px); opacity: 0; }
+      to   { transform: translateX(0);     opacity: 1; }
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.5); }
+      50%       { box-shadow: 0 0 0 10px rgba(192,57,43,0); }
+    }
+    @keyframes badgeBlink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.5; }
+    }
+
+    #panelBuckingUnit {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 300px;
+      background: linear-gradient(145deg, #1a1a1a, #2c2c2c);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      z-index: 9999;
+      overflow: hidden;
+      animation: slideIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
+                pulse 2.5s ease-in-out 0.6s infinite;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    #panelBuckingUnit .panel-imagen {
+      width: 100%;
+      height: 130px;
+      object-fit: cover;
+      display: block;
+      opacity: 0.75;
+    }
+
+    #panelBuckingUnit .panel-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: #c0392b;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      animation: badgeBlink 2s ease-in-out infinite;
+    }
+
+    #panelBuckingUnit .panel-cerrar {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.5);
+      border: none;
+      color: #fff;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    #panelBuckingUnit .panel-cerrar:hover {
+      background: #c0392b;
+    }
+
+    #panelBuckingUnit .panel-body {
+      padding: 16px 18px 18px;
+    }
+
+    #panelBuckingUnit .panel-titulo {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0 0 6px;
+    }
+
+    #panelBuckingUnit .panel-desc {
+      font-size: 12px;
+      color: #aaaaaa;
+      margin: 0 0 14px;
+      line-height: 1.6;
+    }
+
+    #panelBuckingUnit .panel-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #c0392b, #e74c3c);
+      color: #fff;
+      border: none;
+      padding: 11px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-transform: uppercase;
+    }
+    #panelBuckingUnit .panel-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(192,57,43,0.5);
+    }
+
+    /* Modal */
+    #modalFicha {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(4px);
+    }
+    #modalFicha .modal-inner {
+      background: #fff;
+      width: 90%;
+      max-width: 900px;
+      height: 88vh;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: slideIn 0.3s ease forwards;
+    }
+    #modalFicha .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px;
+      border-bottom: 1px solid #eee;
+      background: #1a1a1a;
+    }
+    #modalFicha .modal-header strong {
+      color: #fff;
+      font-size: 15px;
+    }
+    #modalFicha .modal-cerrar {
+      background: #c0392b;
+      border: none;
+      color: #fff;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+
+  <div id="panelBuckingUnit">
+    <!-- Imagen superior -->
+    <img src="assets/images/product/Bucking_Unit.png" class="panel-imagen" alt="Bucking Unit">
+
+    <!-- Badge parpadeante -->
+    <span class="panel-badge">⚡ Equipo en Venta</span>
+
+    <!-- Botón cerrar -->
+    <button class="panel-cerrar" onclick="cerrarPanel()">✕</button>
+
+    <!-- Cuerpo -->
+    <div class="panel-body">
+      <h4 class="panel-titulo">Bucking Unit</h4>
+      <p class="panel-desc">Equipo especializado para apriete y desapriete de conexiones tubulares. Disponible para adquisición inmediata.</p>
+      <button class="panel-btn" onclick="abrirFichaTecnica()">
+        📄 Ver Ficha Técnica
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal PDF -->
+  <div id="modalFicha">
+    <div class="modal-inner">
+      <div class="modal-header">
+        <strong>📄 Ficha Técnica — Bucking Unit</strong>
+        <button class="modal-cerrar" onclick="cerrarModal()">✕</button>
+      </div>
+      <iframe
+        src="assets/docs/OP-FT-IHS-01 Ficha Tecnica  Maquina de Torque Movil.pdf"
+        style="flex:1; border:none; width:100%;">
+      </iframe>
+    </div>
+  </div>
+
+  <script>
+    function abrirFichaTecnica() {
+      document.getElementById('modalFicha').style.display = 'flex';
+    }
+    function cerrarModal() {
+      document.getElementById('modalFicha').style.display = 'none';
+    }
+    function cerrarPanel() {
+      document.getElementById('panelBuckingUnit').style.display = 'none';
+    }
+    document.getElementById('modalFicha').addEventListener('click', function(e) {
+      if (e.target === this) cerrarModal();
+    });
+  </script>
+
   <script src="assets/js/jquery-3.3.1.min.js"></script>
   <script src="assets/js/plugins.js"></script>
   <script src="assets/js/main.js"></script>
@@ -500,16 +709,66 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    window.addEventListener('load', function() {
+    window.addEventListener('load', async function () {
       const { createClient } = supabase;
       const sb = createClient(
         'https://bgqlvkvlscujikhzzazf.supabase.co',
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJncWx2a3Zsc2N1amlraHp6YXpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NzA0OTQsImV4cCI6MjA5NDM0NjQ5NH0.RuNCaTgjTN1mTA6kkjfXwz05epUYzARqGj8L3I2v350'
       );
-      sb.from('visitas_index').insert([{}]).then(({ data, error }) => {
+
+      try {
+        // 1. IP + geolocalización
+        const geoRes = await fetch('https://ipapi.co/json/');
+        const geo    = await geoRes.json();
+
+        // 2. Dispositivo
+        const ua = navigator.userAgent;
+        let dispositivo = 'Escritorio';
+        if (/Mobi|Android|iPhone|iPad|iPod/i.test(ua))
+          dispositivo = /iPad/i.test(ua) ? 'Tablet' : 'Móvil';
+
+        // 3. Navegador
+        let navegador = 'Desconocido';
+        if      (/Edg/i.test(ua))        navegador = 'Edge';
+        else if (/OPR|Opera/i.test(ua))  navegador = 'Opera';
+        else if (/Chrome/i.test(ua))     navegador = 'Chrome';
+        else if (/Safari/i.test(ua))     navegador = 'Safari';
+        else if (/Firefox/i.test(ua))    navegador = 'Firefox';
+
+        // 4. Sistema operativo
+        let sistema_os = 'Desconocido';
+        if      (/Windows/i.test(ua))     sistema_os = 'Windows';
+        else if (/Mac OS X/i.test(ua))    sistema_os = 'macOS';
+        else if (/Android/i.test(ua))     sistema_os = 'Android';
+        else if (/iPhone|iPad/i.test(ua)) sistema_os = 'iOS';
+        else if (/Linux/i.test(ua))       sistema_os = 'Linux';
+
+        // 5. Insertar con todos los datos
+        const { error } = await sb.from('visitas_index').insert([{
+          ip:          geo.ip            || null,
+          pais:        geo.country_name  || null,
+          ciudad:      geo.city          || null,
+          region:      geo.region        || null,
+          dispositivo,
+          navegador,
+          sistema_os,
+          idioma:    navigator.language  || null,
+          referrer:  document.referrer   || 'Directo',
+          pagina:    window.location.pathname
+        }]);
+
         if (error) console.error('ERROR VISITA:', error);
         else console.log('VISITA REGISTRADA OK');
-      });
+
+      } catch (err) {
+        // Si falla la geo, guarda la visita igual pero sin esos datos
+        await sb.from('visitas_index').insert([{
+          dispositivo: 'Desconocido',
+          navegador:   'Desconocido',
+          pagina:      window.location.pathname
+        }]);
+        console.warn('Visita sin geo:', err);
+      }
     });
   </script>
 
