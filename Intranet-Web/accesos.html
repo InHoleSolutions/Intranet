@@ -9,7 +9,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: 'Inter', sans-serif; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      background-image: radial-gradient(circle, #e31e2412 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
 
     /* Animación entrada */
     @keyframes fadeUp {
@@ -21,6 +26,7 @@
     /* Filas de tabla */
     .user-row { transition: background 0.15s; }
     .user-row:hover { background: #fff5f5; }
+    .user-row.activa { background: #fff1f1; box-shadow: inset 3px 0 0 #e31e24; }
 
     /* Badge roles */
     .badge-admin    { background:#fee2e2; color:#991b1b; }
@@ -44,44 +50,125 @@
     /* Spinner */
     @keyframes spin { to { transform: rotate(360deg); } }
     .spinner { animation: spin 0.7s linear infinite; }
+
+    /* Skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Shimmer en botón */
+    .btn-shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-shimmer::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+      animation: shimmer-btn 3s ease-in-out infinite;
+    }
+    @keyframes shimmer-btn {
+      0%   { left: -100%; }
+      50%  { left: 150%; }
+      100% { left: 150%; }
+    }
+
+    /* Buscador animado */
+    #buscador-wrap {
+      transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+    #buscador:focus ~ .search-icon i {
+      color: #e31e24;
+    }
+    #buscador-wrap:focus-within {
+      transform: scaleX(1.02);
+      transform-origin: left;
+    }
+    #buscador-wrap:focus-within .search-icon i {
+      color: #e31e24;
+      transform: scale(1.2);
+    }
+    .search-icon i {
+      transition: all 0.2s ease;
+    }
+    /* Contador de resultados */
+    #resultado-count {
+      transition: all 0.3s ease;
+    }
+
+    /* Header gradiente animado */
+    @keyframes gradiente-move {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .header-animated {
+      background: linear-gradient(135deg, #ffffff, #fff5f5, #ffffff, #fff1f1);
+      background-size: 400% 400%;
+      animation: gradiente-move 8s ease infinite;
+    }
+    .header-line {
+      height: 3px;
+      background: linear-gradient(90deg, #e31e24, #ff6b6b, #e31e24, #b91c1c);
+      background-size: 200% 100%;
+      animation: shimmer-btn 2s linear infinite;
+    }
   </style>
 </head>
 <body class="bg-[#f8fafc] min-h-screen">
 
   <!-- ── HEADER ── -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-50" style="backdrop-filter:blur(10px);">
+  <header class="header-animated border-b border-red-100 sticky top-0 z-50 shadow-sm">
     <div class="max-w-[1440px] mx-auto px-6 h-20 flex justify-between items-center">
+      <!-- Izquierda -->
       <div class="flex items-center gap-6">
-        <a href="dashboard.html" class="flex items-center gap-3 text-slate-400 hover:text-red-600 transition-colors text-sm font-semibold">
-          <i class="fas fa-arrow-left"></i>
+        <a href="dashboard.html" class="group flex items-center gap-2 text-slate-400 hover:text-red-600 transition-all text-sm font-semibold">
+          <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 group-hover:border-red-200 group-hover:bg-red-50 flex items-center justify-center transition-all shadow-sm">
+            <i class="fas fa-arrow-left text-xs"></i>
+          </div>
           <span class="hidden sm:inline">Volver</span>
         </a>
         <div class="h-6 w-px bg-slate-200"></div>
         <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center">
-            <i class="fas fa-users-cog text-[#e31e24] text-sm"></i>
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center shadow-md shadow-red-200">
+            <i class="fas fa-users-cog text-white text-sm"></i>
           </div>
           <div>
-            <p class="text-slate-800 font-bold text-sm leading-none">Gestión de Usuarios</p>
-            <p class="text-slate-400 text-xs mt-0.5">Administración de accesos · In Hole Solutions</p>
+            <p class="text-slate-800 font-black text-sm leading-none tracking-tight">Gestión de Usuarios</p>
+            <p class="text-slate-400 text-xs mt-0.5">Administración de accesos · <span class="text-red-400 font-semibold">In Hole Solutions</span></p>
           </div>
         </div>
       </div>
+      <!-- Derecha -->
       <div class="flex items-center gap-3">
-        <span class="hidden sm:flex items-center gap-2 text-xs font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100">
-          <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+        <div class="hidden sm:flex items-center gap-2 text-xs font-semibold text-emerald-600 bg-white px-3 py-2 rounded-xl border border-emerald-100 shadow-sm">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
           Conectado a la Base de Datos
-        </span>
-        <button onclick="cerrarSesion()" class="w-9 h-9 rounded-xl bg-slate-50 border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all flex items-center justify-center">
+        </div>
+        <button onclick="cerrarSesion()" title="Cerrar sesión"
+          class="w-9 h-9 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 hover:border-red-200 transition-all flex items-center justify-center shadow-sm">
           <i class="fas fa-sign-out-alt text-sm"></i>
         </button>
       </div>
     </div>
+    <!-- Línea roja animada -->
+    <div class="header-line"></div>
   </header>
 
   <!-- ── MAIN ── -->
   <main class="max-w-[1440px] mx-auto px-6 py-10">
-
     <!-- Título + botón nuevo -->
     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 fade-up">
       <div>
@@ -89,38 +176,82 @@
         <h1 class="text-3xl font-black text-slate-800 tracking-tight">Usuarios de la Intranet</h1>
         <p class="text-slate-400 text-sm mt-1">Crea, edita y controla el acceso del equipo.</p>
       </div>
-      <button onclick="abrirModal()" class="flex items-center gap-2 bg-[#e31e24] hover:bg-red-700 text-white font-bold px-5 py-3 rounded-xl transition-all shadow-lg shadow-red-200 hover:shadow-red-300 hover:-translate-y-0.5 text-sm">
+      <button onclick="abrirModal()" class="btn-shimmer flex items-center gap-2 bg-[#e31e24] hover:bg-red-700 text-white font-bold px-5 py-3 rounded-xl transition-all shadow-lg shadow-red-200 hover:shadow-red-300 hover:-translate-y-0.5 text-sm">
         <i class="fas fa-plus"></i> Nuevo Usuario
       </button>
     </div>
-
     <!-- Tarjetas resumen -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 fade-up" style="animation-delay:0.05s">
-      <div class="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-        <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Total usuarios</p>
-        <p class="text-4xl font-black text-slate-800" id="stat-total">—</p>
+      <div class="stat-card group bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden relative">
+        <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-slate-300 to-slate-400 rounded-l-2xl"></div>
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-slate-50 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Total usuarios</p>
+            <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+              <i class="fas fa-users text-slate-400 text-xs"></i>
+            </div>
+          </div>
+          <p class="text-4xl font-black text-slate-800 leading-none" id="stat-total">—</p>
+          <p class="text-xs text-slate-400 mt-2">en la intranet</p>
+        </div>
       </div>
-      <div class="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-        <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Administradores</p>
-        <p class="text-4xl font-black text-red-600" id="stat-admins">—</p>
+
+      <div class="stat-card group bg-white rounded-2xl border border-red-100 p-5 shadow-sm hover:shadow-lg hover:shadow-red-100 hover:-translate-y-1 transition-all duration-300 overflow-hidden relative">
+        <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-red-400 to-red-600 rounded-l-2xl"></div>
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-red-50 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-[10px] font-black uppercase tracking-widest text-red-400">Administradores</p>
+            <div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
+              <i class="fas fa-shield-halved text-red-400 text-xs"></i>
+            </div>
+          </div>
+          <p class="text-4xl font-black text-red-600 leading-none" id="stat-admins">—</p>
+          <p class="text-xs text-red-300 mt-2">con acceso total</p>
+        </div>
       </div>
-      <div class="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-        <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Activos hoy</p>
-        <p class="text-4xl font-black text-emerald-600" id="stat-activos">—</p>
+
+      <div class="stat-card group bg-white rounded-2xl border border-emerald-100 p-5 shadow-sm hover:shadow-lg hover:shadow-emerald-100 hover:-translate-y-1 transition-all duration-300 overflow-hidden relative">
+        <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-l-2xl"></div>
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-[10px] font-black uppercase tracking-widest text-emerald-500">Activos hoy</p>
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <i class="fas fa-circle-check text-emerald-500 text-xs"></i>
+            </div>
+          </div>
+          <p class="text-4xl font-black text-emerald-600 leading-none" id="stat-activos">—</p>
+          <p class="text-xs text-emerald-400 mt-2">últimas 24 horas</p>
+        </div>
       </div>
-      <div class="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-        <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Sin rol asignado</p>
-        <p class="text-4xl font-black text-amber-500" id="stat-sinrol">—</p>
+
+      <div class="stat-card group bg-white rounded-2xl border border-amber-100 p-5 shadow-sm hover:shadow-lg hover:shadow-amber-100 hover:-translate-y-1 transition-all duration-300 overflow-hidden relative">
+        <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-amber-400 to-amber-500 rounded-l-2xl"></div>
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-amber-50 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-[10px] font-black uppercase tracking-widest text-amber-500">Sin rol</p>
+            <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+              <i class="fas fa-triangle-exclamation text-amber-400 text-xs"></i>
+            </div>
+          </div>
+          <p class="text-4xl font-black text-amber-500 leading-none" id="stat-sinrol">—</p>
+          <p class="text-xs text-amber-400 mt-2">sin asignar</p>
+        </div>
       </div>
     </div>
-
     <!-- Buscador + filtro -->
     <div class="flex flex-col sm:flex-row gap-3 mb-5 fade-up" style="animation-delay:0.1s">
-      <div class="relative flex-1">
-        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-sm"></i>
+      <div id="buscador-wrap" class="relative flex-1">
+        <div class="search-icon absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+          <i class="fas fa-search text-slate-300 text-sm"></i>
+        </div>
         <input id="buscador" type="text" placeholder="Buscar por nombre, correo o puesto..."
-          class="inp w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-700 placeholder-slate-300"
+          class="inp w-full pl-10 pr-28 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-700 placeholder-slate-300"
           oninput="filtrarTabla()">
+        <div id="resultado-count" class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-300 pointer-events-none"></div>
       </div>
       <select id="filtro-rol" class="inp bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-600 font-medium" onchange="filtrarTabla()">
         <option value="">Todos los roles</option>
@@ -130,7 +261,6 @@
         <option value="Operaciones">Operaciones</option>
       </select>
     </div>
-
     <!-- Tabla -->
     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden fade-up" style="animation-delay:0.15s">
       <div class="table-wrap overflow-x-auto">
@@ -141,28 +271,81 @@
               <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Correo</th>
               <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Puesto</th>
               <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Rol</th>
+              <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Último acceso</th>
               <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Creado</th>
               <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Acciones</th>
             </tr>
           </thead>
           <tbody id="tabla-usuarios">
-            <tr>
-              <td colspan="6" class="px-6 py-16 text-center text-slate-300">
-                <i class="fas fa-circle-notch spinner text-2xl block mx-auto mb-3"></i>
-                <span class="text-sm">Cargando usuarios...</span>
-              </td>
-            </tr>
           </tbody>
         </table>
       </div>
     </div>
-
   </main>
+
+  <!-- ── MODAL CONTRASEÑA ── -->
+  <div id="modal-password" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4" style="backdrop-filter:blur(6px); background:rgba(15,23,42,0.6);">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden" style="animation: fadeUp 0.3s cubic-bezier(0.175,0.885,0.32,1.275) forwards;">
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-amber-500 to-amber-400 px-6 pt-6 pb-5 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-8 translate-x-8"></div>
+        <div class="flex items-center gap-3 relative z-10">
+          <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+            <i class="fas fa-key text-white"></i>
+          </div>
+          <div>
+            <p class="text-white font-black text-base leading-none">Contraseña de acceso</p>
+            <p class="text-white/70 text-xs mt-1" id="pass-nombre-label">—</p>
+          </div>
+        </div>
+      </div>
+      <!-- Cuerpo -->
+      <div class="px-6 py-5 space-y-4">
+        <!-- Contraseña actual -->
+        <div>
+          <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Contraseña actual</label>
+          <div class="relative">
+            <input id="pass-actual" type="password" readonly
+              class="w-full border border-slate-200 rounded-xl px-4 py-2.5 pr-12 text-sm text-slate-700 bg-slate-50 font-mono tracking-widest">
+            <button type="button" onclick="togglePassModal('pass-actual', 'ojo-actual')"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-amber-500 transition-colors">
+              <i id="ojo-actual" class="fas fa-eye text-sm"></i>
+            </button>
+          </div>
+        </div>
+        <!-- Nueva contraseña -->
+        <div>
+          <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Nueva contraseña <span class="text-slate-300 normal-case font-normal">(opcional)</span></label>
+          <div class="relative">
+            <input id="pass-nueva" type="password" placeholder="Mínimo 8 caracteres"
+              class="inp w-full border border-slate-200 rounded-xl px-4 py-2.5 pr-12 text-sm text-slate-700 bg-slate-50">
+            <button type="button" onclick="togglePassModal('pass-nueva', 'ojo-nueva')"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-amber-500 transition-colors">
+              <i id="ojo-nueva" class="fas fa-eye text-sm"></i>
+            </button>
+          </div>
+        </div>
+        <!-- Error -->
+        <div id="pass-error" class="hidden bg-red-50 border border-red-100 text-red-600 text-xs px-4 py-3 rounded-xl flex items-center gap-2">
+          <i class="fas fa-circle-exclamation"></i>
+          <span id="pass-error-texto"></span>
+        </div>
+      </div>
+      <!-- Footer -->
+      <div class="px-6 pb-6 flex gap-3">
+        <button onclick="cerrarModalPassword()" class="flex-1 border border-slate-200 text-slate-500 font-bold py-2.5 rounded-xl hover:bg-slate-50 transition-all text-sm">
+          Cerrar
+        </button>
+        <button onclick="guardarNuevaPassword()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl transition-all text-sm shadow-lg shadow-amber-200 flex items-center justify-center gap-2">
+          <i class="fas fa-floppy-disk"></i> Actualizar
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- ── MODAL USUARIO ── -->
   <div id="modal-usuario" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden" style="animation: fadeUp 0.3s cubic-bezier(0.175,0.885,0.32,1.275) forwards;">
-
       <!-- Header modal -->
       <div class="bg-gradient-to-r from-[#b91c1c] to-[#e31e24] p-6 flex items-center justify-between relative overflow-hidden">
         <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-12 translate-x-12"></div>
@@ -180,24 +363,20 @@
           <i class="fas fa-times text-sm"></i>
         </button>
       </div>
-
       <!-- Cuerpo modal -->
       <div class="p-6 space-y-4">
-
         <!-- Nombre -->
         <div>
           <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Nombre completo</label>
           <input id="f-nombre" type="text" placeholder="Ej. Juan Pérez García"
             class="inp w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 bg-slate-50">
         </div>
-
         <!-- Puesto -->
         <div>
           <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Puesto</label>
           <input id="f-puesto" type="text" placeholder="Ej. Técnico de Campo"
             class="inp w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 bg-slate-50">
         </div>
-
         <!-- Rol -->
         <div>
           <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Rol</label>
@@ -208,12 +387,11 @@
             <option value="Operaciones">Operaciones</option>
           </select>
         </div>
-
         <!-- Correo y contraseña (solo al crear) -->
         <div id="campos-auth">
           <div class="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 flex gap-3 mb-4">
             <i class="fas fa-triangle-exclamation text-amber-400 mt-0.5 flex-shrink-0"></i>
-            <p class="text-xs text-amber-700 leading-relaxed">El correo y contraseña se usarán para crear la cuenta en Supabase Auth. El usuario podrá iniciar sesión con estos datos.</p>
+            <p class="text-xs text-amber-700 leading-relaxed">El correo y contraseña se usarán para crear la cuenta. El usuario podrá iniciar sesión con estos datos.</p>
           </div>
           <div class="space-y-4">
             <div>
@@ -222,7 +400,7 @@
                 class="inp w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 bg-slate-50">
             </div>
             <div>
-              <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Contraseña temporal</label>
+              <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Contraseña</label>
               <div class="relative">
                 <input id="f-password" type="password" placeholder="Mínimo 8 caracteres"
                   class="inp w-full border border-slate-200 rounded-xl px-4 py-2.5 pr-12 text-sm text-slate-700 bg-slate-50">
@@ -233,15 +411,12 @@
             </div>
           </div>
         </div>
-
         <!-- Error -->
         <div id="modal-error" class="hidden bg-red-50 border border-red-100 text-red-600 text-xs px-4 py-3 rounded-xl flex items-center gap-2">
           <i class="fas fa-circle-exclamation"></i>
           <span id="modal-error-texto"></span>
         </div>
-
       </div>
-
       <!-- Footer modal -->
       <div class="px-6 pb-6 flex gap-3">
         <button onclick="cerrarModal()" class="flex-1 border border-slate-200 text-slate-500 font-bold py-3 rounded-xl hover:bg-slate-50 transition-all text-sm">
@@ -252,7 +427,6 @@
           <span id="btn-guardar-texto">Crear Usuario</span>
         </button>
       </div>
-
     </div>
   </div>
 
@@ -266,6 +440,17 @@
 
     let todosLosUsuarios = [];
 
+    function limpiarFiltros() {
+      document.getElementById('buscador').value = '';
+      document.getElementById('filtro-rol').value = '';
+      document.getElementById('resultado-count').textContent = '';
+      renderTabla(todosLosUsuarios);
+    }
+
+    function seleccionarFila(fila) {
+      document.querySelectorAll('.user-row').forEach(f => f.classList.remove('activa'));
+      fila.classList.add('activa');
+    }
     // ── INIT ──
     async function init() {
       const { data: { session } } = await supabaseClient.auth.getSession();
@@ -282,9 +467,25 @@
 
       cargarUsuarios();
     }
-
     // ── CARGAR USUARIOS ──
     async function cargarUsuarios() {
+      // Mostrar skeleton mientras carga
+      document.getElementById('tabla-usuarios').innerHTML = [1,2,3,4].map(() => `
+        <tr class="border-b border-slate-50">
+          <td class="px-6 py-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-xl bg-slate-200 skeleton"></div><div class="space-y-2"><div class="h-3 w-32 bg-slate-200 rounded-full skeleton"></div><div class="h-2 w-20 bg-slate-100 rounded-full skeleton"></div></div></div></td>
+          <td class="px-6 py-4"><div class="h-3 w-40 bg-slate-200 rounded-full skeleton"></div></td>
+          <td class="px-6 py-4"><div class="h-3 w-24 bg-slate-200 rounded-full skeleton"></div></td>
+          <td class="px-6 py-4"><div class="h-6 w-20 bg-slate-200 rounded-full skeleton"></div></td>
+          <td class="px-6 py-4"><div class="h-5 w-16 bg-slate-200 rounded-full skeleton"></div></td>
+          <td class="px-6 py-4"><div class="h-3 w-20 bg-slate-200 rounded-full skeleton"></div></td>
+          <td class="px-6 py-4"><div class="flex justify-end gap-2"><div class="w-8 h-8 rounded-lg bg-slate-200 skeleton"></div><div class="w-8 h-8 rounded-lg bg-slate-200 skeleton"></div><div class="w-8 h-8 rounded-lg bg-slate-200 skeleton"></div></div></td>
+        </tr>`).join('');
+        // Traer last_sign_in_at de Auth
+        let authUsers = [];
+        try {
+          const { data: lista } = await supabaseClient.auth.admin.listUsers();
+          authUsers = lista?.users || [];
+        } catch(e) { authUsers = []; }
       const { data, error } = await supabaseClient
         .from('perfiles')
         .select('*')
@@ -299,34 +500,88 @@
         return;
       }
 
-      todosLosUsuarios = data || [];
+      todosLosUsuarios = (data || []).map(u => {
+        const authUser = authUsers.find(a => a.id === u.id);
+        return { ...u, last_sign_in_at: authUser?.last_sign_in_at || null };
+      });
       actualizarEstadisticas(todosLosUsuarios);
       renderTabla(todosLosUsuarios);
     }
-
     // ── ESTADÍSTICAS ──
-    function actualizarEstadisticas(usuarios) {
-      document.getElementById('stat-total').textContent   = usuarios.length;
-      document.getElementById('stat-admins').textContent  = usuarios.filter(u => ['admin','administrador','Administrador'].includes(u.rol)).length;
-      document.getElementById('stat-activos').textContent = usuarios.filter(u => u.updated_at && new Date(u.updated_at) > new Date(Date.now() - 86400000)).length;
-      document.getElementById('stat-sinrol').textContent  = usuarios.filter(u => !u.rol || u.rol.trim() === '').length;
+    function contarAnimar(id, hasta, duracion = 800) {
+      const el = document.getElementById(id);
+      const inicio = performance.now();
+      function frame(ahora) {
+        const progreso = Math.min((ahora - inicio) / duracion, 1);
+        const ease = 1 - Math.pow(1 - progreso, 3);
+        el.textContent = Math.floor(ease * hasta);
+        if (progreso < 1) requestAnimationFrame(frame);
+        else el.textContent = hasta;
+      }
+      requestAnimationFrame(frame);
     }
 
+    function actualizarEstadisticas(usuarios) {
+      contarAnimar('stat-total',   usuarios.length);
+      contarAnimar('stat-admins',  usuarios.filter(u => ['admin','administrador','Administrador'].includes(u.rol)).length, 900);
+      contarAnimar('stat-activos', usuarios.filter(u => u.updated_at && new Date(u.updated_at) > new Date(Date.now() - 86400000)).length, 1000);
+      contarAnimar('stat-sinrol',  usuarios.filter(u => !u.rol || u.rol.trim() === '').length, 1100);
+    }
     // ── RENDER TABLA ──
     function renderTabla(usuarios) {
       const tbody = document.getElementById('tabla-usuarios');
 
       if (usuarios.length === 0) {
+        const buscando = document.getElementById('buscador').value || document.getElementById('filtro-rol').value;
         tbody.innerHTML = `
-          <tr><td colspan="6" class="px-6 py-16 text-center text-slate-300">
-            <i class="fas fa-users-slash text-3xl block mx-auto mb-3"></i>
-            <span class="text-sm">No se encontraron usuarios</span>
+          <tr><td colspan="7" class="px-6 py-14 text-center">
+            <div style="animation: fadeUp 0.4s ease forwards;">
+
+              ${buscando ? `
+              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-4">
+                <circle cx="40" cy="40" r="38" fill="#fff1f1" stroke="#fecaca" stroke-width="2"/>
+                <circle cx="36" cy="34" r="12" stroke="#e31e24" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="45" y1="43" x2="56" y2="54" stroke="#e31e24" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="30" y1="30" x2="42" y2="38" stroke="#fca5a5" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+              </svg>
+              <p class="text-slate-700 font-black text-base mb-1">Sin resultados</p>
+              <p class="text-slate-400 text-sm">Ningún usuario coincide con tu búsqueda.<br>Intenta con otro nombre, correo o rol.</p>
+              <button onclick="limpiarFiltros()" class="mt-4 text-xs font-bold text-red-500 hover:text-red-700 underline underline-offset-2 transition-colors">
+                Limpiar filtros
+              </button>`
+
+              : `
+              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-4">
+                <circle cx="40" cy="40" r="38" fill="#fff1f1" stroke="#fecaca" stroke-width="2"/>
+                <circle cx="40" cy="32" r="10" stroke="#e31e24" stroke-width="2.5"/>
+                <path d="M20 60c0-11 9-18 20-18s20 7 20 18" stroke="#e31e24" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="52" y1="22" x2="58" y2="16" stroke="#fca5a5" stroke-width="2" stroke-linecap="round"/>
+                <line x1="58" y1="22" x2="52" y2="16" stroke="#fca5a5" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <p class="text-slate-700 font-black text-base mb-1">Sin usuarios registrados</p>
+              <p class="text-slate-400 text-sm">Aún no hay nadie en la intranet.<br>Crea el primer usuario con el botón de arriba.</p>
+              <button onclick="abrirModal()" class="mt-4 inline-flex items-center gap-2 bg-[#e31e24] text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md shadow-red-200 hover:bg-red-700 transition-all">
+                <i class="fas fa-plus"></i> Nuevo Usuario
+              </button>`}
+
+            </div>
           </td></tr>`;
         return;
       }
 
       tbody.innerHTML = usuarios.map(u => {
         const iniciales = (u.nombre_completo || '?').split(' ').map(p => p[0]).slice(0,2).join('').toUpperCase();
+        const coloresAvatar = [
+          'from-violet-500 to-purple-700',
+          'from-blue-500 to-blue-700',
+          'from-emerald-500 to-emerald-700',
+          'from-amber-500 to-orange-600',
+          'from-pink-500 to-rose-700',
+          'from-cyan-500 to-teal-700',
+          'from-indigo-500 to-indigo-700',
+          'from-red-500 to-red-700',
+        ];
+        const colorAvatar = coloresAvatar[(u.nombre_completo || '').charCodeAt(0) % coloresAvatar.length];
         const rol       = (u.rol || '').toLowerCase();
         const badgeClass = rol.includes('admin') ? 'badge-admin' :
                            rol.includes('qhse')  ? 'badge-qhse'  :
@@ -335,10 +590,10 @@
         const fecha      = u.created_at ? new Date(u.created_at).toLocaleDateString('es-MX', { day:'2-digit', month:'short', year:'numeric' }) : '—';
 
         return `
-        <tr class="user-row border-b border-slate-50" data-nombre="${(u.nombre_completo||'').toLowerCase()}" data-correo="${(u.correo||'').toLowerCase()}" data-puesto="${(u.puesto||'').toLowerCase()}" data-rol="${(u.rol||'').toLowerCase()}">
+        <tr class="user-row border-b border-slate-50 cursor-pointer" onclick="seleccionarFila(this)" data-nombre="${(u.nombre_completo||'').toLowerCase()}" data-correo="${(u.correo||'').toLowerCase()}" data-puesto="${(u.puesto||'').toLowerCase()}" data-rol="${(u.rol||'').toLowerCase()}">
           <td class="px-6 py-4">
             <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-white text-xs font-black flex-shrink-0">${iniciales}</div>
+              <div class="w-9 h-9 rounded-xl bg-gradient-to-br ${colorAvatar} flex items-center justify-center text-white text-xs font-black flex-shrink-0">${iniciales}</div>
               <div>
                 <p class="text-sm font-bold text-slate-700 leading-none">${u.nombre_completo || '—'}</p>
                 <p class="text-xs text-slate-400 mt-0.5">${u.puesto || 'Sin puesto'}</p>
@@ -358,11 +613,30 @@
           <td class="px-6 py-4">
             <span class="text-[11px] font-black uppercase tracking-wide px-3 py-1 rounded-full ${badgeClass}">${rolLabel}</span>
           </td>
+          <td class="px-6 py-4">
+            ${u.last_sign_in_at ? (() => {
+              const diff = Date.now() - new Date(u.last_sign_in_at).getTime();
+              const dias = Math.floor(diff / 86400000);
+              const horas = Math.floor(diff / 3600000);
+              const mins = Math.floor(diff / 60000);
+              const label = mins < 60 ? `hace ${mins}m` : horas < 24 ? `hace ${horas}h` : `hace ${dias}d`;
+              const color = dias < 1 ? 'text-emerald-600 bg-emerald-50 border-emerald-100' :
+                            dias < 7 ? 'text-amber-600 bg-amber-50 border-amber-100' :
+                                       'text-slate-400 bg-slate-50 border-slate-100';
+              const punto = dias < 1 ? 'bg-emerald-500' : dias < 7 ? 'bg-amber-400' : 'bg-slate-300';
+              return `<span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border ${color}">
+                <span class="w-1.5 h-1.5 rounded-full ${punto}"></span>${label}
+              </span>`;
+            })() : `<span class="text-xs text-slate-300 italic">Sin acceso</span>`}
+          </td>
           <td class="px-6 py-4 text-xs text-slate-400">${fecha}</td>
           <td class="px-6 py-4 text-right">
             <div class="flex items-center justify-end gap-2">
               <button onclick='abrirModal(${JSON.stringify(u)})' class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 text-slate-400 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 transition-all flex items-center justify-center" title="Editar">
                 <i class="fas fa-pen text-xs"></i>
+              </button>
+              <button onclick="verContrasena('${u.id}', '${(u.nombre_completo||'').replace(/'/g,'')}', '${(u.password_texto||'').replace(/'/g,'')}')" class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 text-slate-400 hover:text-amber-600 hover:bg-amber-50 hover:border-amber-200 transition-all flex items-center justify-center" title="Ver / Cambiar contraseña">
+                <i class="fas fa-key text-xs"></i>
               </button>
               <button onclick="confirmarEliminar('${u.id}', '${(u.nombre_completo||'').replace(/'/g,'')}')" class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 hover:border-red-200 transition-all flex items-center justify-center" title="Eliminar">
                 <i class="fas fa-trash text-xs"></i>
@@ -372,7 +646,6 @@
         </tr>`;
       }).join('');
     }
-
     // ── BUSCADOR Y FILTRO ──
     function filtrarTabla() {
       const texto = document.getElementById('buscador').value.toLowerCase();
@@ -388,8 +661,15 @@
       });
 
       renderTabla(filtrados);
+      // Contador de resultados
+      const count = document.getElementById('resultado-count');
+      if (texto || rol) {
+        count.textContent = `${filtrados.length} resultado${filtrados.length !== 1 ? 's' : ''}`;
+        count.style.color = filtrados.length === 0 ? '#ef4444' : '#e31e24';
+      } else {
+        count.textContent = '';
+      }
     }
-
     // ── ELIMINAR ──
     function confirmarEliminar(id, nombre) {
       // Crear modal de confirmación personalizado
@@ -450,26 +730,59 @@
         mostrarToast('Error al eliminar: ' + err.message, 'red');
       }
     }
-
     // ── TOAST ──
     function mostrarToast(msg, color = 'green') {
-      const colores = {
-        green: 'bg-emerald-500',
-        red:   'bg-red-500',
-        blue:  'bg-blue-500'
+      const config = {
+        green: { bg: 'bg-emerald-500', barra: 'bg-emerald-300', icono: 'fa-circle-check' },
+        red:   { bg: 'bg-red-500',     barra: 'bg-red-300',     icono: 'fa-circle-xmark' },
+        blue:  { bg: 'bg-blue-500',    barra: 'bg-blue-300',    icono: 'fa-circle-info'  }
       };
+      const c = config[color] || config.green;
+
+      // Eliminar toast anterior si existe
+      document.querySelectorAll('.ihs-toast').forEach(t => t.remove());
+
       const t = document.createElement('div');
-      t.className = `fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] ${colores[color]} text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-xl flex items-center gap-2 transition-all`;
-      t.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+      t.className = `ihs-toast fixed bottom-6 left-1/2 z-[300] ${c.bg} text-white rounded-2xl shadow-2xl overflow-hidden`;
+      t.style.cssText = 'transform: translateX(-50%) translateY(80px); opacity:0; transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275), opacity 0.3s ease; min-width: 280px;';
+
+      t.innerHTML = `
+        <div class="flex items-center gap-3 px-5 py-4">
+          <i class="fas ${c.icono} text-lg flex-shrink-0"></i>
+          <span class="text-sm font-semibold">${msg}</span>
+          <button onclick="this.closest('.ihs-toast').remove()" class="ml-auto text-white/60 hover:text-white transition-colors">
+            <i class="fas fa-times text-xs"></i>
+          </button>
+        </div>
+        <div class="h-1 w-full ${c.barra} opacity-60">
+          <div class="ihs-progress h-full bg-white/40" style="width:100%; transition: width 3s linear;"></div>
+        </div>`;
+
       document.body.appendChild(t);
-      setTimeout(() => t.remove(), 3000);
+      // Entrada
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          t.style.transform = 'translateX(-50%) translateY(0)';
+          t.style.opacity   = '1';
+          // Iniciar barra
+          setTimeout(() => {
+            const barra = t.querySelector('.ihs-progress');
+            if (barra) barra.style.width = '0%';
+          }, 50);
+        });
+      });
+      // Salida
+      setTimeout(() => {
+        t.style.transform = 'translateX(-50%) translateY(80px)';
+        t.style.opacity   = '0';
+        setTimeout(() => t.remove(), 400);
+      }, 3000);
     }
 
     async function cerrarSesion() {
       await supabaseClient.auth.signOut();
       window.location.href = 'intranet-login.html';
     }
-
     // ── MODAL ──
     let modoEdicion = false;
     let idEditando  = null;
@@ -556,12 +869,27 @@
           });
 
           if (authError) throw authError;
-
-          const { error: perfilError } = await supabaseClient
+          // Verificar si ya existe un perfil con ese id
+          const { data: perfilExistente } = await supabaseClient
             .from('perfiles')
-            .insert({ id: authData.user.id, nombre_completo: nombre, puesto, rol, correo: correo });
+            .select('id')
+            .eq('id', authData.user.id)
+            .single();
 
-          if (perfilError) throw perfilError;
+          if (perfilExistente) {
+            // Ya existe, solo actualiza
+            const { error: updateError } = await supabaseClient
+              .from('perfiles')
+              .update({ nombre_completo: nombre, puesto, rol, correo: correo })
+              .eq('id', authData.user.id);
+            if (updateError) throw updateError;
+          } else {
+            // No existe, inserta nuevo
+            const { error: perfilError } = await supabaseClient
+              .from('perfiles')
+              .insert({ id: authData.user.id, nombre_completo: nombre, puesto, rol, correo: correo });
+            if (perfilError) throw perfilError;
+          }
           mostrarToast('Usuario creado correctamente', 'green');
         }
 
@@ -575,14 +903,86 @@
         btn.innerHTML = `<i class="fas fa-save"></i> <span id="btn-guardar-texto">${modoEdicion ? 'Guardar Cambios' : 'Crear Usuario'}</span>`;
       }
     }
-
     // Cerrar modal al click fuera
     document.getElementById('modal-usuario').addEventListener('click', function(e) {
       if (e.target === this) cerrarModal();
     });
+    // ── MODAL CONTRASEÑA ──
+    let passUserId = null;
+
+    function verContrasena(id, nombre, passActual) {
+      passUserId = id;
+      document.getElementById('pass-nombre-label').textContent = nombre;
+      document.getElementById('pass-actual').value = passActual || '(sin contraseña guardada)';
+      document.getElementById('pass-nueva').value = '';
+      document.getElementById('pass-error').classList.add('hidden');
+      document.getElementById('modal-password').classList.remove('hidden');
+    }
+
+    function cerrarModalPassword() {
+      document.getElementById('modal-password').classList.add('hidden');
+      passUserId = null;
+    }
+
+    function togglePassModal(inputId, iconId) {
+      const inp  = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      const esPass = inp.type === 'password';
+      inp.type       = esPass ? 'text' : 'password';
+      icon.className = esPass ? 'fas fa-eye-slash text-sm' : 'fas fa-eye text-sm';
+    }
+
+    async function guardarNuevaPassword() {
+      const nueva = document.getElementById('pass-nueva').value.trim();
+      document.getElementById('pass-error').classList.add('hidden');
+
+      if (!nueva) {
+        document.getElementById('pass-error-texto').textContent = 'Escribe la nueva contraseña.';
+        document.getElementById('pass-error').classList.remove('hidden');
+        return;
+      }
+      if (nueva.length < 8) {
+        document.getElementById('pass-error-texto').textContent = 'La contraseña debe tener al menos 8 caracteres.';
+        document.getElementById('pass-error').classList.remove('hidden');
+        return;
+      }
+
+      const btn = document.querySelector('#modal-password button:last-child');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch spinner"></i> Guardando...';
+
+      try {
+        // 1. Actualizar en Supabase Auth
+        const { error: authError } = await supabaseClient.auth.admin.updateUserById(
+          passUserId, { password: nueva }
+        );
+        if (authError) throw authError;
+
+        // 2. Guardar contraseña en texto en tabla perfiles
+        const { error: dbError } = await supabaseClient
+          .from('perfiles')
+          .update({ password_texto: nueva })
+          .eq('id', passUserId);
+        if (dbError) throw dbError;
+
+        mostrarToast('Contraseña actualizada correctamente', 'green');
+        cerrarModalPassword();
+        cargarUsuarios();
+
+      } catch (err) {
+        document.getElementById('pass-error-texto').textContent = err.message;
+        document.getElementById('pass-error').classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-floppy-disk"></i> Actualizar';
+      }
+    }
+    // Cerrar al click fuera
+    document.getElementById('modal-password').addEventListener('click', function(e) {
+      if (e.target === this) cerrarModalPassword();
+    });
 
     init();
   </script>
-
 </body>
 </html>
