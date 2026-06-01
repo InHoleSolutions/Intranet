@@ -721,7 +721,6 @@
     }
 
     async function escucharVisitasEnVivo() {
-      // Obtener el ID de la última visita actual
       const { data } = await supabaseClient
         .from('visitas_index')
         .select('id')
@@ -730,7 +729,10 @@
 
       if (data && data.length > 0) ultimaVisitaId = data[0].id;
 
-      // Suscribirse a inserts nuevos
+      // Eliminar canal anterior si ya existe
+      const canalExistente = supabaseClient.getChannels().find(c => c.topic === 'realtime:visitas-live');
+      if (canalExistente) await supabaseClient.removeChannel(canalExistente);
+
       supabaseClient
         .channel('visitas-live')
         .on('postgres_changes', {
