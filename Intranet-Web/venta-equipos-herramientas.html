@@ -328,60 +328,7 @@
 </head>
 <body>
   <div class="wrapper">
-
-    <!-- Header -->
-    <header class="header header-transparent">
-      <nav class="navbar navbar-expand-lg sticky-navbar">
-        <div class="container-fluid">
-
-          <a class="navbar-brand logo-independiente" href="../index.html">
-            <img src="../assets/images/logo/logo-dark.svg" class="logo-dark" alt="logo">
-          </a>
-
-          <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#mainNavigation">
-            <span class="menu-lines"></span>
-          </button>
-
-          <div class="collapse navbar-collapse" id="mainNavigation">
-            <ul class="navbar-nav mr-auto ml-50">
-              <li class="nav__item">
-                <a href="../index.html" class="nav__item-link">Inicio</a>
-              </li>
-              <li class="nav__item">
-                <a href="../nosotros.html" class="nav__item-link">Nosotros</a>
-              </li>
-              <li class="nav__item with-dropdown">
-                <a href="javascript:void(0)" class="dropdown-toggle nav__item-link mobile-trigger">Productos</a>
-                <ul class="dropdown-menu">
-                  <li class="nav__item"><a class="nav__item-link" href="../productos-maquina-torsion-continua.html">Máquina de Torsión</a></li>
-                  <li class="nav__item"><a class="nav__item-link" href="../productos-equipos-flotacion.html">Equipos de Flotación</a></li>
-                  <li class="nav__item"><a class="nav__item-link" href="../productos-equipos-terminacion-pozos.html">Terminación de pozos</a></li>
-                  <li class="nav__item"><a class="nav__item-link active" href="venta-equipos-herramientas.html">Venta de Equipos / Herramientas</a></li>
-                </ul>
-              </li>
-              <li class="nav__item with-dropdown">
-                <a href="javascript:void(0)" class="dropdown-toggle nav__item-link mobile-trigger">Servicios</a>
-                <ul class="dropdown-menu">
-                  <li class="nav__item"><a href="#" class="nav__item-link">Apriete en banco horizontal</a></li>
-                  <li class="nav__item"><a href="#" class="nav__item-link">Calibración de equipos</a></li>
-                  <li class="nav__item"><a href="#" class="nav__item-link">Asistencia operativa</a></li>
-                </ul>
-              </li>
-              <li class="nav__item">
-                <a href="../contacto.php" class="nav__item-link">Contacto</a>
-              </li>
-            </ul>
-          </div>
-
-          <div class="acceso-empleados-fijo">
-            <a href="/Intranet-Web/intranet-login.html" class="btn-rojo-empleados">
-              <i class="fa fa-user-circle"></i> <span>Empleados</span>
-            </a>
-          </div>
-
-        </div>
-      </nav>
-    </header>
+    <div id="header-componente"></div>
     <!-- HERO -->
     <section class="veh-hero">
       <div>
@@ -517,72 +464,7 @@
         if (e.target === document.getElementById('modalEquipo')) cerrarModal();
       }
     </script>
-    <!-- Footer -->
-    <footer class="footer" id="footer">
-      <div class="footer-top">
-        <div class="container">
-          <div class="row">
-
-            <!-- Columna 1: Contacto -->
-            <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 footer__widget footer__widget-about">
-              <div class="footer__widget-content">
-                <p>Soporte Operativo y Comercial<br>
-                  Soluciones especializadas para la industria Oil &amp; Gas.<br><br>
-                  contacto@inholesolutions.com
-                </p>
-                <h6 class="footer__widget-title">
-                  <img src="../assets/images/sliders/24-7.png" alt="24/7 Service" style="max-width: 200px; margin-top: 20px;">
-                </h6>
-              </div>
-            </div>
-
-            <!-- Columna 2: Cumplimiento y Políticas -->
-            <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4 footer__widget footer__widget-nav">
-              <h6 class="footer__widget-title">Cumplimiento y Políticas</h6>
-              <div class="footer__widget-content">
-                <nav>
-                  <ul class="list-unstyled">
-                    <li><a href="../assets/docs/Política de ética empresarial IHS.pdf">Código de Ética Empresarial</a></li>
-                    <li><a href="../assets/docs/Política Esclavitud Moderna IHS.pdf">Declaración sobre Esclavitud Moderna</a></li>
-                    <li><a href="../assets/docs/Política de Calidad, Seguridad, Salud y Medio Ambiente.pdf">Política Integrada QHSE</a></li>
-                    <li><a href="../assets/docs/Aviso de Privacidad In Hole Solutions .pdf">Aviso de Privacidad</a></li>
-                  </ul>
-                </nav>
-              </div>
-            </div>
-
-            <!-- Columna 3: Línea de Ética -->
-            <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4 footer__widget footer__widget-newsletter">
-              <div class="footer__widget-content">
-                <h6 class="footer__widget-title">Linea de Ética</h6>
-                <p>Reportar conductas contrarias a las Políticas de In Hole Solutions o sus principios.</p>
-                <p class="footer__contact-phone">
-                  <i class="icon-arrow-right-2"></i>
-                  <a href="mailto:contacto@inholesolutions.com">Reportar</a>
-                </p>
-              </div>
-            </div>
-
-          </div><!-- /.row -->
-        </div><!-- /.container -->
-      </div><!-- /.footer-top -->
-
-      <div class="footer-bottom">
-        <div class="container">
-          <div class="row align-items-center">
-            <div class="col-sm-12 col-md-6 col-lg-6">
-              <div class="footer__copyright">
-                <p class="mb-0">&copy; 2026 In Hole Solutions</p>
-              </div>
-            </div>
-            <div class="col-sm-12 col-md-6 col-lg-6 text-right">
-              <img src="../assets/images/logo/logo-dark.svg" alt="logo" style="max-height: 70px;">
-            </div>
-          </div><!-- /.row -->
-        </div><!-- /.container -->
-      </div><!-- /.footer-bottom -->
-
-    </footer>
+    <div id="footer-componente"></div>
 
     <div class="module__search-container">
       <i class="fa fa-times close-search"></i>
@@ -618,6 +500,38 @@
       });
     });
   </script>
+  <script>
+    fetch('../header.html')
+  .then(res => res.text())
+  .then(html => {
+    document.getElementById('header-componente').innerHTML = html;
 
-</body>
+    // Ahora sí el header existe, activamos los triggers
+    const triggers = document.querySelectorAll('.mobile-trigger');
+    triggers.forEach(trigger => {
+      trigger.addEventListener('click', function (e) {
+        if (window.innerWidth < 992) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const subMenu = this.closest('.nav__item').querySelector('.dropdown-menu');
+
+          if (subMenu.classList.contains('show')) {
+            subMenu.classList.remove('show');
+          } else {
+            document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+            subMenu.classList.add('show');
+          }
+        }
+      });
+    });
+  });
+
+    fetch('../footer.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('footer-componente').innerHTML = html;
+      });
+  </script>
+  </body>
 </html>
