@@ -558,8 +558,8 @@
       );
 
       try {
-        // 1. IP + geolocalización
-        const geoRes = await fetch('https://ipapi.co/json/');
+        // 1. Obtener IP + datos de geolocalización
+        const geoRes = await fetch('https://ipwho.is/');
         const geo    = await geoRes.json();
 
         // 2. Dispositivo
@@ -586,10 +586,10 @@
 
         // 5. Insertar con todos los datos
         const { error } = await sb.from('visitas_index').insert([{
-          ip:          geo.ip            || null,
-          pais:        geo.country_name  || null,
-          ciudad:      geo.city          || null,
-          region:      geo.region        || null,
+          ip:          geo.ip                || null,
+          pais:        geo.country           || null,
+          ciudad:      geo.city              || null,
+          region:      geo.region            || null,
           dispositivo,
           navegador,
           sistema_os,

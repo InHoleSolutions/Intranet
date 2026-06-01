@@ -372,6 +372,26 @@
         </div>
       </div>
 
+      <!-- Gráfica de países -->
+      <div class="mt-10">
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-xs font-black uppercase tracking-widest text-slate-400">
+            <i class="fas fa-earth-americas mr-2"></i>Visitas por país
+          </p>
+          <button onclick="toggleGraficaPaises()"
+            class="text-xs font-black uppercase tracking-widest bg-[#e31e24] text-white px-4 py-2 rounded-xl hover:bg-red-700 transition-all">
+            <i class="fas fa-chart-bar mr-2"></i>Ver gráfica
+          </button>
+        </div>
+        <div id="grafica-paises" class="hidden bg-slate-50 rounded-2xl border border-slate-100 p-6">
+          <div class="relative">
+            <img src="../assets/images/logo/logo-dark.svg" alt="Logo"
+              class="absolute top-3 left-3 h-8 opacity-100 pointer-events-none z-10">
+            <canvas id="canvas-paises" style="max-height: 220px;"></canvas>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
   <!-- ── MODAL PDF ── -->
@@ -456,6 +476,7 @@
   </div>
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     const { createClient } = supabase;
     const supabaseClient = createClient(
@@ -516,7 +537,8 @@
         { count: countAyer },
         { data: ultimaVisita },
         { data: visitas7dias },
-        { data: todasVisitas }
+        { data: todasVisitas },
+        { data: datosDesglose }
       ] = await Promise.all([
         supabaseClient.from('visitas_index').select('*', { count: 'exact', head: true }).gte('created_at', inicioMes).lte('created_at', finMes),
         supabaseClient.from('visitas_index').select('*', { count: 'exact', head: true }).gte('created_at', inicioHoy).lte('created_at', finHoy),
@@ -524,7 +546,8 @@
         supabaseClient.from('visitas_index').select('*', { count: 'exact', head: true }).gte('created_at', inicioAyer).lte('created_at', finAyer),
         supabaseClient.from('visitas_index').select('created_at').order('created_at', { ascending: false }).limit(1),
         supabaseClient.from('visitas_index').select('created_at').gte('created_at', new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() - 6).toISOString()),
-        supabaseClient.from('visitas_index').select('created_at, ip, ciudad, pais, dispositivo, navegador, sistema_os, referrer').order('created_at', { ascending: false }).limit(50)
+        supabaseClient.from('visitas_index').select('created_at, ip, ciudad, pais, dispositivo, navegador, sistema_os, referrer').order('created_at', { ascending: false }).limit(5),
+        supabaseClient.from('visitas_index').select('dispositivo, navegador, pais')
       ]);
 
       // ── Animación contadores ──
@@ -631,9 +654,8 @@
       }
 
       // ── Desgloses ──
-      if (todasVisitas && todasVisitas.length > 0) {
-
-        const agrupar = (campo) => todasVisitas.reduce((acc, v) => {
+      if (datosDesglose && datosDesglose.length > 0) {
+        const agrupar = (campo) => datosDesglose.reduce((acc, v) => {
           const key = v[campo] || 'Desconocido';
           acc[key] = (acc[key] || 0) + 1;
           return acc;
@@ -672,6 +694,113 @@
       }).join('');
     }
 
+    let ultimaVisitaId = null;
+    let toastTimeout   = null;
+
+    function cerrarToast() {
+      const toast = document.getElementById('toast-visita');
+      toast.classList.add('hidden');
+      if (toastTimeout) clearTimeout(toastTimeout);
+    }
+
+    function mostrarToast(visita) {
+      const toast   = document.getElementById('toast-visita');
+      const detalle = document.getElementById('toast-detalle');
+      const extra   = document.getElementById('toast-extra');
+
+      const ciudad = visita.ciudad || visita.pais || 'Ubicación desconocida';
+      const device = [visita.dispositivo, visita.navegador].filter(Boolean).join(' · ');
+
+      detalle.textContent = ciudad;
+      extra.textContent   = device || 'Dispositivo desconocido';
+
+      toast.classList.remove('hidden');
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(cerrarToast, 6000);
+    }
+
+    async function escucharVisitasEnVivo() {
+      // Obtener el ID de la última visita actual
+      const { data } = await supabaseClient
+        .from('visitas_index')
+        .select('id')
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (data && data.length > 0) ultimaVisitaId = data[0].id;
+
+      // Suscribirse a inserts nuevos
+      supabaseClient
+        .channel('visitas-live')
+        .on('postgres_changes', {
+          event:  'INSERT',
+          schema: 'public',
+          table:  'visitas_index'
+        }, (payload) => {
+          if (payload.new.id !== ultimaVisitaId) {
+            ultimaVisitaId = payload.new.id;
+            mostrarToast(payload.new);
+            cargarVisitas();
+          }
+        })
+        .subscribe();
+    }
+
+    let graficaPaisesInstance = null;
+
+    function toggleGraficaPaises() {
+      const contenedor = document.getElementById('grafica-paises');
+      const btn = event.currentTarget;
+      if (contenedor.classList.contains('hidden')) {
+        contenedor.classList.remove('hidden');
+        btn.innerHTML = '<i class="fas fa-eye-slash mr-2"></i>Ocultar gráfica';
+        renderGraficaPaises();
+      } else {
+        contenedor.classList.add('hidden');
+        btn.innerHTML = '<i class="fas fa-chart-bar mr-2"></i>Ver gráfica';
+      }
+    }
+
+    function renderGraficaPaises() {
+      const contenedor = document.getElementById('desglose-paises');
+      const items = contenedor.querySelectorAll('div > div:first-child span:first-child');
+      const counts = contenedor.querySelectorAll('div > div:first-child span:last-child');
+
+      const labels = [...items].map(el => el.textContent.trim());
+      const data   = [...counts].map(el => parseInt(el.textContent.trim()));
+
+      if (graficaPaisesInstance) graficaPaisesInstance.destroy();
+
+      const ctx = document.getElementById('canvas-paises').getContext('2d');
+      graficaPaisesInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Visitas',
+            data,
+            backgroundColor: [
+              '#e31e24', '#2563eb', '#16a34a', '#d97706', '#7c3aed',
+              '#0891b2', '#db2777', '#65a30d', '#ea580c', '#6366f1'
+            ].slice(0, labels.length),
+            borderRadius: 8,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: { font: { family: 'inherit', size: 12 }, padding: 16 }
+            }
+          }
+        }
+      });
+    }
+
     async function cargarDatos() {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) { window.location.href = "intranet-login.html"; return; }
@@ -692,6 +821,7 @@
           document.getElementById('panel-visitas').classList.remove('hidden');
           document.getElementById('card-accesos').classList.remove('hidden');
           cargarVisitas();
+          escucharVisitasEnVivo();
         }
         // Si el rol NO está en la lista, la tarjeta permanece oculta (hidden por defecto)
       }
@@ -1228,5 +1358,23 @@
     cargarBoletin();
     cargarGraficaHistorica();
   </script>
+
+  <!-- Toast visita en tiempo real -->
+  <div id="toast-visita" class="fixed bottom-6 right-6 z-[200] hidden">
+    <div class="bg-slate-900 text-white rounded-2xl shadow-2xl p-4 flex items-center gap-4 min-w-[280px] max-w-[340px] border border-slate-700">
+      <div class="h-10 w-10 rounded-xl bg-[#e31e24] flex items-center justify-center flex-shrink-0">
+        <i class="fas fa-user text-white text-sm"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-black uppercase tracking-widest text-[#e31e24] mb-0.5">Nueva visita</p>
+        <p id="toast-detalle" class="text-sm font-semibold text-white truncate">—</p>
+        <p id="toast-extra" class="text-xs text-slate-400 truncate">—</p>
+      </div>
+      <button onclick="cerrarToast()" class="text-slate-500 hover:text-white transition-colors flex-shrink-0">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+
 </body>
 </html>
