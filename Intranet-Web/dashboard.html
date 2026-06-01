@@ -36,9 +36,10 @@
     .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
     #boletin-panel::-webkit-scrollbar { width: 4px; }
-  #boletin-panel::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-  #boletin-panel::-webkit-scrollbar-track { background: transparent; }
+    #boletin-panel::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    #boletin-panel::-webkit-scrollbar-track { background: transparent; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body class="bg-[#f8fafc] min-h-screen">
   <!-- ── HEADER ── -->
@@ -136,6 +137,25 @@
             <p class="text-[9px] font-bold uppercase text-blue-600 tracking-wider mb-1">Brent</p>
             <p id="tc-brent" class="text-lg font-black text-blue-700">—</p>
           </div>
+        </div>
+        <!-- Alerta de precio -->
+        <div id="alerta-precio" class="hidden"></div>
+      </div>
+
+      <!-- Gráfica histórica -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Precios últimos 7 días</p>
+        <canvas id="graficaPrecios" height="120"></canvas>
+        <div class="flex items-center justify-center gap-4 mt-2">
+          <span class="flex items-center gap-1 text-[10px] font-bold text-amber-600">
+            <span class="w-3 h-1 bg-amber-400 rounded inline-block"></span> WTI
+          </span>
+          <span class="flex items-center gap-1 text-[10px] font-bold text-blue-600">
+            <span class="w-3 h-1 bg-blue-400 rounded inline-block"></span> Brent
+          </span>
+          <span class="flex items-center gap-1 text-[10px] font-bold text-emerald-600">
+            <span class="w-3 h-1 bg-emerald-400 rounded inline-block"></span> USD/MXN
+          </span>
         </div>
       </div>
 
@@ -1011,25 +1031,164 @@
       scrollChat();
     }
 
+    let graficaInstance = null;
+
+    async function cargarGraficaHistorica() {
+      const { data } = await supabaseClient
+        .from('precios_historicos')
+        .select('fecha, wti, brent, usd_mxn')
+        .order('fecha', { ascending: true })
+        .limit(7);
+
+      if (!data || data.length === 0) return;
+
+      const labels = data.map(d => {
+        const fecha = new Date(d.fecha + 'T12:00:00');
+        return fecha.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
+      });
+      const wtiData = data.map(d => d.wti);
+      const brentData = data.map(d => d.brent);
+      const usdData = data.map(d => d.usd_mxn);
+
+      const ctx = document.getElementById('graficaPrecios').getContext('2d');
+      if (graficaInstance) graficaInstance.destroy();
+
+      graficaInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'WTI',
+              data: wtiData,
+              borderColor: '#f59e0b',
+              backgroundColor: 'rgba(245,158,11,0.08)',
+              borderWidth: 2,
+              pointRadius: 3,
+              pointBackgroundColor: '#f59e0b',
+              tension: 0.4,
+              fill: true,
+              yAxisID: 'yPetroleo'
+            },
+            {
+              label: 'Brent',
+              data: brentData,
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59,130,246,0.08)',
+              borderWidth: 2,
+              pointRadius: 3,
+              pointBackgroundColor: '#3b82f6',
+              tension: 0.4,
+              fill: true,
+              yAxisID: 'yPetroleo'
+            },
+            {
+              label: 'USD/MXN',
+              data: usdData,
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16,185,129,0.08)',
+              borderWidth: 2,
+              pointRadius: 3,
+              pointBackgroundColor: '#10b981',
+              tension: 0.4,
+              fill: true,
+              yAxisID: 'yDolar'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => `${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}`
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { font: { size: 9 }, color: '#94a3b8' },
+              grid: { display: false }
+            },
+            yPetroleo: {
+              type: 'linear',
+              position: 'left',
+              ticks: { font: { size: 9 }, color: '#94a3b8', callback: val => `$${val}` },
+              grid: { color: 'rgba(0,0,0,0.04)' }
+            },
+            yDolar: {
+              type: 'linear',
+              position: 'right',
+              ticks: { font: { size: 9 }, color: '#10b981', callback: val => `$${val}` },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+
     // ══ BOLETÍN PETRÓLEO & GAS ══
     async function cargarBoletin() {
-      const hoy = new Date().toISOString().split("T")[0];
+      const ahora = new Date();
+      const hoy = new Date(ahora.getTime() - ahora.getTimezoneOffset() * 60000)
+        .toISOString().split("T")[0];
       document.getElementById('boletin-fecha').textContent =
         new Date().toLocaleDateString('es-MX', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 
       // Tipo de cambio
       const { data: tc } = await supabaseClient
-        .from('tipo_cambio').select('*').eq('fecha', hoy).order('created_at', { ascending: false }).limit(1);
+        .from('tipo_cambio').select('*').order('created_at', { ascending: false }).limit(1);
+
+      // Si WTI/Brent vienen nulos, tomar del historial
+      if (tc && tc.length > 0 && (!tc[0].usd_precio_wti || isNaN(tc[0].usd_precio_wti))) {
+        const { data: hist } = await supabaseClient
+          .from('precios_historicos')
+          .select('wti, brent')
+          .order('fecha', { ascending: false })
+          .limit(1);
+        if (hist && hist.length > 0) {
+          tc[0].usd_precio_wti = hist[0].wti;
+          tc[0].usd_precio_brent = hist[0].brent;
+        }
+      }
       if (tc && tc.length > 0) {
-        document.getElementById('tc-usd').textContent = `$${parseFloat(tc[0].usd_mxn).toFixed(2)}`;
-        document.getElementById('tc-wti').textContent = `$${parseFloat(tc[0].usd_precio_wti).toFixed(2)}`;
-        document.getElementById('tc-brent').textContent = `$${parseFloat(tc[0].usd_precio_brent).toFixed(2)}`;
+        const d = tc[0];
+
+        function tendencia(actual, anterior) {
+          if (!anterior) return '';
+          const diff = (actual - anterior).toFixed(2);
+          const color = actual > anterior ? 'text-red-500' : 'text-emerald-500';
+          const flecha = actual > anterior ? '▲' : '▼';
+          return `<span class="text-[10px] font-bold ${color} block">${flecha} ${Math.abs(diff)}</span>`;
+        }
+
+        document.getElementById('tc-usd').innerHTML = 
+          `$${parseFloat(d.usd_mxn).toFixed(2)}${tendencia(d.usd_mxn, d.usd_mxn_anterior)}`;
+        document.getElementById('tc-wti').innerHTML = 
+          `$${parseFloat(d.usd_precio_wti).toFixed(2)}${tendencia(d.usd_precio_wti, d.wti_anterior)}`;
+        document.getElementById('tc-brent').innerHTML = 
+          `$${parseFloat(d.usd_precio_brent).toFixed(2)}${tendencia(d.usd_precio_brent, d.brent_anterior)}`;
+
+        // ── PUNTO 1: Alerta de precio ──
+        const alertaEl = document.getElementById('alerta-precio');
+        const cambioWTI = d.wti_anterior ? Math.abs(d.usd_precio_wti - d.wti_anterior) : 0;
+        const cambioBrent = d.brent_anterior ? Math.abs(d.usd_precio_brent - d.brent_anterior) : 0;
+        
+        if (cambioWTI >= 2 || cambioBrent >= 2) {
+          const tipo = (d.usd_precio_wti > d.wti_anterior) ? '📈 ALZA' : '📉 BAJA';
+          const color = (d.usd_precio_wti > d.wti_anterior) ? 'bg-red-600' : 'bg-emerald-600';
+          alertaEl.className = `${color} text-white text-xs font-bold px-4 py-3 rounded-xl flex items-center gap-2`;
+          alertaEl.innerHTML = `<span class="text-lg">⚠️</span> ${tipo} SIGNIFICATIVA: WTI ${tipo === '📈 ALZA' ? '+' : '-'}$${cambioWTI.toFixed(2)} hoy`;
+          alertaEl.classList.remove('hidden');
+        }
       }
 
       // Noticias por categoría
       for (const cat of ['estatal','nacional','internacional']) {
         const { data: noticias } = await supabaseClient
-          .from('boletin_noticias').select('*').eq('categoria', cat).eq('fecha_publicacion', hoy).limit(3);
+          .from('boletin_noticias').select('*').eq('categoria', cat).order('fecha_publicacion', { ascending: false }).limit(3);
         renderNoticias(cat, noticias || []);
       }
     }
@@ -1067,6 +1226,7 @@
 
     // Cargar al inicio
     cargarBoletin();
+    cargarGraficaHistorica();
   </script>
 </body>
 </html>
