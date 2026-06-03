@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cased Hole Completions — In Hole Solutions</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: 'Inter', sans-serif; }
@@ -170,6 +172,7 @@
       /* Headers de bloque más pequeños */
       .block-header h2 { font-size: 16px; }
     }
+    #site-header { min-height: 80px; display: block; position: sticky; top: 0; z-index: 60; }
   </style>
 </head>
 <body class="bg-[#f8fafc] min-h-screen">
@@ -733,11 +736,38 @@
 </script>
 
 <script>
-  fetch('header.html')
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById('site-header').innerHTML = html;
-    });
+  const { createClient } = supabase;
+  const sb = createClient(
+    'https://bgqlvkvlscujikhzzazf.supabase.co',
+    'sb_publishable_mzHMY11jZ7OaMES008LTzA_d7Ya1A2g'
+  );
+
+  async function cerrarSesion() {
+    await sb.auth.signOut();
+    window.location.href = '../index.html';
+  }
+
+  async function init() {
+    // Cargar header
+    const res = await fetch('header.html');
+    const html = await res.text();
+    document.getElementById('site-header').innerHTML = html;
+
+    // Verificar sesión
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = 'intranet-login.html'; return; }
+
+    // Traer perfil de Supabase
+    const { data: perfil } = await sb.from('perfiles').select('*').eq('id', session.user.id).single();
+    if (perfil) {
+      const hora = new Date().getHours();
+      const saludo = hora < 12 ? 'Buenos días' : hora < 19 ? 'Buenas tardes' : 'Buenas noches';
+      const el = document.getElementById('user-welcome');
+      if (el) el.innerText = `${saludo}, ${perfil.nombre_completo}`;
+    }
+  }
+
+  init();
 </script>
 
 </body>

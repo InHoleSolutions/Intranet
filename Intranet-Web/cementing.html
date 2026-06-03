@@ -119,28 +119,12 @@
     .bg-entrada {
         animation: fadeInBg 0.25s ease both;
     }
+    #site-header { min-height: 80px; display: block; position: sticky; top: 0; z-index: 60; }
   </style>
 </head>
 <body class="bg-[#f8fafc] min-h-screen">
     <!-- HEADER -->
-  <header class="bg-white sticky top-0 z-[60] glass-nav shadow-[0_2px_20px_rgba(0,0,0,0.08)] border-b-2 border-[#e31e24]">
-    <div class="max-w-[1440px] mx-auto px-6 h-20 flex justify-between items-center">
-      <div class="flex items-center gap-8 cursor-pointer" onclick="window.location='dashboard.html'">
-        <img src="../assets/images/logo/logo-dark.svg" alt="In Hole Solutions" class="h-12 md:h-20 w-auto">
-        <div class="hidden md:block h-8 w-[1px] bg-gradient-to-b from-transparent via-slate-300 to-transparent"></div>
-        <span class="hidden md:block text-slate-500 font-medium text-sm tracking-wide uppercase">Intranet Corporativa</span>
-      </div>
-      <div class="flex items-center gap-6">
-        <div class="text-right hidden sm:block">
-          <p id="user-welcome" class="text-slate-800 font-semibold text-sm">Cargando...</p>
-          <p class="text-slate-400 text-xs font-medium uppercase tracking-tighter">Cementing</p>
-        </div>
-        <a href="dashboard.html" class="bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-600 h-10 w-10 rounded-xl border border-slate-200 transition-all flex items-center justify-center shadow-sm" title="Volver al dashboard">
-          <i class="fas fa-arrow-left"></i>
-        </a>
-      </div>
-    </div>
-  </header>
+  <div id="site-header"></div>
   <!-- MAIN -->
   <main class="max-w-[1440px] mx-auto p-6 md:p-10">
     <!-- TÍTULO DE PÁGINA -->
@@ -714,15 +698,19 @@
     }
 
     async function cargarUsuario() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
+        // Cargar header
+        const res = await fetch('header.html');
+        const html = await res.text();
+        document.getElementById('site-header').innerHTML = html;
+        const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session) { window.location.href = 'intranet-login.html'; return; }
 
         const { data: perfil } = await supabaseClient
             .from('perfiles').select('nombre_completo').eq('id', session.user.id).single();
 
         if (perfil) {
-            document.getElementById('user-welcome').textContent =
-            `${obtenerSaludo()}, ${perfil.nombre_completo}`;
+            const welcomeEl = document.getElementById('user-welcome');
+            if (welcomeEl) welcomeEl.textContent = `${obtenerSaludo()}, ${perfil.nombre_completo}`;
         }
     }
 

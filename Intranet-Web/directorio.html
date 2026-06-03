@@ -31,25 +31,7 @@
 <body class="bg-[#f8fafc] min-h-screen flex flex-col">
 
   <!-- HEADER -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-[60] glass-nav">
-    <div class="max-w-[1440px] mx-auto px-6 h-20 flex justify-between items-center">
-      <a href="dashboard.html" class="flex items-center gap-8">
-        <img src="../assets/images/logo/logo-dark.svg" alt="In Hole Solutions" class="h-12 md:h-20 w-auto"
-             onerror="this.src='../assets/images/logo/logo-dark.png'">
-        <div class="hidden md:block h-8 w-[1px] bg-slate-200"></div>
-        <span class="hidden md:block text-slate-500 font-medium text-sm tracking-wide uppercase">Intranet Corporativa</span>
-      </a>
-      <div class="flex items-center gap-6">
-        <div class="text-right hidden sm:block">
-          <p id="user-welcome" class="text-slate-800 font-semibold text-sm">Cargando...</p>
-          <p class="text-slate-400 text-xs font-medium uppercase tracking-tighter">Miembro del Equipo</p>
-        </div>
-        <button onclick="cerrarSesion()" class="bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-600 h-10 w-10 rounded-xl border border-slate-200 transition-all flex items-center justify-center shadow-sm">
-          <i class="fas fa-sign-out-alt"></i>
-        </button>
-      </div>
-    </div>
-  </header>
+  <div id="site-header"></div>
 
   <!-- NAV -->
   <nav class="bg-red-700 shadow-lg sticky top-20 z-50">
@@ -132,10 +114,18 @@
       'sb_publishable_mzHMY11jZ7OaMES008LTzA_d7Ya1A2g'
     );
     async function init() {
+      const res = await fetch('header.html');
+      const html = await res.text();
+      document.getElementById('site-header').innerHTML = html;
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) { window.location.href = 'intranet-login.html'; return; }
       const { data: perfil } = await supabaseClient.from('perfiles').select('nombre_completo').eq('id', session.user.id).single();
-      if (perfil) document.getElementById('user-welcome').innerText = perfil.nombre_completo;
+      if (perfil) {
+        const hora = new Date().getHours();
+        const saludo = hora < 12 ? 'Buenos días' : hora < 19 ? 'Buenas tardes' : 'Buenas noches';
+        const welcomeEl = document.getElementById('user-welcome');
+        if (welcomeEl) welcomeEl.innerText = `${saludo}, ${perfil.nombre_completo}`;
+      }
     }
     async function cerrarSesion() { await supabaseClient.auth.signOut(); window.location.href = '../index.html'; }
     init();

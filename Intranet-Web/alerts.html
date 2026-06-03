@@ -117,35 +117,17 @@
       transition: opacity 0.3s ease;
     }
     #cellPanelBackdrop.open { opacity: 1; pointer-events: all; }
+
+    #site-header { min-height: 80px; display: block; }
   </style>
 </head>
 <body class="bg-[#f8fafc] min-h-screen">
 
 <!-- ── HEADER ── -->
-<header class="bg-white border-b border-slate-200 sticky top-0 z-[60] glass-nav">
-  <div class="max-w-[1440px] mx-auto px-6 h-20 flex justify-between items-center">
-    <a href="dashboard.html" class="flex items-center gap-8 cursor-pointer">
-      <img src="../assets/images/logo/logo-dark.svg" alt="In Hole Solutions" class="h-12 md:h-20 w-auto">
-      <div class="hidden md:block h-8 w-[1px] bg-slate-200"></div>
-      <span class="hidden md:block text-slate-500 font-medium text-sm tracking-wide uppercase">Intranet Corporativa</span>
-    </a>
-    <div class="flex items-center gap-6">
-      <div class="text-right hidden sm:block">
-        <p id="user-welcome" class="text-slate-800 font-semibold text-sm">Cargando...</p>
-        <p class="text-slate-400 text-xs font-medium uppercase tracking-tighter">Miembro del Equipo</p>
-      </div>
-      <a href="dashboard.html" class="bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-700 h-10 w-10 rounded-xl border border-slate-200 transition-all flex items-center justify-center shadow-sm" title="Volver al Dashboard">
-        <i class="fas fa-arrow-left text-sm"></i>
-      </a>
-      <button onclick="cerrarSesion()" class="bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-600 h-10 w-10 rounded-xl border border-slate-200 transition-all flex items-center justify-center shadow-sm">
-        <i class="fas fa-sign-out-alt"></i>
-      </button>
-    </div>
-  </div>
-</header>
+<div id="site-header"></div>
 
 <!-- ── NAV ── -->
-<nav class="bg-red-700 shadow-lg sticky top-20 z-50">
+<nav class="bg-red-700 shadow-lg fixed w-full z-50" id="topbar">
   <div class="max-w-[1440px] mx-auto px-6 h-14 flex items-center gap-2 text-xs font-bold text-white/70 uppercase tracking-widest">
     <a href="dashboard.html" class="hover:text-white transition-colors">Dashboard</a>
     <span class="opacity-40">/</span>
@@ -154,7 +136,7 @@
 </nav>
 
 <!-- ── MAIN ── -->
-<main class="max-w-[1440px] mx-auto p-6 md:p-10">
+<main class="max-w-[1440px] mx-auto p-6 md:p-10 mt-[56px]">
 
   <!-- BREADCRUMB dinámico -->
   <div id="breadcrumb" class="flex items-center gap-1 text-xs font-semibold text-slate-400 uppercase tracking-widest mb-8">
@@ -497,14 +479,17 @@ let estadoActual = { mes: null, anio: null };
 
 /* ─── INICIO ─── */
 async function init() {
+  const res = await fetch('header.html');
+  const html = await res.text();
+  document.getElementById('site-header').innerHTML = html;
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) { window.location.href = 'intranet-login.html'; return; }
 
   const { data: perfil } = await supabaseClient
     .from('perfiles').select('*').eq('id', session.user.id).single();
   if (perfil) {
-    document.getElementById('user-welcome').innerText =
-      `${obtenerSaludo()}, ${perfil.nombre_completo}`;
+    const welcomeEl = document.getElementById('user-welcome');
+    if (welcomeEl) welcomeEl.innerText = `${obtenerSaludo()}, ${perfil.nombre_completo}`;
   }
 
   cargarEstadisticas();
@@ -1279,7 +1264,7 @@ async function descargarGrafica(tipo) {
   `;
 
   // 4. Logo (usamos el mismo src que el header)
-  const logoSrc = document.querySelector('header img')?.src || '';
+  const logoSrc = document.querySelector('#site-header img')?.src || '../assets/images/logo/logo-dark.svg';
 
   wrapper.innerHTML = `
     <!-- Encabezado con logo y empresa -->
@@ -1364,6 +1349,27 @@ async function descargarGrafica(tipo) {
 }
 
 init();
+</script>
+
+<script>
+  const topbar = document.getElementById('topbar');
+  const header = document.getElementById('site-header');
+
+  function posicionarTopbar() {
+    const headerH = header.getBoundingClientRect().bottom;
+    if (headerH > 0) {
+      // Header visible — topbar justo debajo
+      topbar.style.top = headerH + 'px';
+    } else {
+      // Header fuera de vista — topbar se oculta
+      topbar.style.top = '-200px';
+    }
+  }
+
+  window.addEventListener('scroll', posicionarTopbar);
+  window.addEventListener('resize', posicionarTopbar);
+  // Esperar a que el header cargue
+  setTimeout(posicionarTopbar, 300);
 </script>
 </body>
 </html>
