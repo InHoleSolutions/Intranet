@@ -22,10 +22,8 @@
   <video id="slider3" autoplay loop muted>
     <source src="assets/images/sliders/Video360.mp4" type="video/mp4">
   </video>
-
   <!-- Contenedor fijo con título, subtítulo y cuadros -->
   <div class="slider-contenido">
-
     <!-- Título -->
     <h2 class="slide__title2" id="q1" style="display: block; text-align: center;">
       <br>
@@ -47,17 +45,14 @@
         <img src="assets/images/sliders/herramientas.png">
       </li>
     </ul>
-
   </div>
 </section>
-
-    <!-- ========================
+<!-- ========================
   About Layout 2
 =========================== -->
 <section id="aboutLayout2">
   <div class="container">
     <div class="row align-items-center">
-
       <!-- Columna izquierda: texto -->
       <div class="col-12 col-lg-6 about-texto-col">
 
@@ -71,7 +66,6 @@
           Nuestras líneas especializadas en servicios de apriete con máquina de torsión continua en banco horizontal, pruebas hidrostáticas y completación de pozos respaldan operaciones eficientes y confiables para el sector energético.
         </p>
       </div>
-
       <!-- Columna derecha: imagen -->
       <div class="col-12 col-lg-6 about-imagen-col">
         <div class="about-imagen-wrapper">
@@ -82,12 +76,9 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </section>
-
-
 <!-- ========================
   <section id="franjaNumeros">
     <div class="container">
@@ -305,9 +296,6 @@
                   </a>
                 </div><!-- /.portfolio-content -->
               </div><!-- /.portfolio-item -->
-				
-              
-              
             </div><!-- /.carousel -->
           </div><!-- /.col-lg-12 -->
         </div><!-- /.row -->
@@ -325,7 +313,6 @@
     </section>
 ========================== -->
 <div id="footer-componente"></div>
-
     <div class="module__search-container">
       <i class="fa fa-times close-search"></i>
       <form class="module__search-form">
@@ -333,7 +320,6 @@
         <button class="module__search-btn"><i class="fa fa-search"></i></button>
       </form>
     </div><!-- /.module-search-container -->
-
   </div><!-- /.wrapper -->
 
   <!-- ===== PANEL FLOTANTE: BUCKING UNIT ===== -->
@@ -446,7 +432,6 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 16px rgba(192,57,43,0.5);
     }
-
     /* Modal */
     #modalFicha {
       display: none;
@@ -499,13 +484,10 @@
   <div id="panelBuckingUnit">
     <!-- Imagen superior -->
     <img src="assets/images/product/Bucking_Unit.png" class="panel-imagen" alt="Bucking Unit">
-
     <!-- Badge parpadeante -->
     <span class="panel-badge">⚡ Equipo en Venta</span>
-
     <!-- Botón cerrar -->
     <button class="panel-cerrar" onclick="cerrarPanel()">✕</button>
-
     <!-- Cuerpo -->
     <div class="panel-body">
       <h4 class="panel-titulo">Bucking Unit</h4>
@@ -515,7 +497,6 @@
       </button>
     </div>
   </div>
-
   <!-- Modal PDF -->
   <div id="modalFicha">
     <div class="modal-inner">
@@ -556,18 +537,15 @@
         'https://bgqlvkvlscujikhzzazf.supabase.co',
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJncWx2a3Zsc2N1amlraHp6YXpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NzA0OTQsImV4cCI6MjA5NDM0NjQ5NH0.RuNCaTgjTN1mTA6kkjfXwz05epUYzARqGj8L3I2v350'
       );
-
       try {
         // 1. Obtener IP + datos de geolocalización
         const geoRes = await fetch('https://ipwho.is/');
         const geo    = await geoRes.json();
-
         // 2. Dispositivo
         const ua = navigator.userAgent;
         let dispositivo = 'Escritorio';
         if (/Mobi|Android|iPhone|iPad|iPod/i.test(ua))
           dispositivo = /iPad/i.test(ua) ? 'Tablet' : 'Móvil';
-
         // 3. Navegador
         let navegador = 'Desconocido';
         if      (/Edg/i.test(ua))        navegador = 'Edge';
@@ -575,7 +553,6 @@
         else if (/Chrome/i.test(ua))     navegador = 'Chrome';
         else if (/Safari/i.test(ua))     navegador = 'Safari';
         else if (/Firefox/i.test(ua))    navegador = 'Firefox';
-
         // 4. Sistema operativo
         let sistema_os = 'Desconocido';
         if      (/Windows/i.test(ua))     sistema_os = 'Windows';
@@ -583,7 +560,6 @@
         else if (/Android/i.test(ua))     sistema_os = 'Android';
         else if (/iPhone|iPad/i.test(ua)) sistema_os = 'iOS';
         else if (/Linux/i.test(ua))       sistema_os = 'Linux';
-
         // 5. Insertar con todos los datos
         const { error } = await sb.from('visitas_index').insert([{
           ip:          geo.ip                || null,
