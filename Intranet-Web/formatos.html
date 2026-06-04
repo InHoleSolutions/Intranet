@@ -27,6 +27,8 @@
       animation: pulse-ring 2s ease-out infinite;
     }
     #site-header { height: 80px; display: block; position: fixed; top: 0; left: 0; right: 0; z-index: 60; }
+    .scrollbar-none::-webkit-scrollbar { display: none; }
+    .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="bg-[#f8fafc] min-h-screen">
@@ -35,17 +37,6 @@
   <div id="site-header"></div>
 
 <div class="flex flex-col min-h-screen pt-[80px]">
-  <!-- NAV -->
-  <nav class="bg-red-700 shadow-lg sticky top-0 z-[59]">
-    <div class="max-w-[1440px] mx-auto px-6">
-      <div class="flex justify-center items-center h-14 gap-8">
-        <a href="politicas.html" class="px-5 text-[11px] md:text-xs font-bold text-white/90 hover:text-white hover:bg-white/10 uppercase tracking-widest py-4">Políticas</a>
-        <a href="#" class="px-5 text-[11px] md:text-xs font-bold text-white uppercase tracking-widest py-4 border-b-2 border-white">Alertas QHSE</a>
-        <a href="#" class="px-5 text-[11px] md:text-xs font-bold text-white/90 hover:text-white hover:bg-white/10 uppercase tracking-widest py-4">Mantenimiento</a>
-        <a href="#" class="px-5 text-[11px] md:text-xs font-bold text-white/90 hover:text-white hover:bg-white/10 uppercase tracking-widest py-4">Operaciones</a>
-      </div>
-    </div>
-  </nav>
 
   <!-- CONTENIDO -->
   <main class="flex-1 flex items-center justify-center px-4 py-16">
@@ -78,21 +69,21 @@
 
       <!-- Características próximas -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10 text-left">
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 md:p-5">
           <div class="w-9 h-9 bg-red-50 rounded-xl flex items-center justify-center mb-3">
             <i class="fas fa-download text-[#e31e24] text-sm"></i>
           </div>
           <p class="text-xs font-bold text-slate-700 mb-1">Descarga Rápida</p>
           <p class="text-xs text-slate-400 leading-relaxed">Accede a formatos en PDF y Excel con un clic.</p>
         </div>
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 md:p-5">
           <div class="w-9 h-9 bg-red-50 rounded-xl flex items-center justify-center mb-3">
             <i class="fas fa-folder-open text-[#e31e24] text-sm"></i>
           </div>
           <p class="text-xs font-bold text-slate-700 mb-1">Por Categoría</p>
           <p class="text-xs text-slate-400 leading-relaxed">Organizados por área, servicio y tipo de formato.</p>
         </div>
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 md:p-5">
           <div class="w-9 h-9 bg-red-50 rounded-xl flex items-center justify-center mb-3">
             <i class="fas fa-clock-rotate-left text-[#e31e24] text-sm"></i>
           </div>

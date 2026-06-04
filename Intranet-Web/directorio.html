@@ -26,25 +26,16 @@
       border: 2px solid #e31e24;
       animation: pulse-ring 2s ease-out infinite;
     }
+    #site-header { height: 80px; display: block; position: fixed; top: 0; left: 0; right: 0; z-index:60; }
   </style>
 </head>
-<body class="bg-[#f8fafc] min-h-screen flex flex-col">
+
+<body class="bg-[#f8fafc] min-h-screen">
 
   <!-- HEADER -->
   <div id="site-header"></div>
 
-  <!-- NAV -->
-  <nav class="bg-red-700 shadow-lg sticky top-20 z-50">
-    <div class="max-w-[1440px] mx-auto px-6">
-      <div class="flex justify-center items-center h-14 gap-8">
-        <a href="politicas.html" class="px-5 text-[11px] md:text-xs font-bold text-white/90 hover:text-white hover:bg-white/10 uppercase tracking-widest py-4">Políticas</a>
-        <a href="#" class="px-5 text-[11px] md:text-xs font-bold text-white/90 hover:text-white hover:bg-white/10 uppercase tracking-widest py-4">Alertas QHSE</a>
-        <a href="#" class="px-5 text-[11px] md:text-xs font-bold text-white/90 hover:text-white hover:bg-white/10 uppercase tracking-widest py-4">Mantenimiento</a>
-        <a href="#" class="px-5 text-[11px] md:text-xs font-bold text-white uppercase tracking-widest py-4 border-b-2 border-white">Operaciones</a>
-      </div>
-    </div>
-  </nav>
-
+  <div class="flex flex-col min-h-screen pt-[80px]">
   <!-- CONTENIDO -->
   <main class="flex-1 flex items-center justify-center px-4 py-16">
     <div class="text-center max-w-lg">
@@ -105,6 +96,7 @@
       </a>
     </div>
   </main>
+</div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>

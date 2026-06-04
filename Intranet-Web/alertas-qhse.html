@@ -301,13 +301,13 @@
     .eq('tipo_evento', 'Incidente');
 
   // 3. DÍAS SIN ACCIDENTE — días desde el último accidente registrado
-  const { data: ultimoAccidente } = await sb
+  const { data: ultimoAccidenteArr } = await sb
     .from('safety_alerts')
     .select('fecha_evento')
     .eq('tipo_evento', 'Accidente')
     .order('fecha_evento', { ascending: false })
-    .limit(1)
-    .single();
+    .limit(1);
+  const ultimoAccidente = ultimoAccidenteArr?.[0] ?? null;
 
   let diasSinAccidente = 0;
   if (ultimoAccidente?.fecha_evento) {

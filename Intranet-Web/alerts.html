@@ -124,10 +124,10 @@
 <body class="bg-[#f8fafc] min-h-screen">
 
 <!-- ── HEADER ── -->
-<div id="site-header"></div>
+<div id="site-header" style="position:sticky; top:0; z-index:49;"></div>
 
 <!-- ── NAV ── -->
-<nav class="bg-red-700 shadow-lg fixed w-full z-50" id="topbar">
+<nav class="bg-red-700 shadow-lg w-full z-50" id="topbar">
   <div class="max-w-[1440px] mx-auto px-6 h-14 flex items-center gap-2 text-xs font-bold text-white/70 uppercase tracking-widest">
     <a href="dashboard.html" class="hover:text-white transition-colors">Dashboard</a>
     <span class="opacity-40">/</span>
@@ -528,7 +528,8 @@ async function cargarEstadisticas() {
     .from('safety_alerts')
     .select('*', { count: 'exact', head: true })
     .is('clasificacion', null);
-  document.getElementById('stat-sin-clasificar').textContent = sinClasificar ?? '—';
+  const elSinClasificar = document.getElementById('stat-sin-clasificar');
+  if (elSinClasificar) elSinClasificar.textContent = sinClasificar ?? '—';
 }
 
 async function cargarFeedRecientes() {
@@ -1351,25 +1352,6 @@ async function descargarGrafica(tipo) {
 init();
 </script>
 
-<script>
-  const topbar = document.getElementById('topbar');
-  const header = document.getElementById('site-header');
 
-  function posicionarTopbar() {
-    const headerH = header.getBoundingClientRect().bottom;
-    if (headerH > 0) {
-      // Header visible — topbar justo debajo
-      topbar.style.top = headerH + 'px';
-    } else {
-      // Header fuera de vista — topbar se oculta
-      topbar.style.top = '-200px';
-    }
-  }
-
-  window.addEventListener('scroll', posicionarTopbar);
-  window.addEventListener('resize', posicionarTopbar);
-  // Esperar a que el header cargue
-  setTimeout(posicionarTopbar, 300);
-</script>
 </body>
 </html>
