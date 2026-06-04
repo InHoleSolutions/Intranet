@@ -1062,3 +1062,8 @@ header.header .navbar {
     padding: 4px 5px 8px 25px !important;
   }
 }
+
+.list-items li {
+  display: flex;
+  align-items: center;
+}
