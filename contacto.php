@@ -8,7 +8,6 @@
   <meta name="description" content="In Hole Solutions">
   <link href="assets/images/favicon/favicon.png" rel="icon">
   <title>In Hole Solutions | Contacto</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700%7cTeko:400,500,600,700&display=swap">
   <link rel="stylesheet" href="assets/css/libraries.css">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" type="text/css" href="assets/css/hoja_estilo.css">

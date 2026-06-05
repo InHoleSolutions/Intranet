@@ -15,6 +15,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: 'Calibri', sans-serif;
 }
 
 /* ========================
@@ -311,7 +312,7 @@ section .navegacionslider li img:hover {
 
 .about-etiqueta {
   display: inline-block;
-  font-family: 'Teko', sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 3px;
@@ -337,7 +338,7 @@ section .navegacionslider li img:hover {
 }
 
 .about-parrafo {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 15px;
   font-weight: 400;
   color: #555;
@@ -361,7 +362,7 @@ section .navegacionslider li img:hover {
 }
 
 .about-stat-numero {
-  font-family: 'Teko', sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 38px;
   font-weight: 700;
   color: #e63946;
@@ -369,7 +370,7 @@ section .navegacionslider li img:hover {
 }
 
 .about-stat-label {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 12px;
   color: #888;
   text-transform: uppercase;
@@ -385,7 +386,7 @@ section .navegacionslider li img:hover {
   padding: 12px 28px;
   background-color: #e63946;
   color: #fff !important;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 1px;
@@ -409,20 +410,21 @@ section .navegacionslider li img:hover {
 }
 
 .about-imagen-principal {
-  width: 100%;
-  height: 480px;
+  width: 89%;
+  height: 500px;
   object-fit: cover;
   display: block;
 }
 
 .about-imagen-badge {
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
-  background-color: #e63946;
+  width: auto;
+  max-width: 50%;
+  background-color: rgba(0, 0, 0, 0.45);
   color: #fff;
-  padding: 20px 25px;
-  max-width: 260px;
+  padding: 15px 20px;
 }
 
 .about-imagen-badge i {
@@ -432,7 +434,7 @@ section .navegacionslider li img:hover {
 }
 
 .about-imagen-badge p {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 13px;
   line-height: 1.5;
   margin: 0;
@@ -451,7 +453,17 @@ section .navegacionslider li img:hover {
   }
 
   .about-imagen-principal {
-    height: 350px;
+    height: 520px;
+    object-fit: cover;
+  }
+
+  .about-imagen-badge {
+    padding: 15px 20px;
+  }
+
+  .about-imagen-badge p {
+    font-size: 15px;
+    line-height: 1.6;
   }
 }
 
@@ -533,7 +545,7 @@ section .navegacionslider li img:hover {
 .about-parrafo,
 .heading__desc,
 .portfolio__desc {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 15px;
   font-weight: 400;
   line-height: 1.8;
@@ -589,7 +601,7 @@ section {
 
 .franja-numero {
   display: block;
-  font-family: 'Teko', sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 58px;
   font-weight: 700;
   color: #c1121f;
@@ -598,7 +610,7 @@ section {
 
 .franja-label {
   display: block;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 12px;
   color: #aaa;
   text-transform: uppercase;
@@ -612,7 +624,7 @@ section {
 }
 
 .cta-titulo {
-  font-family: 'Teko', sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 46px;
   font-weight: 600;
   color: #fff;
@@ -620,7 +632,7 @@ section {
 }
 
 .cta-desc {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 15px;
   color: rgba(255,255,255,0.8);
   margin-bottom: 30px;
@@ -631,7 +643,7 @@ section {
   padding: 14px 40px;
   background-color: #fff;
   color: #c1121f !important;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 2px;
@@ -1000,7 +1012,7 @@ header.header .navbar {
   /* Enlaces principales */
   #mainNavigation .nav__item-link {
     color: #000000 !important;
-    font-family: 'Roboto', sans-serif !important;
+    font-family: 'Calibri', sans-serif !important;
     font-size: 13px !important;
     font-weight: 500 !important;
     letter-spacing: 1.5px !important;

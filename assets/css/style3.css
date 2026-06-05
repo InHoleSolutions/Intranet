@@ -55,7 +55,7 @@ body {
 
 body {
   background-color: #ffffff;
-  font-family: "Roboto", sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 14px;
   font-weight: 400;
   color: #9b9b9b;
@@ -187,7 +187,7 @@ select {
 }
 
 .font-secondary {
-  font-family: "Roboto", sans-serif;
+  font-family: 'Calibri', sans-serif;
 }
 
 .lh-1 {
@@ -1141,7 +1141,7 @@ h4,
 h5,
 h6 {
   color: #1b1a1a;
-  font-family: "oswald", sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-weight: 500;
   line-height: 1.1;
   margin-bottom: 23px;
@@ -1387,7 +1387,7 @@ h6 {
 }
 
 .pagetitle__subheading {
-  font-family: "Roboto", sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 17px;
   font-weight: 700;
   color: #f9f9f9;
@@ -1936,7 +1936,7 @@ textarea.form-control {
 
 .form-group-select:after {
   content: "";
-  font-family: FontAwesome;
+  font-family: 'Calibri', sans-serif;
   position: absolute;
   top: 50%;
   right: 20px;
@@ -2128,7 +2128,7 @@ textarea.form-control {
 }
 
 .breadcrumb-item+.breadcrumb-item::before {
-  font-family: FontAwesome;
+  font-family: 'Calibri', sans-serif;
   content: "";
 }
 
@@ -2194,7 +2194,7 @@ textarea.form-control {
 
 .list-items li:before {
   content: "";
-  font-family: "Fontawesome";
+  font-family: 'Calibri', sans-serif;
   position: absolute;
   top: 50%;
   left: 0;
@@ -2624,7 +2624,7 @@ textarea.form-control {
 
 .navbar .dropdown-toggle:after {
   content: "";
-  font-family: fontAwesome;
+  font-family: 'Calibri', sans-serif;
   border: none;
   vertical-align: middle;
   margin-left: 0;
@@ -2666,7 +2666,7 @@ textarea.form-control {
 }
 
 .navbar .dropdown-menu .nav__item .nav__item-link:after {
-  font-family: "icomoon";
+  font-family: 'Calibri', sans-serif;
   content: "";
   position: absolute;
   top: 0;
@@ -2947,7 +2947,7 @@ textarea.form-control {
 
 .module__btn-phone a {
   font-size: 30px;
-  font-family: "Teko", sans-serif;
+  font-family: 'Calibri', sans-serif;
 }
 
 /* module-search  */
@@ -3076,7 +3076,7 @@ textarea.form-control {
 }
 
 .module__search-container .search__input {
-  font-family: "Teko", sans-serif;
+  font-family: 'Calibri', sans-serif;
   color: #1b1a1a;
   font-size: 45px;
   font-weight: 300;
@@ -3245,7 +3245,7 @@ textarea.form-control {
   }
 
   .navbar .dropdown-menu.mega-dropdown-menu .nav__item .nav__item-link:after {
-    font-family: "FontAwesome";
+    font-family: 'Calibri', sans-serif;
     content: "";
     position: absolute;
     top: auto;
@@ -3515,7 +3515,7 @@ textarea.form-control {
 }
 
 .accordion-item .accordion__item-title {
-  font-family: "Teko", sans-serif;
+  font-family: 'Calibri', sans-serif;
   color: #222222;
   font-weight: 500;
   font-size: 22px;
@@ -3531,7 +3531,7 @@ textarea.form-control {
   right: 0;
   top: 0;
   content: "";
-  font-family: fontawesome;
+  font-family: 'Calibri', sans-serif;
   background-color: transparent;
   color: #1b1a1a;
   font-size: 10px;
@@ -3650,7 +3650,7 @@ textarea.form-control {
 }
 
 .footer__contact-phone a {
-  font-family: "Teko", sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 35px;
   font-weight: 300;
   color: #C51439;
@@ -3706,7 +3706,7 @@ textarea.form-control {
 }
 
 .footer__widget-nav li a:after {
-  font-family: "icomoon";
+  font-family: 'Calibri', sans-serif;
   content: "";
   position: absolute;
   top: 0;
@@ -4085,7 +4085,7 @@ Main Banner
 }
 
 .carousel-arrows .owl-nav .owl-prev:before {
-  font-family: "icomoon";
+  font-family: 'Calibri', sans-serif;
   content: "";
   font-size: 55px;
 }
@@ -4095,7 +4095,7 @@ Main Banner
 }
 
 .carousel-arrows .owl-nav .owl-next:before {
-  font-family: "icomoon";
+  font-family: 'Calibri', sans-serif;
   content: "";
   font-size: 55px;
 }
@@ -4139,7 +4139,7 @@ Main Banner
 
 .slider .slide__subtitle {
   display: block;
-  font-family: "Roboto", sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 14px;
   line-height: 1;
   font-weight: 700;
@@ -4480,7 +4480,7 @@ Main Banner
 }
 
 .feature-item .feature__subtitle {
-  font-family: "Roboto", sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 14px;
   display: inline-block;
   margin-bottom: 6px;
@@ -4576,7 +4576,7 @@ Main Banner
   position: absolute;
   top: 0;
   left: 0;
-  font-family: "Fontawesome";
+  font-family: 'Calibri', sans-serif;
   content: "";
   color: #C51439;
   font-size: 18px;
@@ -5677,7 +5677,7 @@ Main Banner
 }
 
 .blog-nav .blog__nav-content span {
-  font-family: "Roboto", sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 13px;
   color: #616161;
   display: block;
@@ -5783,7 +5783,7 @@ Main Banner
 }
 
 .comments-list .comment__item .comment__content .comment__date {
-  font-family: "Roboto", sans-serif;
+  font-family: 'Calibri', sans-serif;
   color: #616161;
   font-size: 12px;
   line-height: 1;
@@ -5952,7 +5952,7 @@ Main Banner
 }
 
 .contact__panel .contact__panel-banner .contact__number a {
-  font-family: "Teko", sans-serif;
+  font-family: 'Calibri', sans-serif;
   color: #ffffff;
   font-size: 35px;
   font-weight: 300;
@@ -6133,7 +6133,7 @@ Main Banner
 }
 
 .pricing-item .pricing__price {
-  font-family: "Teko", sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 50px;
   color: #1b1a1a;
   font-weight: 400;
@@ -6156,7 +6156,7 @@ Main Banner
 
 .pricing-item .pricing__list li:after {
   content: "";
-  font-family: FontAwesome;
+  font-family: 'Calibri', sans-serif;
   position: absolute;
   top: 0;
   left: 0;
@@ -6272,7 +6272,7 @@ Main Banner
 }
 
 .counter-item .counter__subtitle {
-  font-family: "Teko", sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-size: 14px;
   font-weight: bold;
   line-height: 1;
@@ -6801,7 +6801,7 @@ Main Banner
 .nosotros h5 {
   font-size: 20px;
   color: #312f2f;
-  font-family: "oswald", sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-weight: 300;
   line-height: 1.3;
   margin-bottom: 2.8em;
@@ -6810,7 +6810,7 @@ Main Banner
 .productos h5 {
   font-size: 20px;
   color: #312f2f;
-  font-family: "oswald", sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-weight: 300;
   line-height: 1.3;
   margin-bottom: 2.8em;
@@ -6820,7 +6820,7 @@ Main Banner
 .nosotros h6 {
   font-size: 15px;
   color: #696666;
-  font-family: "oswald", sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-weight: 300;
   line-height: 1.3;
   margin-bottom: 2.8em;
@@ -7406,7 +7406,7 @@ h6,
 
 /*** Button ***/
 .btn {
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Calibri', sans-serif;
   font-weight: 600;
   transition: .5s;
 }
@@ -7451,7 +7451,7 @@ h6,
 
 /*** Navbar ***/
 .navbar-dark .navbar-nav .nav-link {
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Calibri', sans-serif;
   position: relative;
   margin-left: 25px;
   padding: 35px 0;

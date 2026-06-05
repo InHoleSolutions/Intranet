@@ -8,6 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:,">
   <style>
     body { font-family: 'Inter', sans-serif; }
     @media (min-width: 1024px) {
@@ -68,6 +69,22 @@
     #tc-usd, #tc-wti, #tc-brent {
       animation: countUp 0.5s ease both;
       animation-delay: 0.3s;
+    }
+    @media (max-width: 1023px) {
+      #boletin-izq, #boletin-der {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        width: 85vw;
+        max-width: 360px;
+        overflow-y: auto;
+        z-index: 99;
+        background: #f8fafc;
+        padding: 1.5rem;
+        box-shadow: 0 0 40px rgba(0,0,0,0.2);
+      }
+      #boletin-izq { left: 0; }
+      #boletin-der { right: 0; }
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -135,11 +152,27 @@
     </div>
   </nav>
   <!-- ── MAIN ── -->
-  <main class="max-w-[1440px] mx-auto p-6 md:p-10 flex flex-row gap-6 items-start min-h-screen">
-    <!-- ══ BOLETÍN INFORMATIVO PETRÓLEO & GAS ══ -->
-    <aside id="boletin-panel" class="flex flex-col w-80 xl:w-96 flex-shrink-0 gap-4">
+  <main class="w-full px-4 py-6 flex flex-row gap-4 items-start min-h-screen">
+    <!-- Pestañas móvil -->
+    <div class="lg:hidden">
+      <!-- Pestaña izquierda -->
+      <button onclick="toggleBoletin('boletin-izq')"
+        class="fixed top-80 left-0 z-50 bg-white text-slate-700 text-[10px] font-bold py-4 px-2 rounded-r-xl shadow-lg border-r border-y border-slate-200 flex flex-col items-center gap-2">
+        <i class="fas fa-oil-well text-[#e31e24] text-sm"></i>
+        <span style="writing-mode: vertical-rl; transform: rotate(180deg);">Mercados</span>
+      </button>
+      <!-- Pestaña derecha -->
+      <button onclick="toggleBoletin('boletin-der')"
+        class="fixed top-40 right-0 z-50 bg-white text-slate-700 text-[10px] font-bold py-4 px-2 rounded-l-xl shadow-lg border-l border-y border-slate-200 flex flex-col items-center gap-2">
+        <i class="fas fa-newspaper text-[#e31e24] text-sm"></i>
+        <span style="writing-mode: vertical-rl;">Noticias</span>
+      </button>
+    </div>
 
-      <!-- Encabezado del boletín -->
+    <!-- ══ BOLETÍN INFORMATIVO PETRÓLEO & GAS ══ -->
+    <aside id="boletin-izq" class="hidden lg:flex flex-col w-80 xl:w-96 flex-shrink-0 gap-4">
+
+      <!-- Encabezado -->
       <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-5 text-white shadow-xl">
         <div class="flex items-center justify-between mb-1">
           <div class="flex items-center gap-2">
@@ -149,7 +182,7 @@
           <span class="h-2 w-2 bg-emerald-400 rounded-full animate-pulse"></span>
         </div>
         <h2 class="text-lg font-black uppercase tracking-tight">Petróleo & Gas</h2>
-        <p id="boletin-fecha" class="text-xs text-slate-400 mt-0.5"></p>
+        <p id="boletin-fecha-2" class="text-xs text-slate-400 mt-0.5"></p>
       </div>
 
       <!-- Tipo de cambio y precios -->
@@ -174,6 +207,10 @@
         </div>
         <!-- Alerta de precio -->
         <div id="alerta-precio" class="hidden"></div>
+          <p class="text-[10px] text-slate-400 mt-3 text-center">
+            <i class="fas fa-circle-info mr-1"></i> Precios de referencia. Solo uso informativo.
+          </p>
+        </div>
       </div>
 
       <!-- Gráfica WTI y Brent -->
@@ -200,46 +237,6 @@
           </span>
         </div>
       </div>
-
-      <!-- Noticias Tabasco -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="bg-gradient-to-r from-green-700 to-green-600 px-4 py-3 flex items-center gap-2">
-          <i class="fas fa-map-marker-alt text-white text-sm"></i>
-          <span class="text-xs font-black uppercase tracking-widest text-white">Tabasco</span>
-        </div>
-        <div id="noticias-estatal" class="p-3 space-y-2">
-          <div class="text-xs text-slate-400 text-center py-4">Cargando...</div>
-        </div>
-      </div>
-
-      <!-- Noticias México -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="bg-gradient-to-r from-red-700 to-red-600 px-4 py-3 flex items-center gap-2">
-          <span class="text-white font-black text-sm">🇲🇽</span>
-          <span class="text-xs font-black uppercase tracking-widest text-white">Nacional</span>
-        </div>
-        <div id="noticias-nacional" class="p-3 space-y-2">
-          <div class="text-xs text-slate-400 text-center py-4">Cargando...</div>
-        </div>
-      </div>
-
-      <!-- Noticias Internacional -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="bg-gradient-to-r from-slate-800 to-slate-700 px-4 py-3 flex items-center gap-2">
-          <i class="fas fa-globe text-white text-sm"></i>
-          <span class="text-xs font-black uppercase tracking-widest text-white">Internacional</span>
-        </div>
-        <div id="noticias-internacional" class="p-3 space-y-2">
-          <div class="text-xs text-slate-400 text-center py-4">Cargando...</div>
-        </div>
-      </div>
-
-      <!-- Botón actualizar manual -->
-      <button onclick="actualizarBoletin()" id="btn-actualizar-boletin"
-        class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold uppercase tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2">
-        <i class="fas fa-rotate-right"></i> Actualizar ahora
-      </button>
-
     </aside>
     <!-- Contenido principal (wrapper) -->
     <div class="flex-1 min-w-0">
@@ -435,6 +432,62 @@
 
     </div>
     </div>
+    <!-- ══ BOLETÍN DERECHO ══ -->
+    <aside id="boletin-der" class="hidden lg:flex flex-col w-80 xl:w-96 flex-shrink-0 gap-4">
+
+      <!-- Encabezado -->
+      <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-5 text-white shadow-xl">
+        <div class="flex items-center justify-between mb-1">
+          <div class="flex items-center gap-2">
+            <i class="fas fa-oil-well text-amber-400 text-lg"></i>
+            <span class="text-xs font-black uppercase tracking-widest text-amber-400">Boletín</span>
+          </div>
+          <span class="h-2 w-2 bg-emerald-400 rounded-full animate-pulse"></span>
+        </div>
+        <h2 class="text-lg font-black uppercase tracking-tight">Petróleo & Gas</h2>
+        <p id="boletin-fecha-2" class="text-xs text-slate-400 mt-0.5"></p>
+      </div>
+
+      <!-- Noticias Tabasco -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="bg-gradient-to-r from-green-700 to-green-600 px-4 py-3 flex items-center gap-2">
+          <i class="fas fa-map-marker-alt text-white text-sm"></i>
+          <span class="text-xs font-black uppercase tracking-widest text-white">Tabasco</span>
+        </div>
+        <div id="noticias-estatal-2" class="p-3 space-y-2">
+          <div class="text-xs text-slate-400 text-center py-4">Cargando...</div>
+        </div>
+      </div>
+
+      <!-- Noticias Nacional -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="bg-gradient-to-r from-red-700 to-red-600 px-4 py-3 flex items-center gap-2">
+          <span class="text-white font-black text-sm">🇲🇽</span>
+          <span class="text-xs font-black uppercase tracking-widest text-white">Nacional</span>
+        </div>
+        <div id="noticias-nacional-2" class="p-3 space-y-2">
+          <div class="text-xs text-slate-400 text-center py-4">Cargando...</div>
+        </div>
+      </div>
+
+      <!-- Noticias Internacional -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="bg-gradient-to-r from-slate-800 to-slate-700 px-4 py-3 flex items-center gap-2">
+          <i class="fas fa-globe text-white text-sm"></i>
+          <span class="text-xs font-black uppercase tracking-widest text-white">Internacional</span>
+        </div>
+        <div id="noticias-internacional-2" class="p-3 space-y-2">
+          <div class="text-xs text-slate-400 text-center py-4">Cargando...</div>
+        </div>
+      </div>
+
+      <!-- Botón actualizar -->
+      <button onclick="actualizarBoletin()" id="btn-actualizar-boletin"
+        class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold uppercase tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2">
+        <i class="fas fa-rotate-right"></i> Actualizar ahora
+      </button>
+
+    </aside>
   </main>
   <!-- ── MODAL PDF ── -->
   <div id="modalPDF" class="hidden fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
@@ -1332,7 +1385,7 @@
       const ahora = new Date();
       const hoy = new Date(ahora.getTime() - ahora.getTimezoneOffset() * 60000)
         .toISOString().split("T")[0];
-      document.getElementById('boletin-fecha').textContent =
+      document.getElementById('boletin-fecha-2').textContent =
         new Date().toLocaleDateString('es-MX', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 
       // Tipo de cambio
@@ -1366,9 +1419,9 @@
           `$${parseFloat(d.usd_mxn).toFixed(2)}${tendencia(d.usd_mxn, d.usd_mxn_anterior)}`;
         document.getElementById('tc-usd-desc').textContent = parseFloat(d.usd_mxn).toFixed(2);
         document.getElementById('tc-wti').innerHTML = 
-          `$${parseFloat(d.usd_precio_wti).toFixed(2)}${tendencia(d.usd_precio_wti, d.wti_anterior)}`;
+          d.usd_precio_wti ? `$${parseFloat(d.usd_precio_wti).toFixed(2)}${tendencia(d.usd_precio_wti, d.wti_anterior)}` : '<span class="text-slate-400 text-sm">N/D</span>';
         document.getElementById('tc-brent').innerHTML = 
-          `$${parseFloat(d.usd_precio_brent).toFixed(2)}${tendencia(d.usd_precio_brent, d.brent_anterior)}`;
+          d.usd_precio_brent ? `$${parseFloat(d.usd_precio_brent).toFixed(2)}${tendencia(d.usd_precio_brent, d.brent_anterior)}` : '<span class="text-slate-400 text-sm">N/D</span>';
 
         // ── PUNTO 1: Alerta de precio ──
         const alertaEl = document.getElementById('alerta-precio');
@@ -1388,12 +1441,13 @@
       for (const cat of ['estatal','nacional','internacional']) {
         const { data: noticias } = await supabaseClient
           .from('boletin_noticias').select('*').eq('categoria', cat).order('fecha_publicacion', { ascending: false }).limit(3);
-        renderNoticias(cat, noticias || []);
+        renderNoticias(cat + '-2', noticias || []); // ← esta línea llena el boletín derecho
       }
     }
 
     function renderNoticias(categoria, noticias) {
       const el = document.getElementById(`noticias-${categoria}`);
+      if (!el) return; // ← si el elemento no existe, no hace nada
       if (!noticias.length) {
         el.innerHTML = `<p class="text-xs text-slate-400 text-center py-3">Sin noticias hoy. <button onclick="actualizarBoletin()" class="text-red-600 underline font-bold">Cargar</button></p>`;
         return;
@@ -1460,5 +1514,38 @@
     </div>
   </div>
 
+  <script>
+    function toggleBoletin(id) {
+      const el = document.getElementById(id);
+      const otro = id === 'boletin-izq' ? 'boletin-der' : 'boletin-izq';
+      const overlay = document.getElementById('boletin-overlay');
+
+      if (el.classList.contains('boletin-abierto')) {
+        cerrarBoletines();
+        return;
+      }
+
+      // Cierra el otro
+      document.getElementById(otro).classList.remove('boletin-abierto', 'flex');
+      document.getElementById(otro).classList.add('hidden');
+
+      // Abre este y muestra overlay
+      el.classList.remove('hidden');
+      el.classList.add('flex', 'boletin-abierto');
+      overlay.classList.remove('hidden');
+    }
+
+    function cerrarBoletines() {
+      ['boletin-izq', 'boletin-der'].forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.remove('boletin-abierto', 'flex');
+        el.classList.add('hidden');
+      });
+      document.getElementById('boletin-overlay').classList.add('hidden');
+    }
+  </script>
+  <!-- Overlay cierre boletín móvil -->
+  <div id="boletin-overlay" onclick="cerrarBoletines()"
+    class="hidden fixed inset-0 z-[98] bg-black/40 backdrop-blur-sm lg:hidden"></div>
 </body>
 </html>
