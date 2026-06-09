@@ -119,7 +119,22 @@
     .bg-entrada {
         animation: fadeInBg 0.25s ease both;
     }
-    
+    /* ── TRACKING BADGES ── */
+    .badge-tracking-pendiente  { background:#fef9c3; color:#92400e; border: 1px solid #fde68a; }
+    .badge-tracking-aprobado   { background:#dcfce7; color:#15803d; border: 1px solid #86efac; }
+    .badge-tracking-rechazado  { background:#fee2e2; color:#b91c1c; border: 1px solid #fca5a5; }
+
+    /* ── TRACKING PANEL ── */
+    .tracking-card {
+    background: white;
+    border-radius: 1rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    }
+    .tracking-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
   </style>
 </head>
 <body class="bg-[#f8fafc] min-h-screen flex flex-col">
@@ -187,6 +202,63 @@
             </div>
         </div>
     </div>
+
+    <!-- ══ PANEL TRACKING ══ -->
+    <div id="panel-tracking" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+    <!-- Encabezado -->
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+        <div class="h-9 w-9 rounded-xl bg-amber-50 flex items-center justify-center">
+            <i class="fas fa-qrcode text-amber-500"></i>
+        </div>
+        <div>
+            <p class="text-sm font-bold text-slate-700">Número de Tracking</p>
+            <p class="text-xs text-slate-400">Registra y consulta el estado de tus reportes</p>
+        </div>
+        </div>
+        <!-- Badge contador pendientes (solo admin) -->
+        <span id="badge-pendientes" class="hidden bg-amber-100 text-amber-700 text-xs font-black px-3 py-1 rounded-full border border-amber-200">
+        <i class="fas fa-clock mr-1"></i> <span id="num-pendientes">0</span> pendientes
+        </span>
+    </div>
+
+    <!-- Formulario empleado: ingresar tracking -->
+    <div id="form-tracking-empleado" class="px-6 py-5 border-b border-slate-100">
+        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Registrar nuevo tracking</p>
+        <div class="flex gap-3 flex-col sm:flex-row">
+        <input id="input-tracking" type="text" placeholder="Ej. TRK-2026-00123"
+            class="flex-1 px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-200 bg-slate-50">
+        <button onclick="enviarTracking()"
+            class="bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all whitespace-nowrap">
+            <i class="fas fa-paper-plane"></i> Enviar
+        </button>
+        </div>
+        <p id="msg-tracking" class="text-xs mt-2 hidden"></p>
+    </div>
+
+    <!-- Tabla de trackings -->
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+        <thead>
+            <tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-400">
+            <th class="px-6 py-3 text-left">N° Tracking</th>
+            <th class="px-6 py-3 text-left">Empleado</th>
+            <th class="px-6 py-3 text-left">Fecha Envío</th>
+            <th class="px-6 py-3 text-left">Estado</th>
+            <th class="px-6 py-3 text-center" id="col-acciones-tracking">Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-tracking">
+            <tr>
+            <td colspan="5" class="px-6 py-10 text-center text-slate-400 text-xs">
+                <i class="fas fa-spinner fa-spin mr-2"></i> Cargando trackings...
+            </td>
+            </tr>
+        </tbody>
+        </table>
+    </div>
+    </div>
+    <!-- ══ FIN PANEL TRACKING ══ -->
 
     <!-- CONTENEDOR UNIFICADO FILTROS + TABLA -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
@@ -956,8 +1028,153 @@
         document.querySelectorAll('.skeleton-row').forEach(r => r.remove());
     }
 
+    // ══ TRACKING ══
+    async function cargarTracking() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) return;
+
+    const { data: perfil } = await supabaseClient
+        .from('perfiles').select('rol, nombre_completo').eq('id', session.user.id).single();
+
+    const esAdmin = ['admin','administrador','Administrador'].includes(perfil?.rol);
+
+    // Si es empleado, ocultar columna Empleado y ocultar formulario si es admin
+    if (esAdmin) {
+        document.getElementById('form-tracking-empleado').classList.add('hidden');
+        document.getElementById('col-acciones-tracking').classList.remove('hidden');
+    } else {
+        document.getElementById('col-acciones-tracking').classList.add('hidden');
+    }
+
+    // Cargar registros
+    let query = supabaseClient
+        .from('tracking_registros')
+        .select('*')
+        .order('fecha_envio', { ascending: false });
+
+    if (!esAdmin) query = query.eq('usuario_id', session.user.id);
+
+    const { data: trackings } = await query;
+
+    // Badge pendientes para admin
+    if (esAdmin && trackings) {
+        const pendientes = trackings.filter(t => t.estado === 'pendiente').length;
+        if (pendientes > 0) {
+        document.getElementById('num-pendientes').textContent = pendientes;
+        document.getElementById('badge-pendientes').classList.remove('hidden');
+        }
+    }
+
+    const tbody = document.getElementById('tabla-tracking');
+    if (!trackings || trackings.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-slate-400 text-xs">
+        <i class="fas fa-inbox mr-2"></i> Sin trackings registrados</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = trackings.map(t => {
+        const fecha = new Date(t.fecha_envio).toLocaleDateString('es-MX', {
+        day:'2-digit', month:'short', year:'numeric'
+        });
+        const badgeClass = {
+        pendiente: 'badge-tracking-pendiente',
+        aprobado:  'badge-tracking-aprobado',
+        rechazado: 'badge-tracking-rechazado'
+        }[t.estado] || 'badge-tracking-pendiente';
+
+        const icono = {
+        pendiente: 'fa-clock',
+        aprobado:  'fa-circle-check',
+        rechazado: 'fa-circle-xmark'
+        }[t.estado] || 'fa-clock';
+
+        const accionesAdmin = esAdmin ? `
+        <div class="flex items-center justify-center gap-2">
+            ${t.estado === 'pendiente' ? `
+            <button onclick="revisarTracking('${t.id}','aprobado')"
+                class="bg-green-500 hover:bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1">
+                <i class="fas fa-check"></i> Aprobar
+            </button>
+            <button onclick="revisarTracking('${t.id}','rechazado')"
+                class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1">
+                <i class="fas fa-xmark"></i> Rechazar
+            </button>` : `<span class="text-slate-300 text-xs">Ya revisado</span>`}
+        </div>` : `<span class="text-slate-300 text-xs">—</span>`;
+
+        return `
+        <tr class="border-b border-slate-50 hover:bg-slate-50 transition-colors fila-animada">
+            <td class="px-6 py-3.5">
+            <span class="font-mono font-bold text-slate-700 text-sm">${t.numero_tracking}</span>
+            </td>
+            <td class="px-6 py-3.5 text-slate-500 text-sm">${t.nombre_empleado || '—'}</td>
+            <td class="px-6 py-3.5 text-slate-400 text-xs">${fecha}</td>
+            <td class="px-6 py-3.5">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${badgeClass}">
+                <i class="fas ${icono} text-[10px]"></i>
+                ${t.estado.charAt(0).toUpperCase() + t.estado.slice(1)}
+            </span>
+            </td>
+            <td class="px-6 py-3.5">${accionesAdmin}</td>
+        </tr>`;
+    }).join('');
+    }
+
+    async function enviarTracking() {
+    const input = document.getElementById('input-tracking');
+    const msg = document.getElementById('msg-tracking');
+    const numero = input.value.trim();
+
+    if (!numero) {
+        msg.textContent = '⚠️ Ingresa un número de tracking válido.';
+        msg.className = 'text-xs mt-2 text-amber-600';
+        msg.classList.remove('hidden');
+        return;
+    }
+
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const { data: perfil } = await supabaseClient
+        .from('perfiles').select('nombre_completo').eq('id', session.user.id).single();
+
+    const { error } = await supabaseClient.from('tracking_registros').insert({
+        numero_tracking: numero,
+        usuario_id: session.user.id,
+        nombre_empleado: perfil?.nombre_completo || session.user.email,
+        estado: 'pendiente'
+    });
+
+    if (error) {
+        msg.textContent = '❌ Error al enviar. Intenta de nuevo.';
+        msg.className = 'text-xs mt-2 text-red-600';
+    } else {
+        msg.textContent = '✅ Tracking enviado. Pendiente de aprobación.';
+        msg.className = 'text-xs mt-2 text-green-600';
+        input.value = '';
+        await cargarTracking();
+    }
+    msg.classList.remove('hidden');
+    setTimeout(() => msg.classList.add('hidden'), 4000);
+    }
+
+    async function revisarTracking(id, estado) {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const { data: perfil } = await supabaseClient
+        .from('perfiles').select('nombre_completo').eq('id', session.user.id).single();
+
+    const { error } = await supabaseClient
+        .from('tracking_registros')
+        .update({
+        estado,
+        fecha_revision: new Date().toISOString(),
+        revisado_por: perfil?.nombre_completo || session.user.email
+        })
+        .eq('id', id);
+
+    if (!error) await cargarTracking();
+    }
+
     // ── INICIO ──
     cargarOperaciones();
+    cargarTracking();
 
     // ── ESTADO DEL FORMULARIO ──
     let pasoActual = 1;
