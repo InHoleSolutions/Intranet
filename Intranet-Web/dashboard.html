@@ -84,7 +84,7 @@
       animation: countUp 0.5s ease both;
       animation-delay: 0.3s;
     }
-    @media (max-width: 1023px) {
+    @media (max-width: 1279px) {
       #boletin-izq, #boletin-der {
         position: fixed;
         top: 0;
@@ -124,7 +124,7 @@
   <!-- ── MAIN ── -->
   <main class="w-full px-4 3xl:px-16 4xl:px-32 pb-6 3xl:py-10 flex flex-row gap-4 3xl:gap-8 items-start min-h-screen max-w-[2400px] 4xl:max-w-[3200px] mx-auto mt-[56px] sm:mt-[64px] lg:mt-[20px]">
     <!-- Pestañas móvil -->
-    <div class="lg:hidden">
+    <div class="xl:hidden">
       <!-- Pestaña izquierda -->
       <button onclick="toggleBoletin('boletin-izq')"
         class="fixed top-80 left-0 z-50 bg-white text-slate-700 text-[10px] font-bold py-4 px-2 rounded-r-xl shadow-lg border-r border-y border-slate-200 flex flex-col items-center gap-2">
@@ -140,7 +140,7 @@
     </div>
 
     <!-- ══ BOLETÍN INFORMATIVO PETRÓLEO & GAS ══ -->
-    <aside id="boletin-izq" class="hidden lg:flex flex-col w-64 xl:w-72 3xl:w-80 4xl:w-96 pt-32 flex-shrink-0 gap-4">
+    <aside id="boletin-izq" class="hidden xl:flex flex-col w-64 xl:w-72 3xl:w-80 4xl:w-96 pt-32 flex-shrink-0 gap-4">
 
       <!-- Encabezado -->
       <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-5 text-white shadow-xl">
@@ -403,7 +403,7 @@
     </div>
     </div>
     <!-- ══ BOLETÍN DERECHO ══ -->
-    <aside id="boletin-der" class="hidden lg:flex flex-col w-64 xl:w-72 3xl:w-80 4xl:w-96 pt-32 flex-shrink-0 gap-4">
+    <aside id="boletin-der" class="hidden xl:flex flex-col w-64 xl:w-72 3xl:w-80 4xl:w-96 pt-32 flex-shrink-0 gap-4">
 
       <!-- Encabezado -->
       <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-5 text-white shadow-xl">
@@ -687,21 +687,54 @@
       const diasNombres   = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
       conteosPorDia.forEach((count, i) => {
         const esHoy = i === 6;
-        const pct   = Math.max((count / maxVal) * 100, 4);
-        const col   = document.createElement('div');
-        col.className = 'flex-1 flex flex-col items-center gap-1';
-        const barra = document.createElement('div');
-        barra.className = `w-full rounded-t-lg transition-all duration-700 ${esHoy ? 'bg-[#e31e24]' : 'bg-slate-200'}`;
-        barra.style.height = `${pct}%`;
-        barra.title = `${count} visitas`;
+        const pct = Math.max((count / maxVal) * 100, 5);
+
+        // Columna principal
+        const col = document.createElement('div');
+        col.className = 'flex-1 flex flex-col items-center gap-1 group relative';
+
+        // Tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none';
+        tooltip.textContent = `${count} visita${count !== 1 ? 's' : ''}`;
+
+        // Número encima
         const num = document.createElement('span');
-        num.className = 'text-[10px] font-bold text-slate-400';
+        num.className = `text-[11px] font-black ${esHoy ? 'text-[#e31e24]' : 'text-slate-400'}`;
         num.textContent = count;
+
+        // Barra con gradiente
+        const barraWrap = document.createElement('div');
+        barraWrap.className = 'w-full flex items-end';
+        barraWrap.style.height = '80px';
+
+        const barra = document.createElement('div');
+        barra.className = 'w-full rounded-xl transition-all duration-700 cursor-pointer group-hover:opacity-80';
+        barra.style.height = '0%';
+        barra.style.transition = 'height 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+        if (esHoy) {
+          barra.style.background = 'linear-gradient(180deg, #e31e24 0%, #c41d22 100%)';
+          barra.style.boxShadow = '0 4px 12px rgba(227,30,36,0.4)';
+        } else if (count === maxVal && maxVal > 0) {
+          barra.style.background = 'linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%)';
+          barra.style.boxShadow = '0 4px 12px rgba(59,130,246,0.3)';
+        } else {
+          barra.style.background = 'linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%)';
+        }
+
+        barraWrap.appendChild(barra);
+        col.appendChild(tooltip);
         col.appendChild(num);
-        col.appendChild(barra);
+        col.appendChild(barraWrap);
         graficaEl.appendChild(col);
+
+        // Animar después de render
+        setTimeout(() => { barra.style.height = `${pct}%`; }, i * 80);
+
+        // Label día
         const label = document.createElement('div');
-        label.className = `flex-1 text-center text-[10px] font-bold uppercase tracking-wide ${esHoy ? 'text-[#e31e24]' : 'text-slate-300'}`;
+        label.className = `flex-1 text-center text-[10px] font-black uppercase tracking-widest ${esHoy ? 'text-[#e31e24]' : 'text-slate-400'}`;
         label.textContent = esHoy ? 'Hoy' : diasNombres[dias[i].getDay()];
         labelsEl.appendChild(label);
       });
@@ -917,6 +950,50 @@
       document.getElementById('seccion-tabla-apriete').classList.add('hidden');
     }
 
+
+    async function registrarVisita() {
+      try {
+        const ua = navigator.userAgent;
+        const esMovil = /Mobi|Android/i.test(ua);
+        const esTablet = /Tablet|iPad/i.test(ua);
+        const dispositivo = esTablet ? 'Tablet' : esMovil ? 'Móvil' : 'Escritorio';
+
+        let navegador = 'Desconocido';
+        if (/Edg/.test(ua)) navegador = 'Edge';
+        else if (/Chrome/.test(ua)) navegador = 'Chrome';
+        else if (/Firefox/.test(ua)) navegador = 'Firefox';
+        else if (/Safari/.test(ua)) navegador = 'Safari';
+
+        let sistema_os = 'Desconocido';
+        if (/Windows/.test(ua)) sistema_os = 'Windows';
+        else if (/Mac/.test(ua)) sistema_os = 'macOS';
+        else if (/Android/.test(ua)) sistema_os = 'Android';
+        else if (/iPhone|iPad/.test(ua)) sistema_os = 'iOS';
+        else if (/Linux/.test(ua)) sistema_os = 'Linux';
+
+        const referrer = document.referrer || 'Directo';
+
+        // Obtener IP y ubicación
+        let ip = null, ciudad = null, pais = null;
+        try {
+          const geo = await fetch('https://ipapi.co/json/');
+          const geoData = await geo.json();
+          ip = geoData.ip;
+          ciudad = geoData.city;
+          pais = geoData.country_name;
+        } catch { /* si falla la geo, se guarda sin ubicación */ }
+
+        await supabaseClient.from('visitas_index').insert({
+          ip, ciudad, pais,
+          dispositivo, navegador, sistema_os,
+          referrer: referrer.length > 100 ? referrer.substring(0, 100) + '...' : referrer
+        });
+      } catch(e) {
+        console.error('Error registrando visita:', e);
+      }
+    }
+
+    registrarVisita();
     cargarDatos();
   </script>
 
@@ -1241,11 +1318,13 @@
     let graficaDolarInstance = null;
 
     async function cargarGraficaHistorica() {
-      const { data } = await supabaseClient
+      const { data: rawData } = await supabaseClient
         .from('precios_historicos')
         .select('fecha, wti, brent, usd_mxn')
-        .order('fecha', { ascending: true })
+        .order('fecha', { ascending: false })
         .limit(7);
+
+      const data = rawData ? [...rawData].reverse() : [];
 
       if (!data || data.length === 0) return;
 
@@ -1372,6 +1451,19 @@
       // Tipo de cambio
       const { data: tc } = await supabaseClient
         .from('tipo_cambio').select('*').order('created_at', { ascending: false }).limit(1);
+
+      // Sincronizar precios_historicos con tipo_cambio para que la gráfica sea consistente
+      if (tc && tc.length > 0 && tc[0].usd_precio_wti && tc[0].usd_precio_brent) {
+        const hoy = new Date().toISOString().split('T')[0];
+        await supabaseClient.from('precios_historicos').upsert({
+          fecha: hoy,
+          wti: tc[0].usd_precio_wti,
+          brent: tc[0].usd_precio_brent,
+          usd_mxn: tc[0].usd_mxn
+        }, { onConflict: 'fecha' });
+        // Recargar gráfica con datos actualizados
+        await cargarGraficaHistorica();
+      }
 
       // Si WTI/Brent vienen nulos, tomar del historial
       if (tc && tc.length > 0 && (!tc[0].usd_precio_wti || isNaN(tc[0].usd_precio_wti))) {
@@ -1524,10 +1616,15 @@
       });
       document.getElementById('boletin-overlay').classList.add('hidden');
     }
+
+    // Cerrar con tecla Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') cerrarBoletines();
+    });
   </script>
   <!-- Overlay cierre boletín móvil -->
   <div id="boletin-overlay" onclick="cerrarBoletines()"
-    class="hidden fixed inset-0 z-[98] bg-black/40 backdrop-blur-sm lg:hidden"></div>
+    class="hidden fixed inset-0 z-[98] bg-black/40 backdrop-blur-sm xl:hidden"></div>
 
   <div id="footer-componente"></div>
 </body>
