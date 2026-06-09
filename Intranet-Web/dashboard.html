@@ -5,6 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Intranet Corporativo | In Hole Solutions</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          screens: {
+            '2xl': '1536px',
+            '3xl': '1920px',
+            '4xl': '2560px',
+            '5xl': '3200px',
+          }
+        }
+      }
+    }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -86,73 +100,29 @@
       #boletin-izq { left: 0; }
       #boletin-der { right: 0; }
     }
+
+    /* Pantallas grandes: escala tipografia base */
+    @media (min-width: 1920px) {
+      html { font-size: 18px; }
+      .magazine-page { width: 220px !important; }
+    }
+    @media (min-width: 2560px) {
+      html { font-size: 22px; }
+      .magazine-page { width: 280px !important; }
+    }
+    @media (min-width: 3200px) {
+      html { font-size: 26px; }
+      .magazine-page { width:340px !important; }
+    }
+    #header-componente { display: block; min-height: 0; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body class="bg-[#f8fafc] min-h-screen">
   <!-- ── HEADER ── -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-[60] glass-nav">
-    <div class="max-w-[1440px] mx-auto px-6 h-20 flex justify-between items-center">
-      <div class="flex items-center gap-8 cursor-pointer" onclick="mostrarInicio()">
-        <img src="../assets/images/logo/logo-dark.svg" alt="In Hole Solutions" class="h-12 md:h-20 w-auto">
-        <div class="hidden md:block h-8 w-[1px] bg-slate-200"></div>
-        <span class="hidden md:block text-slate-500 font-medium text-sm tracking-wide uppercase">Intranet Corporativa</span>
-      </div>
-      <div class="flex items-center gap-6">
-        <div class="text-right hidden sm:block">
-          <p id="user-welcome" class="text-slate-800 font-semibold text-sm">Cargando...</p>
-          <p class="text-slate-400 text-xs font-medium uppercase tracking-tighter">Miembro del Equipo</p>
-        </div>
-        <button onclick="toggleMenu('mobile-nav')" class="lg:hidden bg-slate-50 text-slate-600 h-10 w-10 rounded-xl border border-slate-200 flex items-center justify-center">
-          <i class="fas fa-bars"></i>
-        </button>
-        <button onclick="cerrarSesion()" class="bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-600 h-10 w-10 rounded-xl border border-slate-200 transition-all flex items-center justify-center shadow-sm">
-          <i class="fas fa-sign-out-alt"></i>
-        </button>
-      </div>
-    </div>
-  </header>
-  <!-- ── NAV ── -->
-  <nav id="mobile-nav" class="hidden lg:block bg-red-700 shadow-lg sticky top-20 z-50">
-    <div class="max-w-[1440px] mx-auto px-6">
-      <div class="flex flex-col lg:flex-row justify-center items-center lg:h-14 space-y-1 lg:space-y-0 lg:space-x-8 py-4 lg:py-0">
-        <!-- POLÍTICAS -->
-        <a href="politicas.html" class="w-full lg:w-auto px-5 py-3 lg:py-0 text-[11px] md:text-xs font-bold text-white/90 hover:text-white lg:hover:bg-white/10 uppercase tracking-widest flex items-center justify-center">Políticas</a>
-        <!-- ALERTAS QHSE -->
-        <a href="alertas-qhse.html" class="w-full lg:w-auto px-5 py-3 lg:py-0 text-[11px] md:text-xs font-bold text-white/90 hover:text-white lg:hover:bg-white/10 uppercase tracking-widest flex items-center justify-center">Alertas QHSE</a>
-        <!-- MANTENIMIENTO -->
-        <a href="javascript:void(0)" class="w-full lg:w-auto px-5 py-3 lg:py-0 text-[11px] md:text-xs font-bold text-white/90 hover:text-white lg:hover:bg-white/10 uppercase tracking-widest flex items-center justify-between">Mantenimiento</a>
-        <!-- OPERACIONES -->
-        <div class="relative dropdown w-full lg:w-auto">
-          <button onclick="toggleSubmenu(this)" class="w-full h-full px-5 py-3 lg:py-0 text-[11px] md:text-xs font-bold text-white/90 hover:text-white lg:hover:bg-white/10 transition-all uppercase tracking-widest flex items-center justify-between lg:justify-center gap-2">
-            Completions <i class="fas fa-chevron-down text-[9px] opacity-70"></i>
-          </button>
-          <div class="dropdown-menu hidden lg:absolute left-0 w-full lg:w-64 bg-white shadow-2xl rounded-b-xl border border-slate-100 py-3 mt-0">
-            <div class="relative group/sub">
-              <button onclick="toggleSubmenu(this)" class="flex items-center justify-between w-full px-5 py-3 text-sm text-slate-600 hover:bg-red-50 hover:text-[#e31e24] transition-colors font-medium">
-                <span class="flex items-center gap-3"><i class="fa-brands fa-whmcs w-5"></i> Servicios</span>
-                <i class="fas fa-chevron-right text-[10px]"></i>
-              </button>
-              <div class="submenu-content hidden lg:absolute lg:left-full lg:top-0 w-full lg:w-64 bg-slate-50 lg:bg-white shadow-2xl border border-slate-100 py-3 lg:rounded-r-xl">
-                <a href="cementing.html" class="block px-8 lg:px-5 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-[#e31e24]">Cementing</a>
-                <a href="cased_hole.html" class="block px-8 lg:px-5 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-[#e31e24]">Cased Hole Completions</a>
-                <a href="#" class="block px-8 lg:px-5 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-[#e31e24]">Gas Lift</a>
-                <a href="#" class="block px-8 lg:px-5 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-[#e31e24]">Pruebas Hidrostáticas</a>
-              </div>
-            </div>
-            <a href="javascript:void(0)" class="flex items-center gap-3 px-5 py-3 text-sm text-slate-600 hover:bg-red-50 hover:text-[#e31e24] transition-colors font-medium">
-              <i class="fas fa-wrench w-5"></i> Apriete
-            </a>
-            <a href="#" class="flex items-center gap-3 px-5 py-3 text-sm text-slate-600 hover:bg-red-50 hover:text-[#e31e24] transition-colors font-medium">
-              <i class="fas fa-toolbox w-5"></i> Suministros
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <div id="header-componente"></div>
   <!-- ── MAIN ── -->
-  <main class="w-full px-4 py-6 flex flex-row gap-4 items-start min-h-screen">
+  <main class="w-full px-4 3xl:px-16 4xl:px-32 pb-6 3xl:py-10 flex flex-row gap-4 3xl:gap-8 items-start min-h-screen max-w-[2400px] 4xl:max-w-[3200px] mx-auto">
     <!-- Pestañas móvil -->
     <div class="lg:hidden">
       <!-- Pestaña izquierda -->
@@ -170,7 +140,7 @@
     </div>
 
     <!-- ══ BOLETÍN INFORMATIVO PETRÓLEO & GAS ══ -->
-    <aside id="boletin-izq" class="hidden lg:flex flex-col w-80 xl:w-96 flex-shrink-0 gap-4">
+    <aside id="boletin-izq" class="hidden lg:flex flex-col w-64 xl:w-72 3xl:w-80 4xl:w-96 pt-32 flex-shrink-0 gap-4">
 
       <!-- Encabezado -->
       <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-5 text-white shadow-xl">
@@ -239,7 +209,7 @@
       </div>
     </aside>
     <!-- Contenido principal (wrapper) -->
-    <div class="flex-1 min-w-0">
+    <div class="flex-1 min-w-0 pt-32">
     <div class="mb-10">
       <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Panel de Control</h2>
       <p class="text-slate-500 mt-1">Gestión interna y monitoreo operativo de In Hole Solutions.</p>
@@ -433,7 +403,7 @@
     </div>
     </div>
     <!-- ══ BOLETÍN DERECHO ══ -->
-    <aside id="boletin-der" class="hidden lg:flex flex-col w-80 xl:w-96 flex-shrink-0 gap-4">
+    <aside id="boletin-der" class="hidden lg:flex flex-col w-64 xl:w-72 3xl:w-80 4xl:w-96 pt-32 flex-shrink-0 gap-4">
 
       <!-- Encabezado -->
       <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-5 text-white shadow-xl">
@@ -581,6 +551,17 @@
   </script>
 
   <script>
+    fetch('header.html')
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById('header-componente').innerHTML = html;
+      });
+    fetch('footer.html')
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById('footer-componente').innerHTML = html;
+        document.getElementById('footer-year').textContent = new Date().getFullYear();
+      });
     function toggleMenu(id) { document.getElementById(id).classList.toggle('hidden'); }
     function toggleSubmenu(btn) {
       if (window.innerWidth < 1024) {
@@ -1547,5 +1528,7 @@
   <!-- Overlay cierre boletín móvil -->
   <div id="boletin-overlay" onclick="cerrarBoletines()"
     class="hidden fixed inset-0 z-[98] bg-black/40 backdrop-blur-sm lg:hidden"></div>
+
+  <div id="footer-componente"></div>
 </body>
 </html>

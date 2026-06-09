@@ -181,12 +181,24 @@
 
 <!-- ════════ HERO ════════ -->
 <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-[#1a0a0a] border-b-2 border-[#e31e24] relative overflow-hidden">
+
   <!-- Patrón de fondo decorativo -->
   <div class="absolute inset-0 opacity-[0.04]" style="background-image: repeating-linear-gradient(0deg, #fff 0px, #fff 1px, transparent 1px, transparent 40px), repeating-linear-gradient(90deg, #fff 0px, #fff 1px, transparent 1px, transparent 40px);"></div>
   <!-- Acento rojo decorativo -->
   <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-[#e31e24] opacity-[0.06] rounded-full translate-x-1/2 -translate-y-1/2"></div>
 
   <div class="max-w-[1280px] mx-auto px-4 md:px-8 pt-10 md:pt-14 pb-10 md:pb-12 relative">
+    <div>
+            <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
+            <a href="dashboard.html" class="text-slate-400 hover:text-[#e31e24] text-sm transition-colors"><i class="fas fa-home"></i></a>
+            <i class="fas fa-chevron-right text-[10px]"></i>
+            <span>Completions</span>
+            <i class="fas fa-chevron-right text-[10px]"></i>
+            <span>Servicios</span>
+            <i class="fas fa-chevron-right text-[10px]"></i>
+            <span class="text-slate-600 font-semibold">Cased Hole Completions</span>
+            </div>
+        </div>
     <div class="inline-flex items-center gap-2 bg-[rgba(227,30,36,0.15)] border border-[rgba(227,30,36,0.3)] rounded-full px-4 py-1 mb-6 anim-fade-in delay-1">
       <div class="w-1.5 h-1.5 bg-[#e31e24] rounded-full"></div>
       <span class="text-[11px] tracking-[2px] uppercase text-[#e31e24] font-semibold">Centro de Recursos Técnicos</span>
@@ -216,7 +228,7 @@
 
 <!-- ════════ MAIN ════════ -->
 <div class="max-w-[1280px] mx-auto px-4 md:px-8 pb-16">
-
+  
   <!-- BUSCADOR -->
   <div class="search-wrap mt-8 bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex flex-col gap-3">
     <p class="text-[11px] font-semibold uppercase tracking-[2px] text-[#e31e24]">Búsqueda Rápida</p>
@@ -769,6 +781,29 @@
 
   init();
 </script>
+
+<script>
+    function toggleMenu(id) {
+      const el = document.getElementById(id);
+      el.classList.toggle('hidden');
+      el.classList.toggle('block');
+    }
+
+    function toggleSubmenu(btn) {
+      const menu = btn.nextElementSibling;
+      menu.classList.toggle('hidden');
+      const icon = btn.querySelector('.fa-chevron-down, .fa-chevron-right');
+      if (icon) icon.classList.toggle('rotate-180');
+      event.stopPropagation();
+    }
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1024) {
+        document.getElementById('mobile-nav').classList.remove('hidden');
+        document.getElementById('mobile-nav').classList.add('block');
+      }
+    });
+  </script>
 
 </body>
 </html>

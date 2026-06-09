@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700;1,800;1,900&family=Barlow:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:,">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
@@ -102,7 +103,8 @@
     @media (max-width: 480px) {
       .cover-title { font-size: clamp(38px, 13vw, 60px) !important; }
     }
-    #site-header { min-height: 80px; display: block; position: sticky; top: 0; z-index: 60; }
+    #site-header { display: block; }
+    .mobile-active { display: block !important; }
   </style>
   <script src="revista-render.js"></script>
   <script src="revista-mobile.js"></script>
@@ -113,7 +115,7 @@
 <div id="site-header"></div>
 
 <!-- ── TOPBAR ── -->
-<div class="qhse-topbar sticky top-[80px] w-full z-50" id="topbar">
+<div class="qhse-topbar fixed top-[56px] sm:top-[64px] lg:top-[112px] xl:top-[118px] 3xl:top-[134px] w-full z-50" id="topbar">
   <div class="max-w-[1440px] mx-auto px-4 md:px-8 flex items-center justify-between" style="flex-wrap:nowrap;overflow:hidden;">
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-2">
@@ -134,8 +136,14 @@
 </div>
 
 <!-- ── MAIN ── -->
-<main class="mx-auto px-0 py-4" style="max-width:100%; overflow-x:auto; margin-top: 48px;">
-  <div id="revista-container" style="padding: 8px 0; background: #e8edf4; min-height: 100vh; min-width: 1200px; overflow-x: auto;"></div>
+<main class="mx-auto px-0 py-4 mt-[96px] sm:mt-[104px] lg:mt-[152px] xl:mt-[158px] 3xl:mt-[174px]" 
+      style="max-width:100%;">
+  <div class="flex items-center gap-3 mb-1 px-4 md:px-56">
+          <a href="dashboard.html" class="text-slate-400 hover:text-[#e31e24] text-sm transition-colors"><i class="fas fa-home"></i></a>
+          <span class="text-slate-300">/</span>
+          <span class="text-sm text-slate-500 font-medium">Alertas QHSE</span>
+        </div>
+  <div id="revista-container" style="padding: 8px 16px; background: #e8edf4; min-height: 100vh; overflow-x: auto;"></div>
 </main>
 
 <!-- ── TOAST ── -->
@@ -194,25 +202,6 @@
     return 'Buenas noches';
   }
 
-  // ── LOAD LATEST EDITION FROM SUPABASE ──
-  async function cargarRevista() {
-    const { data, error } = await sb
-      .from('qhse_editions')
-      .select('*')
-      .eq('publicada', true)
-      .eq('activa', true)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (error || !data) {
-      document.getElementById('edition-tag').textContent = 'Edición Mayo 2026 — Vol.1';
-      document.getElementById('issue-counter').textContent = 'ED-001';
-      return;
-    }
-
-    applyEditionToPage(data);
-  }
 
   // ── ADMIN: LOAD EDITIONS ──
   async function cargarRevista() {
@@ -398,6 +387,32 @@
     .then(html => {
       document.getElementById('site-header').innerHTML = html;
     });
+  fetch('footer.html')
+    .then(r => r.text())
+    .then(html => {
+      document.getElementById('footer-componente').innerHTML = html;
+      document.getElementById('footer-year').textContent = new Date().getFullYear();
+    });
+  function toggleMenu(id) { 
+    document.getElementById(id).classList.toggle('hidden'); 
+  }
+  function toggleSubmenu(btn) {
+    const submenu = btn.nextElementSibling;
+    if (!submenu) return;
+    if (window.innerWidth < 1024) {
+        submenu.classList.toggle('mobile-active');
+    } else {
+        submenu.classList.toggle('hidden');
+    }
+    const icon = btn.querySelector('.fa-chevron-down, .fa-chevron-right');
+    if (icon) icon.classList.toggle('rotate-180');
+  }
+  function cerrarSesion() { 
+    supabaseClient.auth.signOut().then(() => { 
+      window.location.href = '../index.html'; 
+    }); 
+  }
 </script>
+<div id="footer-componente"></div>
 </body>
 </html>

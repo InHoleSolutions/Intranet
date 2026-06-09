@@ -145,6 +145,7 @@
       from { transform: translateY(100%); opacity: 0.5; }
       to   { transform: translateY(0);    opacity: 1; }
     }
+    #site-header { display: block; }
   </style>
 </head>
 <body class="bg-[#f8fafc] min-h-screen">
@@ -153,11 +154,16 @@
   <div id="site-header" style="position:sticky; top:0; z-index:50;"></div>
 
   <!-- ── MAIN ── -->
-  <main class="max-w-[1440px] mx-auto px-6 py-10">
+  <main class="max-w-[1440px] mx-auto p-6 md:p-10 mt-[56px] sm:mt-[64px] lg:mt-[120px]">
+    <div>
+            <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
+            <a href="dashboard.html" class="text-slate-400 hover:text-[#e31e24] text-sm transition-colors"><i class="fas fa-home"></i></a>
+            <i class="fas fa-chevron-right text-[10px]"></i>
+            <span>Gestión de Usuarios</span>
+        </div>
     <!-- Título + botón nuevo -->
     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 fade-up">
       <div>
-        <p class="text-xs font-black uppercase tracking-[0.2em] text-red-500 mb-1">Panel Administrativo</p>
         <h1 class="text-3xl font-black text-slate-800 tracking-tight">Usuarios de la Intranet</h1>
         <p class="text-slate-400 text-sm mt-1">Crea, edita y controla el acceso del equipo.</p>
       </div>
@@ -1024,6 +1030,29 @@
       .then(html => {
         document.getElementById('site-header').innerHTML = html;
       });
+  </script>
+
+  <script>
+    function toggleMenu(id) {
+      const el = document.getElementById(id);
+      el.classList.toggle('hidden');
+      el.classList.toggle('block');
+    }
+
+    function toggleSubmenu(btn) {
+      const menu = btn.nextElementSibling;
+      menu.classList.toggle('hidden');
+      const icon = btn.querySelector('.fa-chevron-down, .fa-chevron-right');
+      if (icon) icon.classList.toggle('rotate-180');
+      event.stopPropagation();
+    }
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1024) {
+        document.getElementById('mobile-nav').classList.remove('hidden');
+        document.getElementById('mobile-nav').classList.add('block');
+      }
+    });
   </script>
 </body>
 </html>
