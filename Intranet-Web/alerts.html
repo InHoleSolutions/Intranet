@@ -476,6 +476,12 @@ async function init() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) { window.location.href = 'intranet-login.html'; return; }
 
+  // Cargar footer
+  const footerRes = await fetch('footer.html');
+  const footerHtml = await footerRes.text();
+  document.getElementById('footer-componente').innerHTML = footerHtml;
+  document.getElementById('footer-year').textContent = new Date().getFullYear();
+
   const { data: perfil } = await supabaseClient
     .from('perfiles').select('*').eq('id', session.user.id).single();
   if (perfil) {
@@ -1365,6 +1371,8 @@ init();
       }
     });
   </script>
+
+  <div id="footer-componente"></div>
 
 </body>
 </html>

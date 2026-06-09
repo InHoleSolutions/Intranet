@@ -175,7 +175,7 @@
     #site-header { min-height: 80px; display: block; position: sticky; top: 0; z-index: 60; }
   </style>
 </head>
-<body class="bg-[#f8fafc] min-h-screen">
+<body class="bg-[#f8fafc] min-h-screen flex flex-col">
 
 <div id="site-header"></div>
 
@@ -681,11 +681,7 @@
 
 </div><!-- /container -->
 
-<footer class="footer-text border-t border-slate-200 py-5 px-8 text-center text-[12px] text-slate-400">
-  &copy; 2026 In Hole Solutions &mdash; Intranet Corporativa &mdash; Uso interno exclusivo &nbsp;|&nbsp;
-  Actualizado: junio 2025 &nbsp;|&nbsp;
-  Soporte TI: it@inholesolutions.com
-</footer>
+<div id="footer-componente"></div>
 
 <script>
   // ── SCROLL REVEAL ──
@@ -764,6 +760,12 @@
     const res = await fetch('header.html');
     const html = await res.text();
     document.getElementById('site-header').innerHTML = html;
+
+    // Cargar footer
+    const footerRes = await fetch('footer.html');
+    const footerHtml = await footerRes.text();
+    document.getElementById('footer-componente').innerHTML = footerHtml;
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
 
     // Verificar sesión
     const { data: { session } } = await sb.auth.getSession();

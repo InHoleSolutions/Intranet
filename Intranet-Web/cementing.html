@@ -122,11 +122,11 @@
     
   </style>
 </head>
-<body class="bg-[#f8fafc] min-h-screen">
+<body class="bg-[#f8fafc] min-h-screen flex flex-col">
     <!-- HEADER -->
   <div id="site-header"></div>
   <!-- MAIN -->
-  <main class="max-w-[1440px] mx-auto p-6 md:p-10
+  <main class="flex-1 max-w-[1440px] mx-auto p-6 md:p-10
              pt-[60px] sm:pt-[120px] lg:pt-[130px] 3xl:pt-[150px]">
     <!-- TÍTULO DE PÁGINA -->
     <div class="mb-8 flex items-center justify-between">
@@ -676,6 +676,7 @@
         </div>
     </div>
   </main>
+  <div id="site-footer"></div>
 
   <script>
     // ── CONFIGURACIÓN SUPABASE ──
@@ -703,6 +704,11 @@
         const res = await fetch('header.html');
         const html = await res.text();
         document.getElementById('site-header').innerHTML = html;
+
+        const resFoot = await fetch('footer.html');
+        const htmlFoot = await resFoot.text();
+        document.getElementById('site-footer').innerHTML = htmlFoot;
+        document.getElementById('footer-year').textContent = new Date().getFullYear();
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session) { window.location.href = 'intranet-login.html'; return; }
 

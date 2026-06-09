@@ -87,7 +87,7 @@
   .coc-table tbody tr.fila-activa { background:#fef8f8 !important; box-shadow: inset 3px 0 0 #c8181e; }
 </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col">
   <!-- TOP NAV -->
   <div id="site-header" style="position:sticky; top:0; z-index:60;"></div>
   <!-- HERO BIENVENIDA -->
@@ -132,7 +132,7 @@
     </div>
   </section>
   <!-- BODY -->
-  <div class="max-w-[1440px] mx-auto px-8 pt-10 pb-16 flex flex-col gap-8 md:px-5 md:pt-6 md:pb-12">
+  <div class="flex-1 max-w-[1440px] mx-auto px-8 pt-10 pb-16 flex flex-col gap-8 md:px-5 md:pt-6 md:pb-12">
     <!-- Info strip -->
     <div class="animate-in delay-1 bg-white border border-slate-200 rounded-[16px] overflow-hidden shadow-sm">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-slate-200">
@@ -1088,6 +1088,13 @@
           });
         }
       });
+
+    fetch('footer.html')
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById('footer-componente').innerHTML = html;
+        document.getElementById('footer-year').textContent = new Date().getFullYear();
+      });
   </script>
 
   <script>
@@ -1112,5 +1119,8 @@
       }
     });
   </script>
+
+  <div id="footer-componente"></div>
+
 </body>
 </html>
