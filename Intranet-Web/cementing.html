@@ -124,16 +124,19 @@
     .badge-tracking-aprobado   { background:#dcfce7; color:#15803d; border: 1px solid #86efac; }
     .badge-tracking-rechazado  { background:#fee2e2; color:#b91c1c; border: 1px solid #fca5a5; }
 
-    /* ── TRACKING PANEL ── */
-    .tracking-card {
-    background: white;
-    border-radius: 1rem;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
+    /* ── JOB ID PANEL ── */
+    #panel-jobid {
+    position: fixed;
+    bottom: -100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 480px;
+    z-index: 999;
+    transition: bottom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .tracking-card:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    #panel-jobid.visible {
+    bottom: 2rem;
     }
   </style>
 </head>
@@ -203,65 +206,10 @@
         </div>
     </div>
 
-    <!-- ══ PANEL TRACKING ══ -->
-    <div id="panel-tracking" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
-    <!-- Encabezado -->
-    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-        <div class="h-9 w-9 rounded-xl bg-amber-50 flex items-center justify-center">
-            <i class="fas fa-qrcode text-amber-500"></i>
-        </div>
-        <div>
-            <p class="text-sm font-bold text-slate-700">Número de Tracking</p>
-            <p class="text-xs text-slate-400">Registra y consulta el estado de tus reportes</p>
-        </div>
-        </div>
-        <!-- Badge contador pendientes (solo admin) -->
-        <span id="badge-pendientes" class="hidden bg-amber-100 text-amber-700 text-xs font-black px-3 py-1 rounded-full border border-amber-200">
-        <i class="fas fa-clock mr-1"></i> <span id="num-pendientes">0</span> pendientes
-        </span>
-    </div>
 
-    <!-- Formulario empleado: ingresar tracking -->
-    <div id="form-tracking-empleado" class="px-6 py-5 border-b border-slate-100">
-        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Registrar nuevo tracking</p>
-        <div class="flex gap-3 flex-col sm:flex-row">
-        <input id="input-tracking" type="text" placeholder="Ej. TRK-2026-00123"
-            class="flex-1 px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-200 bg-slate-50">
-        <button onclick="enviarTracking()"
-            class="bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all whitespace-nowrap">
-            <i class="fas fa-paper-plane"></i> Enviar
-        </button>
-        </div>
-        <p id="msg-tracking" class="text-xs mt-2 hidden"></p>
-    </div>
-
-    <!-- Tabla de trackings -->
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-        <thead>
-            <tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-400">
-            <th class="px-6 py-3 text-left">N° Tracking</th>
-            <th class="px-6 py-3 text-left">Empleado</th>
-            <th class="px-6 py-3 text-left">Fecha Envío</th>
-            <th class="px-6 py-3 text-left">Estado</th>
-            <th class="px-6 py-3 text-center" id="col-acciones-tracking">Acciones</th>
-            </tr>
-        </thead>
-        <tbody id="tabla-tracking">
-            <tr>
-            <td colspan="5" class="px-6 py-10 text-center text-slate-400 text-xs">
-                <i class="fas fa-spinner fa-spin mr-2"></i> Cargando trackings...
-            </td>
-            </tr>
-        </tbody>
-        </table>
-    </div>
-    </div>
-    <!-- ══ FIN PANEL TRACKING ══ -->
 
     <!-- CONTENEDOR UNIFICADO FILTROS + TABLA -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+    <div id="tabla-principal" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
         <!-- Header del contenedor -->
         <div class="px-6 py-4 border-b border-slate-100 flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
             <!-- Título + contador -->
@@ -275,10 +223,16 @@
             </div>
             </div>
             <!-- Botón nuevo -->
-            <button onclick="mostrarFormulario()" class="bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-sm shadow-red-200 whitespace-nowrap group">
-            <i class="fas fa-plus transition-transform group-hover:rotate-90 duration-300"></i>
-            Registrar Nueva Operación
-            </button>
+            <div class="flex items-center gap-3">
+                <button onclick="abrirPanelSolicitud()" class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 hover:border-slate-300 text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all whitespace-nowrap">
+                    <i class="fas fa-pen-to-square text-amber-500"></i>
+                    Solicitar Edición
+                </button>
+                <button onclick="mostrarFormulario()" class="bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-sm shadow-red-200 whitespace-nowrap group">
+                    <i class="fas fa-plus transition-transform group-hover:rotate-90 duration-300"></i>
+                    Nueva Operación
+                </button>
+            </div>
         </div>
         <!-- Barra de filtros -->
         <div class="px-6 py-3 bg-slate-50 border-b border-slate-100 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
@@ -312,10 +266,10 @@
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
             <thead>
-                <tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-400">
+                <tr id="thead-operaciones" class="bg-slate-50 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-400">
                 <th class="px-6 py-3.5 text-left">Pozo / Plataforma</th>
                 <th class="px-6 py-3.5 text-left">Cliente</th>
-                <th class="px-6 py-3.5 text-left">Ingeniero Resp.</th>
+                <th class="px-6 py-3.5 text-left" id="th-empleado-jobid"></th>
                 <th class="px-6 py-3.5 text-left">Fecha Inicio</th>
                 <th class="px-6 py-3.5 text-left">Estatus</th>
                 <th class="px-6 py-3.5 text-center">Acciones</th>
@@ -337,6 +291,160 @@
                 </td>
                 </tr>
             </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- HISTORIAL DE JOB IDs (solo empleados) -->
+    <div id="seccion-jobids" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-red-50 rounded-xl p-2">
+                    <i class="fas fa-id-badge text-[#e31e24] text-sm"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-slate-700">JOB IDs Generados</p>
+                    <p class="text-xs text-slate-400 mt-0.5">Historial de operaciones que has registrado</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="abrirPanelSolicitud()" class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 hover:border-slate-300 text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all whitespace-nowrap">
+                    <i class="fas fa-pen-to-square text-amber-500"></i>
+                    Solicitar Edición
+                </button>
+                <button onclick="mostrarFormulario()" class="bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-sm shadow-red-200 whitespace-nowrap group">
+                    <i class="fas fa-plus transition-transform group-hover:rotate-90 duration-300"></i>
+                    Registrar Nueva Operación
+                </button>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-400">
+                        <th class="px-6 py-3.5 text-left">JOB ID</th>
+                        <th class="px-6 py-3.5 text-left">Pozo / Plataforma</th>
+                        <th class="px-6 py-3.5 text-left">Cliente</th>
+                        <th class="px-6 py-3.5 text-left">Fecha Registro</th>
+                        <th class="px-6 py-3.5 text-left">Estatus</th>
+                        <th class="px-6 py-3.5 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-jobids">
+                    <tr id="fila-vacia-jobids">
+                        <td colspan="6" class="px-6 py-16 text-center">
+                            <div class="flex flex-col items-center gap-3">
+                                <div class="bg-slate-100 rounded-full p-5">
+                                    <i class="fas fa-id-badge text-slate-300 text-3xl"></i>
+                                </div>
+                                <p class="text-slate-500 font-semibold">No hay JOB IDs Generados por ahora</p>
+                                <p class="text-slate-400 text-sm">Registra tu primera operación para generar un JOB ID</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- SOLICITUDES DE EDICIÓN (solo admin) -->
+    <div id="seccion-solicitudes" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-amber-50 rounded-xl p-2">
+                    <i class="fas fa-pen-to-square text-amber-500 text-sm"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-slate-700">Solicitudes de Edición</p>
+                    <p class="text-xs text-slate-400 mt-0.5">Aprueba o rechaza solicitudes de empleados</p>
+                </div>
+            </div>
+            <span id="badge-solicitudes-pendientes" class="hidden bg-amber-100 text-amber-700 text-xs font-black px-3 py-1 rounded-full animate-pulse"></span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-400">
+                        <th class="px-6 py-3.5 text-left">Empleado / Operación</th>
+                        <th class="px-6 py-3.5 text-left">JOB ID</th>
+                        <th class="px-6 py-3.5 text-left">Motivo</th>
+                        <th class="px-6 py-3.5 text-left">Fecha</th>
+                        <th class="px-6 py-3.5 text-left">Estatus</th>
+                        <th class="px-6 py-3.5 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-solicitudes">
+                    <tr id="fila-vacia-solicitudes">
+                        <td colspan="6" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center gap-2">
+                                <i class="fas fa-inbox text-slate-200 text-3xl"></i>
+                                <p class="text-slate-400 font-semibold text-sm">No hay solicitudes pendientes</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- VISTA ADMINISTRADOR: Todas las operaciones de empleados -->
+    <div id="seccion-admin" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-3">
+            <div class="bg-blue-50 rounded-xl p-2">
+                <i class="fas fa-shield-halved text-blue-600 text-sm"></i>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-slate-700">Panel de Operaciones</p>
+                <p class="text-xs text-slate-400 mt-0.5">Todas las operaciones registradas</p>
+            </div>
+        </div>
+        <!-- Filtros del panel admin -->
+        <div class="px-6 py-3 bg-slate-50 border-b border-slate-100 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+            <!-- Buscar empleado -->
+            <div class="relative flex-1 max-w-xs">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 text-xs"></i>
+                <input id="admin-filtro-empleado" type="text" placeholder="Buscar empleado..."
+                    class="pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 w-full bg-white">
+            </div>
+            <!-- Buscar pozo -->
+            <div class="relative flex-1 max-w-xs">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 text-xs"></i>
+                <input id="admin-filtro-pozo" type="text" placeholder="Buscar pozo..."
+                    class="pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 w-full bg-white">
+            </div>
+            <!-- Filtrar por fecha -->
+            <input id="admin-filtro-fecha" type="date"
+                class="px-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 text-slate-600 bg-white">
+            <!-- Limpiar -->
+            <button id="admin-btn-limpiar" onclick="limpiarFiltrosAdmin()" class="hidden text-slate-400 hover:text-blue-500 text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white hover:border-blue-200 transition-all flex items-center gap-1.5">
+                <i class="fas fa-xmark"></i> Limpiar
+            </button>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-400">
+                        <th class="px-6 py-3.5 text-left">Empleado</th>
+                        <th class="px-6 py-3.5 text-left">JOB ID</th>
+                        <th class="px-6 py-3.5 text-left">Pozo / Plataforma</th>
+                        <th class="px-6 py-3.5 text-left">Fecha Registro</th>
+                        <th class="px-6 py-3.5 text-left">Estatus</th>
+                        <th class="px-6 py-3.5 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-admin">
+                    <tr id="fila-vacia-admin">
+                        <td colspan="6" class="px-6 py-16 text-center">
+                            <div class="flex flex-col items-center gap-3">
+                                <div class="bg-slate-100 rounded-full p-5">
+                                    <i class="fas fa-oil-well text-slate-300 text-3xl"></i>
+                                </div>
+                                <p class="text-slate-500 font-semibold">No hay operaciones registradas</p>
+                                <p class="text-slate-400 text-sm">Aún no se han registrado operaciones de cementación</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
         </div>
     </div>
@@ -545,192 +653,262 @@
 
             <!-- Footer del panel -->
             <div class="px-8 py-5 border-t border-slate-100 flex items-center justify-between">
-            <button id="btn-anterior" onclick="pasoAnterior()" class="hidden text-slate-500 hover:text-slate-700 text-sm font-semibold px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all">
-                <i class="fas fa-arrow-left mr-2"></i> Anterior
-            </button>
-            <div class="flex-1"></div>
-            <div class="flex gap-3">
-                <button onclick="cerrarFormulario()" class="text-slate-400 text-sm px-5 py-2.5 rounded-xl hover:bg-slate-50 transition-all">Cancelar</button>
-                <button id="btn-siguiente" onclick="pasoSiguiente()" class="bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
-                Siguiente <i class="fas fa-arrow-right"></i>
+                <button id="btn-anterior" onclick="pasoAnterior()" class="hidden text-slate-500 hover:text-slate-700 text-sm font-semibold px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all">
+                    <i class="fas fa-arrow-left mr-2"></i> Anterior
                 </button>
-                <button id="btn-guardar" onclick="guardarOperacion()" class="hidden bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
-                <i class="fas fa-floppy-disk"></i> Guardar Operación
-                </button>
-            </div>
+                <div class="flex-1"></div>
+                <div class="flex gap-3">
+                    <button onclick="cerrarFormulario()" class="text-slate-400 text-sm px-5 py-2.5 rounded-xl hover:bg-slate-50 transition-all">Cancelar</button>
+                    <button id="btn-siguiente" onclick="pasoSiguiente()" class="bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
+                        <i class="fas fa-arrow-right"></i> Siguiente 
+                    </button>
+                    <button id="btn-guardar" onclick="guardarOperacion(false)" class="hidden bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
+                        <i class="fas fa-floppy-disk"></i> Guardar Operación
+                    </button>
+                    <button id="btn-finalizar" onclick="guardarOperacion(true)" class="hidden bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
+                        <i class="fas fa-lock"></i> Finalizar Operación
+                    </button>
+                </div>
             </div>
 
         </div>
     </div>
     <!-- PANEL VISTA GERENCIAL (solo lectura) -->
-    <div id="panel-reporte" class="hidden fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-start justify-center overflow-y-auto py-10 px-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl">
+    <div id="panel-reporte" class="hidden fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-start justify-center overflow-y-auto py-10 px-4">
+        <div class="rounded-2xl shadow-2xl w-full max-w-4xl" style="background:#1e2332;">
 
             <!-- Cabecera -->
-            <div class="flex items-center justify-between px-8 py-6 border-b border-slate-100">
-            <div class="flex items-center gap-4">
-                <div class="bg-green-100 rounded-xl p-2.5">
-                <i class="fas fa-file-contract text-green-600 text-xl"></i>
-                </div>
-                <div>
-                <h3 id="rep-titulo" class="text-xl font-bold text-slate-800">Reporte de Operación</h3>
-                <p id="rep-subtitulo" class="text-slate-400 text-sm mt-0.5">Vista gerencial — Solo lectura</p>
-                </div>
+            <div class="flex items-center justify-between px-6 py-5" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+            <div>
+                <h3 id="rep-titulo" class="text-white text-lg font-bold">Reporte de Operación</h3>
+                <p id="rep-subtitulo" class="text-slate-400 text-xs mt-0.5">Vista de solo lectura</p>
             </div>
-            <div class="flex items-center gap-3">
-                <button onclick="exportarPDF()" class="bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-sm">
-                <i class="fas fa-file-arrow-down"></i> Exportar PDF
-                </button>
-                <button onclick="cerrarReporte()" class="text-slate-400 hover:text-red-600 h-9 w-9 rounded-xl border border-slate-200 flex items-center justify-center transition-colors">
-                <i class="fas fa-times"></i>
-                </button>
-            </div>
+            <button onclick="cerrarReporte()" class="text-slate-400 hover:text-white h-8 w-8 rounded-lg flex items-center justify-center transition-colors" style="background:rgba(255,255,255,0.08);">
+                <i class="fas fa-times text-sm"></i>
+            </button>
             </div>
 
+
             <!-- KPIs automáticos -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 px-8 py-6 bg-slate-50 border-b border-slate-100">
-            <div class="bg-white rounded-xl p-4 border border-slate-200 text-center shadow-sm">
-                <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">⏱️ Duración del Bombeo</p>
-                <p id="rep-duracion-bombeo" class="text-xl font-bold text-slate-800">—</p>
+            <div class="grid grid-cols-3 gap-3 px-6 py-5" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+            <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.06);">
+                <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">⏱️ Duración del Bombeo</p>
+                <p id="rep-duracion-bombeo" class="text-white text-base font-bold">—</p>
             </div>
-            <div class="bg-white rounded-xl p-4 border border-slate-200 text-center shadow-sm">
-                <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">🚛 Estancia en Pozo</p>
-                <p id="rep-estancia" class="text-xl font-bold text-slate-800">—</p>
+            <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.06);">
+                <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">🚛 Estancia en Pozo</p>
+                <p id="rep-estancia" class="text-white text-base font-bold">—</p>
             </div>
-            <div class="bg-white rounded-xl p-4 border border-slate-200 text-center shadow-sm">
-                <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">📈 Estatus del Servicio</p>
-                <p id="rep-estatus-badge" class="text-xl font-bold">—</p>
+            <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.06);">
+                <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">📈 Estatus</p>
+                <p id="rep-estatus-badge" class="text-base font-bold">—</p>
             </div>
             </div>
 
             <!-- Cuerpo del reporte -->
-            <div class="px-8 py-7 grid grid-cols-1 lg:grid-cols-2 gap-8">
-
-            <!-- Columna izquierda -->
-            <div class="space-y-6">
-                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
-                    <i class="fas fa-id-card mr-2"></i>Identificación
+            <div class="px-6 py-5 grid grid-cols-2 gap-4">
+            <!-- Columna izq: Identificación -->
+            <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
+                <i class="fas fa-id-card mr-2"></i>Identificación
                 </p>
-                <div class="space-y-3">
-                    <div class="flex justify-between text-sm">
-                    <span class="text-slate-400">Cliente</span>
-                    <span id="rep-cliente" class="font-semibold text-slate-700 text-right">—</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                    <span class="text-slate-400">Pozo / Plataforma</span>
-                    <span id="rep-pozo" class="font-semibold text-slate-700 text-right">—</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                    <span class="text-slate-400">Rig</span>
-                    <span id="rep-rig" class="font-semibold text-slate-700 text-right">—</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                    <span class="text-slate-400">Ingeniero Responsable</span>
-                    <span id="rep-ingeniero" class="font-semibold text-slate-700 text-right">—</span>
-                    </div>
+                <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-slate-500">JOB ID</span>
+                    <span id="rep-jobid" class="font-mono font-black text-red-400 text-xs bg-red-900/30 px-2 py-0.5 rounded">—</span>
                 </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Cliente</span>
+                    <span id="rep-cliente" class="text-white font-semibold">—</span>
                 </div>
-
-                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
-                    <i class="fas fa-calendar-days mr-2"></i>Fechas de Estancia
-                </p>
-                <div class="space-y-3">
-                    <div class="flex justify-between text-sm">
-                    <span class="text-slate-400">Llegada al Pozo</span>
-                    <span id="rep-llegada" class="font-semibold text-slate-700">—</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                    <span class="text-slate-400">Salida del Pozo</span>
-                    <span id="rep-salida" class="font-semibold text-slate-700">—</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                    <span class="text-slate-400">Inicio del Bombeo</span>
-                    <span id="rep-inicio-bombeo" class="font-semibold text-slate-700">—</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                    <span class="text-slate-400">Fin del Bombeo</span>
-                    <span id="rep-fin-bombeo" class="font-semibold text-slate-700">—</span>
-                    </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Pozo / Plataforma</span>
+                    <span id="rep-pozo" class="text-white font-semibold">—</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Rig</span>
+                    <span id="rep-rig" class="text-white font-semibold">—</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Ingeniero</span>
+                    <span id="rep-ingeniero" class="text-white font-semibold">—</span>
                 </div>
                 </div>
             </div>
 
-            <!-- Columna derecha -->
-            <div class="space-y-6">
-                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
-                    <i class="fas fa-flask-vial mr-2"></i>Datos Técnicos
+            <!-- Columna der: Fechas de Estancia -->
+            <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
+                <i class="fas fa-calendar-days mr-2"></i>Fechas de Estancia
                 </p>
-                    <div class="space-y-3">
-                        <div class="flex justify-between text-sm">
-                        <span class="text-slate-400">Bump Pressure</span>
-                        <span id="rep-presion" class="font-semibold text-slate-700">—</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                        <span class="text-slate-400">Densidad de Lechada</span>
-                        <span id="rep-densidad" class="font-semibold text-slate-700">—</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                        <span class="text-slate-400">Prueba de Válvula</span>
-                        <span id="rep-valvula" class="font-semibold text-slate-700">—</span>
-                        </div>
-                    </div>
-                    <div class="pt-2 border-t border-slate-200 mt-2">
-                        <a id="rep-ver-pdf" href="#" target="_blank" class="hidden text-blue-600 hover:text-blue-800 text-xs font-bold flex items-center gap-2">
-                            <i class="fas fa-file-pdf text-red-500"></i> Ver Gráfica de Presión (PDF)
-                        </a>
-                        <p id="rep-sin-pdf" class="text-xs text-slate-400">Sin gráfica adjunta.</p>
-                    </div>
+                <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Llegada al pozo</span>
+                    <span id="rep-llegada" class="text-white font-semibold">—</span>
                 </div>
-
-                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
-                    <i class="fas fa-note-sticky mr-2"></i>Notas Operativas
-                </p>
-                <p id="rep-notas" class="text-sm text-slate-600 leading-relaxed">—</p>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Salida del pozo</span>
+                    <span id="rep-salida" class="text-white font-semibold">—</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Inicio del bombeo</span>
+                    <span id="rep-inicio-bombeo" class="text-white font-semibold">—</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Fin del bombeo</span>
+                    <span id="rep-fin-bombeo" class="text-white font-semibold">—</span>
+                </div>
                 </div>
             </div>
+            </div>
 
+            <!-- Datos técnicos (fila completa) -->
+            <div class="px-6 pb-5">
+            <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
+                <i class="fas fa-flask-vial mr-2"></i>Datos Técnicos
+                </p>
+                <div class="grid grid-cols-3 gap-4 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Bump Pressure</span>
+                    <span id="rep-presion" class="text-white font-semibold">—</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Densidad de lechada</span>
+                    <span id="rep-densidad" class="text-white font-semibold">—</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Prueba de válvula</span>
+                    <span id="rep-valvula" class="text-green-400 font-semibold">—</span>
+                </div>
+                </div>
+            </div>
             </div>
 
             <!-- Tabla de herramientas en el reporte -->
-            <div class="px-8 pb-8">
-            <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
+            <div class="px-6 pb-6">
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
                 <i class="fas fa-boxes-stacked mr-2"></i>Inventario de Herramientas
             </p>
-            <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <div class="overflow-x-auto rounded-xl" style="border:1px solid rgba(255,255,255,0.08);">
                 <table class="w-full text-xs">
                 <thead>
-                    <tr class="bg-slate-50 text-slate-400 uppercase tracking-wider">
-                    <th class="px-4 py-3 text-left">ID</th>
-                    <th class="px-4 py-3 text-left">N° Serie</th>
-                    <th class="px-4 py-3 text-left">Descripción</th>
-                    <th class="px-4 py-3 text-left">Medida</th>
-                    <th class="px-4 py-3 text-left">Rosca</th>
-                    <th class="px-4 py-3 text-left">Estado Final</th>
+                    <tr style="background:rgba(255,255,255,0.05);">
+                    <th class="px-4 py-3 text-left text-slate-400 font-semibold uppercase tracking-wider">#</th>
+                    <th class="px-4 py-3 text-left text-slate-400 font-semibold uppercase tracking-wider">Nº Serie</th>
+                    <th class="px-4 py-3 text-left text-slate-400 font-semibold uppercase tracking-wider">Descripción</th>
+                    <th class="px-4 py-3 text-left text-slate-400 font-semibold uppercase tracking-wider">Medida</th>
+                    <th class="px-4 py-3 text-left text-slate-400 font-semibold uppercase tracking-wider">Rosca</th>
+                    <th class="px-4 py-3 text-left text-slate-400 font-semibold uppercase tracking-wider">Estado</th>
                     </tr>
                 </thead>
                 <tbody id="rep-tabla-herramientas">
                     <tr>
-                    <td colspan="6" class="px-4 py-8 text-center text-slate-400">Sin herramientas registradas.</td>
+                    <td colspan="6" class="px-4 py-8 text-center text-slate-500">Sin herramientas registradas.</td>
                     </tr>
                 </tbody>
                 </table>
             </div>
             </div>
 
+            <!-- Notas y PDF -->
+            <div class="px-6 pb-5">
+            <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
+                <i class="fas fa-note-sticky mr-2"></i>Notas Operativas
+                </p>
+                <p id="rep-notas" class="text-sm text-slate-300 leading-relaxed">—</p>
+                <div class="mt-3 pt-3 border-t border-white/10">
+                <a id="rep-ver-pdf" href="#" target="_blank" class="hidden text-blue-400 hover:text-blue-300 text-xs font-bold flex items-center gap-2">
+                    <i class="fas fa-file-pdf text-red-400"></i> Ver Gráfica de Presión (PDF)
+                </a>
+                <p id="rep-sin-pdf" class="text-xs text-slate-500">Sin gráfica adjunta.</p>
+                </div>
+            </div>
+            </div>
+
             <!-- Footer con firma -->
-            <div class="px-8 py-5 bg-slate-50 rounded-b-3xl border-t border-slate-100 flex items-center justify-between">
-            <p class="text-xs text-slate-400">Generado por In Hole Solutions · Intranet Corporativa</p>
-            <button onclick="editarDesdeReporte()" class="text-slate-500 hover:text-red-600 text-xs font-bold px-4 py-2 rounded-xl border border-slate-200 hover:bg-red-50 transition-all">
-                <i class="fas fa-pen mr-1"></i> Editar esta operación
+            <div class="px-6 py-4 rounded-b-2xl flex items-center justify-between" style="background:rgba(255,255,255,0.04); border-top:1px solid rgba(255,255,255,0.08);">
+            <p class="text-xs text-slate-500">In Hole Solutions · Intranet Corporativa</p>
+            <button id="btn-editar-reporte" onclick="editarDesdeReporte()" class="text-slate-300 hover:text-white text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-2" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);">
+                <i class="fas fa-pen"></i> Editar operación
             </button>
             </div>
 
         </div>
     </div>
+
+    <!-- PANEL VER MOTIVO COMPLETO (admin) -->
+    <div id="panel-motivo" class="hidden fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="bg-amber-50 rounded-xl p-2">
+                        <i class="fas fa-message text-amber-500 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-700">Motivo de la solicitud</p>
+                        <p id="panel-motivo-pozo" class="text-xs text-slate-400 mt-0.5"></p>
+                    </div>
+                </div>
+                <button onclick="cerrarPanelMotivo()" class="text-slate-400 hover:text-red-600 transition-colors h-9 w-9 rounded-xl border border-slate-200 flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="px-6 py-5">
+                <p id="panel-motivo-texto" class="text-sm text-slate-600 leading-relaxed"></p>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 flex justify-end">
+                <button onclick="cerrarPanelMotivo()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-semibold px-5 py-2 rounded-xl transition-all">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANEL SOLICITAR EDICIÓN (solo empleados) -->
+    <div id="panel-solicitud-edicion" class="hidden fixed inset-0 z-[150] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg panel-entrada">
+            <!-- Header -->
+            <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="bg-amber-50 rounded-xl p-2.5">
+                        <i class="fas fa-pen-to-square text-amber-500 text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800">Solicitar Edición</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Elige la operación que deseas corregir</p>
+                    </div>
+                </div>
+                <button onclick="cerrarPanelSolicitud()" class="text-slate-400 hover:text-red-600 transition-colors h-9 w-9 rounded-xl border border-slate-200 flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Lista de operaciones -->
+            <div class="px-6 py-4 max-h-72 overflow-y-auto" id="lista-ops-solicitud">
+                <p class="text-sm text-slate-400 text-center py-8">Cargando operaciones...</p>
+            </div>
+
+            <!-- Motivo -->
+            <div class="px-6 pb-4">
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Motivo de la solicitud <span class="text-red-400">*</span></label>
+                <textarea id="solicitud-motivo" rows="3" placeholder="Explica brevemente qué necesitas corregir..." class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-200 resize-none"></textarea>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+                <p class="text-xs text-slate-400"><i class="fas fa-clock mr-1"></i> El admin deberá aprobar tu solicitud</p>
+                <div class="flex gap-3">
+                    <button onclick="cerrarPanelSolicitud()" class="text-slate-400 text-sm px-5 py-2.5 rounded-xl hover:bg-slate-50 transition-all">Cancelar</button>
+                    <button onclick="enviarSolicitudEdicion()" class="bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
+                        <i class="fas fa-paper-plane"></i> Enviar Solicitud
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL DE CONFIRMACIÓN PERSONALIZADO -->
     <div id="modal-confirm" class="hidden fixed inset-0 z-[300] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-7 text-center">
@@ -749,6 +927,45 @@
     </div>
   </main>
   <div id="site-footer"></div>
+
+  <!-- ══ PANEL JOB ID ══ -->
+    <div id="panel-jobid">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+        <!-- Header verde éxito -->
+        <div class="bg-gradient-to-r from-green-600 to-emerald-500 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="h-9 w-9 bg-white/20 rounded-xl flex items-center justify-center">
+            <i class="fas fa-circle-check text-white text-lg"></i>
+            </div>
+            <div>
+            <p class="text-white font-black text-sm">¡Operación guardada!</p>
+            <p class="text-green-100 text-xs">Tu JOB ID ha sido generado</p>
+            </div>
+        </div>
+        <button onclick="cerrarPanelJobId()" class="text-white/70 hover:text-white transition-colors">
+            <i class="fas fa-xmark text-lg"></i>
+        </button>
+        </div>
+        <!-- JOB ID -->
+        <div class="px-6 py-5 text-center">
+        <p class="text-xs text-slate-400 uppercase tracking-widest mb-2">JOB ID</p>
+        <div class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl py-4 px-6 mb-4">
+            <p id="texto-jobid" class="font-mono font-black text-2xl text-slate-800 tracking-widest"></p>
+        </div>
+        <p class="text-xs text-slate-400 mb-4">Guarda este número — El administrador lo usará para aprobar tu operación</p>
+        <div class="flex gap-3">
+            <button onclick="copiarJobId()"
+            class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all">
+            <i class="fas fa-copy"></i> Copiar
+            </button>
+            <button onclick="cerrarPanelJobId()"
+            class="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all">
+            <i class="fas fa-check"></i> Entendido
+            </button>
+        </div>
+        </div>
+    </div>
+    </div>
 
   <script>
     // ── CONFIGURACIÓN SUPABASE ──
@@ -783,13 +1000,17 @@
         document.getElementById('footer-year').textContent = new Date().getFullYear();
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session) { window.location.href = 'intranet-login.html'; return; }
+        usuarioId = session.user.id;
 
         const { data: perfil } = await supabaseClient
-            .from('perfiles').select('nombre_completo').eq('id', session.user.id).single();
+            .from('perfiles').select('nombre_completo, rol').eq('id', session.user.id).single();
 
         if (perfil) {
             const welcomeEl = document.getElementById('user-welcome');
             if (welcomeEl) welcomeEl.textContent = `${obtenerSaludo()}, ${perfil.nombre_completo}`;
+            rolUsuario = perfil.rol?.trim() || 'Empleado';
+            console.log('Rol cargado:', rolUsuario);
+            await cargarOperaciones();
         }
     }
 
@@ -797,13 +1018,31 @@
 
     let operaciones = []; // cache local
     let herramientasDelReporte = [];
+    let rolUsuario = 'Empleado';
+    let usuarioId = null;
 
     // ── CARGAR OPERACIONES ──
     async function cargarOperaciones() {
         mostrarSkeleton();
         try {
-            const res = await fetch(`${SUPABASE_URL}/rest/v1/cementing_operaciones?select=*&order=created_at.desc`, { headers });
-            operaciones = await res.json();
+            // Si es empleado Y ya tenemos su ID, filtra por usuario
+            const filtroUsuario = (rolUsuario === 'Empleado' && usuarioId)
+                ? `&usuario_id=eq.${usuarioId}`
+                : '';
+
+            const res = await fetch(
+                `${SUPABASE_URL}/rest/v1/cementing_operaciones?select=*&order=created_at.desc${filtroUsuario}`,
+                { headers }
+            );
+            const data = await res.json();
+
+            if (!res.ok || !Array.isArray(data)) {
+                console.error('Respuesta inválida de Supabase:', data);
+                operaciones = [];
+            } else {
+                operaciones = data;
+            }
+
             quitarSkeleton();
             renderTabla(operaciones);
             actualizarKPIs(operaciones);
@@ -820,8 +1059,15 @@
 
         tbody.querySelectorAll('tr:not(#fila-vacia)').forEach(r => r.remove());
 
+        // Empleado siempre ve solo seccion-jobids, nunca tabla-principal
+        if (rolUsuario === 'Empleado') {
+            document.getElementById('tabla-principal').classList.add('hidden');
+            renderJobIds(datos);
+            return;
+        }
+
         if (!datos.length) {
-            filaVacia.classList.remove('hidden');
+            renderAdmin([]);
             return;
         }
         filaVacia.classList.add('hidden');
@@ -881,17 +1127,187 @@
                 <button onclick="abrirOperacion('${op.id}')" class="text-blue-500 hover:text-blue-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-blue-200 hover:bg-blue-50 transition-all">
                     <i class="fas fa-eye mr-1"></i> Ver
                 </button>
+                ${rolUsuario !== 'Empleado' ? `
                 <button onclick="editarOperacion('${op.id}')" class="text-slate-500 hover:text-red-600 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-red-50 transition-all">
                     <i class="fas fa-pen mr-1"></i> Editar
                 </button>
                 <button onclick="eliminarOperacion('${op.id}')" class="text-slate-300 hover:text-red-500 text-xs px-2 py-1.5 rounded-lg border border-slate-100 hover:bg-red-50 hover:border-red-200 transition-all">
                     <i class="fas fa-trash-can"></i>
                 </button>
+                ` : ''}
                 </div>
             </td>
             `;
             tbody.appendChild(tr);
         });
+        if (rolUsuario === 'Empleado') {
+            renderJobIds(datos);
+        } else {
+            renderAdmin(datos);
+        }
+    }
+
+    // ── HISTORIAL JOB IDs (empleado) ──
+    function renderJobIds(datos) {
+        if (rolUsuario !== 'Empleado') return;
+
+        document.getElementById('seccion-jobids').classList.remove('hidden');
+
+        const tbody     = document.getElementById('tabla-jobids');
+        const filaVacia = document.getElementById('fila-vacia-jobids');
+
+        tbody.querySelectorAll('tr:not(#fila-vacia-jobids)').forEach(r => r.remove());
+
+        const conJobId = datos.filter(op => op.job_id);
+
+        if (!conJobId.length) {
+            filaVacia.classList.remove('hidden');
+            return;
+        }
+        filaVacia.classList.add('hidden');
+
+        conJobId.forEach((op, index) => {
+            const badge = badgeEstatus(op.estatus);
+            const tr = document.createElement('tr');
+            tr.className = 'border-b border-slate-100 hover:bg-slate-50 transition-all fila-animada';
+            tr.style.animationDelay = `${index * 60}ms`;
+            tr.innerHTML = `
+                <td class="px-6 py-4">
+                    <span class="font-mono font-bold text-[#e31e24] text-xs bg-red-50 px-2.5 py-1 rounded-lg">${op.job_id}</span>
+                </td>
+                <td class="px-6 py-4">
+                    <p class="font-bold text-slate-800 text-sm">${op.nombre_pozo || '—'}</p>
+                    <p class="text-xs text-slate-400 mt-0.5">${op.rig || 'Sin rig'}</p>
+                </td>
+                <td class="px-6 py-4 text-sm text-slate-600">${op.cliente || '—'}</td>
+                <td class="px-6 py-4 text-sm text-slate-500">${formatearFecha(op.created_at)}</td>
+                <td class="px-6 py-4">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${badge.clase}">
+                        ${badge.texto}
+                    </span>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex items-center justify-center gap-2">
+                        <button onclick="abrirOperacion('${op.id}')" class="text-blue-500 hover:text-blue-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-blue-200 hover:bg-blue-50 transition-all">
+                            <i class="fas fa-eye mr-1"></i> Ver
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // ── PANEL ADMINISTRADOR ──
+    function renderAdmin(datos) {
+        if (rolUsuario === 'Empleado') return;
+
+        document.getElementById('tabla-principal').classList.add('hidden');
+        document.getElementById('seccion-admin').classList.remove('hidden');
+
+        // Carga solicitudes solo la primera vez
+        if (!document.getElementById('admin-filtro-empleado').dataset.init) {
+            cargarSolicitudes();
+            operacionesAdmin = datos;
+            document.getElementById('admin-filtro-empleado').dataset.init = 'true';
+            document.getElementById('admin-filtro-empleado').addEventListener('input',  aplicarFiltrosAdmin);
+            document.getElementById('admin-filtro-pozo').addEventListener('input',      aplicarFiltrosAdmin);
+            document.getElementById('admin-filtro-fecha').addEventListener('change',    aplicarFiltrosAdmin);
+        }
+
+        const tbody     = document.getElementById('tabla-admin');
+        const filaVacia = document.getElementById('fila-vacia-admin');
+
+        tbody.querySelectorAll('tr:not(#fila-vacia-admin)').forEach(r => r.remove());
+
+        if (!datos.length) {
+            filaVacia.classList.remove('hidden');
+            // Ocultar filtros cuando no hay datos
+            document.getElementById('admin-filtro-empleado').closest('div.px-6').classList.add('hidden');
+            return;
+        }
+        document.getElementById('admin-filtro-empleado').closest('div.px-6').classList.remove('hidden');
+        filaVacia.classList.add('hidden');
+
+        datos.forEach((op, index) => {
+            const badge    = badgeEstatus(op.estatus);
+            const empleado = op.ingeniero || 'Sin nombre';
+            const iniciales = empleado.split(' ').slice(0, 2).map(p => p[0]).join('').toUpperCase();
+            const coloresAvatar = ['bg-blue-100 text-blue-700','bg-purple-100 text-purple-700',
+                'bg-green-100 text-green-700','bg-orange-100 text-orange-700','bg-rose-100 text-rose-700'];
+            const colorAvatar = coloresAvatar[empleado.charCodeAt(0) % coloresAvatar.length];
+
+            const tr = document.createElement('tr');
+            tr.className = 'border-b border-slate-100 hover:bg-slate-50 transition-all fila-animada';
+            tr.style.animationDelay = `${index * 60}ms`;
+            tr.innerHTML = `
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-2">
+                        <div class="h-8 w-8 rounded-full ${colorAvatar} flex items-center justify-center text-xs font-black flex-shrink-0">${iniciales}</div>
+                        <span class="text-sm font-semibold text-slate-700">${empleado}</span>
+                    </div>
+                </td>
+                <td class="px-6 py-4">
+                    ${op.job_id
+                        ? `<span class="font-mono font-bold text-[#e31e24] text-xs bg-red-50 px-2.5 py-1 rounded-lg">${op.job_id}</span>`
+                        : `<span class="text-slate-300 text-xs">Sin JOB ID</span>`}
+                </td>
+                <td class="px-6 py-4">
+                    <p class="font-bold text-slate-800 text-sm">${op.nombre_pozo || '—'}</p>
+                    <p class="text-xs text-slate-400 mt-0.5">${op.rig || 'Sin rig'}</p>
+                </td>
+                <td class="px-6 py-4 text-sm text-slate-500">${formatearFecha(op.created_at)}</td>
+                <td class="px-6 py-4">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${badge.clase}">
+                        ${badge.texto}
+                    </span>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex items-center justify-center gap-2">
+                        <button onclick="abrirOperacion('${op.id}')" class="text-blue-500 hover:text-blue-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-blue-200 hover:bg-blue-50 transition-all">
+                            <i class="fas fa-eye mr-1"></i> Ver
+                        </button>
+                        <button onclick="verYExportarPDF('${op.id}')" class="text-green-500 hover:text-green-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-green-200 hover:bg-green-50 transition-all">
+                            <i class="fas fa-file-arrow-down mr-1"></i> PDF
+                        </button>
+                        <button onclick="eliminarOperacion('${op.id}')" class="text-slate-300 hover:text-red-500 text-xs px-2 py-1.5 rounded-lg border border-slate-100 hover:bg-red-50 hover:border-red-200 transition-all">
+                            <i class="fas fa-trash-can"></i>
+                        </button>
+                        
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // ── FILTROS PANEL ADMIN ──
+    let operacionesAdmin = []; // cache para el filtro
+
+    function aplicarFiltrosAdmin() {
+        const empleado = document.getElementById('admin-filtro-empleado').value.toLowerCase();
+        const pozo     = document.getElementById('admin-filtro-pozo').value.toLowerCase();
+        const fecha    = document.getElementById('admin-filtro-fecha').value;
+
+        const hayFiltros = empleado || pozo || fecha;
+        document.getElementById('admin-btn-limpiar').classList.toggle('hidden', !hayFiltros);
+
+        const filtradas = operacionesAdmin.filter(op => {
+            const coincideEmpleado = !empleado || (op.ingeniero || '').toLowerCase().includes(empleado);
+            const coincidePozo     = !pozo     || (op.nombre_pozo || '').toLowerCase().includes(pozo);
+            const coincideFecha    = !fecha    || (op.created_at || '').startsWith(fecha);
+            return coincideEmpleado && coincidePozo && coincideFecha;
+        });
+
+        renderAdmin(filtradas);
+    }
+
+    function limpiarFiltrosAdmin() {
+        document.getElementById('admin-filtro-empleado').value = '';
+        document.getElementById('admin-filtro-pozo').value     = '';
+        document.getElementById('admin-filtro-fecha').value    = '';
+        document.getElementById('admin-btn-limpiar').classList.add('hidden');
+        renderAdmin(operacionesAdmin);
     }
 
     // ── KPIs ──
@@ -1028,153 +1444,7 @@
         document.querySelectorAll('.skeleton-row').forEach(r => r.remove());
     }
 
-    // ══ TRACKING ══
-    async function cargarTracking() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (!session) return;
 
-    const { data: perfil } = await supabaseClient
-        .from('perfiles').select('rol, nombre_completo').eq('id', session.user.id).single();
-
-    const esAdmin = ['admin','administrador','Administrador'].includes(perfil?.rol);
-
-    // Si es empleado, ocultar columna Empleado y ocultar formulario si es admin
-    if (esAdmin) {
-        document.getElementById('form-tracking-empleado').classList.add('hidden');
-        document.getElementById('col-acciones-tracking').classList.remove('hidden');
-    } else {
-        document.getElementById('col-acciones-tracking').classList.add('hidden');
-    }
-
-    // Cargar registros
-    let query = supabaseClient
-        .from('tracking_registros')
-        .select('*')
-        .order('fecha_envio', { ascending: false });
-
-    if (!esAdmin) query = query.eq('usuario_id', session.user.id);
-
-    const { data: trackings } = await query;
-
-    // Badge pendientes para admin
-    if (esAdmin && trackings) {
-        const pendientes = trackings.filter(t => t.estado === 'pendiente').length;
-        if (pendientes > 0) {
-        document.getElementById('num-pendientes').textContent = pendientes;
-        document.getElementById('badge-pendientes').classList.remove('hidden');
-        }
-    }
-
-    const tbody = document.getElementById('tabla-tracking');
-    if (!trackings || trackings.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-slate-400 text-xs">
-        <i class="fas fa-inbox mr-2"></i> Sin trackings registrados</td></tr>`;
-        return;
-    }
-
-    tbody.innerHTML = trackings.map(t => {
-        const fecha = new Date(t.fecha_envio).toLocaleDateString('es-MX', {
-        day:'2-digit', month:'short', year:'numeric'
-        });
-        const badgeClass = {
-        pendiente: 'badge-tracking-pendiente',
-        aprobado:  'badge-tracking-aprobado',
-        rechazado: 'badge-tracking-rechazado'
-        }[t.estado] || 'badge-tracking-pendiente';
-
-        const icono = {
-        pendiente: 'fa-clock',
-        aprobado:  'fa-circle-check',
-        rechazado: 'fa-circle-xmark'
-        }[t.estado] || 'fa-clock';
-
-        const accionesAdmin = esAdmin ? `
-        <div class="flex items-center justify-center gap-2">
-            ${t.estado === 'pendiente' ? `
-            <button onclick="revisarTracking('${t.id}','aprobado')"
-                class="bg-green-500 hover:bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1">
-                <i class="fas fa-check"></i> Aprobar
-            </button>
-            <button onclick="revisarTracking('${t.id}','rechazado')"
-                class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1">
-                <i class="fas fa-xmark"></i> Rechazar
-            </button>` : `<span class="text-slate-300 text-xs">Ya revisado</span>`}
-        </div>` : `<span class="text-slate-300 text-xs">—</span>`;
-
-        return `
-        <tr class="border-b border-slate-50 hover:bg-slate-50 transition-colors fila-animada">
-            <td class="px-6 py-3.5">
-            <span class="font-mono font-bold text-slate-700 text-sm">${t.numero_tracking}</span>
-            </td>
-            <td class="px-6 py-3.5 text-slate-500 text-sm">${t.nombre_empleado || '—'}</td>
-            <td class="px-6 py-3.5 text-slate-400 text-xs">${fecha}</td>
-            <td class="px-6 py-3.5">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${badgeClass}">
-                <i class="fas ${icono} text-[10px]"></i>
-                ${t.estado.charAt(0).toUpperCase() + t.estado.slice(1)}
-            </span>
-            </td>
-            <td class="px-6 py-3.5">${accionesAdmin}</td>
-        </tr>`;
-    }).join('');
-    }
-
-    async function enviarTracking() {
-    const input = document.getElementById('input-tracking');
-    const msg = document.getElementById('msg-tracking');
-    const numero = input.value.trim();
-
-    if (!numero) {
-        msg.textContent = '⚠️ Ingresa un número de tracking válido.';
-        msg.className = 'text-xs mt-2 text-amber-600';
-        msg.classList.remove('hidden');
-        return;
-    }
-
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    const { data: perfil } = await supabaseClient
-        .from('perfiles').select('nombre_completo').eq('id', session.user.id).single();
-
-    const { error } = await supabaseClient.from('tracking_registros').insert({
-        numero_tracking: numero,
-        usuario_id: session.user.id,
-        nombre_empleado: perfil?.nombre_completo || session.user.email,
-        estado: 'pendiente'
-    });
-
-    if (error) {
-        msg.textContent = '❌ Error al enviar. Intenta de nuevo.';
-        msg.className = 'text-xs mt-2 text-red-600';
-    } else {
-        msg.textContent = '✅ Tracking enviado. Pendiente de aprobación.';
-        msg.className = 'text-xs mt-2 text-green-600';
-        input.value = '';
-        await cargarTracking();
-    }
-    msg.classList.remove('hidden');
-    setTimeout(() => msg.classList.add('hidden'), 4000);
-    }
-
-    async function revisarTracking(id, estado) {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    const { data: perfil } = await supabaseClient
-        .from('perfiles').select('nombre_completo').eq('id', session.user.id).single();
-
-    const { error } = await supabaseClient
-        .from('tracking_registros')
-        .update({
-        estado,
-        fecha_revision: new Date().toISOString(),
-        revisado_por: perfil?.nombre_completo || session.user.email
-        })
-        .eq('id', id);
-
-    if (!error) await cargarTracking();
-    }
-
-    // ── INICIO ──
-    cargarOperaciones();
-    cargarTracking();
 
     // ── ESTADO DEL FORMULARIO ──
     let pasoActual = 1;
@@ -1191,8 +1461,12 @@
         irPaso(1);
 
         if (id) {
-            document.getElementById('form-titulo').textContent = 'Editar Operación';
             const op = operaciones.find(o => o.id === id);
+            if (op?.finalizada) {
+                mostrarToast('🔒 Esta operación está finalizada y no puede editarse.');
+                return;
+            }
+            document.getElementById('form-titulo').textContent = 'Editar Operación';
             if (op) cargarDatosEnFormulario(op);
             await cargarHerramientasEnFormulario(id); // <-- carga las herramientas guardadas
         } else {
@@ -1228,6 +1502,7 @@
         document.getElementById('btn-anterior').classList.toggle('hidden', n === 1);
         document.getElementById('btn-siguiente').classList.toggle('hidden', n === 3);
         document.getElementById('btn-guardar').classList.toggle('hidden', n !== 3);
+        document.getElementById('btn-finalizar').classList.toggle('hidden', n !== 3);
     }
 
     function pasoSiguiente() { if (pasoActual < 3) irPaso(pasoActual + 1); }
@@ -1378,6 +1653,16 @@
         document.getElementById('archivo-ver-link').classList.add('hidden');
     }
 
+    // Solo limpia el estado local sin tocar Supabase
+    function limpiarEstadoArchivo() {
+        archivoSeleccionado = null;
+        archivoUrlExistente = null;
+        document.getElementById('f-archivo').value = '';
+        document.getElementById('zona-archivo').classList.remove('hidden');
+        document.getElementById('archivo-estado').classList.add('hidden');
+        document.getElementById('archivo-ver-link').classList.add('hidden');
+    }
+
     function mostrarArchivoExistente(url) {
         if (!url) return;
         archivoUrlExistente = url;
@@ -1443,7 +1728,7 @@
         document.getElementById('calc-estancia').textContent = '— días';
         document.getElementById('tabla-herramientas').querySelectorAll('tr:not(#fila-vacia-tools)').forEach(r => r.remove());
         document.getElementById('fila-vacia-tools').classList.remove('hidden');
-        quitarArchivo();
+        limpiarEstadoArchivo();
     }
 
     // ── CARGAR DATOS (modo edición) ──
@@ -1463,14 +1748,39 @@
         document.getElementById('f-notas').value           = op.notas || '';
         calcularTiempos();
         // Cargar archivo existente si lo tiene
-        quitarArchivo(); // limpia primero
+        limpiarEstadoArchivo();
         if (op.archivo_presion_url) {
         mostrarArchivoExistente(op.archivo_presion_url);
         }
     }
 
+    // ── GENERAR JOB ID ──
+    function generarJobId() {
+    const año = new Date().getFullYear();
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let codigo = '';
+    for (let i = 0; i < 6; i++) codigo += chars.charAt(Math.floor(Math.random() * chars.length));
+    return `CEM-${año}-${codigo}`;
+    }
+
+    function mostrarPanelJobId(jobId) {
+    document.getElementById('texto-jobid').textContent = jobId;
+    document.getElementById('panel-jobid').classList.add('visible');
+    }
+
+    function cerrarPanelJobId() {
+    document.getElementById('panel-jobid').classList.remove('visible');
+    }
+
+    function copiarJobId() {
+    const texto = document.getElementById('texto-jobid').textContent;
+    navigator.clipboard.writeText(texto).then(() => {
+        mostrarToast('✅ JOB ID copiado al portapapeles');
+    });
+    }
+
     // ── GUARDAR EN SUPABASE ──
-    async function guardarOperacion() {
+    async function guardarOperacion(finalizar = false) {
         const btnGuardar = document.getElementById('btn-guardar');
         // ── VALIDACIÓN ──
         const cliente  = document.getElementById('f-cliente').value.trim();
@@ -1496,6 +1806,8 @@
         btnGuardar.disabled = true;
         btnGuardar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
 
+        const jobId = operacionEditandoId ? null : generarJobId();
+
         const payload = {
             cliente:               document.getElementById('f-cliente').value,
             nombre_pozo:           document.getElementById('f-pozo').value,
@@ -1510,7 +1822,9 @@
             densidad_lechada:      parseFloat(document.getElementById('f-densidad').value) || null,
             prueba_valvula:        document.getElementById('f-valvula').value || null,
             notas:                 document.getElementById('f-notas').value || null,
-            // archivo se actualiza por separado después de subir
+            ...(jobId && { job_id: jobId }),
+            usuario_id: usuarioId,
+            finalizada: finalizar,
         };
 
         try {
@@ -1553,6 +1867,7 @@
                 cerrarFormulario(false); // sin confirmación, ya se guardó
                 await cargarOperaciones();
                 mostrarToast('✅ Operación guardada correctamente.');
+                if (jobId) mostrarPanelJobId(jobId);
                 } else {
                     const err = await res.json();
                     alert('Error al guardar: ' + JSON.stringify(err));
@@ -1589,6 +1904,7 @@
         repEstatus.className    = `text-base font-bold px-3 py-1 rounded-full ${badge.clase}`;
 
         // Identificación
+        document.getElementById('rep-jobid').textContent = op.job_id || 'Sin JOB ID';
         document.getElementById('rep-cliente').textContent   = op.cliente    || '—';
         document.getElementById('rep-pozo').textContent      = op.nombre_pozo || '—';
         document.getElementById('rep-rig').textContent       = op.rig        || '—';
@@ -1610,6 +1926,12 @@
         await cargarHerramientasEnReporte(id);
 
         document.getElementById('panel-reporte').classList.remove('hidden');
+
+        const btnEditarReporte = document.getElementById('btn-editar-reporte');
+        if (btnEditarReporte) {
+            const puedeEditar = rolUsuario === 'Empleado' && !op.finalizada;
+            btnEditarReporte.classList.toggle('hidden', !puedeEditar);
+        }
         document.body.style.overflow = 'hidden';
 
         // Botón ver PDF en el reporte
@@ -1622,6 +1944,12 @@
         }
     }
 
+    // ── EXPORTAR PDF DESDE PANEL ADMIN ──
+    async function verYExportarPDF(id) {
+        await abrirOperacion(id);
+        exportarPDF();
+    }
+
     function cerrarReporte() {
         document.getElementById('panel-reporte').classList.add('hidden');
         document.body.style.overflow = '';
@@ -1630,6 +1958,10 @@
     function editarDesdeReporte() {
         cerrarReporte();
         mostrarFormulario(operacionViendoId);
+    }
+
+    function editarOperacion(id) {
+        mostrarFormulario(id);
     }
 
     // ── HELPERS DE TIEMPO ──
@@ -1688,6 +2020,14 @@
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
         doc.text(op.nombre_pozo || 'Sin nombre', 14, 38);
+
+        // JOB ID alineado a la derecha, al mismo nivel que el nombre del pozo
+        if (op.job_id) {
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...rojo);
+        doc.text(`JOB ID: ${op.job_id}`, 196, 38, { align: 'right' });
+        }
 
         doc.setFontSize(9);
         doc.setFont('helvetica', 'normal');
@@ -1882,13 +2222,13 @@
             }[h.estado_final] || 'bg-slate-100 text-slate-600';
 
             const tr = document.createElement('tr');
-            tr.className = 'border-t border-slate-100';
+            tr.className = 'border-t border-white/5';
             tr.innerHTML = `
                 <td class="px-4 py-3 text-slate-400 font-mono">#${String(i+1).padStart(3,'0')}</td>
-                <td class="px-4 py-3 font-semibold text-slate-700">${h.numero_serie || '—'}</td>
-                <td class="px-4 py-3 text-slate-600">${h.descripcion || '—'}</td>
-                <td class="px-4 py-3 text-slate-600">${h.medida || '—'}</td>
-                <td class="px-4 py-3 text-slate-600">${h.rosca || '—'}</td>
+                <td class="px-4 py-3 font-semibold text-slate-200">${h.numero_serie || '—'}</td>
+                <td class="px-4 py-3 text-slate-300">${h.descripcion || '—'}</td>
+                <td class="px-4 py-3 text-slate-300">${h.medida || '—'}</td>
+                <td class="px-4 py-3 text-slate-300">${h.rosca || '—'}</td>
                 <td class="px-4 py-3">
                 <span class="px-2.5 py-1 rounded-full text-xs font-bold ${estadoClase}">
                     ${h.estado_final || '—'}
@@ -1945,6 +2285,306 @@
             console.error('Error cargando herramientas en formulario:', e);
         }
     }
+
+    // ── SOLICITAR EDICIÓN ──
+    let operacionSolicitada = null;
+
+    function abrirPanelSolicitud() {
+        operacionSolicitada = null;
+        document.getElementById('solicitud-motivo').value = '';
+        document.getElementById('panel-solicitud-edicion').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        cargarOpsSolicitud();
+    }
+
+    function cerrarPanelSolicitud() {
+        document.getElementById('panel-solicitud-edicion').classList.add('hidden');
+        document.body.style.overflow = '';
+        operacionSolicitada = null;
+    }
+
+    async function cargarOpsSolicitud() {
+        const lista = document.getElementById('lista-ops-solicitud');
+        lista.innerHTML = '<p class="text-sm text-slate-400 text-center py-8">Cargando operaciones...</p>';
+
+        // Traer solicitudes pendientes del usuario para saber cuales ya solicitó
+        const resSols = await fetch(
+            `${SUPABASE_URL}/rest/v1/cementing_solicitudes_edicion?usuario_id=eq.${usuarioId}&estatus=eq.pendiente&select=operacion_id`,
+            { headers }
+        );
+        const solsPendientes = await resSols.json();
+        const idsPendientes = Array.isArray(solsPendientes)
+            ? solsPendientes.map(s => s.operacion_id)
+            : [];
+
+        // Filtrar operaciones del usuario que estén finalizadas
+        const ops = operaciones.filter(o => o.finalizada);
+
+        if (!ops.length) {
+            lista.innerHTML = `
+                <div class="flex flex-col items-center gap-2 py-8">
+                    <i class="fas fa-circle-check text-slate-200 text-3xl"></i>
+                    <p class="text-sm text-slate-400 font-semibold">No tienes operaciones finalizadas</p>
+                    <p class="text-xs text-slate-300">Solo puedes solicitar edición de operaciones ya finalizadas</p>
+                </div>`;
+            return;
+        }
+
+        lista.innerHTML = '';
+        ops.forEach(op => {
+            const yaSolicitada = idsPendientes.includes(op.id);
+            const div = document.createElement('div');
+            div.id = `sol-op-${op.id}`;
+            div.className = `flex items-center justify-between p-3 rounded-xl border mb-2 cursor-pointer transition-all
+                ${yaSolicitada ? 'border-amber-200 bg-amber-50 cursor-not-allowed' : 'border-slate-200 hover:border-amber-300 hover:bg-amber-50'}`;
+
+            div.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-oil-well text-slate-400 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-700">${op.nombre_pozo || '—'}</p>
+                        <p class="text-xs text-slate-400">${op.job_id || 'Sin JOB ID'} · ${op.cliente || '—'}</p>
+                    </div>
+                </div>
+                ${yaSolicitada
+                    ? `<span class="text-xs font-bold text-amber-600 bg-amber-100 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                        <i class="fas fa-clock"></i> Pendiente
+                    </span>`
+                    : `<div class="h-5 w-5 rounded-full border-2 border-slate-300 flex-shrink-0" id="check-${op.id}"></div>`
+                }
+            `;
+
+            if (!yaSolicitada) {
+                div.addEventListener('click', () => seleccionarOpSolicitud(op.id, ops));
+            }
+
+            lista.appendChild(div);
+        });
+    }
+
+    function seleccionarOpSolicitud(id, ops) {
+        // Deseleccionar todas
+        ops.forEach(op => {
+            const div = document.getElementById(`sol-op-${op.id}`);
+            const check = document.getElementById(`check-${op.id}`);
+            if (div && check) {
+                div.classList.remove('border-amber-400', 'bg-amber-50');
+                div.classList.add('border-slate-200');
+                check.classList.remove('bg-amber-400', 'border-amber-400');
+                check.innerHTML = '';
+            }
+        });
+
+        // Seleccionar la elegida
+        operacionSolicitada = id;
+        const divSel   = document.getElementById(`sol-op-${id}`);
+        const checkSel = document.getElementById(`check-${id}`);
+        if (divSel && checkSel) {
+            divSel.classList.add('border-amber-400', 'bg-amber-50');
+            divSel.classList.remove('border-slate-200');
+            checkSel.classList.add('bg-amber-400', 'border-amber-400');
+            checkSel.innerHTML = '<i class="fas fa-check text-white text-[10px]"></i>';
+        }
+    }
+
+    async function enviarSolicitudEdicion() {
+        if (!operacionSolicitada) {
+            mostrarToast('⚠️ Selecciona una operación primero.', 'error');
+            return;
+        }
+        const motivo = document.getElementById('solicitud-motivo').value.trim();
+        if (!motivo) {
+            mostrarToast('⚠️ Escribe el motivo de la solicitud.', 'error');
+            return;
+        }
+
+        const op = operaciones.find(o => o.id === operacionSolicitada);
+
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/cementing_solicitudes_edicion`, {
+                method: 'POST',
+                headers: { ...headers, 'Prefer': 'return=minimal' },
+                body: JSON.stringify({
+                    operacion_id: operacionSolicitada,
+                    usuario_id:   usuarioId,
+                    job_id:       op?.job_id || null,
+                    nombre_pozo:  op?.nombre_pozo || null,
+                    motivo:       motivo,
+                    estatus:      'pendiente'
+                })
+            });
+
+            if (res.ok) {
+                cerrarPanelSolicitud();
+                mostrarToast('✅ Solicitud enviada. Espera la aprobación del administrador.', 'exito');
+            } else {
+                mostrarToast('Error al enviar la solicitud.', 'error');
+            }
+        } catch(e) {
+            mostrarToast('Error de conexión.', 'error');
+            console.error(e);
+        }
+    }
+
+    // ── PANEL MOTIVO COMPLETO ──
+    function abrirPanelMotivo(pozo, motivo) {
+        document.getElementById('panel-motivo-pozo').textContent = pozo || '—';
+        document.getElementById('panel-motivo-texto').textContent = motivo || '—';
+        document.getElementById('panel-motivo').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarPanelMotivo() {
+        document.getElementById('panel-motivo').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    // ── SOLICITUDES DE EDICIÓN (admin) ──
+    async function cargarSolicitudes() {
+        if (rolUsuario === 'Empleado') return;
+
+        try {
+            const res = await fetch(
+                `${SUPABASE_URL}/rest/v1/cementing_solicitudes_edicion?order=created_at.desc&select=*`,
+                { headers }
+            );
+            const data = await res.json();
+
+            // Traer nombres de perfiles por separado
+            const idsUnicos = [...new Set(data.map(s => s.usuario_id))];
+            let mapaPerfiles = {};
+            if (idsUnicos.length) {
+                const resPer = await fetch(
+                    `${SUPABASE_URL}/rest/v1/perfiles?id=in.(${idsUnicos.join(',')})&select=id,nombre_completo`,
+                    { headers }
+                );
+                const perfilesData = await resPer.json();
+                if (Array.isArray(perfilesData)) {
+                    perfilesData.forEach(p => { mapaPerfiles[p.id] = p.nombre_completo; });
+                }
+            }
+
+            const seccion = document.getElementById('seccion-solicitudes');
+            seccion.classList.remove('hidden');
+
+            const tbody     = document.getElementById('tabla-solicitudes');
+            const filaVacia = document.getElementById('fila-vacia-solicitudes');
+            tbody.querySelectorAll('tr:not(#fila-vacia-solicitudes)').forEach(r => r.remove());
+
+            // Badge con cantidad de pendientes
+            const pendientes = data.filter(s => s.estatus === 'pendiente');
+            const badge = document.getElementById('badge-solicitudes-pendientes');
+            if (pendientes.length) {
+                badge.textContent = `${pendientes.length} pendiente${pendientes.length > 1 ? 's' : ''}`;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            if (!data.length) {
+                filaVacia.classList.remove('hidden');
+                return;
+            }
+            filaVacia.classList.add('hidden');
+
+            data.forEach((sol, index) => {
+                const esPendiente = sol.estatus === 'pendiente';
+                const badgeClase = {
+                    'pendiente':  'bg-amber-100 text-amber-700',
+                    'aprobada':   'bg-green-100 text-green-700',
+                    'rechazada':  'bg-red-100 text-red-700'
+                }[sol.estatus] || 'bg-slate-100 text-slate-500';
+
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-slate-100 hover:bg-slate-50 transition-all fila-animada';
+                tr.style.animationDelay = `${index * 60}ms`;
+                tr.innerHTML = `
+                    <td class="px-6 py-4">
+                        <p class="font-bold text-slate-800 text-sm">${sol.nombre_pozo || '—'}</p>
+                        <p class="text-xs text-slate-400 mt-0.5">${mapaPerfiles[sol.usuario_id] || sol.usuario_id}</p>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="font-mono font-bold text-[#e31e24] text-xs bg-red-50 px-2.5 py-1 rounded-lg">
+                            ${sol.job_id || '—'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-500 max-w-[200px] cursor-pointer group" onclick="abrirPanelMotivo('${sol.nombre_pozo}', \`${sol.motivo}\`)">
+                        <p class="truncate group-hover:text-amber-500 transition-colors">${sol.motivo || '—'}</p>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-500">${formatearFecha(sol.created_at)}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold ${badgeClase}">
+                            ${sol.estatus.charAt(0).toUpperCase() + sol.estatus.slice(1)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center justify-center gap-2">
+                            ${esPendiente ? `
+                            <button onclick="responderSolicitud('${sol.id}', '${sol.operacion_id}', 'aprobada')"
+                                class="text-green-600 hover:text-green-800 text-xs font-bold px-3 py-1.5 rounded-lg border border-green-200 hover:bg-green-50 transition-all">
+                                <i class="fas fa-check mr-1"></i> Aprobar
+                            </button>
+                            <button onclick="responderSolicitud('${sol.id}', '${sol.operacion_id}', 'rechazada')"
+                                class="text-red-400 hover:text-red-600 text-xs font-bold px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-all">
+                                <i class="fas fa-times mr-1"></i> Rechazar
+                            </button>
+                            ` : `<span class="text-slate-300 text-xs">Sin acciones</span>`}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+        } catch(e) {
+            console.error('Error cargando solicitudes:', e);
+        }
+    }
+
+    async function responderSolicitud(solicitudId, operacionId, decision) {
+        const textos = {
+            aprobada:  { icono: '✅', titulo: 'Aprobar solicitud', msg: 'El empleado podrá editar esta operación.', btn: 'Sí, aprobar',   color: 'bg-green-600 hover:bg-green-700' },
+            rechazada: { icono: '❌', titulo: 'Rechazar solicitud', msg: 'Se notificará al empleado que fue rechazada.', btn: 'Sí, rechazar', color: 'bg-[#e31e24] hover:bg-red-700' }
+        };
+        const t = textos[decision];
+
+        const ok = await confirmar({
+            icono: t.icono, titulo: t.titulo, mensaje: t.msg,
+            textoAceptar: t.btn, colorAceptar: t.color
+        });
+        if (!ok) return;
+
+        try {
+            // 1. Actualizar estatus de la solicitud
+            await fetch(`${SUPABASE_URL}/rest/v1/cementing_solicitudes_edicion?id=eq.${solicitudId}`, {
+                method: 'PATCH',
+                headers,
+                body: JSON.stringify({ estatus: decision })
+            });
+
+            // 2. Si se aprobó, desbloquear la operación (finalizada = false)
+            if (decision === 'aprobada') {
+                await fetch(`${SUPABASE_URL}/rest/v1/cementing_operaciones?id=eq.${operacionId}`, {
+                    method: 'PATCH',
+                    headers,
+                    body: JSON.stringify({ finalizada: false })
+                });
+            }
+
+            mostrarToast(
+                decision === 'aprobada' ? '✅ Solicitud aprobada. El empleado puede editar.' : '❌ Solicitud rechazada.',
+                decision === 'aprobada' ? 'exito' : 'error'
+            );
+
+            cargarSolicitudes(); // refrescar la tabla
+
+        } catch(e) {
+            mostrarToast('Error al procesar la solicitud.', 'error');
+            console.error(e);
+        }
+    }
+
     // ── TOAST DE CONFIRMACIÓN ──
     function mostrarToast(mensaje, tipo = 'exito') {
         const colores = {
