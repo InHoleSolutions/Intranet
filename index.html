@@ -10,6 +10,59 @@
   <link rel="stylesheet" href="assets/css/libraries.css">
   <link rel="stylesheet" href="assets/css/style.css">
 	<link rel="stylesheet" type="text/css" href="assets/css/hoja_estilo.css">
+  <style>
+    .servicios-row > div[class*="col-"] {
+      display: flex;
+    }
+    .servicios-row .portfolio-item {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+    .servicios-row .portfolio__content {
+      flex: 1;
+    }
+    .servicios-row .portfolio__img img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+    }
+    .portfolio__img--slider {
+      position: relative;
+      overflow: hidden;
+      height: 220px;
+    }
+    .portfolio__img--slider .slider-img {
+      display: none !important;
+    }
+    .portfolio__img--slider .slider-img.active {
+      display: block !important;
+    }
+    .slider-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.45);
+      color: #fff;
+      border: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      transition: background 0.2s;
+    }
+    .slider-arrow:hover {
+      background: rgba(0,0,0,0.75);
+    }
+    .slider-arrow--prev { left: 10px; }
+    .slider-arrow--next { right: 10px; }
+  </style>
 </head>
 
 <body>
@@ -20,6 +73,7 @@
   <video id="slider3" autoplay loop muted>
     <source src="assets/images/sliders/Video360.mp4" type="video/mp4">
   </video>
+  <img id="sliderFoto" src="" alt="" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; display:none;">
   <!-- Contenedor fijo con título, subtítulo y cuadros -->
   <div class="slider-contenido">
     <!-- Título -->
@@ -39,8 +93,17 @@
       <li onclick="cargarVideo('assets/images/sliders/Video360.mp4'),togglenew('q1','q2');">
         <img src="assets/images/sliders/play.png">
       </li>
-      <li onclick="cargarVideo('assets/images/sliders/herramientas.mp4'),toggle('q1','q2');">
+      <li onclick="cargarVideo('assets/images/sliders/herramientas.mp4'),togglenew('q1','q2');">
         <img src="assets/images/sliders/herramientas.png">
+      </li>
+      <li onclick="cargarFoto('assets/images/sliders/Menu1.jpeg'),togglenew('q1','q2');">
+        <img src="assets/images/sliders/Menu1.jpeg">
+      </li>
+      <li onclick="cargarFoto('assets/images/sliders/Menu2.jpeg'),togglenew('q1','q2');">
+        <img src="assets/images/sliders/Menu2.jpeg">
+      </li>
+      <li onclick="cargarFoto('assets/images/sliders/Menu3.jpeg'),togglenew('q1','q2');">
+        <img src="assets/images/sliders/Menu3.jpeg">
       </li>
     </ul>
   </div>
@@ -243,57 +306,71 @@
         </div><!-- /.row -->
         <div class="row">
           <div class="col-sm-12 col-md-12 col-lg-12">
-            <div class="carousel owl-carousel carousel-arrows" data-slide="3" data-slide-md="2" data-slide-sm="1"
-              data-autoplay="false" data-nav="true" data-dots="true" data-space="30" data-loop="true" data-speed="800">
-              <div class="portfolio-item">
-                <div class="portfolio__img">
-                  <img src="assets/images/sliders/asistenciaoperativa.jpeg" alt="portfolio img">
-                </div><!-- /.portfolio-img -->
-                <div class="portfolio__content">
-                  <h4 class="portfolio__title"><a href="#">SERVICIO DE TORQUE Y ASISTENCIA OPERATIVA</a></h4>
-                  <div class="portfolio__cat">
-                  </div><!-- /.portfolio-cat -->
-                  <div class="divider__line divider__lg"></div>
-                  <p class="portfolio__desc">Servicios especilizados para operaciones seguras, precisas y eficientes en cada proyecto.</p>
-                  <a href="#" class="btn btn__secondary btn__link">
-                   <!-- <span>Explorar m&aacute;s</span><i class="icon-arrow-right"></i>-->
-                  </a>
-                </div><!-- /.portfolio-content -->
-              </div><!-- /.portfolio-item -->
-              <div class="portfolio-item">
-                <div class="portfolio__img">
-                  <img src="assets/images/sliders/Pruebas hidrostraticas.jpeg" alt="portfolio img">
-                </div><!-- /.portfolio-img -->
-                <div class="portfolio__content">
-                  <h4 class="portfolio__title"><a href="#">PRUEBAS HIDROSTÁTICAS</a></h4>
-                  <div class="portfolio__cat">
-                  </div><!-- /.portfolio-cat -->
-                  <div class="divider__line divider__lg"></div>
-                  <p class="portfolio__desc">Verificación de integridad y desempeño mediante pruebas hidrostáticas computarizadas y procesos de alta confiabilidad.
-                    </p>
-                  <a href="#" class="btn btn__secondary btn__link">
-                    <!--<span>Explorar m&aacute;s</span><i class="icon-arrow-right"></i>-->
-                  </a>
-                </div><!-- /.portfolio-content -->
-              </div><!-- /.portfolio-item -->
+            <div class="row servicios-row">
+              <div class="sol-sm-12 col-md-6 col-lg-4">
+                <div class="portfolio-item">
+                  <div class="portfolio__img">
+                    <div class="portfolio__img portfolio__img--slider" id="sliderTorque">
+                      <img src="assets/images/sliders/asistenciaoperativa.jpeg" alt="portfolio img" class="slider-img active">
+                      <img src="assets/images/sliders/ServicioTorque1.jpeg" alt="portfolio img" class="slider-img">
+                      <img src="assets/images/sliders/ServicioTorque2.jpeg" alt="portfolio img" class="slider-img">
+                      <img src="assets/images/sliders/ServicioTorque3.jpeg" alt="portfolio img" class="slider-img">
+                      <img src="assets/images/sliders/ServicioTorque4.png" alt="portfolio img" class="slider-img">
+                      
+
+                      <button type="button" class="slider-arrow slider-arrow--prev" onclick="cambiarImagenServicio(event,'sliderTorque',-1)">&#10094;</button>
+                      <button type="button" class="slider-arrow slider-arrow--next" onclick="cambiarImagenServicio(event,'sliderTorque',1)">&#10095;</button>
+                    </div>
+                  </div><!-- /.portfolio-img -->
+                  <div class="portfolio__content">
+                    <h4 class="portfolio__title"><a href="#">SERVICIO DE TORQUE Y ASISTENCIA OPERATIVA</a></h4>
+                    <div class="portfolio__cat">
+                    </div><!-- /.portfolio-cat -->
+                    <div class="divider__line divider__lg"></div>
+                    <p class="portfolio__desc">Servicios especilizados para operaciones seguras, precisas y eficientes en cada proyecto.</p>
+                    <a href="#" class="btn btn__secondary btn__link">
+                    <!-- <span>Explorar m&aacute;s</span><i class="icon-arrow-right"></i>-->
+                    </a>
+                  </div><!-- /.portfolio-content -->
+                </div><!-- /.portfolio-item -->
+              </div>
+              <div class="col-sm-12 col-md-6 col-lg-4">
+                <div class="portfolio-item">
+                  <div class="portfolio__img">
+                    <img src="assets/images/sliders/Pruebas hidrostraticas.jpeg" alt="portfolio img">
+                  </div><!-- /.portfolio-img -->
+                  <div class="portfolio__content">
+                    <h4 class="portfolio__title"><a href="#">PRUEBAS HIDROSTÁTICAS</a></h4>
+                    <div class="portfolio__cat">
+                    </div><!-- /.portfolio-cat -->
+                    <div class="divider__line divider__lg"></div>
+                    <p class="portfolio__desc">Verificación de integridad y desempeño mediante pruebas hidrostáticas computarizadas y procesos de alta confiabilidad.
+                      </p>
+                    <a href="#" class="btn btn__secondary btn__link">
+                      <!--<span>Explorar m&aacute;s</span><i class="icon-arrow-right"></i>-->
+                    </a>
+                  </div><!-- /.portfolio-content -->
+                </div><!-- /.portfolio-item -->
+              </div>
 				
-				<div class="portfolio-item">
-                <div class="portfolio__img">
-                  <img src="assets/images/sliders/Calibracion.jpeg" alt="portfolio img">
-                </div><!-- /.portfolio-img -->
-                <div class="portfolio__content">
-                  <h4 class="portfolio__title"><a href="#">CALIBRACIÓN E INSPECCIÓN</a></h4>
-                  <div class="portfolio__cat">
-                  </div><!-- /.portfolio-cat -->
-                  <div class="divider__line divider__lg"></div>
-                  <p class="portfolio__desc">Inspección y verificación técnicas de herramientas y accesorios para asegurar confiablidad, precisión y cumplimiento operativo.
-                    </p>
-                  <a href="#" class="btn btn__secondary btn__link">
-                   <!-- <span>Explorar m&aacute;s</span><i class="icon-arrow-right"></i>-->
-                  </a>
-                </div><!-- /.portfolio-content -->
-              </div><!-- /.portfolio-item -->
-            </div><!-- /.carousel -->
+              <div class="col-sm-12 col-md-6 col-lg-4">
+                <div class="portfolio-item">
+                  <div class="portfolio__img">
+                    <img src="assets/images/sliders/Calibracion.jpeg" alt="portfolio img">
+                  </div><!-- /.portfolio-img -->
+                  <div class="portfolio__content">
+                    <h4 class="portfolio__title"><a href="#">CALIBRACIÓN E INSPECCIÓN</a></h4>
+                    <div class="portfolio__cat">
+                    </div><!-- /.portfolio-cat -->
+                    <div class="divider__line divider__lg"></div>
+                       <p class="portfolio__desc">Inspección y verificación técnicas de herramientas y accesorios para asegurar confiablidad, precisión y cumplimiento operativo.</p>
+                          <a href="#" class="btn btn__secondary btn__link">
+                          <!-- <span>Explorar m&aacute;s</span><i class="icon-arrow-right"></i>-->
+                          </a>
+                  </div><!-- /.portfolio-content -->
+                </div><!-- /.portfolio-item -->
+              </div>
+            </div><!-- /.row -->
           </div><!-- /.col-lg-12 -->
         </div><!-- /.row -->
       </div><!-- /.container -->
@@ -624,9 +701,20 @@
 	
 <script type="text/javascript">
 function cargarVideo(url){
-		document.getElementById('slider3').src=url;
-		
-}	
+  var video = document.getElementById('slider3');
+  var foto  = document.getElementById('sliderFoto');
+  foto.style.display  = "none";
+  video.style.display = "block";
+  video.src = url;
+}
+
+function cargarFoto(url){
+  var video = document.getElementById('slider3');
+  var foto  = document.getElementById('sliderFoto');
+  video.style.display = "none";
+  foto.style.display  = "block";
+  foto.src = url;
+}
 
 function toggle(obj,obj2) {
         var obj=document.getElementById(obj);
@@ -642,6 +730,21 @@ function togglenew(obj,obj2) {
           
 			obj.style.display = "block";
           	obj2.style.display = "none";
+}
+</script>
+
+<script>
+function cambiarImagenServicio(event, idContenedor, direccion) {
+  event.preventDefault();
+  var contenedor = document.getElementById(idContenedor);
+  var imagenes = contenedor.querySelectorAll('.slider-img');
+  var indiceActual = 0;
+  imagenes.forEach(function (img, i) {
+    if (img.classList.contains('active')) indiceActual = i;
+  });
+  imagenes[indiceActual].classList.remove('active');
+  var nuevoIndice = (indiceActual + direccion + imagenes.length) % imagenes.length;
+  imagenes[nuevoIndice].classList.add('active');
 }
 </script>
 
