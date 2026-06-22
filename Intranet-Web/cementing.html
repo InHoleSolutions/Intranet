@@ -174,7 +174,7 @@
       border-radius: 1rem;
       box-shadow: 0 20px 60px rgba(0,0,0,0.15);
       border: 1px solid #e2e8f0;
-      z-index: 9999;
+      z-index: 250;
       display: none;
     }
     #panel-solicitudes-flotante.visible {
@@ -309,11 +309,16 @@
                 class="pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200 w-full bg-white">
             </div>
             <!-- Filtro cliente -->
-            <select id="filtro-cliente" class="px-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200 text-slate-600 bg-white">
-            <option value="">Todos los clientes</option>
-            <option value="Pemex">Pemex</option>
-            <option value="ENI">ENI</option>
-            <option value="Hokchi">Hokchi</option>
+            <select id="filtro-cliente" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200 text-slate-700">
+                <option value="">Seleccionar...</option>
+                <option value="Pemex">PETROLEOS MEXICANOS</option>
+                <option value="SLB">DOWELL SCHLUMBERGER DE MEXICO S.A. DE C.V.</option>
+                <option value="WEATHERFORD">WEATHERFORD DE MEXICO S DE RL DE CV.</option>
+                <option value="OPEX">OPEX PERFORADORA, S.A de C.V.</option>
+                <option value="GSM">CARSO INFRAESTRUCTURA Y CONSTRUCCION S.A.B. de C.V.</option>
+                <option value="BAKER HUGHES">BAKER HUGHES DE MEXICO S. DE R.L. DE C.V.</option>
+                <option value="ENERGY DRILLING">ENERGY DRILLING MARINE SERVICES S.A.P.I de C.V.</option>
+                <option value="WSE">WELL SOLUTIONS EQUIPMENT S.A. de C.V.</option>
             </select>
             <!-- Filtro estatus -->
             <select id="filtro-estatus" class="px-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200 text-slate-600 bg-white">
@@ -562,10 +567,15 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1.5">Cliente *</label>
                     <select id="f-cliente" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200 text-slate-700">
-                    <option value="">Seleccionar...</option>
-                    <option>Pemex</option>
-                    <option>ENI</option>
-                    <option>Hokchi</option>
+                        <option value="">Seleccionar...</option>
+                        <option value="Pemex">PETROLEOS MEXICANOS</option>
+                        <option value="SLB">DOWELL SCHLUMBERGER DE MEXICO S.A. DE C.V.</option>
+                        <option value="WEATHERFORD">WEATHERFORD DE MEXICO S DE RL DE CV.</option>
+                        <option value="OPEX">OPEX PERFORADORA, S.A de C.V.</option>
+                        <option value="GSM">CARSO INFRAESTRUCTURA Y CONSTRUCCION S.A.B. de C.V.</option>
+                        <option value="BAKER HUGHES">BAKER HUGHES DE MEXICO S. DE R.L. DE C.V.</option>
+                        <option value="ENERGY DRILLING">ENERGY DRILLING MARINE SERVICES S.A.P.I de C.V.</option>
+                        <option value="WSE">WELL SOLUTIONS EQUIPMENT S.A. de C.V.</option>
                     </select>
                 </div>
                 <div>
@@ -1006,10 +1016,10 @@
                             <span class="text-sm font-semibold text-slate-600 truncate">Check List entrega y recepción de documentación</span>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-1" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Subido</span>
-                            <span id="noapl-fmt-1" class="hidden text-xs text-slate-400 italic">No aplica</span>
+                            <span id="estado-fmt-1" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                            <button id="noapl-fmt-1" onclick="deshacerNoAplica(1)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
                             <label id="btn-subir-fmt-1" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Subir
+                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Cargar
                                 <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(1, this)">
                             </label>
                             <button id="btn-noapl-fmt-1" onclick="noAplicaFormato(1)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
@@ -1023,10 +1033,10 @@
                             <span class="text-sm font-semibold text-slate-600 truncate">Completions Products (diseño de la instalación)</span>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-2" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Subido</span>
-                            <span id="noapl-fmt-2" class="hidden text-xs text-slate-400 italic">No aplica</span>
+                            <span id="estado-fmt-2" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                            <button id="noapl-fmt-2" onclick="deshacerNoAplica(2)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
                             <label id="btn-subir-fmt-2" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Subir
+                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Cargar
                                 <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(2, this)">
                             </label>
                             <button id="btn-noapl-fmt-2" onclick="noAplicaFormato(2)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
@@ -1040,10 +1050,10 @@
                             <span class="text-sm font-semibold text-slate-600 truncate">Certificado de Servicio de Apriete</span>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-3" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Subido</span>
-                            <span id="noapl-fmt-3" class="hidden text-xs text-slate-400 italic">No aplica</span>
+                            <span id="estado-fmt-3" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                            <button id="noapl-fmt-3" onclick="deshacerNoAplica(3)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
                             <label id="btn-subir-fmt-3" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Subir
+                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Cargar
                                 <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(3, this)">
                             </label>
                             <button id="btn-noapl-fmt-3" onclick="noAplicaFormato(3)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
@@ -1057,10 +1067,10 @@
                             <span class="text-sm font-semibold text-slate-600 truncate">Reporte de operación (joblog)</span>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-4" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Subido</span>
-                            <span id="noapl-fmt-4" class="hidden text-xs text-slate-400 italic">No aplica</span>
+                            <span id="estado-fmt-4" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                            <button id="noapl-fmt-4" onclick="deshacerNoAplica(4)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
                             <label id="btn-subir-fmt-4" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Subir
+                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Cargar
                                 <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(4, this)">
                             </label>
                             <button id="btn-noapl-fmt-4" onclick="noAplicaFormato(4)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
@@ -1074,10 +1084,10 @@
                             <span class="text-sm font-semibold text-slate-600 truncate">Certificado de Servicio de Campo</span>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-5" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Subido</span>
-                            <span id="noapl-fmt-5" class="hidden text-xs text-slate-400 italic">No aplica</span>
+                            <span id="estado-fmt-5" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                            <button id="noapl-fmt-5" onclick="deshacerNoAplica(5)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
                             <label id="btn-subir-fmt-5" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Subir
+                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Cargar
                                 <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(5, this)">
                             </label>
                             <button id="btn-noapl-fmt-5" onclick="noAplicaFormato(5)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
@@ -1091,10 +1101,10 @@
                             <span class="text-sm font-semibold text-slate-600 truncate">Certificado de Servicio de Taller</span>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-6" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Subido</span>
-                            <span id="noapl-fmt-6" class="hidden text-xs text-slate-400 italic">No aplica</span>
+                            <span id="estado-fmt-6" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                            <button id="noapl-fmt-6" onclick="deshacerNoAplica(6)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
                             <label id="btn-subir-fmt-6" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Subir
+                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Cargar
                                 <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(6, this)">
                             </label>
                             <button id="btn-noapl-fmt-6" onclick="noAplicaFormato(6)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
@@ -1108,10 +1118,10 @@
                             <span class="text-sm font-semibold text-slate-600 truncate">Certificado de Servicio de PH</span>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-7" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Subido</span>
-                            <span id="noapl-fmt-7" class="hidden text-xs text-slate-400 italic">No aplica</span>
+                            <span id="estado-fmt-7" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                            <button id="noapl-fmt-7" onclick="deshacerNoAplica(7)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
                             <label id="btn-subir-fmt-7" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Subir
+                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Cargar
                                 <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(7, this)">
                             </label>
                             <button id="btn-noapl-fmt-7" onclick="noAplicaFormato(7)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
@@ -1125,10 +1135,10 @@
                             <span class="text-sm font-semibold text-slate-600 truncate">Reporte Operativo Brief-Debrief</span>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-8" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Subido</span>
-                            <span id="noapl-fmt-8" class="hidden text-xs text-slate-400 italic">No aplica</span>
+                            <span id="estado-fmt-8" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                            <button id="noapl-fmt-8" onclick="deshacerNoAplica(8)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
                             <label id="btn-subir-fmt-8" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Subir
+                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Cargar
                                 <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(8, this)">
                             </label>
                             <button id="btn-noapl-fmt-8" onclick="noAplicaFormato(8)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
@@ -1142,10 +1152,10 @@
                             <span class="text-sm font-semibold text-slate-600 truncate">Relevo de Personal</span>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-9" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Subido</span>
-                            <span id="noapl-fmt-9" class="hidden text-xs text-slate-400 italic">No aplica</span>
+                            <span id="estado-fmt-9" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                            <button id="noapl-fmt-9" onclick="deshacerNoAplica(9)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
                             <label id="btn-subir-fmt-9" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Subir
+                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Cargar
                                 <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(9, this)">
                             </label>
                             <button id="btn-noapl-fmt-9" onclick="noAplicaFormato(9)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
@@ -1159,10 +1169,10 @@
                             <span class="text-sm font-semibold text-slate-600 truncate">Evaluación de Calidad en el Servicio</span>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-10" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Subido</span>
-                            <span id="noapl-fmt-10" class="hidden text-xs text-slate-400 italic">No aplica</span>
+                            <span id="estado-fmt-10" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                            <button id="noapl-fmt-10" onclick="deshacerNoAplica(10)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
                             <label id="btn-subir-fmt-10" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Subir
+                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Cargar
                                 <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(10, this)">
                             </label>
                             <button id="btn-noapl-fmt-10" onclick="noAplicaFormato(10)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
@@ -1176,10 +1186,10 @@
                             <span class="text-sm font-semibold text-slate-600 truncate">Fichas Técnicas</span>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-11" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Subido</span>
-                            <span id="noapl-fmt-11" class="hidden text-xs text-slate-400 italic">No aplica</span>
+                            <span id="estado-fmt-11" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                            <button id="noapl-fmt-11" onclick="deshacerNoAplica(11)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
                             <label id="btn-subir-fmt-11" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Subir
+                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Cargar
                                 <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(11, this)">
                             </label>
                             <button id="btn-noapl-fmt-11" onclick="noAplicaFormato(11)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
@@ -1199,10 +1209,10 @@
                             <span class="text-sm font-semibold text-slate-600 truncate">Propuesta Técnica</span>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-12" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Subido</span>
-                            <span id="noapl-fmt-12" class="hidden text-xs text-slate-400 italic">No aplica</span>
+                            <span id="estado-fmt-12" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                            <button id="noapl-fmt-12" onclick="deshacerNoAplica(12)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
                             <label id="btn-subir-fmt-12" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Subir
+                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Cargar
                                 <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(12, this)">
                             </label>
                             <button id="btn-noapl-fmt-12" onclick="noAplicaFormato(12)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
@@ -1213,13 +1223,13 @@
                     <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
                         <div class="flex items-center gap-3 min-w-0">
                             <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
-                            <span class="text-sm font-semibold text-slate-600 truncate">Cedulo de Bombeo</span>
+                            <span class="text-sm font-semibold text-slate-600 truncate">Cédula de Bombeo</span>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-13" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Subido</span>
-                            <span id="noapl-fmt-13" class="hidden text-xs text-slate-400 italic">No aplica</span>
+                            <span id="estado-fmt-13" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                            <button id="noapl-fmt-13" onclick="deshacerNoAplica(13)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
                             <label id="btn-subir-fmt-13" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Subir
+                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Cargar
                                 <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(13, this)">
                             </label>
                             <button id="btn-noapl-fmt-13" onclick="noAplicaFormato(13)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
@@ -1233,10 +1243,10 @@
                             <span class="text-sm font-semibold text-slate-600 truncate">QA/QC (dimensionamiento y pruebas)</span>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-14" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Subido</span>
-                            <span id="noapl-fmt-14" class="hidden text-xs text-slate-400 italic">No aplica</span>
+                            <span id="estado-fmt-14" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                            <button id="noapl-fmt-14" onclick="deshacerNoAplica(14)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
                             <label id="btn-subir-fmt-14" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Subir
+                                <i class="fas fa-arrow-up-from-bracket mr-1"></i> Cargar
                                 <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(14, this)">
                             </label>
                             <button id="btn-noapl-fmt-14" onclick="noAplicaFormato(14)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
@@ -1285,7 +1295,19 @@
             </button>
             </div>
 
+            <!-- Pestañas -->
+            <div class="flex border-b" style="border-color:rgba(255,255,255,0.08);">
+                <button id="tab-rep-datos" onclick="cambiarTabReporte('datos')"
+                    class="px-6 py-3 text-sm font-bold text-white border-b-2 border-red-500 transition-all">
+                    <i class="fas fa-file-lines mr-2"></i>Datos
+                </button>
+                <button id="tab-rep-bitacora" onclick="cambiarTabReporte('bitacora')"
+                    class="px-6 py-3 text-sm font-semibold text-slate-400 border-b-2 border-transparent hover:text-white transition-all">
+                    <i class="fas fa-calendar-days mr-2"></i>Bitácora
+                </button>
+            </div>
 
+            <div id="rep-tab-datos">
             <!-- KPIs automáticos -->
             <div class="grid grid-cols-3 gap-3 px-6 py-5" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
             <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.06);">
@@ -1543,6 +1565,49 @@
                 <p id="rep-notas" class="text-sm text-slate-300 leading-relaxed">—</p>
             </div>
             </div>
+
+            <!-- Archivos Adjuntos -->
+            <div class="px-6 pb-5" id="rep-bloque-archivos">
+            <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
+                <i class="fas fa-folder-open mr-2"></i>Archivos Adjuntos
+                </p>
+                <div id="rep-lista-archivos" class="space-y-2">
+                <p class="text-xs text-slate-500">Sin archivos cargados.</p>
+                </div>
+            </div>
+            </div>
+
+            </div><!-- fin rep-tab-datos -->
+
+            <!-- Vista Bitácora -->
+            <div id="rep-tab-bitacora" class="hidden">
+                <div class="px-6 py-5">
+                    <div class="rounded-xl overflow-hidden" style="border:1px solid rgba(255,255,255,0.08);">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr style="background:rgba(255,255,255,0.06);">
+                                        <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-400">Fecha</th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-400">Hora Inicio</th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-400">Hora Término</th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-400">Observación</th>
+                                        <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-slate-400">Estatus</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rep-tabla-bitacora">
+                                    <tr>
+                                        <td colspan="5" class="px-4 py-10 text-center text-slate-500 text-sm">
+                                            <i class="fas fa-calendar-xmark text-2xl mb-2 block text-slate-600"></i>
+                                            Sin registros de bitácora.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- fin rep-tab-bitacora -->
 
             <!-- Footer con firma -->
             <div class="px-6 py-4 rounded-b-2xl flex items-center justify-between" style="background:rgba(255,255,255,0.04); border-top:1px solid rgba(255,255,255,0.08);">
@@ -1981,9 +2046,14 @@
                         <button onclick="abrirOperacion('${op.id}')" class="text-blue-500 hover:text-blue-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-blue-200 hover:bg-blue-50 transition-all">
                             <i class="fas fa-eye mr-1"></i> Ver
                         </button>
-                        <button onclick="verYExportarPDF('${op.id}')" class="text-green-500 hover:text-green-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-green-200 hover:bg-green-50 transition-all">
-                            <i class="fas fa-file-arrow-down mr-1"></i> PDF
-                        </button>
+                        ${op.finalizada
+                            ? `<button onclick="verYExportarPDF('${op.id}')" class="text-green-500 hover:text-green-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-green-200 hover:bg-green-50 transition-all">
+                                <i class="fas fa-file-arrow-down mr-1"></i> PDF
+                            </button>`
+                            : `<button disabled title="Solo disponible después de Finalizar la operación" class="text-slate-300 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-100 bg-slate-50 cursor-not-allowed">
+                                <i class="fas fa-file-arrow-down mr-1"></i> PDF
+                            </button>`
+                        }
                     </div>
                 </td>
             `;
@@ -2058,12 +2128,22 @@
                         <button onclick="abrirOperacion('${op.id}')" class="text-blue-500 hover:text-blue-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-blue-200 hover:bg-blue-50 transition-all">
                             <i class="fas fa-eye mr-1"></i> Ver
                         </button>
-                        <button onclick="verYExportarPDF('${op.id}')" class="text-green-500 hover:text-green-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-green-200 hover:bg-green-50 transition-all">
-                            <i class="fas fa-file-arrow-down mr-1"></i> PDF
-                        </button>
-                        <button onclick="eliminarOperacion('${op.id}')" class="text-slate-300 hover:text-red-500 text-xs px-2 py-1.5 rounded-lg border border-slate-100 hover:bg-red-50 hover:border-red-200 transition-all">
-                            <i class="fas fa-trash-can"></i>
-                        </button>
+                        ${op.finalizada
+                            ? `<button onclick="verYExportarPDF('${op.id}')" class="text-green-500 hover:text-green-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-green-200 hover:bg-green-50 transition-all">
+                                <i class="fas fa-file-arrow-down mr-1"></i> PDF
+                            </button>`
+                            : `<button disabled title="Solo disponible después de Finalizar la operación" class="text-slate-300 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-100 bg-slate-50 cursor-not-allowed">
+                                <i class="fas fa-file-arrow-down mr-1"></i> PDF
+                            </button>`
+                        }
+                        ${op.reporte_eliminar_autorizado
+                            ? `<button onclick="eliminarOperacion('${op.id}')" title="Eliminar reporte autorizado" class="text-red-500 hover:text-red-700 text-xs px-2 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-all">
+                                <i class="fas fa-trash-can"></i>
+                            </button>`
+                            : `<button disabled title="Requiere autorización para eliminar" class="text-slate-300 text-xs px-2 py-1.5 rounded-lg border border-slate-100 bg-slate-50 cursor-not-allowed">
+                                <i class="fas fa-trash-can"></i>
+                            </button>`
+                        }
                         
                     </div>
                 </td>
@@ -2332,15 +2412,25 @@
     }
 
     function toggleModeloHerramienta(bloqueado) {
-        const el = document.getElementById('f-modelo-herramienta');
-        if (!el) return;
-        el.disabled = bloqueado;
-        if (bloqueado) {
-            el.value = '';
-            el.classList.add('bg-slate-50', 'text-slate-300', 'cursor-not-allowed');
-        } else {
-            el.classList.remove('bg-slate-50', 'text-slate-300', 'cursor-not-allowed');
-        }
+        const campos = [
+            'f-modelo-herramienta',
+            'f-pines-piston',
+            'f-pines-asiento',
+            'f-niple-asiento',
+            'f-mandril-smpo'
+        ];
+
+        campos.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.disabled = bloqueado;
+            if (bloqueado) {
+                el.value = '';
+                el.classList.add('bg-slate-50', 'text-slate-300', 'cursor-not-allowed');
+            } else {
+                el.classList.remove('bg-slate-50', 'text-slate-300', 'cursor-not-allowed');
+            }
+        });
     }
 
     // ── NAVEGACIÓN ENTRE PASOS ──
@@ -2561,6 +2651,25 @@
         // Limpiar bitácora
         document.getElementById('tabla-bitacora').innerHTML = '';
         document.getElementById('bloque-bitacora').classList.add('hidden');
+        // Limpiar paso 5 QHSE
+        document.getElementById('f-conformidad').value = '';
+        toggleConformidad(); // oculta secciones de observación y NC
+        document.getElementById('f-tipo-observacion').value = '';
+        document.getElementById('f-obs-descripcion').value = '';
+        document.getElementById('f-obs-accion').value = '';
+        document.getElementById('f-obs-responsable').value = '';
+        document.getElementById('f-folio-nc').value = '';
+        document.getElementById('f-tipo-hallazgo').value = '';
+        document.getElementById('f-nc-descripcion').value = '';
+        document.getElementById('f-nc-accion').value = '';
+        document.getElementById('f-nc-responsable').value = '';
+        document.getElementById('f-nc-corregido').value = '';
+        document.getElementById('f-nc-comentarios').value = '';
+        document.getElementById('f-safety-cards').value = '';
+        document.getElementById('safety-cards-container').innerHTML = '';
+
+        // Limpiar paso 6 FORMATOS
+        cargarEstadoFormatos(null);
     }
 
     // ── CARGAR DATOS (modo edición) ──
@@ -2755,6 +2864,13 @@
             ...(jobId && { job_id: jobId }),
             usuario_id: usuarioId,
             finalizada: finalizar,
+            numero_revision: finalizar
+                ? ((operacionEditandoId
+                    ? (operaciones.find(o => o.id === operacionEditandoId)?.numero_revision || 0)
+                    : 0) + 1)
+                : (operacionEditandoId
+                    ? (operaciones.find(o => o.id === operacionEditandoId)?.numero_revision || 0)
+                    : 0),
             conformidad:         document.getElementById('f-conformidad').value || null,
             tipo_observacion:    document.getElementById('f-tipo-observacion').value || null,
             obs_descripcion:     document.getElementById('f-obs-descripcion').value || null,
@@ -2800,6 +2916,10 @@
             if (res.ok) {
                 const data = await res.json();
                 const opId = operacionEditandoId || data[0]?.id;
+
+                // Guardar herramientas y bitácora ligadas al ID de la operación
+                await guardarHerramientas(opId);
+                await guardarBitacora(opId);
 
                 cerrarFormulario(false); // sin confirmación, ya se guardó
                 await cargarOperaciones();
@@ -2885,7 +3005,7 @@
         document.getElementById('rep-dp-diametro-libraje-grado').textContent     = op.dp_diametro_libraje_grado || '—';
         document.getElementById('rep-dp-profundidad-asentamiento').textContent   = op.dp_profundidad_asentamiento != null ? `${op.dp_profundidad_asentamiento} m` : '—';
         document.getElementById('rep-dp-tipo-fluido').textContent                = op.dp_tipo_fluido || '—';
-        document.getElementById('rep-dp-peso-fluido').textContent                = op.dp_peso_fluido != null ? `${op.dp_peso_fluido}` : '—';
+        document.getElementById('rep-dp-peso-fluido').textContent = op.dp_peso_fluido != null ? `${op.dp_peso_fluido} gr/cm³` : '—';
         document.getElementById('rep-dp-peso-max-zapata').textContent            = op.dp_peso_max_zapata != null ? `${op.dp_peso_max_zapata}` : '—';
         document.getElementById('rep-dp-angulo-asentamiento-zapata').textContent = op.dp_angulo_asentamiento_zapata != null ? `${op.dp_angulo_asentamiento_zapata}°` : '—';
         document.getElementById('rep-notas').textContent    = op.notas                || 'Sin notas.';
@@ -2940,6 +3060,10 @@
 
         // Herramientas (por ahora vacío — se integrará con la tabla de herramientas en Sección 6)
         await cargarHerramientasEnReporte(id);
+        await cargarBitacoraEnReporte(id);
+        cambiarTabReporte('datos'); // siempre inicia en la pestaña Datos
+
+        mostrarArchivosEnReporte(op);
 
         document.getElementById('panel-reporte').classList.remove('hidden');
 
@@ -2973,9 +3097,127 @@
         exportarPDF();
     }
 
+    function mostrarArchivosEnReporte(op) {
+        const contenedor = document.getElementById('rep-lista-archivos');
+        if (!contenedor) return;
+
+        const FORMATOS_KEYS_REP = {
+            1:  'fmt_checklist',
+            2:  'fmt_completions',
+            3:  'fmt_cert_apriete',
+            4:  'fmt_joblog',
+            5:  'fmt_cert_campo',
+            6:  'fmt_cert_taller',
+            7:  'fmt_cert_ph',
+            8:  'fmt_brief_debrief',
+            9:  'fmt_relevo',
+            10: 'fmt_calidad',
+            11: 'fmt_fichas',
+            12: 'fmt_propuesta',
+            13: 'fmt_cedulo',
+            14: 'fmt_qaqc'
+        };
+
+        const FORMATOS_NOMBRES_REP = {
+            1:  'Check List entrega y recepción',
+            2:  'Completions Products',
+            3:  'Certificado de Servicio de Apriete',
+            4:  'Reporte de operación (joblog)',
+            5:  'Certificado de Servicio de Campo',
+            6:  'Certificado de Servicio de Taller',
+            7:  'Certificado de Servicio de PH',
+            8:  'Reporte Operativo Brief-Debrief',
+            9:  'Relevo de Personal',
+            10: 'Evaluación de Calidad en el Servicio',
+            11: 'Fichas Técnicas',
+            12: 'Propuesta Técnica',
+            13: 'Cédula de Bombeo',
+            14: 'QA/QC (dimensionamiento y pruebas)'
+        };
+
+        const archivosEncontrados = [];
+
+        for (const [id, key] of Object.entries(FORMATOS_KEYS_REP)) {
+            const url = op[key];
+            if (url && url !== 'no_aplica') {
+                archivosEncontrados.push({ nombre: FORMATOS_NOMBRES_REP[id], url });
+            }
+        }
+
+        if (archivosEncontrados.length === 0) {
+            contenedor.innerHTML = '<p class="text-xs text-slate-500">Sin archivos cargados.</p>';
+            return;
+        }
+
+        contenedor.innerHTML = archivosEncontrados.map(a => `
+            <a href="${a.url}" target="_blank" rel="noopener noreferrer"
+            class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all hover:bg-white/10 group cursor-pointer"
+            style="border:1px solid rgba(255,255,255,0.06);">
+                <div class="bg-red-500/20 rounded-lg p-2 shrink-0">
+                    <i class="fas fa-file-pdf text-red-400 text-sm"></i>
+                </div>
+                <span class="text-sm text-slate-300 group-hover:text-white transition-colors truncate">${a.nombre}</span>
+                <i class="fas fa-arrow-up-right-from-square text-slate-600 group-hover:text-slate-400 text-xs ml-auto shrink-0 transition-colors"></i>
+            </a>
+        `).join('');
+    }
+
     function cerrarReporte() {
         document.getElementById('panel-reporte').classList.add('hidden');
         document.body.style.overflow = '';
+    }
+
+    // ── PESTAÑAS DEL REPORTE ──
+    function cambiarTabReporte(tab) {
+        const esDatos = tab === 'datos';
+        document.getElementById('rep-tab-datos').classList.toggle('hidden', !esDatos);
+        document.getElementById('rep-tab-bitacora').classList.toggle('hidden', esDatos);
+
+        document.getElementById('tab-rep-datos').classList.toggle('text-white', esDatos);
+        document.getElementById('tab-rep-datos').classList.toggle('border-red-500', esDatos);
+        document.getElementById('tab-rep-datos').classList.toggle('text-slate-400', !esDatos);
+        document.getElementById('tab-rep-datos').classList.toggle('border-transparent', !esDatos);
+
+        document.getElementById('tab-rep-bitacora').classList.toggle('text-white', !esDatos);
+        document.getElementById('tab-rep-bitacora').classList.toggle('border-red-500', !esDatos);
+        document.getElementById('tab-rep-bitacora').classList.toggle('text-slate-400', esDatos);
+        document.getElementById('tab-rep-bitacora').classList.toggle('border-transparent', esDatos);
+    }
+
+    // ── CARGAR BITÁCORA EN EL REPORTE ──
+    async function cargarBitacoraEnReporte(operacionId) {
+        const tbody = document.getElementById('rep-tabla-bitacora');
+        tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-slate-500 text-sm">Cargando...</td></tr>`;
+        try {
+            const res = await fetch(
+                `${SUPABASE_URL}/rest/v1/cementing_bitacora?operacion_id=eq.${operacionId}&order=fecha.asc`,
+                { headers }
+            );
+            const datos = await res.json();
+            if (!datos.length) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-10 text-center text-slate-500 text-sm"><i class="fas fa-calendar-xmark text-2xl mb-2 block text-slate-600"></i>Sin registros de bitácora.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = datos.map(r => {
+                const fecha = new Date(r.fecha + 'T00:00').toLocaleDateString('es-MX', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+                if (r.sin_actividad) {
+                    return `<tr style="border-bottom:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.02);">
+                        <td class="px-4 py-3 text-slate-300 font-semibold">${fecha}</td>
+                        <td colspan="3" class="px-4 py-3 text-slate-500 italic text-xs">Sin actividad</td>
+                        <td class="px-4 py-3 text-center"><span class="text-xs bg-slate-700 text-slate-400 px-2 py-0.5 rounded-full">N/A</span></td>
+                    </tr>`;
+                }
+                return `<tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                    <td class="px-4 py-3 text-slate-300 font-semibold">${fecha}</td>
+                    <td class="px-4 py-3 text-white font-mono">${r.hora_inicio || '—'}</td>
+                    <td class="px-4 py-3 text-white font-mono">${r.hora_termino || '—'}</td>
+                    <td class="px-4 py-3 text-slate-300">${r.observacion || '—'}</td>
+                    <td class="px-4 py-3 text-center"><span class="text-xs bg-green-900/40 text-green-400 px-2 py-0.5 rounded-full">Activo</span></td>
+                </tr>`;
+            }).join('');
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-red-400 text-sm">Error al cargar bitácora.</td></tr>`;
+        }
     }
 
     function editarDesdeReporte() {
@@ -3058,13 +3300,13 @@
         doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(...rojo);
-        doc.text(`ID: ${op.job_id}`, 196, 38, { align: 'right' });
+        doc.text(`ID: ${op.job_id}`, 14, 44);
         }
 
         doc.setFontSize(9);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(...gris);
-        doc.text(`${op.cliente || '—'} · Rig: ${op.rig || '—'} · Ingeniero: ${op.ingeniero || '—'}`, 14, 44);
+
 
         // ── KPIs ──
         doc.setFillColor(248, 250, 252);
@@ -3089,6 +3331,18 @@
 
         // ── Sección Identificación ──
         let y = 76;
+
+        const LIMITE_PAGINA = 278; // límite antes de chocar con el pie de página
+
+        // Salta de página si el bloque completo (título + N filas) no entra
+        const espacioDisponible = (numFilas) => {
+            const alturaNecesaria = 10 + (numFilas * 8); // 10 = título, 8 por fila
+            if (y + alturaNecesaria > LIMITE_PAGINA) {
+                doc.addPage();
+                y = 36; // deja espacio para el encabezado compacto de la página nueva
+            }
+        };
+
         const seccion = (titulo, yPos) => {
             doc.setFillColor(...rojo);
             doc.rect(14, yPos, 3, 5, 'F');
@@ -3099,33 +3353,62 @@
             return yPos + 10;
         };
 
+        // Combina el salto de página + dibujar el título de sección en un solo paso
+        const nuevaSeccion = (titulo, yPos, numFilas) => {
+            y = yPos;
+            espacioDisponible(numFilas);
+            return seccion(titulo, y);
+        };
+
+        const razonesSociales = {
+            'Pemex': 'PETROLEOS MEXICANOS',
+            'SLB': 'DOWELL SCHLUMBERGER DE MEXICO S.A. DE C.V.',
+            'WEATHERFORD': 'WEATHERFORD DE MEXICO S DE RL DE CV',
+            'OPEX': 'OPEX PERFORADORA, S.A de C.V.',
+            'GSM': 'CARSO INFRAESTRUCTURA Y CONSTRUCCION S.A.B. de C.V.',
+            'BAKER HUGHES': 'BAKER HUGHES DE MEXICO S. DE R.L. DE C.V.',
+            'ENERGY DRILLING': 'ENERGY DRILLING MARINE SERVICES S.A.P.I de C.V.',
+            'WSE': 'WELL SOLUTIONS EQUIPMENT S.A. de C.V.'
+        };
+
         const fila = (label, valor, yPos) => {
             doc.setFontSize(8.5);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(...gris);
-            doc.text(label, 14, yPos);
+
+            const labelLineas = doc.splitTextToSize(label, 58);
+            doc.text(labelLineas, 14, yPos);
+
             doc.setTextColor(...negro);
             doc.setFont('helvetica', 'bold');
-            doc.text(String(valor || '—'), 75, yPos);
+
+            // El valor también se divide en líneas si es largo (columna derecha = 118mm de ancho)
+            const valorLineas = doc.splitTextToSize(String(valor || '—'), 118);
+            doc.text(valorLineas, 78, yPos);
+
+            // La fila toma la altura del bloque más alto (label o valor)
+            const lineasExtra = Math.max(labelLineas.length, valorLineas.length) - 1;
+            const altoFila = 8 + (lineasExtra * 4);
+
             doc.setDrawColor(226, 232, 240);
-            doc.line(14, yPos + 2, 196, yPos + 2);
-            return yPos + 8;
+            doc.line(14, yPos + altoFila - 6, 196, yPos + altoFila - 6);
+            return yPos + altoFila;
         };
 
-        y = seccion('IDENTIFICACIÓN DE LA OPERACIÓN', y);
-        y = fila('Cliente',                  op.cliente,     y);
+        y = nuevaSeccion('IDENTIFICACIÓN DE LA OPERACIÓN', y, 4);
+        y = fila('Cliente', razonesSociales[op.cliente] || op.cliente, y);
         y = fila('Pozo / Plataforma',        op.nombre_pozo, y);
         y = fila('Equipo de Perforación',    op.rig,         y);
         y = fila('Ingeniero Responsable',    op.ingeniero,   y);
 
-        y = seccion('TIEMPOS DE OPERACIÓN', y + 4);
+        y = nuevaSeccion('TIEMPOS DE OPERACIÓN', y + 4, 4);
         y = fila('Llegada al Pozo',    formatearFechaSolo(op.fecha_llegada),         y);
         y = fila('Salida del Pozo',    formatearFechaSolo(op.fecha_salida),          y);
         y = fila('Inicio del Bombeo',  formatearFechaHora(op.fecha_inicio_bombeo),   y);
         y = fila('Fin del Bombeo',     formatearFechaHora(op.fecha_fin_bombeo),      y);
 
         if (!op.datos_tecnicos_na) {
-            y = seccion('DATOS TÉCNICOS DE FLOTACIÓN', y + 4);
+            y = nuevaSeccion('DATOS TÉCNICOS DE FLOTACIÓN', y + 4, 9);
             y = fila('Presión Diferencial/Válvula/Tapón', op.presion_asentamiento ? `${op.presion_asentamiento} PSI` : '—', y);
             y = fila('Temperatura de Trabajo',    op.temperatura_trabajo  ? `${op.temperatura_trabajo} °C`   : '—', y);
             y = fila('Prueba de Retención',       op.prueba_valvula || '—', y);
@@ -3136,14 +3419,14 @@
             y = fila('Niple Asiento "Tipo"',      op.niple_asiento_tipo   || '—', y);
             y = fila('Tipo de Mandril SMPO',      op.mandril_smpo         || '—', y);
         }
-        y = seccion('INFORMACIÓN DE POZO', y + 4);
+        y = nuevaSeccion('INFORMACIÓN DE POZO', y + 4, 5);
         y = fila('Nombre del Pozo',          op.dp_nombre_pozo || '—', y);
         y = fila('Pera',                     op.dp_pera || '—', y);
         y = fila('Localidad',                op.dp_localidad || '—', y);
         y = fila('Equipo',                   op.dp_equipo || '—', y);
         y = fila('Tipo de Intervención',     op.dp_tipo_intervencion || '—', y);
 
-        y = seccion('CARACTERÍSTICAS DE POZO', y + 4);
+        y = nuevaSeccion('CARACTERÍSTICAS DE POZO', y + 4, 7);
         y = fila('TD (metros)',              op.dp_td  != null ? `${op.dp_td} m`  : '—', y);
         y = fila('TVD (metros)',             op.dp_tvd != null ? `${op.dp_tvd} m` : '—', y);
         y = fila('Tipo de Pozo (Direccional)', op.dp_tipo_direccional || '—', y);
@@ -3152,20 +3435,20 @@
         y = fila('Máxima Temperatura (fondo)',      op.dp_temp_fondo != null ? `${op.dp_temp_fondo} °C` : '—', y);
         y = fila('Pozo con o sin Nivel',     op.dp_con_sin_nivel || '—', y);
 
-        y = seccion('CARACTERÍSTICAS DEL EQUIPO', y + 4);
+        y = nuevaSeccion('CARACTERÍSTICAS DEL EQUIPO', y + 4, 2);
         y = fila('Máximo Peso del Mástil (Ton)', op.dp_peso_mastil != null ? `${op.dp_peso_mastil} Ton` : '—', y);
         y = fila('Máximo Peso de Top Drive', op.dp_peso_top_drive != null ? `${op.dp_peso_top_drive}` : '—', y);
 
-        y = seccion('ACCESORIOS DE FLOTACIÓN', y + 4);
+        y = nuevaSeccion('ACCESORIOS DE FLOTACIÓN', y + 4, 6);
         y = fila('Diámetro, Libraje y Grado de Material de T.R.', op.dp_diametro_libraje_grado || '—', y);
         y = fila('Profundidad de Asentamiento', op.dp_profundidad_asentamiento != null ? `${op.dp_profundidad_asentamiento} m` : '—', y);
         y = fila('Tipo de Fluido de Perforación', op.dp_tipo_fluido || '—', y);
-        y = fila('Peso de Fluido de Perforación', op.dp_peso_fluido != null ? `${op.dp_peso_fluido}` : '—', y);
+        y = fila('Peso de Fluido de Perforación', op.dp_peso_fluido != null ? `${op.dp_peso_fluido} gr/cm³` : '—', y);
         y = fila('Máximo Peso Permitido a Zapata', op.dp_peso_max_zapata != null ? `${op.dp_peso_max_zapata}` : '—', y);
         y = fila('Ángulo en Punto de Asentamiento de la Zapata', op.dp_angulo_asentamiento_zapata != null ? `${op.dp_angulo_asentamiento_zapata}°` : '—', y);
 
         if (op.notas && !op.datos_tecnicos_na) {
-            y = seccion('NOTAS OPERATIVAS', y + 4);
+            y = nuevaSeccion('NOTAS OPERATIVAS', y + 4, 0);
             doc.setFontSize(8.5);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(...negro);
@@ -3174,21 +3457,68 @@
             y += lines.length * 5 + 4;
         }
 
-        // ── Footer ──
-        doc.setFillColor(...rojo);
-        doc.rect(0, 282, 210, 15, 'F');
-        doc.setFontSize(8);
-        doc.setTextColor(255, 255, 255);
-        doc.setFont('helvetica', 'normal');
-        doc.text('In Hole Solutions · Documento confidencial · Uso interno y para cliente final', 14, 291);
-        doc.text(`Página 1`, 186, 291);
+        // ── SECCIÓN QHSE ──
+        const conformidadTextos = {
+            'conforme':       'Servicio conforme',
+            'observaciones':  'Servicio conforme con observaciones',
+            'no_conforme':    'Servicio no conforme'
+        };
+
+        if (op.conformidad) {
+            y = nuevaSeccion('GESTIÓN QHSE', y + 4, 2);
+            y = fila('Verificación de Conformidad', conformidadTextos[op.conformidad] || op.conformidad, y);
+
+            // ── Sub-sección: Detalle de Observación ──
+            if (op.conformidad === 'observaciones') {
+                y = nuevaSeccion('DETALLE DE OBSERVACIÓN', y + 2, 4);
+                y = fila('Tipo de Observación',  op.tipo_observacion  || '—', y);
+                y = fila('Responsable',           op.obs_responsable   || '—', y);
+                y = fila('Descripción',           op.obs_descripcion   || '—', y);
+                y = fila('Acción Inmediata',      op.obs_accion        || '—', y);
+            }
+
+            // ── Sub-sección: Reporte NC ──
+            if (op.conformidad === 'no_conforme') {
+                y = nuevaSeccion('REPORTE PRELIMINAR — NO CONFORME', y + 2, 7);
+                y = fila('Folio NC',              op.folio_nc          || '—', y);
+                y = fila('Tipo de Hallazgo',      op.tipo_hallazgo     || '—', y);
+                y = fila('Responsable',           op.nc_responsable    || '—', y);
+                y = fila('¿Corregido en campo?',  op.nc_corregido === 'si' ? 'Sí' : (op.nc_corregido === 'no' ? 'No' : '—'), y);
+                y = fila('Descripción',           op.nc_descripcion    || '—', y);
+                y = fila('Acción Inmediata',      op.nc_accion         || '—', y);
+                y = fila('Comentarios',           op.nc_comentarios    || '—', y);
+            }
+
+            // ── Sub-sección: HSE Safety Cards ──
+            if (op.safety_cards_count && op.safety_cards_count >= 1) {
+                y = nuevaSeccion('HSE — SAFETY ALERT CARDS', y + 2, op.safety_cards_count + 1);
+                y = fila('Total de Tarjetas Realizadas', String(op.safety_cards_count), y);
+
+                if (Array.isArray(op.safety_cards_ids) && op.safety_cards_ids.length > 0) {
+                    const idsNoVacios = op.safety_cards_ids.filter(id => id && id.trim() !== '');
+                    if (idsNoVacios.length > 0) {
+                        idsNoVacios.forEach((idCard, idx) => {
+                        y = fila(`  · ID ${String(idx + 1).padStart(2, '0')}:`, idCard, y);
+                    });
+                    }
+                }
+            }
+        }
+
 
         // ── Tabla de herramientas en PDF ──
         if (herramientasDelReporte.length) {
-            y = seccion('INVENTARIO DE HERRAMIENTAS', y + 4);
+            y += 4;
+            // Reserva espacio para el título + cabecera de tabla + al menos 2 filas (~30mm).
+            // Si no cabe, salta de página para que el título no quede solo.
+            if (y + 30 > LIMITE_PAGINA) {
+                doc.addPage();
+                y = 38;
+            }
+            y = seccion('INVENTARIO DE HERRAMIENTAS', y);
             doc.autoTable({
             startY: y,
-            margin: { left: 14, right: 14 },
+            margin: { left: 14, right: 14, top: 34, bottom: 22 },
             headStyles: { fillColor: rojo, textColor: 255, fontStyle: 'bold', fontSize: 7 },
             bodyStyles: { fontSize: 7.5, textColor: negro },
             alternateRowStyles: { fillColor: [248, 250, 252] },
@@ -3200,6 +3530,38 @@
                 h.estado_final  || '—'
             ])
             });
+        }
+
+        // ── Encabezado y pie de página en TODAS las páginas ──
+        const totalPaginas = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= totalPaginas; i++) {
+            doc.setPage(i);
+
+            // Pie de página
+            doc.setDrawColor(226, 232, 240);
+            doc.line(14, 278, 196, 278);
+            doc.setFontSize(7);
+            doc.setFont('calibri', 'normal');
+            doc.setTextColor(...gris);
+            const anioActual = new Date().getFullYear();
+            const footerText = `©${anioActual} IN HOLE SOLUTIONS - Todos los derechos reservados. Este documento contiene información confidencial y propiedad de In Hole Solutions, los usuarios de este documento declaran que la información contenida en él no será reproducida, utilizada o divulgada en su totalidad o en parte para ningún fin excepto el especificado y autorizado por In Hole Solutions.`;
+            doc.text(footerText, 14, 282, { maxWidth: 170, lineHeightFactor: 1.3});
+            const numRev = String(op.numero_revision || 1).padStart(2, '0');
+            doc.text(`Rev-${numRev}`, 170, 290);
+            doc.text(`Página ${i} de ${totalPaginas}`, 196, 290, { align: 'right' });
+
+            if (i > 1) {
+                doc.setFillColor(...rojo);
+                doc.rect(0, 0, 210, 28, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(16);
+                doc.setFont('helvetica', 'bold');
+                doc.text('IN HOLE SOLUTIONS', 14, 11);
+                doc.setFontSize(9);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Reporte Post-Operativo · Cementing', 14, 18);
+                doc.text(`Generado: ${new Date().toLocaleString('es-MX')}`, 14, 24);
+            }
         }
 
         // ── Guardar ──
@@ -3385,6 +3747,68 @@
         }
     }
 
+    // ── GUARDAR HERRAMIENTAS ──
+    async function guardarHerramientas(operacionId) {
+        // Borrar las herramientas existentes de esta operación
+        await fetch(`${SUPABASE_URL}/rest/v1/cementing_herramientas?operacion_id=eq.${operacionId}`, {
+            method: 'DELETE',
+            headers
+        });
+
+        if (!herramientasSeleccionadas.length) return;
+
+        const filas = herramientasSeleccionadas.map(h => ({
+            operacion_id: operacionId,
+            catalogo_id:  h.catalogoId,
+            np:           h.np,
+            descripcion:  h.descripcion,
+            estado_final: h.estadoFinal
+        }));
+
+        await fetch(`${SUPABASE_URL}/rest/v1/cementing_herramientas`, {
+            method: 'POST',
+            headers: { ...headers, 'Prefer': 'return=minimal' },
+            body: JSON.stringify(filas)
+        });
+    }
+
+    // ── GUARDAR BITÁCORA ──
+    async function guardarBitacora(operacionId) {
+        if (rolUsuario !== 'Empleado') return;
+
+        const filas = [];
+        document.querySelectorAll('#tabla-bitacora tr[data-fecha]').forEach(tr => {
+            const fecha        = tr.dataset.fecha;
+            const sinActividad = tr.querySelector('.bit-sin-actividad')?.checked || false;
+            const horaInicio   = tr.querySelector('.bit-inicio')?.value || null;
+            const horaTermino  = tr.querySelector('.bit-termino')?.value || null;
+            const observacion  = tr.querySelector('.bit-obs')?.value || null;
+
+            filas.push({
+                operacion_id:  operacionId,
+                fecha,
+                hora_inicio:   sinActividad ? null : horaInicio,
+                hora_termino:  sinActividad ? null : horaTermino,
+                observacion:   sinActividad ? null : observacion,
+                sin_actividad: sinActividad
+            });
+        });
+
+        if (!filas.length) return;
+
+        // Borrar registros previos de esta operación y reinsertar
+        await fetch(`${SUPABASE_URL}/rest/v1/cementing_bitacora?operacion_id=eq.${operacionId}`, {
+            method: 'DELETE',
+            headers
+        });
+
+        await fetch(`${SUPABASE_URL}/rest/v1/cementing_bitacora`, {
+            method: 'POST',
+            headers: { ...headers, 'Prefer': 'return=minimal' },
+            body: JSON.stringify(filas)
+        });
+    }
+
     // ── CARGAR HERRAMIENTAS EN EL FORMULARIO (modo edición) ──
     async function cargarHerramientasEnFormulario(operacionId) {
         try {
@@ -3500,8 +3924,12 @@
             : [];
 
 
-        const ops = operaciones.filter(o => o.finalizada);
-        const mensajeVacio = { icono: 'fa-circle-check', titulo: 'No tienes operaciones finalizadas', sub: 'Solo puedes solicitar este cambio en operaciones ya finalizadas' };
+        const ops = tipoCambioSeleccionado === 'eliminar-pdf'
+            ? operaciones
+            : operaciones.filter(o => o.finalizada);
+        const mensajeVacio = tipoCambioSeleccionado === 'eliminar-pdf'
+            ? { icono: 'fa-file-circle-xmark', titulo: 'No tienes operaciones', sub: 'No se encontraron operaciones registradas' }
+            : { icono: 'fa-circle-check', titulo: 'No tienes operaciones finalizadas', sub: 'Solo puedes solicitar este cambio en operaciones ya finalizadas' };
 
         if (!ops.length) {
             lista.innerHTML = `
@@ -3587,20 +4015,20 @@
 
         if (!op) { cont.classList.add('hidden'); return; }
 
-        const idsSubidos = Object.keys(FORMATOS_KEYS)
+        const idssubidos = Object.keys(FORMATOS_KEYS)
             .map(Number)
             .filter(id => {
                 const val = op[FORMATOS_KEYS[id]];
                 return val && val !== 'no_aplica';
             });
 
-        if (!idsSubidos.length) {
-            lista.innerHTML = `<p class="text-sm text-slate-400 text-center py-6">Esta operación no tiene PDFs subidos.</p>`;
+        if (!idssubidos.length) {
+            lista.innerHTML = `<p class="text-sm text-slate-400 text-center py-6">Esta operación no tiene PDFs Cargados.</p>`;
             cont.classList.remove('hidden');
             return;
         }
 
-        idsSubidos.forEach(id => {
+        idssubidos.forEach(id => {
             const div = document.createElement('div');
             div.id = `sol-fmt-${id}`;
             div.className = 'flex items-center justify-between px-4 py-2.5 border-b border-slate-100 last:border-b-0 cursor-pointer hover:bg-purple-50 transition-all';
@@ -3608,7 +4036,7 @@
                 <span class="text-sm text-slate-600">${FORMATOS_NOMBRES[id]}</span>
                 <div class="h-5 w-5 rounded-full border-2 border-slate-300 flex-shrink-0" id="check-fmt-${id}"></div>
             `;
-            div.addEventListener('click', () => seleccionarFormatoSolicitud(id, idsSubidos));
+            div.addEventListener('click', () => seleccionarFormatoSolicitud(id, idssubidos));
             lista.appendChild(div);
         });
 
@@ -3938,19 +4366,39 @@
         if (!ok) return;
 
         try {
-            // 1. Actualizar estatus de la solicitud
+            // 1. Traer los datos de la solicitud (para saber el tipo y formato_id)
+            const resSol = await fetch(
+                `${SUPABASE_URL}/rest/v1/cementing_solicitudes_edicion?id=eq.${solicitudId}&select=tipo_cambio,formato_id`,
+                { headers }
+            );
+            const [sol] = await resSol.json();
+
+            // 2. Actualizar estatus de la solicitud
             await fetch(`${SUPABASE_URL}/rest/v1/cementing_solicitudes_edicion?id=eq.${solicitudId}`, {
                 method: 'PATCH',
                 headers,
                 body: JSON.stringify({ estatus: decision })
             });
 
-            // 2. Si se aprobó, desbloquear la operación (finalizada = false)
+            // 3. Si se aprobó, desbloquear la operación
             if (decision === 'aprobada') {
+                const patchData = { finalizada: false };
+
+                if (sol?.tipo_cambio === 'eliminar-pdf' && sol?.formato_id) {
+                    patchData.fmt_eliminar_autorizado = sol.formato_id;
+                    patchData.reporte_eliminar_autorizado = false;
+                } else if (sol?.tipo_cambio === 'eliminar-reporte') {
+                    patchData.reporte_eliminar_autorizado = true;
+                    patchData.fmt_eliminar_autorizado = null;
+                } else {
+                    patchData.fmt_eliminar_autorizado = null;
+                    patchData.reporte_eliminar_autorizado = false;
+                }
+
                 await fetch(`${SUPABASE_URL}/rest/v1/cementing_operaciones?id=eq.${operacionId}`, {
                     method: 'PATCH',
                     headers,
-                    body: JSON.stringify({ finalizada: false })
+                    body: JSON.stringify(patchData)
                 });
             }
 
@@ -3959,7 +4407,7 @@
                 decision === 'aprobada' ? 'exito' : 'error'
             );
 
-            cargarSolicitudes(); // refrescar la tabla
+            cargarSolicitudes();
 
         } catch(e) {
             mostrarToast('Error al procesar la solicitud.', 'error');
@@ -4048,9 +4496,15 @@
 
         mostrarToast('Subiendo archivo...', 'info');
 
+        // Refrescar sesión antes de subir
+        await supabaseClient.auth.getSession();
+
+        // Intentar borrar el archivo existente antes de subir (evita conflicto de upsert)
+        await supabaseClient.storage.from('cementing-archivos').remove([path]);
+
         const { error: upError } = await supabaseClient.storage
             .from('cementing-archivos')
-            .upload(path, file, { upsert: true });
+            .upload(path, file, { upsert: false });
 
         if (upError) return mostrarToast('Error al subir el archivo.', 'error');
 
@@ -4059,7 +4513,7 @@
             .getPublicUrl(path);
 
         const patch = {};
-        patch[key] = urlData.publicUrl;
+        patch[key] = urlData.publicUrl + '?t=' + Date.now();
 
         await fetch(`${SUPABASE_URL}/rest/v1/cementing_operaciones?id=eq.${opId}`, {
             method: 'PATCH',
@@ -4076,7 +4530,77 @@
         if (btnSubir) btnSubir.classList.add('hidden');
         if (btnNoapl) btnNoapl.classList.add('hidden');
 
-        mostrarToast('✅ Archivo subido correctamente.', 'ok');
+        const opLocal = operaciones.find(o => o.id === opId);
+        if (opLocal) opLocal[key] = urlData.publicUrl + '?t=' + Date.now();
+        mostrarToast('✅ Archivo Cargado correctamente.', 'ok');
+    }
+
+    async function eliminarPdfAutorizado(fmtId, opId) {
+        const ok = await confirmar({
+            icono: '🗑️',
+            titulo: 'Eliminar PDF',
+            mensaje: `¿Eliminar "${FORMATOS_NOMBRES[fmtId]}"? Podrás subir uno nuevo después.`,
+            textoAceptar: 'Sí, eliminar',
+            colorAceptar: 'bg-[#e31e24] hover:bg-red-700'
+        });
+        if (!ok) return;
+
+        const key = FORMATOS_KEYS[fmtId];
+
+        // 1. Buscar la URL actual del archivo para obtener la extensión
+        const op = operaciones.find(o => o.id === opId);
+        if (!op) return mostrarToast('No se encontró la operación.', 'error');
+
+        const urlActual = op[key];
+        if (!urlActual) return mostrarToast('No hay archivo para eliminar.', 'error');
+
+        // Extraer extensión de la URL guardada
+        const ext = urlActual.split('.').pop().split('?')[0] || 'pdf';
+        const path = `formatos/${opId}/${key}.${ext}`;
+
+        mostrarToast('Eliminando archivo...', 'info');
+
+        // 2. Borrar el archivo de Storage
+        const { error: delError } = await supabaseClient.storage
+            .from('cementing-archivos')
+            .remove([path]);
+
+        if (delError) {
+            console.warn('No se pudo borrar del storage (puede que ya no exista):', delError);
+        }
+
+        // 3. Limpiar la columna del formato y quitar la autorización
+        const patch = {};
+        patch[key] = null;
+        patch.fmt_eliminar_autorizado = null;
+
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/cementing_operaciones?id=eq.${opId}`, {
+            method: 'PATCH',
+            headers,
+            body: JSON.stringify(patch)
+        });
+
+        if (!res.ok) {
+            mostrarToast('Error al limpiar el registro.', 'error');
+            return;
+        }
+
+        // 4. Actualizar el objeto local para que la UI refleje el cambio
+        op[key] = null;
+        op.fmt_eliminar_autorizado = null;
+
+        // 5. Refrescar la UI del formato eliminado
+        const estadoEl = document.getElementById(`estado-fmt-${fmtId}`);
+        const btnSubir = document.getElementById(`btn-subir-fmt-${fmtId}`);
+        const btnNoapl = document.getElementById(`btn-noapl-fmt-${fmtId}`);
+        const btnElim  = document.getElementById(`btn-elim-fmt-${fmtId}`);
+
+        if (estadoEl) { estadoEl.classList.add('hidden'); estadoEl.classList.remove('flex'); }
+        if (btnSubir) btnSubir.classList.remove('hidden');
+        if (btnNoapl) btnNoapl.classList.remove('hidden');
+        if (btnElim)  btnElim.remove();
+
+        mostrarToast('✅ PDF eliminado. Ya puedes subir uno nuevo.', 'ok');
     }
 
     async function noAplicaFormato(id) {
@@ -4106,6 +4630,31 @@
         mostrarToast('Marcado como no aplica.', 'ok');
     }
 
+    async function deshacerNoAplica(id) {
+        const opId = operacionEditandoId;
+        if (!opId) return mostrarToast('Guarda la operación primero.', 'error');
+
+        const key   = FORMATOS_KEYS[id];
+        const patch = {};
+        patch[key]  = null;
+
+        await fetch(`${SUPABASE_URL}/rest/v1/cementing_operaciones?id=eq.${opId}`, {
+            method: 'PATCH',
+            headers,
+            body: JSON.stringify(patch)
+        });
+
+        const noaplEl  = document.getElementById(`noapl-fmt-${id}`);
+        const btnSubir = document.getElementById(`btn-subir-fmt-${id}`);
+        const btnNoapl = document.getElementById(`btn-noapl-fmt-${id}`);
+
+        if (noaplEl)  noaplEl.classList.add('hidden');
+        if (btnSubir) btnSubir.classList.remove('hidden');
+        if (btnNoapl) btnNoapl.classList.remove('hidden');
+
+        mostrarToast('✅ Deshecho. Ya puedes subir el archivo.', 'ok');
+    }
+
     function cargarEstadoFormatos(op) {
         for (let id = 1; id <= 14; id++) {
             const key      = FORMATOS_KEYS[id];
@@ -4115,12 +4664,18 @@
             const btnNoapl = document.getElementById(`btn-noapl-fmt-${id}`);
 
             // Reset
-            if (estadoEl) { estadoEl.classList.add('hidden');    estadoEl.classList.remove('flex'); }
+            if (estadoEl) { estadoEl.classList.add('hidden'); estadoEl.classList.remove('flex'); }
             if (noaplEl)  noaplEl.classList.add('hidden');
             if (btnSubir) btnSubir.classList.remove('hidden');
             if (btnNoapl) btnNoapl.classList.remove('hidden');
 
+            // Quitar cualquier botón de eliminar previo
+            const btnElimPrev = document.getElementById(`btn-elim-fmt-${id}`);
+            if (btnElimPrev) btnElimPrev.remove();
+
             if (!op) continue;
+
+            const estaAutorizadoParaBorrar = op.fmt_eliminar_autorizado === id;
 
             if (op[key] === 'no_aplica') {
                 if (noaplEl)  noaplEl.classList.remove('hidden');
@@ -4130,6 +4685,17 @@
                 if (estadoEl) { estadoEl.classList.remove('hidden'); estadoEl.classList.add('flex'); }
                 if (btnSubir) btnSubir.classList.add('hidden');
                 if (btnNoapl) btnNoapl.classList.add('hidden');
+
+                // Si está autorizado para borrar, agregar botón X
+                if (estaAutorizadoParaBorrar && estadoEl) {
+                    const btnElim = document.createElement('button');
+                    btnElim.id = `btn-elim-fmt-${id}`;
+                    btnElim.title = 'Eliminar este PDF (autorizado por admin)';
+                    btnElim.className = 'ml-2 text-red-400 hover:text-red-600 transition-all text-xs font-bold flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-red-50 border border-red-200';
+                    btnElim.innerHTML = '<i class="fas fa-times"></i> Quitar PDF';
+                    btnElim.addEventListener('click', () => eliminarPdfAutorizado(id, op.id));
+                    estadoEl.appendChild(btnElim);
+                }
             }
         }
     }
@@ -4139,24 +4705,39 @@
         const op = operaciones.find(o => o.id === id);
         const ok = await confirmar({
             icono: '🗑️',
-            titulo: 'Eliminar operación',
-            mensaje: `¿Eliminar la operación del pozo "${op?.nombre_pozo || id}"? Esto también eliminará sus herramientas y no se puede deshacer.`,
-            textoAceptar: 'Sí, eliminar',
+            titulo: 'Eliminar reporte completo',
+            mensaje: `¿Eliminar completamente el reporte del pozo "${op?.nombre_pozo || id}"? Se borrarán todos los datos, herramientas, bitácora y solicitudes. Esta acción no se puede deshacer.`,
+            textoAceptar: 'Sí, eliminar todo',
             colorAceptar: 'bg-[#e31e24] hover:bg-red-700'
-            });
-            if (!ok) return;
+        });
+        if (!ok) return;
 
         try {
+            // 1. Borrar herramientas
+            await fetch(`${SUPABASE_URL}/rest/v1/cementing_herramientas?operacion_id=eq.${id}`, {
+                method: 'DELETE', headers
+            });
+
+            // 2. Borrar bitácora
+            await fetch(`${SUPABASE_URL}/rest/v1/cementing_bitacora?operacion_id=eq.${id}`, {
+                method: 'DELETE', headers
+            });
+
+            // 3. Borrar solicitudes relacionadas
+            await fetch(`${SUPABASE_URL}/rest/v1/cementing_solicitudes_edicion?operacion_id=eq.${id}`, {
+                method: 'DELETE', headers
+            });
+
+            // 4. Borrar la operación principal
             const res = await fetch(`${SUPABASE_URL}/rest/v1/cementing_operaciones?id=eq.${id}`, {
-            method: 'DELETE',
-            headers
+                method: 'DELETE', headers
             });
 
             if (res.ok) {
-            await cargarOperaciones();
-            mostrarToast('🗑️ Operación eliminada.', 'info');
+                await cargarOperaciones();
+                mostrarToast('🗑️ Reporte eliminado completamente.', 'info');
             } else {
-            mostrarToast('Error al eliminar.', 'error');
+                mostrarToast('Error al eliminar el reporte.', 'error');
             }
         } catch(e) {
             mostrarToast('Error de conexión.', 'error');
@@ -4418,6 +4999,38 @@
       }
     });
   </script>
+
+    <script>
+        // ── SINCRONIZACIÓN ENTRE PESTAÑAS ──
+
+        // Cuando se escribe en Pestaña 1, se copia a Pestaña 4 (si el campo destino está vacío o igual)
+        function sincronizarCamposEntrePestanas() {
+            const fPozo       = document.getElementById('f-pozo');
+            const fRig        = document.getElementById('f-rig');
+            const fTemp       = document.getElementById('f-temperatura');
+
+            const fDpPozo     = document.getElementById('f-dp-nombre-pozo');
+            const fDpEquipo   = document.getElementById('f-dp-equipo');
+            const fDpTempFondo = document.getElementById('f-dp-temp-fondo');
+
+            if (!fPozo || !fDpPozo) return;
+
+            fPozo.addEventListener('input', function () {
+            fDpPozo.value = this.value;
+            });
+
+            fRig.addEventListener('input', function () {
+            fDpEquipo.value = this.value;
+            });
+
+            fTemp.addEventListener('input', function () {
+            fDpTempFondo.value = this.value;
+            });
+        }
+
+        // Ejecutar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', sincronizarCamposEntrePestanas);
+    </script>
 
     <div id="toast-contenedor" class="fixed bottom-6 right-6 z-[200] flex flex-col gap-2 items-end"></div>
 </body>
