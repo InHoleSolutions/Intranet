@@ -187,6 +187,8 @@
       const saludo = getGreeting();
       document.getElementById('user-welcome').innerText = `${saludo}, ${perfil.nombre_completo}`;
       isAdmin = perfil.rol === 'admin' ||  perfil.rol === 'Administrador' || perfil.rol === 'administrador';
+      const rolLabel = document.getElementById('user-rol-label');
+      if (rolLabel) rolLabel.innerText = `Miembro del Equipo · ${perfil.rol}`;
       if (isAdmin) {
         document.getElementById('btn-admin-toggle').classList.remove('hidden');
       }

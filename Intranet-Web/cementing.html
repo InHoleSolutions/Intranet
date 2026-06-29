@@ -1849,6 +1849,8 @@
             perfilNombre = perfil.nombre_completo;
             const welcomeEl = document.getElementById('user-welcome');
             if (welcomeEl) welcomeEl.textContent = `${obtenerSaludo()}, ${perfil.nombre_completo}`;
+            const rolLabel = document.getElementById('user-rol-label');
+            if (rolLabel) rolLabel.innerText = `Miembro del Equipo · ${perfil.rol}`;
             rolUsuario = perfil.rol?.trim() || 'Empleado';
             console.log('Rol cargado:', rolUsuario);
 

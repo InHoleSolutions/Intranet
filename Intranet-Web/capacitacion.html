@@ -1153,13 +1153,15 @@
 
         supabaseClient.auth.getSession().then(({ data: { session } }) => {
           if (!session) return;
-          supabaseClient.from('perfiles').select('nombre_completo').eq('id', session.user.id).single()
+          supabaseClient.from('perfiles').select('nombre_completo, rol').eq('id', session.user.id).single()
             .then(({ data: perfil }) => {
               if (!perfil) return;
               const hora = new Date().getHours();
               const saludo = hora >= 6 && hora < 12 ? 'Buenos días' : hora >= 12 && hora < 19 ? 'Buenas tardes' : 'Buenas noches';
               const el = document.getElementById('user-welcome');
               if (el) el.innerText = `${saludo}, ${perfil.nombre_completo}`;
+              const rolLabel = document.getElementById('user-rol-label');
+              if (rolLabel) rolLabel.innerText = `Miembro del Equipo · ${perfil.rol}`;
             });
         });
 

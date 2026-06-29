@@ -183,30 +183,49 @@
         </div>
       </div>
 
-      <!-- Gráfica WTI y Brent -->
+      <!-- Carrusel gráficas -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Petróleo últimos 7 días</p>
-        <canvas id="graficaPrecios" height="120"></canvas>
-        <div class="flex items-center justify-center gap-4 mt-2">
-          <span class="flex items-center gap-1 text-[10px] font-bold text-amber-600">
-            <span class="w-3 h-1 bg-amber-400 rounded inline-block"></span> WTI
-          </span>
-          <span class="flex items-center gap-1 text-[10px] font-bold text-blue-600">
-            <span class="w-3 h-1 bg-blue-400 rounded inline-block"></span> Brent
-          </span>
+
+        <!-- Slide 1: Petróleo -->
+        <div id="grafica-slide-0">
+          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Petróleo últimos 7 días</p>
+          <canvas id="graficaPrecios" height="120"></canvas>
+          <div class="flex items-center justify-center gap-4 mt-2">
+            <span class="flex items-center gap-1 text-[10px] font-bold text-amber-600">
+              <span class="w-3 h-1 bg-amber-400 rounded inline-block"></span> WTI
+            </span>
+            <span class="flex items-center gap-1 text-[10px] font-bold text-blue-600">
+              <span class="w-3 h-1 bg-blue-400 rounded inline-block"></span> Brent
+            </span>
+          </div>
+        </div>
+
+        <!-- Slide 2: USD/MXN -->
+        <div id="grafica-slide-1" class="hidden">
+          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">USD/MXN últimos 7 días</p>
+          <canvas id="graficaDolar" height="100"></canvas>
+          <div class="flex items-center justify-center gap-4 mt-2">
+            <span class="flex items-center gap-1 text-[10px] font-bold text-emerald-600">
+              <span class="w-3 h-1 bg-emerald-400 rounded inline-block"></span> USD/MXN
+            </span>
+          </div>
+        </div>
+
+        <!-- Controles -->
+        <div class="flex items-center justify-between px-1 pt-3 border-t border-slate-100 mt-3">
+          <button onclick="graficaAnterior()" class="h-7 w-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
+            <i class="fas fa-chevron-left text-slate-500 text-xs"></i>
+          </button>
+          <div class="flex items-center gap-2">
+            <span id="grafica-punto-0" class="h-2 w-2 rounded-full bg-amber-500 transition-all"></span>
+            <span id="grafica-punto-1" class="h-2 w-2 rounded-full bg-slate-200 transition-all"></span>
+          </div>
+          <button onclick="graficaSiguiente()" class="h-7 w-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
+            <i class="fas fa-chevron-right text-slate-500 text-xs"></i>
+          </button>
         </div>
       </div>
 
-      <!-- Gráfica USD/MXN -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">USD/MXN últimos 7 días</p>
-        <canvas id="graficaDolar" height="100"></canvas>
-        <div class="flex items-center justify-center gap-4 mt-2">
-          <span class="flex items-center gap-1 text-[10px] font-bold text-emerald-600">
-            <span class="w-3 h-1 bg-emerald-400 rounded inline-block"></span> USD/MXN
-          </span>
-        </div>
-      </div>
     </aside>
     <!-- Contenido principal (wrapper) -->
     <div class="flex-1 min-w-0 pt-4 lg:pt-32">
@@ -426,38 +445,40 @@
         <p id="boletin-fecha-2" class="text-xs text-slate-400 mt-0.5"></p>
       </div>
 
-      <!-- Noticias Tabasco -->
+      <!-- Carrusel de noticias -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="bg-gradient-to-r from-green-700 to-green-600 px-4 py-3 flex items-center gap-2">
-          <i class="fas fa-map-marker-alt text-white text-sm"></i>
-          <span class="text-xs font-black uppercase tracking-widest text-white">Tabasco</span>
+
+        <!-- Header dinámico -->
+        <div id="carrusel-header" class="bg-gradient-to-r from-green-700 to-green-600 px-4 py-3 flex items-center gap-2">
+          <i id="carrusel-icono" class="fas fa-map-marker-alt text-white text-sm"></i>
+          <span id="carrusel-titulo" class="text-xs font-black uppercase tracking-widest text-white">Tabasco</span>
         </div>
-        <div id="noticias-estatal-2" class="p-3 space-y-2">
+
+        <!-- Contenido -->
+        <div id="carrusel-contenido" class="p-3 space-y-2 min-h-[120px]">
           <div class="text-xs text-slate-400 text-center py-4">Cargando...</div>
+        </div>
+
+        <!-- Controles -->
+        <div class="flex items-center justify-between px-4 py-3 border-t border-slate-100">
+          <button onclick="carruselAnterior()" class="h-7 w-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
+            <i class="fas fa-chevron-left text-slate-500 text-xs"></i>
+          </button>
+          <div class="flex items-center gap-2">
+            <span id="punto-0" class="h-2 w-2 rounded-full bg-green-600 transition-all"></span>
+            <span id="punto-1" class="h-2 w-2 rounded-full bg-slate-200 transition-all"></span>
+            <span id="punto-2" class="h-2 w-2 rounded-full bg-slate-200 transition-all"></span>
+          </div>
+          <button onclick="carruselSiguiente()" class="h-7 w-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
+            <i class="fas fa-chevron-right text-slate-500 text-xs"></i>
+          </button>
         </div>
       </div>
 
-      <!-- Noticias Nacional -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="bg-gradient-to-r from-red-700 to-red-600 px-4 py-3 flex items-center gap-2">
-          <span class="text-white font-black text-sm">🇲🇽</span>
-          <span class="text-xs font-black uppercase tracking-widest text-white">Nacional</span>
-        </div>
-        <div id="noticias-nacional-2" class="p-3 space-y-2">
-          <div class="text-xs text-slate-400 text-center py-4">Cargando...</div>
-        </div>
-      </div>
-
-      <!-- Noticias Internacional -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="bg-gradient-to-r from-slate-800 to-slate-700 px-4 py-3 flex items-center gap-2">
-          <i class="fas fa-globe text-white text-sm"></i>
-          <span class="text-xs font-black uppercase tracking-widest text-white">Internacional</span>
-        </div>
-        <div id="noticias-internacional-2" class="p-3 space-y-2">
-          <div class="text-xs text-slate-400 text-center py-4">Cargando...</div>
-        </div>
-      </div>
+      <!-- Contenedores ocultos para que el JS siga funcionando -->
+      <div class="hidden"><div id="noticias-estatal-2"></div></div>
+      <div class="hidden"><div id="noticias-nacional-2"></div></div>
+      <div class="hidden"><div id="noticias-internacional-2"></div></div>
 
       <!-- Botón actualizar -->
       <button onclick="actualizarBoletin()" id="btn-actualizar-boletin"
@@ -929,6 +950,9 @@
         // Saludo con nombre
         document.getElementById('user-welcome').innerText =
           `${obtenerSaludo()}, ${perfil.nombre_completo}`;
+        
+        const rolLabel = document.getElementById('user-rol-label');
+        if (rolLabel) rolLabel.innerText = `Miembro del Equipo · ${perfil.rol}`;
 
         // ── Control de visibilidad: Safety Alerts solo para admins ──
         const rolesAdmin = ['admin', 'administrador', 'Administrador'];
@@ -1008,7 +1032,6 @@
       }
     }
 
-    registrarVisita();
     cargarDatos();
   </script>
 
@@ -1529,7 +1552,8 @@
       for (const cat of ['estatal','nacional','internacional']) {
         const { data: noticias } = await supabaseClient
           .from('boletin_noticias').select('*').eq('categoria', cat).order('fecha_publicacion', { ascending: false }).limit(3);
-        renderNoticias(cat + '-2', noticias || []); // ← esta línea llena el boletín derecho
+        renderNoticias(cat + '-2', noticias || []);
+        actualizarCarrusel();
       }
     }
 
@@ -1634,6 +1658,89 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') cerrarBoletines();
     });
+
+    // ── CARRUSEL GRÁFICAS ──
+    let graficaSlideActual = 0;
+    const graficaTotalSlides = 2;
+    const graficaPuntoColores = ['bg-amber-500', 'bg-emerald-500'];
+
+    function actualizarGraficaSlide() {
+      for (let i = 0; i < graficaTotalSlides; i++) {
+        const slide = document.getElementById(`grafica-slide-${i}`);
+        const punto = document.getElementById(`grafica-punto-${i}`);
+        if (i === graficaSlideActual) {
+          slide.classList.remove('hidden');
+          punto.className = `h-2 w-2 rounded-full transition-all ${graficaPuntoColores[i]}`;
+        } else {
+          slide.classList.add('hidden');
+          punto.className = 'h-2 w-2 rounded-full transition-all bg-slate-200';
+        }
+      }
+    }
+
+    function graficaSiguiente() {
+      graficaSlideActual = (graficaSlideActual + 1) % graficaTotalSlides;
+      actualizarGraficaSlide();
+    }
+
+    function graficaAnterior() {
+      graficaSlideActual = (graficaSlideActual - 1 + graficaTotalSlides) % graficaTotalSlides;
+      actualizarGraficaSlide();
+    }
+
+    // Auto-avance cada 10 segundos
+    setInterval(graficaSiguiente, 10000);
+
+    // ── CARRUSEL NOTICIAS ──
+    const carruselSecciones = [
+      { titulo: 'Tabasco',       icono: 'fas fa-map-marker-alt', color: 'from-green-700 to-green-600',  puntoColor: 'bg-green-600',  id: 'noticias-estatal-2' },
+      { titulo: 'Nacional',      icono: null,                    color: 'from-red-700 to-red-600',      puntoColor: 'bg-red-600',    id: 'noticias-nacional-2', emoji: '🇲🇽' },
+      { titulo: 'Internacional', icono: 'fas fa-globe',          color: 'from-slate-800 to-slate-700',  puntoColor: 'bg-slate-600',  id: 'noticias-internacional-2' },
+    ];
+    let carruselActual = 0;
+
+    function actualizarCarrusel() {
+      const sec = carruselSecciones[carruselActual];
+      const header = document.getElementById('carrusel-header');
+      const icono  = document.getElementById('carrusel-icono');
+      const titulo = document.getElementById('carrusel-titulo');
+      const contenido = document.getElementById('carrusel-contenido');
+
+      // Header color
+      header.className = `bg-gradient-to-r ${sec.color} px-4 py-3 flex items-center gap-2`;
+
+      // Icono o emoji
+      if (sec.emoji) {
+        icono.outerHTML = `<span id="carrusel-icono" class="text-white font-black text-sm">${sec.emoji}</span>`;
+      } else {
+        const iconoEl = document.getElementById('carrusel-icono');
+        iconoEl.outerHTML = `<i id="carrusel-icono" class="${sec.icono} text-white text-sm"></i>`;
+      }
+      titulo.textContent = sec.titulo;
+
+      // Contenido desde el div oculto
+      const fuente = document.getElementById(sec.id);
+      contenido.innerHTML = fuente ? fuente.innerHTML : '<div class="text-xs text-slate-400 text-center py-4">Sin noticias</div>';
+
+      // Puntos
+      carruselSecciones.forEach((s, i) => {
+        const punto = document.getElementById(`punto-${i}`);
+        punto.className = `h-2 w-2 rounded-full transition-all ${i === carruselActual ? s.puntoColor : 'bg-slate-200'}`;
+      });
+    }
+
+    function carruselSiguiente() {
+      carruselActual = (carruselActual + 1) % carruselSecciones.length;
+      actualizarCarrusel();
+    }
+
+    function carruselAnterior() {
+      carruselActual = (carruselActual - 1 + carruselSecciones.length) % carruselSecciones.length;
+      actualizarCarrusel();
+    }
+
+    // Auto-avance cada 8 segundos
+    setInterval(carruselSiguiente, 8000);
   </script>
   <!-- Overlay cierre boletín móvil -->
   <div id="boletin-overlay" onclick="cerrarBoletines()"

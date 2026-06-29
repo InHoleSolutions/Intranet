@@ -111,12 +111,14 @@
       document.getElementById('site-header').innerHTML = html;
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) { window.location.href = 'intranet-login.html'; return; }
-      const { data: perfil } = await supabaseClient.from('perfiles').select('nombre_completo').eq('id', session.user.id).single();
+      const { data: perfil } = await supabaseClient.from('perfiles').select('nombre_completo, rol').eq('id', session.user.id).single();
       if (perfil) {
         const hora = new Date().getHours();
         const saludo = hora < 12 ? 'Buenos días' : hora < 19 ? 'Buenas tardes' : 'Buenas noches';
         const welcomeEl = document.getElementById('user-welcome');
         if (welcomeEl) welcomeEl.innerText = `${saludo}, ${perfil.nombre_completo}`;
+        const rolLabel = document.getElementById('user-rol-label');
+        if (rolLabel) rolLabel.innerText = `Miembro del Equipo · ${perfil.rol}`;
       }
     }
     async function cerrarSesion() { await supabaseClient.auth.signOut(); window.location.href = '../index.html'; }

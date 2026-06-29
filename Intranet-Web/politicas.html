@@ -290,6 +290,8 @@
         if (welcomeEl) welcomeEl.innerText = bienvenida;
         const mobileEl = document.getElementById('user-welcome-mobile');
         if (mobileEl) mobileEl.innerText = bienvenida;
+        const rolLabel = document.getElementById('user-rol-label');
+        if (rolLabel) rolLabel.innerText = `Miembro del Equipo · ${perfil.rol}`;
         esAdmin = perfil.rol === 'Administrador';
         if (esAdmin) document.getElementById('btn-agregar').classList.replace('hidden', 'flex');
       }

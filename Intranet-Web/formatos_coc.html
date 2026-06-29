@@ -294,6 +294,8 @@
         // Actualizar header cuando ya tenemos el nombre
         const elWelcome = document.getElementById('user-welcome');
         if (elWelcome) elWelcome.textContent = `${obtenerSaludo()}, ${currentUser}`;
+        const rolLabel = document.getElementById('user-rol-label');
+        if (rolLabel) rolLabel.innerText = `Miembro del Equipo · ${perfil.rol}`;
       }
 
       const hoy = new Date();

@@ -487,6 +487,8 @@ async function init() {
   if (perfil) {
     const welcomeEl = document.getElementById('user-welcome');
     if (welcomeEl) welcomeEl.innerText = `${obtenerSaludo()}, ${perfil.nombre_completo}`;
+    const rolLabel = document.getElementById('user-rol-label');
+    if (rolLabel) rolLabel.innerText = `Miembro del Equipo · ${perfil.rol}`;
   }
 
   cargarEstadisticas();

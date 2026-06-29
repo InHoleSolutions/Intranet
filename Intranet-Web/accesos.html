@@ -461,6 +461,8 @@
       const elWelcome = document.getElementById('user-welcome');
       const elRol = document.getElementById('user-rol');
       if (elWelcome) elWelcome.textContent = `${obtenerSaludo()}, ${perfil.nombre_completo}`;
+      const rolLabel = document.getElementById('user-rol-label');
+      if (rolLabel) rolLabel.innerText = `Miembro del Equipo · ${perfil.rol}`;
       if (elRol) elRol.textContent = perfil.rol || 'Miembro del Equipo';
 
       cargarUsuarios();
