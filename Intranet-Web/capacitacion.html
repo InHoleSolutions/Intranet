@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capacitación HSE | In Hole Solutions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:,">
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #f8fafc; }
+
+    /* ── TARJETAS EMPLEADO ── */
+    .employee-card {
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      cursor: pointer;
+    }
+    .employee-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px -10px rgba(227, 30, 36, 0.15);
+    }
+    .employee-card.selected {
+      border-color: #e31e24 !important;
+      box-shadow: 0 0 0 3px rgba(227, 30, 36, 0.15), 0 20px 40px -10px rgba(227, 30, 36, 0.2);
+    }
+
+    /* ── AVATAR INICIALES ── */
+    .avatar-initials {
+      background: linear-gradient(135deg, #b91c1c, #e31e24);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    /* ── PANEL PERFIL ── */
+    #panel-perfil {
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* ── BADGE ESTADO CURSO ── */
+    .badge-vigente  { background: #dcfce7; color: #15803d; }
+    .badge-proximo  { background: #fef9c3; color: #a16207; }
+    .badge-vencido  { background: #fee2e2; color: #b91c1c; }
+
+    /* ── CONTADOR DÍAS ── */
+    .dias-counter {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── BARRA PROGRESO CURSO ── */
+    .progress-bar {
+      height: 4px;
+      border-radius: 99px;
+      background: #e2e8f0;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.8s ease;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+
+    /* ── ANIMACIONES ── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .anim-fade-up   { animation: fadeInUp   0.4s ease both; }
+    .anim-slide-in  { animation: slideInRight 0.4s ease both; }
+
+    /* ── GRÁFICA ANILLO ── */
+    .chart-wrap { position: relative; }
+    .chart-center-label {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      pointer-events: none;
+    }
+
+    /* Skeleton loader */
+    .skeleton {
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* Curso card */
+    .curso-card {
+      transition: all 0.2s ease;
+    }
+    .curso-card:hover {
+      transform: translateX(4px);
+    }
+
+    /* Tab activo */
+    .tab-btn.active {
+      background: #e31e24;
+      color: white;
+      box-shadow: 0 4px 12px rgba(227,30,36,0.3);
+    }
+    .tab-btn {
+      transition: all 0.2s ease;
+    }
+
+    /* Search focus */
+    #search-empleado:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(227,30,36,0.15);
+      border-color: #e31e24;
+    }
+
+    /* Mobile panel overlay */
+    #panel-overlay {
+      display: none;
+    }
+    @media (max-width: 1023px) {
+      #panel-overlay.visible {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- ── HEADER ── -->
+  <div id="header-componente"></div>
+
+  <!-- ── BREADCRUMB + TÍTULO ── -->
+  <div class="bg-white border-b border-slate-100 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 min-w-0">
+        <a href="dashboard.html" class="text-slate-400 hover:text-[#e31e24] transition-colors flex-shrink-0">
+          <i class="fas fa-chevron-left text-sm"></i>
+        </a>
+        <div class="h-4 w-px bg-slate-200 flex-shrink-0"></div>
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="h-8 w-8 rounded-xl bg-[#e31e24] flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-graduation-cap text-white text-sm"></i>
+          </div>
+          <div class="min-w-0">
+            <h1 class="text-sm font-black text-slate-800 uppercase tracking-tight leading-none">Capacitación HSE</h1>
+            <p class="text-[10px] text-slate-400 font-medium uppercase tracking-widest mt-0.5">In Hole Solutions</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <!-- Indicador en vivo -->
+        <div class="hidden sm:flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-xl">
+          <span class="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+          <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">En vivo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MAIN ── -->
+  <main class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 mt-[56px] lg:mt-[80px]">
+
+    <!-- ── BREADCRUMB ── -->
+    <div class="flex items-center gap-2 mb-4 text-sm">
+      <a href="dashboard.html" class="text-slate-400 hover:text-[#e31e24] transition-colors">
+        <i class="fas fa-home text-base"></i>
+      </a>
+      <span class="text-slate-300">/</span>
+      <span class="text-slate-600 font-semibold">Capacitación HSE</span>
+    </div>
+
+    <!-- ── TARJETA MATRIZ HSE ── -->
+    <div class="mb-6 anim-fade-up">
+    <button onclick="toggleMatriz()"
+        class="w-full bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 rounded-2xl p-6 text-left transition-all shadow-lg group relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-16 translate-x-16 group-hover:scale-110 transition-transform duration-500"></div>
+        <div class="absolute bottom-0 left-0 w-24 h-24 bg-[#e31e24]/10 rounded-full translate-y-10 -translate-x-8"></div>
+        <div class="flex items-center justify-between relative z-10">
+        <div class="flex items-center gap-4">
+            <div class="h-12 w-12 rounded-2xl bg-[#e31e24] flex items-center justify-center shadow-lg shadow-red-900/50">
+            <i class="fas fa-table-cells text-white text-xl"></i>
+            </div>
+            <div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Gestión QHSE</p>
+            <h2 class="text-xl font-black text-white tracking-tight">Matriz de Capacitación HSE</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Cursos · Aplica / No Aplica</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="hidden sm:flex items-center gap-1.5 bg-white/10 text-slate-300 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-xl">
+            <i class="fas fa-graduation-cap text-[#e31e24]"></i> Ver matriz
+            </span>
+            <i id="matriz-chevron" class="fas fa-chevron-down text-slate-400 text-lg transition-transform duration-300"></i>
+        </div>
+        </div>
+    </button>
+
+    <!-- Panel de la matriz (colapsable) -->
+    <div id="panel-matriz" class="hidden mt-3 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+
+        <!-- Controles superiores -->
+        <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <p class="text-xs font-black uppercase tracking-widest text-slate-400">
+            <i class="fas fa-list-check mr-2 text-[#e31e24]"></i>Cursos registrados
+        </p>
+        <div class="flex gap-2">
+            <button onclick="vistaCursos('tarjetas')" id="btn-vista-tarjetas"
+            class="vista-btn active-vista text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-xl bg-slate-900 text-white transition-all">
+            <i class="fas fa-grip mr-1"></i> Tarjetas
+            </button>
+            <button onclick="vistaCursos('lista')" id="btn-vista-lista"
+            class="vista-btn text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-xl bg-slate-100 text-slate-500 transition-all">
+            <i class="fas fa-list mr-1"></i> Lista
+            </button>
+            <button onclick="abrirModalNuevoCurso()"
+            class="text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-xl bg-[#e31e24] text-white transition-all flex items-center gap-1 shadow-md shadow-red-200">
+            <i class="fas fa-plus"></i> Nuevo curso
+            </button>
+        </div>
+        </div>
+
+        <!-- Contenedor de cursos -->
+        <div id="contenedor-cursos" class="p-4">
+        <div class="text-center py-10 text-slate-400">
+            <i class="fas fa-spinner fa-spin text-2xl mb-3 block"></i>
+            <p class="text-sm">Cargando cursos...</p>
+        </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- ── GRÁFICA GENERAL + EMPLEADOS + PERFIL ── -->
+    <div class="flex flex-col lg:flex-row gap-6">
+
+      <!-- ── COLUMNA IZQUIERDA: Gráfica + Lista empleados ── -->
+      <div class="lg:w-[380px] xl:w-[420px] flex-shrink-0 flex flex-col gap-4">
+
+        <!-- Gráfica de dona -->
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 anim-fade-up" style="animation-delay:0.1s">
+          <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">
+            <i class="fas fa-chart-pie mr-2 text-[#e31e24]"></i>Estado de Capacitación
+          </p>
+          <div class="chart-wrap w-48 h-48 mx-auto">
+            <canvas id="graficaCapacitacion"></canvas>
+            <div class="chart-center-label">
+              <p id="chart-pct" class="text-3xl font-black text-slate-800">—%</p>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cumplimiento</p>
+            </div>
+          </div>
+          <div class="flex justify-center gap-6 mt-4">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-emerald-500 flex-shrink-0"></span>
+              <span class="text-xs font-semibold text-slate-600">Vigente</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-amber-400 flex-shrink-0"></span>
+              <span class="text-xs font-semibold text-slate-600">Próx. a vencer</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-[#e31e24] flex-shrink-0"></span>
+              <span class="text-xs font-semibold text-slate-600">Vencido/Pend.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lista de empleados -->
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm flex flex-col anim-fade-up" style="animation-delay:0.15s">
+          <!-- Header lista -->
+          <div class="p-4 border-b border-slate-100">
+            <div class="relative">
+              <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 text-sm"></i>
+              <input id="search-empleado" type="text" placeholder="Buscar empleado..."
+                class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-sm font-medium text-slate-700 placeholder-slate-300 transition-all"
+                oninput="filtrarEmpleados(this.value)">
+            </div>
+          </div>
+
+          <!-- Botón nuevo empleado -->
+          <div id="btn-nuevo-empleado" class="hidden px-3 pt-3">
+            <button onclick="document.getElementById('modal-empleado-nuevo').classList.remove('hidden')"
+              class="w-full bg-[#e31e24] hover:bg-red-700 text-white text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-md shadow-red-200">
+              <i class="fas fa-user-plus"></i> Añadir empleado
+            </button>
+          </div>
+
+          <!-- Tabs -->
+          <div class="flex gap-1 p-3 bg-slate-50 border-b border-slate-100">
+            <button class="tab-btn active flex-1 text-[10px] font-black uppercase tracking-wider py-2 px-2 rounded-lg" onclick="filtrarTab('todos', this)">
+              Todos
+            </button>
+            <button class="tab-btn flex-1 text-[10px] font-black uppercase tracking-wider py-2 px-2 rounded-lg text-slate-500 hover:bg-white" onclick="filtrarTab('vigente', this)">
+              Vigentes
+            </button>
+            <button class="tab-btn flex-1 text-[10px] font-black uppercase tracking-wider py-2 px-2 rounded-lg text-slate-500 hover:bg-white" onclick="filtrarTab('alerta', this)">
+              Alertas
+            </button>
+          </div>
+
+          <!-- Lista scroll -->
+          <div id="lista-empleados" class="overflow-y-auto max-h-[500px] divide-y divide-slate-50 p-2">
+            <!-- Skeleton -->
+            <div class="space-y-2 p-2">
+              <div class="skeleton h-14 w-full"></div>
+              <div class="skeleton h-14 w-full"></div>
+              <div class="skeleton h-14 w-full"></div>
+              <div class="skeleton h-14 w-full"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── COLUMNA DERECHA: Panel perfil ── -->
+      <div class="flex-1 min-w-0">
+
+        <!-- Estado vacío -->
+        <div id="panel-vacio" class="flex flex-col items-center justify-center h-full min-h-[400px] text-center anim-fade-up">
+          <div class="w-24 h-24 rounded-3xl bg-slate-100 flex items-center justify-center mb-6">
+            <i class="fas fa-user-graduate text-slate-300 text-4xl"></i>
+          </div>
+          <h3 class="text-xl font-black text-slate-700 mb-2">Selecciona un empleado</h3>
+          <p class="text-slate-400 text-sm max-w-xs leading-relaxed">
+            Haz clic en cualquier empleado de la lista para ver su perfil, cursos realizados y cursos pendientes.
+          </p>
+        </div>
+
+        <!-- Panel perfil empleado -->
+        <div id="panel-perfil" class="hidden anim-slide-in">
+
+          <!-- Header del perfil -->
+          <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-4">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-5">
+
+              <!-- Avatar grande -->
+              <div id="perfil-avatar-big"
+                class="avatar-initials w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl flex-shrink-0">
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-start justify-between gap-3 mb-1">
+                  <div>
+                    <h2 id="perfil-nombre" class="text-2xl font-black text-slate-800 leading-tight"></h2>
+                  </div>
+                  <span id="perfil-badge-estado" class="px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider"></span>
+                </div>
+
+                <!-- Datos rápidos -->
+                <div class="flex flex-wrap gap-4 mt-3">
+                  <div class="flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                    <i class="fas fa-book-open text-slate-300"></i>
+                    <span><strong id="perfil-total-cursos" class="text-slate-700"></strong> cursos realizados</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Acciones -->
+              <div class="flex gap-2 flex-shrink-0">
+                <button id="btn-editar-empleado" onclick="abrirModalEditarEmpleado()"
+                  class="h-10 w-10 rounded-xl border border-slate-200 text-slate-400 hover:text-[#e31e24] hover:border-[#e31e24] transition-all flex items-center justify-center">
+                  <i class="fas fa-pen text-sm"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Barra de cumplimiento personal -->
+            <div class="mt-5 pt-5 border-t border-slate-100">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Cumplimiento personal</span>
+                <span id="perfil-pct" class="text-sm font-black text-slate-800"></span>
+              </div>
+              <div class="progress-bar">
+                <div id="perfil-progress-fill" class="progress-fill bg-emerald-500"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dos columnas: Cursos + Cursos por cursar -->
+          <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+
+            <!-- ── CURSOS REALIZADOS ── -->
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+              <div class="bg-gradient-to-r from-slate-800 to-slate-700 px-5 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <i class="fas fa-certificate text-emerald-400 text-sm"></i>
+                  <h3 class="text-sm font-black text-white uppercase tracking-wider">Cursos</h3>
+                </div>
+                <span id="cursos-count" class="text-[10px] font-bold bg-white/10 text-white px-2 py-0.5 rounded-full"></span>
+              </div>
+              <div id="lista-cursos" class="p-4 space-y-3 max-h-[480px] overflow-y-auto">
+                <!-- cursos aquí -->
+              </div>
+            </div>
+
+            <!-- ── CURSOS POR CURSAR ── -->
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+              <div class="bg-gradient-to-r from-[#e31e24] to-[#b91c1c] px-5 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <i class="fas fa-list-check text-white/80 text-sm"></i>
+                  <h3 class="text-sm font-black text-white uppercase tracking-wider">Cursos por Cursar</h3>
+                </div>
+                <span id="pendientes-count" class="text-[10px] font-bold bg-white/20 text-white px-2 py-0.5 rounded-full"></span>
+              </div>
+              <div id="lista-pendientes" class="p-4 space-y-2 max-h-[480px] overflow-y-auto">
+                <!-- pendientes aquí -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ── MODAL NUEVO / EDITAR EMPLEADO ── -->
+  <div id="modal-empleado" class="hidden fixed inset-0 z-[200] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-5 flex items-center justify-between">
+        <h3 id="modal-titulo" class="text-base font-black text-white uppercase tracking-tight"></h3>
+        <button onclick="cerrarModal('modal-empleado')" class="text-slate-400 hover:text-white transition-colors">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+        <input type="hidden" id="modal-emp-id">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="col-span-2">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nombre completo *</label>
+            <input id="modal-emp-nombre" type="text" placeholder="Ej. Juan Pérez López"
+              class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#e31e24] transition-colors">
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button onclick="cerrarModal('modal-empleado')"
+            class="flex-1 border border-slate-200 text-slate-600 font-bold rounded-xl py-2.5 text-sm hover:bg-slate-50 transition-colors">
+            Cancelar
+          </button>
+          <button onclick="guardarEmpleado()"
+            class="flex-1 bg-[#e31e24] hover:bg-red-700 text-white font-bold rounded-xl py-2.5 text-sm transition-all shadow-md shadow-red-200">
+            <i class="fas fa-floppy-disk mr-2"></i>Guardar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TOAST NOTIFICACIÓN ── -->
+  <div id="toast" class="hidden fixed bottom-6 right-6 z-[300] bg-slate-900 text-white rounded-2xl shadow-2xl px-5 py-4 flex items-center gap-3 min-w-[260px] max-w-sm border border-slate-700">
+    <div id="toast-icon" class="h-8 w-8 rounded-xl flex items-center justify-center flex-shrink-0"></div>
+    <p id="toast-msg" class="text-sm font-semibold"></p>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <div id="footer-componente"></div>
+
+  <!-- ── SCRIPT ── -->
+  <script>
+    // ── SUPABASE CONFIG ──
+    const { createClient } = supabase;
+    const supabaseClient = createClient(
+      'https://bgqlvkvlscujikhzzazf.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJncWx2a3Zsc2N1amlraHp6YXpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NzA0OTQsImV4cCI6MjA5NDM0NjQ5NH0.RuNCaTgjTN1mTA6kkjfXwz05epUYzARqGj8L3I2v350'
+    );
+
+    // ── ESTADO GLOBAL ──
+    let todosEmpleados = [];
+    let empleadoActual = null;
+    let tabActual = 'todos';
+    let busquedaActual = '';
+    let graficaInstance = null;
+
+    // ────────────────────────────────────────────
+    // HELPERS
+    // ────────────────────────────────────────────
+    function iniciales(nombre) {
+      if (!nombre) return '?';
+      return nombre.trim().split(' ').map(p => p[0]).slice(0,2).join('').toUpperCase();
+    }
+
+    function colorAvatar(nombre) {
+      const colores = [
+        'linear-gradient(135deg,#b91c1c,#e31e24)',
+        'linear-gradient(135deg,#1d4ed8,#2563eb)',
+        'linear-gradient(135deg,#065f46,#059669)',
+        'linear-gradient(135deg,#7c3aed,#8b5cf6)',
+        'linear-gradient(135deg,#b45309,#d97706)',
+        'linear-gradient(135deg,#0e7490,#0891b2)',
+      ];
+      let hash = 0;
+      for (let c of (nombre || '')) hash = (hash << 5) - hash + c.charCodeAt(0);
+      return colores[Math.abs(hash) % colores.length];
+    }
+
+    function diasRestantes(fechaVencimiento) {
+      if (!fechaVencimiento) return null;
+      const hoy  = new Date(); hoy.setHours(0,0,0,0);
+      const venc = new Date(fechaVencimiento); venc.setHours(0,0,0,0);
+      return Math.round((venc - hoy) / 86400000);
+    }
+
+    function estadoCurso(dias) {
+      if (dias === null) return 'indefinido';
+      if (dias < 0)   return 'vencido';
+      if (dias <= 45) return 'proximo';
+      return 'vigente';
+    }
+
+    function formatFecha(f) {
+      if (!f) return '—';
+      const [y,m,d] = f.split('-');
+      const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+      return `${parseInt(d)} ${meses[parseInt(m)-1]} ${y}`;
+    }
+
+    function mostrarToast(msg, tipo = 'ok') {
+      const toast = document.getElementById('toast');
+      const icon  = document.getElementById('toast-icon');
+      const msgEl = document.getElementById('toast-msg');
+      icon.className = `h-8 w-8 rounded-xl flex items-center justify-center flex-shrink-0 ${tipo === 'ok' ? 'bg-emerald-500' : 'bg-[#e31e24]'}`;
+      icon.innerHTML = `<i class="fas fa-${tipo === 'ok' ? 'check' : 'triangle-exclamation'} text-white text-sm"></i>`;
+      msgEl.textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3500);
+    }
+
+    function cerrarModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    // ────────────────────────────────────────────
+    // GRÁFICA DONA
+    // ────────────────────────────────────────────
+    function renderGrafica(vigentes, proximos, vencidos) {
+      const ctx = document.getElementById('graficaCapacitacion').getContext('2d');
+      if (graficaInstance) graficaInstance.destroy();
+      const total = vigentes + proximos + vencidos;
+      const pct = total > 0 ? Math.round((vigentes / total) * 100) : 0;
+      document.getElementById('chart-pct').textContent = pct + '%';
+
+      graficaInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Vigente', 'Próx. a vencer', 'Vencido/Pend.'],
+          datasets: [{
+            data: [vigentes, proximos, vencidos || 1],
+            backgroundColor: ['#22c55e', '#f59e0b', '#e31e24'],
+            borderWidth: 0,
+            hoverOffset: 6,
+            borderRadius: 4,
+          }]
+        },
+        options: {
+          cutout: '72%',
+          responsive: true,
+          plugins: { legend: { display: false }, tooltip: {
+            callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}` }
+          }}
+        }
+      });
+    }
+
+    // ────────────────────────────────────────────
+    // ESTADÍSTICAS GENERALES
+    // ────────────────────────────────────────────
+    function calcularEstadisticas(empleados) {
+      let cursosVigentes = 0, cursosProximos = 0, cursosVencidos = 0;
+      const total = empleados.length;
+
+      empleados.forEach(emp => {
+        (emp.cursos || []).forEach(c => {
+          const d = diasRestantes(c.fecha_vencimiento);
+          if (d === null) return;
+          if (d < 0)        cursosVencidos++;
+          else if (d <= 45) cursosProximos++;
+          else              cursosVigentes++;
+        });
+      });
+
+      const totalCursos = cursosVigentes + cursosProximos + cursosVencidos;
+      const pct = totalCursos > 0 ? Math.round((cursosVigentes / totalCursos) * 100) : 0;
+
+      const elCumpl    = document.getElementById('stat-cumplimiento');
+      const elVig      = document.getElementById('stat-vigentes');
+      const elTotal    = document.getElementById('stat-total-requeridos');
+      const elVigNum   = document.getElementById('stat-vigentes-num');
+      const elReqNum   = document.getElementById('stat-requieren-num');
+      const elProxNum  = document.getElementById('stat-proximos-num');
+      const elChartPct = document.getElementById('chart-pct');
+
+      if (elCumpl)    elCumpl.textContent    = pct;
+      if (elVig)      elVig.textContent      = cursosVigentes;
+      if (elTotal)    elTotal.textContent    = total;
+      if (elVigNum)   elVigNum.textContent   = cursosVigentes;
+      if (elReqNum)   elReqNum.textContent   = cursosVencidos;
+      if (elProxNum)  elProxNum.textContent  = cursosProximos;
+      if (elChartPct) elChartPct.textContent = pct + '%';
+
+      renderGrafica(cursosVigentes, cursosProximos, cursosVencidos);
+    }
+
+    // ────────────────────────────────────────────
+    // RENDERIZAR LISTA EMPLEADOS
+    // ────────────────────────────────────────────
+    function renderLista() {
+      let lista = todosEmpleados;
+
+      // Filtro búsqueda
+      if (busquedaActual) {
+        const q = busquedaActual.toLowerCase();
+        lista = lista.filter(e =>
+          e.nombre.toLowerCase().includes(q) ||
+          (e.puesto || '').toLowerCase().includes(q) ||
+          (e.area || '').toLowerCase().includes(q)
+        );
+      }
+
+      // Filtro tab
+      if (tabActual === 'vigente') {
+        lista = lista.filter(e => estadoEmpleado(e) === 'vigente');
+      } else if (tabActual === 'alerta') {
+        lista = lista.filter(e => estadoEmpleado(e) !== 'vigente');
+      }
+
+      const cont = document.getElementById('lista-empleados');
+
+      if (!lista.length) {
+        cont.innerHTML = `
+          <div class="py-10 text-center text-slate-400">
+            <i class="fas fa-user-slash text-3xl mb-3 block opacity-30"></i>
+            <p class="text-sm font-medium">Sin resultados</p>
+          </div>`;
+        return;
+      }
+
+      cont.innerHTML = lista.map(emp => {
+        const est  = estadoEmpleado(emp);
+        const dot  = est === 'vigente' ? 'bg-emerald-500' : est === 'proximo' ? 'bg-amber-400' : 'bg-[#e31e24]';
+        const isActive = empleadoActual?.id === emp.id ? 'selected' : '';
+        return `
+        <div class="employee-card ${isActive} flex items-center gap-3 p-3 rounded-xl border border-transparent hover:border-slate-100 hover:bg-slate-50"
+          onclick="seleccionarEmpleado(${emp.id})">
+          <div class="avatar-initials w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm flex-shrink-0"
+            style="background:${colorAvatar(emp.nombre)}">
+            ${iniciales(emp.nombre)}
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-bold text-slate-800 truncate">${emp.nombre}</p>
+          </div>
+          <span class="h-2 w-2 rounded-full flex-shrink-0 ${dot}"></span>
+        </div>`;
+      }).join('');
+    }
+
+    function estadoEmpleado(emp) {
+      const cursos = emp.cursos || [];
+      if (!cursos.length) return 'vencido';
+      const tieneVencido = cursos.some(c => {
+        const d = diasRestantes(c.fecha_vencimiento);
+        return d !== null && d < 0;
+      });
+      if (tieneVencido || (emp.cursos_pendientes || []).length > 0) {
+        const tieneProximo = cursos.some(c => {
+          const d = diasRestantes(c.fecha_vencimiento);
+          return d !== null && d >= 0 && d <= 30;
+        });
+        return tieneProximo ? 'proximo' : 'vencido';
+      }
+      return 'vigente';
+    }
+
+    // ────────────────────────────────────────────
+    // SELECCIONAR EMPLEADO
+    // ────────────────────────────────────────────
+    function seleccionarEmpleado(id) {
+      const emp = todosEmpleados.find(e => e.id === id);
+      if (!emp) return;
+      empleadoActual = emp;
+
+      // Activar visualmente
+      document.querySelectorAll('.employee-card').forEach(c => c.classList.remove('selected'));
+      document.querySelectorAll('.employee-card').forEach(c => {
+        if (c.getAttribute('onclick')?.includes(id)) c.classList.add('selected');
+      });
+
+      // Ocultar vacío, mostrar perfil
+      document.getElementById('panel-vacio').classList.add('hidden');
+      const panel = document.getElementById('panel-perfil');
+      panel.classList.remove('hidden');
+      panel.classList.remove('anim-slide-in');
+      void panel.offsetWidth;
+      panel.classList.add('anim-slide-in');
+
+      // Llenar datos generales
+      const ini = iniciales(emp.nombre);
+      const avatarBig = document.getElementById('perfil-avatar-big');
+      avatarBig.textContent = ini;
+      avatarBig.style.background = colorAvatar(emp.nombre);
+
+      document.getElementById('perfil-nombre').textContent = emp.nombre;
+
+      const cursos    = emp.cursos || [];
+      const pendientes = emp.cursos_pendientes || [];
+
+      document.getElementById('perfil-total-cursos').textContent = cursos.length;
+      document.getElementById('cursos-count').textContent    = cursos.length;
+      document.getElementById('pendientes-count').textContent = pendientes.length;
+
+      // Cumplimiento personal
+      const total = cursos.length + pendientes.length;
+      const vigentesP = cursos.filter(c => {
+        const d = diasRestantes(c.fecha_vencimiento);
+        return d === null || d >= 0;
+      }).length;
+      const pct = total > 0 ? Math.round((vigentesP / total) * 100) : 0;
+      document.getElementById('perfil-pct').textContent = pct + '%';
+      const fill = document.getElementById('perfil-progress-fill');
+      fill.style.width = pct + '%';
+      fill.className = `progress-fill ${pct >= 80 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-400' : 'bg-[#e31e24]'}`;
+
+      // Badge estado general
+      const est = estadoEmpleado(emp);
+      const badge = document.getElementById('perfil-badge-estado');
+      badge.className = `px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider ${
+        est === 'vigente' ? 'badge-vigente' :
+        est === 'proximo' ? 'badge-proximo' : 'badge-vencido'
+      }`;
+      badge.textContent = est === 'vigente' ? '✓ Al día' : est === 'proximo' ? '⚠ Próx. a vencer' : '✗ Atención requerida';
+
+      // Renderizar cursos realizados
+      renderCursos(cursos);
+      renderPendientes(pendientes);
+    }
+
+    // ────────────────────────────────────────────
+    // RENDERIZAR CURSOS REALIZADOS
+    // ────────────────────────────────────────────
+    function renderCursos(cursos) {
+      const cont = document.getElementById('lista-cursos');
+      if (!cursos.length) {
+        cont.innerHTML = `
+          <div class="py-8 text-center text-slate-400">
+            <i class="fas fa-inbox text-3xl mb-3 block opacity-30"></i>
+            <p class="text-sm font-medium">Sin cursos registrados</p>
+          </div>`;
+        return;
+      }
+
+      cont.innerHTML = cursos.map((c, i) => {
+        const dias = diasRestantes(c.fecha_vencimiento);
+        const est  = estadoCurso(dias);
+        const badgeClass = est === 'vigente' ? 'badge-vigente' : est === 'proximo' ? 'badge-proximo' : 'badge-vencido';
+
+        let diasLabel = '';
+        if (dias === null) diasLabel = '';
+        else if (dias < 0) diasLabel = `Venció hace ${Math.abs(dias)} días`;
+        else if (dias === 0) diasLabel = 'Vence hoy';
+        else diasLabel = `${dias} días restantes`;
+
+        const pctVida = dias !== null && c.fecha_inicio && c.fecha_vencimiento
+          ? Math.max(0, Math.min(100, Math.round((diasRestantes(c.fecha_inicio) < 0
+              ? Math.abs(diasRestantes(c.fecha_inicio)) / (Math.abs(diasRestantes(c.fecha_inicio)) + (dias > 0 ? dias : 0)) * 100
+              : 0))))
+          : 50;
+
+        const barColor = est === 'vigente' ? 'bg-emerald-500' : est === 'proximo' ? 'bg-amber-400' : 'bg-[#e31e24]';
+
+        return `
+        <div class="curso-card bg-slate-50 rounded-xl p-4 border border-slate-100 cursor-pointer hover:border-[#e31e24]/30 hover:bg-red-50/20" style="animation-delay:${i*0.05}s" onclick="abrirModalEditarCurso(${i})">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <h4 class="text-sm font-bold text-slate-800 leading-tight">${c.nombre}</h4>
+            <span class="flex-shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full ${badgeClass}">
+              ${est === 'vigente' ? 'Vigente' : est === 'proximo' ? 'Próx.' : 'Vencido'}
+            </span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-500 mb-3">
+            <div>
+              <p class="font-semibold text-slate-400 uppercase tracking-wider text-[9px] mb-0.5">Inicio</p>
+              <p class="font-bold text-slate-700">${formatFecha(c.fecha_inicio)}</p>
+            </div>
+            <div>
+              <p class="font-semibold text-slate-400 uppercase tracking-wider text-[9px] mb-0.5">Vencimiento</p>
+              <p class="font-bold text-slate-700">${formatFecha(c.fecha_vencimiento)}</p>
+            </div>
+          </div>
+          ${dias !== null ? `
+          <div class="progress-bar mb-1.5">
+            <div class="${barColor}" style="width:${pctVida}%; height:100%; border-radius:99px; transition:width 0.8s ease;"></div>
+          </div>
+          <p class="text-[10px] font-bold dias-counter ${
+            est === 'vigente' ? 'text-emerald-600' :
+            est === 'proximo' ? 'text-amber-600' : 'text-[#e31e24]'
+          }">
+            <i class="fas fa-${est === 'vigente' ? 'clock' : est === 'proximo' ? 'hourglass-half' : 'circle-exclamation'} mr-1"></i>
+            ${diasLabel}
+          </p>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    // ────────────────────────────────────────────
+    // RENDERIZAR CURSOS PENDIENTES
+    // ────────────────────────────────────────────
+    function renderPendientes(pendientes) {
+      const cont = document.getElementById('lista-pendientes');
+      if (!pendientes.length) {
+        cont.innerHTML = `
+          <div class="py-8 text-center text-slate-400">
+            <i class="fas fa-party-horn text-3xl mb-3 block opacity-30"></i>
+            <p class="text-sm font-medium">¡Sin cursos pendientes!</p>
+            <p class="text-xs mt-1">El empleado está al día.</p>
+          </div>`;
+        return;
+      }
+
+      cont.innerHTML = pendientes.map((p, i) => `
+        <div class="flex items-center gap-3 p-3 rounded-xl bg-red-50 border border-red-100 curso-card cursor-pointer hover:bg-red-100 transition-colors" onclick="abrirModalCompletarCurso(${i})" style="animation-delay:${i*0.05}s">
+          <div class="h-8 w-8 rounded-xl bg-[#e31e24]/10 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-book text-[#e31e24] text-sm"></i>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-slate-800 leading-tight truncate">${p.nombre || p}</p>
+            ${p.prioridad ? `<span class="text-[10px] font-bold uppercase tracking-wider text-[#e31e24]">
+              ${p.prioridad === 'alta' ? '🔴' : p.prioridad === 'media' ? '🟡' : '🟢'} Prioridad ${p.prioridad}
+            </span>` : ''}
+          </div>
+        </div>`).join('');
+    }
+
+    function abrirModalEditarCurso(idx) {
+      const cursos = empleadoActual.cursos || [];
+      const curso = cursos[idx];
+      if (!curso) return;
+      document.getElementById('modal-editar-curso-idx').value = idx;
+      document.getElementById('modal-editar-curso-nombre').textContent = curso.nombre;
+      document.getElementById('modal-editar-curso-inicio').value = curso.fecha_inicio || '';
+      document.getElementById('modal-editar-curso-vencimiento').value = curso.fecha_vencimiento || '';
+      document.getElementById('modal-editar-curso').classList.remove('hidden');
+    }
+
+    async function guardarEdicionCurso() {
+      const idx   = parseInt(document.getElementById('modal-editar-curso-idx').value);
+      const inicio = document.getElementById('modal-editar-curso-inicio').value;
+      const venc   = document.getElementById('modal-editar-curso-vencimiento').value;
+
+      if (!inicio) { mostrarToast('La fecha de inicio es obligatoria', 'err'); return; }
+      if (!venc)   { mostrarToast('La fecha de vencimiento es obligatoria', 'err'); return; }
+
+      const emp = empleadoActual;
+      const cursosActualizados = [...(emp.cursos || [])];
+      cursosActualizados[idx] = {
+        ...cursosActualizados[idx],
+        fecha_inicio: inicio,
+        fecha_vencimiento: venc
+      };
+
+      const { error } = await supabaseClient
+        .from('cap_hse_empleados')
+        .update({ cursos: cursosActualizados })
+        .eq('id', emp.id);
+
+      if (error) { mostrarToast('Error al guardar', 'err'); console.error(error); return; }
+
+      cerrarModal('modal-editar-curso');
+      mostrarToast('Curso actualizado ✓', 'ok');
+      await cargarEmpleados();
+    }
+
+    function abrirModalCompletarCurso(idx) {
+      const pendientes = empleadoActual.cursos_pendientes || [];
+      const curso = pendientes[idx];
+      if (!curso) return;
+      document.getElementById('modal-completar-idx').value     = idx;
+      document.getElementById('modal-completar-nombre').textContent = curso.nombre || curso;
+      document.getElementById('modal-completar-inicio').value      = '';
+      document.getElementById('modal-completar-vencimiento').value = '';
+      document.getElementById('modal-completar-curso').classList.remove('hidden');
+    }
+
+    async function completarCursoPendiente() {
+      const idx    = parseInt(document.getElementById('modal-completar-idx').value);
+      const inicio = document.getElementById('modal-completar-inicio').value;
+      const venc   = document.getElementById('modal-completar-vencimiento').value;
+
+      if (!inicio) { mostrarToast('La fecha de inicio es obligatoria', 'err'); return; }
+      if (!venc)   { mostrarToast('La fecha de vencimiento es obligatoria', 'err'); return; }
+
+      const emp        = empleadoActual;
+      const pendientes = [...(emp.cursos_pendientes || [])];
+      const curso      = pendientes[idx];
+
+      const cursosActualizados    = [...(emp.cursos || []), { nombre: curso.nombre || curso, fecha_inicio: inicio, fecha_vencimiento: venc }];
+      const pendientesActualizados = pendientes.filter((_, i) => i !== idx);
+
+      const { error } = await supabaseClient
+        .from('cap_hse_empleados')
+        .update({ cursos: cursosActualizados, cursos_pendientes: pendientesActualizados })
+        .eq('id', emp.id);
+
+      if (error) { mostrarToast('Error al guardar', 'err'); console.error(error); return; }
+
+      cerrarModal('modal-completar-curso');
+      mostrarToast('Curso registrado ✓', 'ok');
+      await cargarEmpleados();
+    }
+
+    // ────────────────────────────────────────────
+    // FILTROS
+    // ────────────────────────────────────────────
+    function filtrarEmpleados(val) {
+      busquedaActual = val;
+      renderLista();
+    }
+
+    function filtrarTab(tab, btn) {
+      tabActual = tab;
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
+        b.classList.add('text-slate-500');
+      });
+      btn.classList.add('active');
+      btn.classList.remove('text-slate-500');
+      renderLista();
+    }
+
+    // ────────────────────────────────────────────
+    // MODAL NUEVO EMPLEADO
+    // ────────────────────────────────────────────
+    function abrirModalNuevoEmpleado() {
+      document.getElementById('modal-titulo').textContent = 'Nuevo Empleado';
+      document.getElementById('modal-emp-id').value      = '';
+      document.getElementById('modal-emp-nombre').value  = '';
+      document.getElementById('modal-cursos-list').innerHTML    = '';
+      document.getElementById('modal-pendientes-list').innerHTML = '';
+      document.getElementById('modal-empleado').classList.remove('hidden');
+    }
+
+    function abrirModalEditarEmpleado() {
+      if (!empleadoActual) return;
+      const emp = empleadoActual;
+      document.getElementById('modal-titulo').textContent = 'Editar Empleado';
+      document.getElementById('modal-emp-id').value      = emp.id;
+      document.getElementById('modal-emp-nombre').value  = emp.nombre || '';
+      document.getElementById('modal-empleado').classList.remove('hidden');
+    }
+
+    function agregarFilaCurso(data = {}) {
+      const cont = document.getElementById('modal-cursos-list');
+      const div  = document.createElement('div');
+      div.className = 'flex flex-col gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100 relative';
+      div.innerHTML = `
+        <input type="text" placeholder="Nombre del curso" value="${data.nombre || ''}"
+          class="curso-nombre w-full border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium focus:outline-none focus:border-[#e31e24] transition-colors">
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Fecha inicio</label>
+            <input type="date" value="${data.fecha_inicio || ''}"
+              class="curso-inicio w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-[#e31e24] transition-colors">
+          </div>
+          <div>
+            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Fecha vencimiento</label>
+            <input type="date" value="${data.fecha_vencimiento || ''}"
+              class="curso-vence w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-[#e31e24] transition-colors">
+          </div>
+        </div>
+        <button onclick="this.closest('div.relative').remove()"
+          class="absolute top-2 right-2 text-slate-300 hover:text-[#e31e24] transition-colors text-sm">
+          <i class="fas fa-times"></i>
+        </button>`;
+      cont.appendChild(div);
+    }
+
+    function agregarFilaPendiente(data = {}) {
+      const cont = document.getElementById('modal-pendientes-list');
+      const div  = document.createElement('div');
+      div.className = 'flex items-center gap-2';
+      div.innerHTML = `
+        <input type="text" placeholder="Nombre del curso pendiente" value="${data.nombre || ''}"
+          class="pendiente-nombre flex-1 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium focus:outline-none focus:border-[#e31e24] transition-colors">
+        <select class="pendiente-prioridad border border-slate-200 rounded-lg px-2 py-2 text-xs font-medium focus:outline-none focus:border-[#e31e24] transition-colors">
+          <option value="" ${!data.prioridad ? 'selected':''}>Sin prioridad</option>
+          <option value="alta" ${data.prioridad==='alta'?'selected':''}>🔴 Alta</option>
+          <option value="media" ${data.prioridad==='media'?'selected':''}>🟡 Media</option>
+          <option value="baja" ${data.prioridad==='baja'?'selected':''}>🟢 Baja</option>
+        </select>
+        <button onclick="this.closest('div').remove()"
+          class="text-slate-300 hover:text-[#e31e24] transition-colors text-sm flex-shrink-0">
+          <i class="fas fa-times"></i>
+        </button>`;
+      cont.appendChild(div);
+    }
+
+    // ────────────────────────────────────────────
+    // GUARDAR EMPLEADO
+    // ────────────────────────────────────────────
+    async function guardarEmpleado() {
+      const id      = document.getElementById('modal-emp-id').value;
+      const nombre  = document.getElementById('modal-emp-nombre').value.trim();
+
+      if (!nombre) { mostrarToast('El nombre es obligatorio', 'err'); return; }
+
+      // Recopilar cursos
+      const cursos = [];
+      document.querySelectorAll('#modal-cursos-list > div').forEach(div => {
+        const nom  = div.querySelector('.curso-nombre')?.value.trim();
+        const ini  = div.querySelector('.curso-inicio')?.value;
+        const venc = div.querySelector('.curso-vence')?.value;
+        if (nom) cursos.push({ nombre: nom, fecha_inicio: ini || null, fecha_vencimiento: venc || null });
+      });
+
+      const pendientes = [];
+      document.querySelectorAll('#modal-pendientes-list > div').forEach(div => {
+        const nom  = div.querySelector('.pendiente-nombre')?.value.trim();
+        const pri  = div.querySelector('.pendiente-prioridad')?.value;
+        if (nom) pendientes.push({ nombre: nom, prioridad: pri || null });
+      });
+
+      const payload = { nombre, cursos, cursos_pendientes: pendientes };
+
+      let error;
+      if (id) {
+        ({ error } = await supabaseClient.from('cap_hse_empleados').update(payload).eq('id', id));
+      } else {
+        ({ error } = await supabaseClient.from('cap_hse_empleados').insert(payload));
+      }
+
+      if (error) {
+        console.error(error);
+        mostrarToast('Error al guardar. Verifica la tabla en Supabase.', 'err');
+        return;
+      }
+
+      cerrarModal('modal-empleado');
+      mostrarToast(id ? 'Empleado actualizado ✓' : 'Empleado registrado ✓', 'ok');
+      await cargarEmpleados();
+    }
+
+    // ────────────────────────────────────────────
+    // CARGAR EMPLEADOS DESDE SUPABASE
+    // ────────────────────────────────────────────
+    async function cargarEmpleados() {
+      const { data, error } = await supabaseClient
+        .from('cap_hse_empleados')
+        .select('*')
+        .order('nombre', { ascending: true });
+
+      if (error) {
+        console.warn('Tabla no encontrada, usando datos de demo:', error.message);
+        todosEmpleados = datosDemo();
+      } else {
+        todosEmpleados = data || [];
+      }
+
+      calcularEstadisticas(todosEmpleados);
+      renderLista();
+
+      // Si había un empleado seleccionado, reseleccionarlo
+      if (empleadoActual) {
+        const actualizado = todosEmpleados.find(e => e.id === empleadoActual.id);
+        if (actualizado) seleccionarEmpleado(actualizado.id);
+      }
+    }
+
+    // ────────────────────────────────────────────
+    // DATOS DE DEMO (mientras se crea la tabla)
+    // ────────────────────────────────────────────
+    function datosDemo() {
+      return [
+        {
+          id: 1, nombre: 'Carlos Mendoza Torres', no_empleado: 'IHS-001',
+          puesto: 'Supervisor QHSE', area: 'QHSE',
+          cursos: [
+            { nombre: 'Seguridad en Espacios Confinados', fecha_inicio: '2024-01-15', fecha_vencimiento: '2025-01-15' },
+            { nombre: 'Manejo de Sustancias Peligrosas', fecha_inicio: '2024-03-01', fecha_vencimiento: '2026-03-01' },
+            { nombre: 'Primeros Auxilios Avanzado', fecha_inicio: '2024-06-10', fecha_vencimiento: '2026-06-10' },
+          ],
+          cursos_pendientes: [
+            { nombre: 'Rescate en Altura', prioridad: 'alta' }
+          ]
+        },
+        {
+          id: 2, nombre: 'Ana Lucía Ramírez', no_empleado: 'IHS-002',
+          puesto: 'Técnico HSE', area: 'QHSE',
+          cursos: [
+            { nombre: 'H2S Alive', fecha_inicio: '2023-08-01', fecha_vencimiento: '2024-08-01' },
+            { nombre: 'Trabajo en Altura', fecha_inicio: '2024-05-20', fecha_vencimiento: '2026-05-20' },
+          ],
+          cursos_pendientes: [
+            { nombre: 'Primeros Auxilios', prioridad: 'alta' },
+            { nombre: 'LOTO / LOTOTO', prioridad: 'media' }
+          ]
+        },
+        {
+          id: 3, nombre: 'Roberto Juárez Pérez', no_empleado: 'IHS-003',
+          puesto: 'Operador Drilling', area: 'Operaciones',
+          cursos: [
+            { nombre: 'H2S Alive', fecha_inicio: '2024-02-10', fecha_vencimiento: '2026-02-10' },
+            { nombre: 'Well Control (IWCF)', fecha_inicio: '2024-04-15', fecha_vencimiento: '2026-04-15' },
+            { nombre: 'Trabajo en Caliente', fecha_inicio: '2025-01-08', fecha_vencimiento: '2025-07-10' },
+          ],
+          cursos_pendientes: []
+        },
+        {
+          id: 4, nombre: 'María Fernanda López', no_empleado: 'IHS-004',
+          puesto: 'Coordinadora Ambiental', area: 'QHSE',
+          cursos: [
+            { nombre: 'Gestión Ambiental ISO 14001', fecha_inicio: '2023-11-01', fecha_vencimiento: '2025-11-01' },
+            { nombre: 'Manejo de Residuos Peligrosos', fecha_inicio: '2024-08-20', fecha_vencimiento: '2026-08-20' },
+          ],
+          cursos_pendientes: [
+            { nombre: 'Auditor Interno SSPA', prioridad: 'media' }
+          ]
+        },
+        {
+          id: 5, nombre: 'Jorge Hernández Silva', no_empleado: 'IHS-005',
+          puesto: 'Mecánico de Campo', area: 'Mantenimiento',
+          cursos: [
+            { nombre: 'Seguridad Eléctrica', fecha_inicio: '2024-01-10', fecha_vencimiento: '2026-01-10' },
+            { nombre: 'LOTO / LOTOTO', fecha_inicio: '2023-06-15', fecha_vencimiento: '2025-06-15' },
+          ],
+          cursos_pendientes: [
+            { nombre: 'H2S Alive', prioridad: 'alta' },
+            { nombre: 'Trabajo en Altura', prioridad: 'alta' }
+          ]
+        },
+        {
+          id: 6, nombre: 'Diana Castillo Ruiz', no_empleado: 'IHS-006',
+          puesto: 'Médico Ocupacional', area: 'Salud',
+          cursos: [
+            { nombre: 'ACLS - Soporte Vital Avanzado', fecha_inicio: '2024-09-01', fecha_vencimiento: '2026-09-01' },
+            { nombre: 'Medicina en Campo Petrolero', fecha_inicio: '2024-03-15', fecha_vencimiento: '2026-03-15' },
+            { nombre: 'Ergonomía Laboral', fecha_inicio: '2024-07-20', fecha_vencimiento: '2026-07-20' },
+          ],
+          cursos_pendientes: []
+        },
+      ];
+    }
+
+    // ────────────────────────────────────────────
+    // INIT
+    // ────────────────────────────────────────────
+    async function init() {
+      // Cargar header/footer
+      fetch('header.html').then(r => r.text()).then(h => {
+        document.getElementById('header-componente').innerHTML = h;
+
+        supabaseClient.auth.getSession().then(({ data: { session } }) => {
+          if (!session) return;
+          supabaseClient.from('perfiles').select('nombre_completo').eq('id', session.user.id).single()
+            .then(({ data: perfil }) => {
+              if (!perfil) return;
+              const hora = new Date().getHours();
+              const saludo = hora >= 6 && hora < 12 ? 'Buenos días' : hora >= 12 && hora < 19 ? 'Buenas tardes' : 'Buenas noches';
+              const el = document.getElementById('user-welcome');
+              if (el) el.innerText = `${saludo}, ${perfil.nombre_completo}`;
+            });
+        });
+
+      }).catch(() => {});
+
+      fetch('footer.html').then(r => r.text()).then(h => {
+        document.getElementById('footer-componente').innerHTML = h;
+        const yr = document.getElementById('footer-year');
+        if (yr) yr.textContent = new Date().getFullYear();
+      }).catch(() => {});
+
+      // Verificar sesión
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) { window.location.href = 'intranet-login.html'; return; }
+
+      // Verificar rol para botón añadir empleado
+      const { data: perfil } = await supabaseClient
+        .from('perfiles').select('rol').eq('id', session.user.id).single();
+
+      const rolesPermitidos = ['admin', 'administrador', 'Administrador', 'QHSE', 'qhse'];
+      if (perfil && rolesPermitidos.includes(perfil.rol)) {
+        document.getElementById('btn-nuevo-empleado').classList.remove('hidden');
+        document.getElementById('btn-editar-empleado').classList.remove('hidden');
+      }
+
+      await cargarEmpleados();
+    }
+
+    init();
+
+    // ════════════════════════════════════════
+    // MATRIZ DE CAPACITACIÓN HSE
+    // ════════════════════════════════════════
+
+    const CATEGORIAS_HSE = [
+      { key: 'supervisor_taller',      label: 'Supervisor de Taller',          icon: 'fa-hard-hat' },
+      { key: 'tecnico_taller_1',       label: 'Técnico de Taller I',           icon: 'fa-wrench' },
+      { key: 'tecnico_taller_2',       label: 'Técnico de Taller II',          icon: 'fa-wrench' },
+      { key: 'ingeniero_ops_campo_1',  label: 'Ingeniero de Ops de Campo I',   icon: 'fa-helmet-safety' },
+      { key: 'ingeniero_ops_campo_2',  label: 'Ingeniero de Ops de Campo II',  icon: 'fa-helmet-safety' },
+    ];
+
+    let cursosHSE     = [];
+    let vistaActual   = 'tarjetas';
+    let matrizAbierta = false;
+
+    function toggleMatriz() {
+    const panel   = document.getElementById('panel-matriz');
+    const chevron = document.getElementById('matriz-chevron');
+    matrizAbierta = !matrizAbierta;
+    panel.classList.toggle('hidden', !matrizAbierta);
+    chevron.style.transform = matrizAbierta ? 'rotate(180deg)' : 'rotate(0deg)';
+    if (matrizAbierta && cursosHSE.length === 0) cargarCursosHSE();
+    }
+
+    async function cargarCursosHSE(renderizar = true) {
+      const { data, error } = await supabaseClient
+          .from('cap_hse_cursos')
+          .select('*')
+          .order('nombre', { ascending: true });
+
+      if (error) {
+          console.warn('Error cargando cursos HSE:', error.message);
+      } else {
+          cursosHSE = data || [];
+      }
+      if (renderizar) renderCursosMatriz();
+      }
+
+    function vistaCursos(tipo) {
+    vistaActual = tipo;
+    document.querySelectorAll('.vista-btn').forEach(b => {
+        b.classList.remove('bg-slate-900','text-white');
+        b.classList.add('bg-slate-100','text-slate-500');
+    });
+    const activo = document.getElementById(`btn-vista-${tipo}`);
+    activo.classList.add('bg-slate-900','text-white');
+    activo.classList.remove('bg-slate-100','text-slate-500');
+    renderCursosMatriz();
+    }
+
+    function renderCursosMatriz() {
+    const cont = document.getElementById('contenedor-cursos');
+    if (!cursosHSE.length) {
+        cont.innerHTML = `<div class="py-12 text-center text-slate-400">
+        <i class="fas fa-inbox text-4xl mb-3 block opacity-30"></i>
+        <p class="font-medium">Sin cursos registrados</p>
+        <p class="text-xs mt-1">Haz clic en "Nuevo curso" para comenzar.</p>
+        </div>`;
+        return;
+    }
+
+    if (vistaActual === 'tarjetas') {
+        cont.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">${cursosHSE.map(c => tarjetaCurso(c)).join('')}</div>`;
+    } else {
+        cont.innerHTML = tablaCursos();
+    }
+    }
+
+    function tarjetaCurso(c) {
+    const dias = diasRestantes(c.fecha_vencimiento);
+    const est  = estadoCurso(dias);
+    const badgeClass = est === 'vigente' ? 'bg-emerald-100 text-emerald-700' : est === 'proximo' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-[#e31e24]';
+    const dotColor   = est === 'vigente' ? 'bg-emerald-500' : est === 'proximo' ? 'bg-amber-400' : 'bg-[#e31e24]';
+    const diasLabel  = dias === null ? '' : dias < 0 ? `Venció hace ${Math.abs(dias)} días` : dias === 0 ? 'Vence hoy' : `${dias} días restantes`;
+
+    const cats = CATEGORIAS_HSE.map(cat => {
+        const aplica = c.categorias?.[cat.key];
+        return `<div class="flex items-center justify-between py-1.5 border-b border-slate-50 last:border-0">
+        <span class="flex items-center gap-2 text-xs font-medium text-slate-600">
+            <i class="fas ${cat.icon} text-slate-300 w-4 text-center"></i>${cat.label}
+        </span>
+        <span class="text-xs font-black px-2 py-0.5 rounded-full ${aplica ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-400'}">
+            ${aplica ? '✓ Aplica' : '✗ N/A'}
+        </span>
+        </div>`;
+    }).join('');
+
+    return `
+    <div class="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group">
+        <!-- Cabecera del curso -->
+        <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-5 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -translate-y-8 translate-x-8"></div>
+        <div class="flex items-start justify-between gap-2 mb-3 relative z-10">
+            <h4 class="text-sm font-black text-white leading-tight">${c.nombre}</h4>
+        </div>
+        ${c.descripcion ? `<p class="text-[11px] text-slate-400 leading-relaxed relative z-10">${c.descripcion}</p>` : ''}
+        </div>
+        <!-- Cuerpo: categorías -->
+        <div class="p-4">
+        <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Aplica a</p>
+        ${cats}
+        </div>
+        <!-- Pie: acciones -->
+        <div class="px-4 pb-4 flex gap-2">
+        <button onclick="editarCurso(${c.id})"
+            class="flex-1 text-[10px] font-bold border border-slate-200 text-slate-500 hover:text-[#e31e24] hover:border-[#e31e24] rounded-xl py-2 transition-all">
+            <i class="fas fa-pen mr-1"></i> Editar
+        </button>
+        </div>
+    </div>`;
+    }
+
+    function tablaCursos() {
+    const encCats = CATEGORIAS_HSE.map(c => `<th class="px-3 py-3 text-center text-[10px] font-black uppercase tracking-wider text-slate-400 whitespace-nowrap">${c.label}</th>`).join('');
+    const filas = cursosHSE.map(c => {
+        const dias = diasRestantes(c.fecha_vencimiento);
+        const est  = estadoCurso(dias);
+        const dot  = est === 'vigente' ? 'text-emerald-500' : est === 'proximo' ? 'text-amber-400' : 'text-[#e31e24]';
+        const cats = CATEGORIAS_HSE.map(cat => {
+        const aplica = c.categorias?.[cat.key];
+        return `<td class="px-3 py-3 text-center">
+            <span class="text-xs font-bold ${aplica ? 'text-emerald-600' : 'text-slate-300'}">
+            ${aplica ? '✓' : '✗'}
+            </span>
+        </td>`;
+        }).join('');
+        return `<tr class="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+        <td class="px-4 py-3">
+            <p class="text-sm font-bold text-slate-800">${c.nombre}</p>
+            ${c.descripcion ? `<p class="text-[11px] text-slate-400">${c.descripcion}</p>` : ''}
+        </td>
+        ${cats}
+        <td class="px-3 py-3">
+            <button onclick="editarCurso(${c.id})" class="text-xs text-slate-400 hover:text-[#e31e24] transition-colors">
+            <i class="fas fa-pen"></i>
+            </button>
+        </td>
+        </tr>`;
+    }).join('');
+
+    return `<div class="overflow-x-auto rounded-xl border border-slate-100">
+        <table class="w-full text-left">
+        <thead class="bg-slate-50">
+            <tr>
+            <th class="px-4 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400">Curso</th>
+            ${encCats}
+            <th class="px-3 py-3"></th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-50 bg-white">${filas}</tbody>
+        </table>
+    </div>`;
+    }
+
+    function abrirModalNuevoCurso() {
+    document.getElementById('modal-curso-titulo').textContent = 'Nuevo Curso HSE';
+    document.getElementById('modal-curso-id').value     = '';
+    document.getElementById('modal-curso-nombre').value = '';
+    document.getElementById('modal-curso-desc').value   = '';
+    renderCategoriasModal({});
+    document.getElementById('modal-curso').classList.remove('hidden');
+    }
+
+    function editarCurso(id) {
+    const c = cursosHSE.find(x => x.id === id);
+    if (!c) return;
+    document.getElementById('modal-curso-titulo').textContent = 'Editar Curso HSE';
+    document.getElementById('modal-curso-id').value     = c.id;
+    document.getElementById('modal-curso-nombre').value = c.nombre || '';
+    document.getElementById('modal-curso-desc').value   = c.descripcion || '';
+    renderCategoriasModal(c.categorias || {});
+    document.getElementById('modal-curso').classList.remove('hidden');
+    }
+
+    function renderCategoriasModal(cats) {
+    document.getElementById('modal-categorias').innerHTML = CATEGORIAS_HSE.map(cat => `
+        <label class="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:border-[#e31e24]/30 hover:bg-red-50/30 cursor-pointer transition-all">
+        <div class="flex items-center gap-3">
+            <div class="h-8 w-8 rounded-xl bg-slate-100 flex items-center justify-center">
+            <i class="fas ${cat.icon} text-slate-400 text-sm"></i>
+            </div>
+            <span class="text-sm font-semibold text-slate-700">${cat.label}</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="radio" name="cat_${cat.key}" value="true" ${cats[cat.key] === true ? 'checked' : ''}
+                class="accent-emerald-600 w-3.5 h-3.5">
+            <span class="text-xs font-bold text-emerald-700">Aplica</span>
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="radio" name="cat_${cat.key}" value="false" ${cats[cat.key] === false || cats[cat.key] === undefined ? 'checked' : ''}
+                class="accent-slate-400 w-3.5 h-3.5">
+            <span class="text-xs font-bold text-slate-400">No Aplica</span>
+            </label>
+        </div>
+        </label>`).join('');
+    }
+
+    async function guardarNuevoEmpleado() {
+      const id        = document.getElementById('modal-emp-nuevo-id').value;
+      const nombre    = document.getElementById('modal-emp-nuevo-nombre').value.trim();
+      const categoria = document.getElementById('modal-emp-nuevo-categoria').value;
+
+      if (!nombre) { mostrarToast('El nombre es obligatorio', 'err'); return; }
+      if (!categoria) { mostrarToast('La categoría es obligatoria', 'err'); return; }
+
+      await cargarCursosHSE(false);
+
+      const cursosPendientesPorCategoria = cursosHSE
+        .filter(c => c.categorias?.[categoria] === true)
+        .map(c => ({ nombre: c.nombre, prioridad: 'alta' }));
+
+      const payload = {
+        nombre,
+        categoria,
+        cursos: [],
+        cursos_pendientes: cursosPendientesPorCategoria,
+      };
+
+      let error;
+      if (id) {
+        ({ error } = await supabaseClient.from('cap_hse_empleados').update(payload).eq('id', id));
+      } else {
+        ({ error } = await supabaseClient.from('cap_hse_empleados').insert(payload));
+      }
+
+      if (error) {
+        console.error(error);
+        mostrarToast('Error al guardar empleado', 'err');
+        return;
+      }
+
+      cerrarModal('modal-empleado-nuevo');
+      mostrarToast(id ? 'Empleado actualizado ✓' : 'Empleado registrado ✓', 'ok');
+      await cargarEmpleados();
+    }
+
+    async function guardarCurso() {
+    const id     = document.getElementById('modal-curso-id').value;
+    const nombre = document.getElementById('modal-curso-nombre').value.trim();
+    if (!nombre) { mostrarToast('El nombre del curso es obligatorio', 'err'); return; }
+
+    const categorias = {};
+    CATEGORIAS_HSE.forEach(cat => {
+        const val = document.querySelector(`input[name="cat_${cat.key}"]:checked`)?.value;
+        categorias[cat.key] = val === 'true';
+    });
+
+    const payload = {
+        nombre,
+        descripcion:       document.getElementById('modal-curso-desc').value.trim() || null,
+        categorias,
+    };
+
+    let error;
+    if (id) {
+        ({ error } = await supabaseClient.from('cap_hse_cursos').update(payload).eq('id', id));
+    } else {
+        ({ error } = await supabaseClient.from('cap_hse_cursos').insert(payload));
+    }
+
+    if (error) {
+        console.error(error);
+        mostrarToast('Error al guardar. Crea la tabla cap_hse_cursos en Supabase.', 'err');
+        return;
+    }
+
+    cerrarModal('modal-curso');
+    mostrarToast(id ? 'Curso actualizado ✓' : 'Curso guardado ✓', 'ok');
+    cursosHSE = [];
+    await cargarCursosHSE();
+    }
+
+    async function cerrarSesion() {
+      await supabaseClient.auth.signOut();
+      window.location.href = 'intranet-login.html';
+    }
+  </script>
+
+  <!-- ── MODAL NUEVO EMPLEADO ── -->
+  <div id="modal-empleado-nuevo" class="hidden fixed inset-0 z-[200] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-5 flex items-center justify-between">
+        <h3 id="modal-emp-titulo" class="text-base font-black text-white uppercase tracking-tight">Nuevo Empleado</h3>
+        <button onclick="cerrarModal('modal-empleado-nuevo')" class="text-slate-400 hover:text-white transition-colors">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+        <input type="hidden" id="modal-emp-nuevo-id">
+
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nombre completo *</label>
+          <input id="modal-emp-nuevo-nombre" type="text" placeholder="Ej. Juan Pérez García"
+            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#e31e24] transition-colors">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Categoría *</label>
+          <select id="modal-emp-nuevo-categoria"
+            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#e31e24] transition-colors">
+            <option value="">— Selecciona una categoría —</option>
+            <option value="supervisor_taller">Supervisor de Taller</option>
+            <option value="tecnico_taller_1">Técnico de Taller I</option>
+            <option value="tecnico_taller_2">Técnico de Taller II</option>
+            <option value="ingeniero_ops_campo_1">Ingeniero de Ops de Campo I</option>
+            <option value="ingeniero_ops_campo_2">Ingeniero de Ops de Campo II</option>
+          </select>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button onclick="cerrarModal('modal-empleado-nuevo')"
+            class="flex-1 border border-slate-200 text-slate-600 font-bold rounded-xl py-2.5 text-sm hover:bg-slate-50 transition-colors">
+            Cancelar
+          </button>
+          <button onclick="guardarNuevoEmpleado()"
+            class="flex-1 bg-[#e31e24] hover:bg-red-700 text-white font-bold rounded-xl py-2.5 text-sm transition-all shadow-md shadow-red-200">
+            <i class="fas fa-floppy-disk mr-2"></i>Guardar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MODAL NUEVO CURSO HSE ── -->
+    <div id="modal-curso" class="hidden fixed inset-0 z-[200] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-5 flex items-center justify-between">
+        <h3 id="modal-curso-titulo" class="text-base font-black text-white uppercase tracking-tight">Nuevo Curso HSE</h3>
+        <button onclick="cerrarModal('modal-curso')" class="text-slate-400 hover:text-white transition-colors">
+            <i class="fas fa-times"></i>
+        </button>
+        </div>
+        <div class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+        <input type="hidden" id="modal-curso-id">
+
+        <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nombre del curso *</label>
+            <input id="modal-curso-nombre" type="text" placeholder="Ej. H2S Alive, Trabajo en Altura..."
+            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#e31e24] transition-colors">
+        </div>
+
+        <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Descripción (opcional)</label>
+            <textarea id="modal-curso-desc" rows="2" placeholder="Breve descripción del curso..."
+            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#e31e24] transition-colors resize-none"></textarea>
+        </div>
+
+        <!-- 5 Categorías: Aplica / No Aplica -->
+        <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Categorías — ¿A quiénes aplica?</label>
+            <div class="space-y-2" id="modal-categorias">
+            <!-- Se genera con JS -->
+            </div>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+            <button onclick="cerrarModal('modal-curso')"
+            class="flex-1 border border-slate-200 text-slate-600 font-bold rounded-xl py-2.5 text-sm hover:bg-slate-50 transition-colors">
+            Cancelar
+            </button>
+            <button onclick="guardarCurso()"
+            class="flex-1 bg-[#e31e24] hover:bg-red-700 text-white font-bold rounded-xl py-2.5 text-sm transition-all shadow-md shadow-red-200">
+            <i class="fas fa-floppy-disk mr-2"></i>Guardar
+            </button>
+        </div>
+        </div>
+    </div>
+    </div>
+
+    <div id="modal-editar-curso" class="hidden fixed inset-0 z-[300] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-5 flex items-center justify-between">
+          <h3 class="text-base font-black text-white uppercase tracking-tight">Editar Fechas</h3>
+          <button onclick="cerrarModal('modal-editar-curso')" class="text-slate-400 hover:text-white transition-colors">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="p-6 space-y-4">
+          <input type="hidden" id="modal-editar-curso-idx">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Curso</label>
+            <p id="modal-editar-curso-nombre" class="text-sm font-bold text-slate-800"></p>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Fecha de inicio *</label>
+            <input id="modal-editar-curso-inicio" type="date"
+              class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#e31e24] transition-colors">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Fecha de vencimiento *</label>
+            <input id="modal-editar-curso-vencimiento" type="date"
+              class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#e31e24] transition-colors">
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button onclick="cerrarModal('modal-editar-curso')"
+              class="flex-1 border border-slate-200 text-slate-600 font-bold rounded-xl py-2.5 text-sm hover:bg-slate-50 transition-colors">
+              Cancelar
+            </button>
+            <button onclick="guardarEdicionCurso()"
+              class="flex-1 bg-[#e31e24] hover:bg-red-700 text-white font-bold rounded-xl py-2.5 text-sm transition-all shadow-md shadow-red-200">
+              <i class="fas fa-floppy-disk mr-2"></i>Guardar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MODAL COMPLETAR CURSO PENDIENTE ── -->
+    <div id="modal-completar-curso" class="hidden fixed inset-0 z-[300] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-5 flex items-center justify-between">
+          <h3 id="modal-completar-titulo" class="text-base font-black text-white uppercase tracking-tight">Registrar Curso</h3>
+          <button onclick="cerrarModal('modal-completar-curso')" class="text-slate-400 hover:text-white transition-colors">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="p-6 space-y-4">
+          <input type="hidden" id="modal-completar-idx">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Curso</label>
+            <p id="modal-completar-nombre" class="text-sm font-bold text-slate-800"></p>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Fecha de inicio *</label>
+            <input id="modal-completar-inicio" type="date"
+              class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#e31e24] transition-colors">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Fecha de vencimiento *</label>
+            <input id="modal-completar-vencimiento" type="date"
+              class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#e31e24] transition-colors">
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button onclick="cerrarModal('modal-completar-curso')"
+              class="flex-1 border border-slate-200 text-slate-600 font-bold rounded-xl py-2.5 text-sm hover:bg-slate-50 transition-colors">
+              Cancelar
+            </button>
+            <button onclick="completarCursoPendiente()"
+              class="flex-1 bg-[#e31e24] hover:bg-red-700 text-white font-bold rounded-xl py-2.5 text-sm transition-all shadow-md shadow-red-200">
+              <i class="fas fa-check mr-2"></i>Guardar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function toggleMenu(id) {
+        const el = document.getElementById(id);
+        el.classList.toggle('hidden');
+        el.classList.toggle('block');
+      }
+
+      function toggleSubmenu(btn) {
+        const menu = btn.nextElementSibling;
+        menu.classList.toggle('hidden');
+        const icon = btn.querySelector('.fa-chevron-down, .fa-chevron-right');
+        if (icon) icon.classList.toggle('rotate-180');
+        event.stopPropagation();
+      }
+
+      document.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
+        document.querySelectorAll('.submenu-content').forEach(m => m.classList.add('hidden'));
+      });
+    </script>
+</body>
+</html>
