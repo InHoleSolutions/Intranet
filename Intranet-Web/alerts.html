@@ -9,6 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:,">
   <style>
     body { font-family: 'Inter', sans-serif; }
     .glass-nav { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); }
@@ -121,20 +122,24 @@
     #site-header { display: block; }
   </style>
 </head>
-<body class="bg-[#f8fafc] min-h-screen">
+<body class="bg-[#f8fafc] min-h-screen flex flex-col">
 
 <!-- ── HEADER ── -->
 <div id="site-header" style="position:sticky; top:0; z-index:49;"></div>
 
 <!-- ── MAIN ── -->
-<main class="max-w-[1440px] mx-auto p-6 md:p-10 mt-[56px] sm:mt-[64px] lg:mt-[120px]">
+<main class="max-w-[1440px] mx-auto p-6 md:p-10 mt-[56px] sm:mt-[64px] lg:mt-[120px] flex-1 w-full">
   <div>
-            <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
-            <a href="dashboard.html" class="text-slate-400 hover:text-[#e31e24] text-sm transition-colors"><i class="fas fa-home"></i></a>
-            <i class="fas fa-chevron-right text-[10px]"></i>
-            <span>Safety Alerts</span>
-        </div>
-  
+    <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
+      <a href="dashboard.html" class="text-slate-400 hover:text-[#e31e24] text-sm transition-colors"><i
+          class="fas fa-home"></i></a>
+      <i class="fas fa-chevron-right text-[10px]"></i>
+      <span>Safety Alerts</span>
+      <i class="fas fa-chevron-right text-[10px] hidden" id="bc-anio-sep"></i>
+      <span id="bc-anio" class="hidden"></span>
+      <i class="fas fa-chevron-right text-[10px] hidden" id="bc-mes-sep"></i>
+      <span id="bc-mes" class="hidden"></span>
+    </div>
 
   <!-- ═══════════════════════════════════════════
        VISTA 1: PANEL BIENVENIDA + MESES
