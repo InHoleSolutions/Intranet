@@ -512,16 +512,16 @@
           <div class="section-label"><i class="fas fa-image text-slate-400"></i>Portada principal</div>
           <div class="field-group">
             <label class="field-label">Título principal</label>
-            <input id="f-titulo" class="field-input" type="text" placeholder="" oninput="livePreview()">
+            <input id="f-titulo" class="field-input" type="text" placeholder="Ingresa el título principal..." oninput="livePreview()">
           </div>
           <div class="field-row">
             <div class="field-group">
               <label class="field-label">Edición (mes/año)</label>
-              <input id="f-edicion" class="field-input" type="text" placeholder="Mayo 2026" oninput="livePreview()">
+              <input id="f-edicion" class="field-input" type="text" placeholder="Escribe la edición..." oninput="livePreview()">
             </div>
             <div class="field-group">
               <label class="field-label">Volumen</label>
-              <input id="f-volumen" class="field-input" type="text" placeholder="Vol. 1" oninput="livePreview()">
+              <input id="f-volumen" class="field-input" type="text" placeholder="Escribe el volumen..." oninput="livePreview()">
             </div>
           </div>
 
@@ -529,7 +529,7 @@
           <div class="section-label"><i class="fas fa-quote-left text-slate-400"></i>Mensaje de Dirección</div>
           <div class="field-group">
             <label class="field-label">Nombre del Gerente</label>
-            <input id="f-director" class="field-input" type="text" placeholder="Ing. Nombre Apellido" oninput="livePreview()">
+            <input id="f-director" class="field-input" type="text" placeholder="Escribe el nombre del gerente..." oninput="livePreview()">
           </div>
           <div class="field-group">
             <label class="field-label">Mensaje</label>
@@ -542,18 +542,18 @@
           <div class="section-label"><i class="fas fa-hard-hat text-red-500"></i>Sección Safety</div>
           <div class="field-group">
             <label class="field-label">Título de la sección</label>
-            <input id="f-safety-titulo" class="field-input" type="text" placeholder="ALERTA DE SEGURIDAD" oninput="livePreview()">
+            <input id="f-safety-titulo" class="field-input" type="text" placeholder="Escribe el título de la sección..." oninput="livePreview()">
           </div>
           <div class="field-group">
             <label class="field-label">Contenido</label>
-            <textarea id="f-safety-contenido" class="field-input field-textarea" style="min-height:100px" placeholder="Describe el tema principal de seguridad..." oninput="livePreview()"></textarea>
+            <textarea id="f-safety-contenido" class="field-input field-textarea" style="min-height:100px" placeholder="Describe el tema principal..." oninput="livePreview()"></textarea>
           </div>
 
           <div class="section-divider"></div>
           <div class="section-label"><i class="fas fa-shield-halved text-red-400"></i>EPP Safety</div>
           <div class="field-group" style="margin-bottom:10px">
             <label class="field-label">Título del grupo EPP</label>
-            <input id="f-safety-epp-titulo" class="field-input" type="text" placeholder="Ej: EPP Obligatorio — Izaje de cargas" oninput="livePreview()">
+            <input id="f-safety-epp-titulo" class="field-input" type="text" placeholder="Escribe el título del grupo EPP..." oninput="livePreview()">
           </div>
           <div id="epp-safety-list"></div>
           <button onclick="addEpp('safety')" class="w-full py-2 rounded-lg border-2 border-dashed border-slate-200 text-slate-400 text-xs font-bold hover:border-red-300 hover:text-red-500 transition mt-1">
@@ -578,12 +578,12 @@
           <div class="section-label"><i class="fas fa-exclamation-triangle text-red-400"></i>Near Miss / Lección Aprendida</div>
           <div class="field-group">
             <label class="field-label">Título del incidente</label>
-            <input id="f-nm-titulo" class="field-input" type="text" placeholder="ej. CUÑAS DESLIZADAS DURANTE ENSAMBLE..." oninput="livePreview()">
+            <input id="f-nm-titulo" class="field-input" type="text" placeholder="Escribe el título del incidente..." oninput="livePreview()">
           </div>
           <div class="field-row">
             <div class="field-group">
               <label class="field-label">Área</label>
-              <input id="f-nm-area" class="field-input" type="text" placeholder="Taller Apriete" oninput="livePreview()">
+              <input id="f-nm-area" class="field-input" type="text" placeholder="Escribe el área..." oninput="livePreview()">
             </div>
             <div class="field-group">
               <label class="field-label">Severidad</label>
@@ -615,7 +615,7 @@
           <div class="section-label"><i class="fas fa-check-double text-blue-500"></i>Sección Quality</div>
           <div class="field-group">
             <label class="field-label">Título de la sección</label>
-            <input id="f-quality-titulo" class="field-input" type="text" placeholder="..." oninput="livePreview()">
+            <input id="f-quality-titulo" class="field-input" type="text" placeholder="Escribe el título de la sección..." oninput="livePreview()">
           </div>
 
           <!-- ── COLUMNA IZQUIERDA: Título izquierdo + Tabla + Alerta ── -->
@@ -623,7 +623,7 @@
           <div class="section-label"><i class="fas fa-table text-blue-400"></i>Tabla</div>
           <div class="field-group">
             <label class="field-label">Título de tabla</label>
-            <input id="f-quality-left-titulo" class="field-input" type="text" placeholder="..." oninput="livePreview()">
+            <input id="f-quality-left-titulo" class="field-input" type="text" placeholder="Escribe el título de la tabla..." oninput="livePreview()">
           </div>
 
           <!-- Tabla de inspección -->
@@ -641,12 +641,12 @@
           <!-- Alerta de calidad -->
           <div class="field-group">
             <label class="field-label">⚠️ Título de Alerta de Calidad</label>
-            <input id="f-quality-alerta-titulo" class="field-input" type="text" placeholder="..." oninput="livePreview()">
+            <input id="f-quality-alerta-titulo" class="field-input" type="text" placeholder="Escribe el título de la alerta..." oninput="livePreview()">
           </div>
           <div class="field-group">
             <label class="field-label">Texto de alerta</label>
             <textarea id="f-quality-alerta-texto" class="field-input field-textarea" style="min-height:80px"
-              placeholder="..." oninput="livePreview()"></textarea>
+              placeholder="Escribe el texto de la alerta..." oninput="livePreview()"></textarea>
           </div>
 
           <!-- ── COLUMNA DERECHA: Título derecho + Pasos + EPP + QR ── -->
@@ -654,7 +654,7 @@
           <div class="section-label"><i class="fas fa-list-ol text-blue-400"></i>Tabla de Pasos</div>
           <div class="field-group">
             <label class="field-label">Título</label>
-            <input id="f-quality-right-titulo" class="field-input" type="text" placeholder="..." oninput="livePreview()">
+            <input id="f-quality-right-titulo" class="field-input" type="text" placeholder="Escribe el título de la tabla..." oninput="livePreview()">
           </div>
 
           <!-- Pasos numerados -->
@@ -672,7 +672,7 @@
           <div class="section-divider"></div>
           <div class="field-group" style="margin-bottom:8px">
             <label class="field-label">Título del grupo EPP Quality</label>
-            <input id="f-quality-epp-titulo" class="field-input" type="text" placeholder="..." oninput="livePreview()">
+            <input id="f-quality-epp-titulo" class="field-input" type="text" placeholder="Escribe el título del grupo EPP..." oninput="livePreview()">
           </div>
           <div id="epp-quality-list"></div>
           <button onclick="addEpp('quality')" class="w-full py-2 rounded-lg border-2 border-dashed border-slate-200 text-slate-400 text-xs font-bold hover:border-blue-300 hover:text-blue-500 transition mt-1">
@@ -685,11 +685,11 @@
           <div class="qr-editor-block">
             <div class="field-group" style="margin-bottom:10px">
               <label class="field-label">Título del QR</label>
-              <input id="f-qr-torque-titulo" class="field-input" type="text" placeholder="..." oninput="livePreview()">
+              <input id="f-qr-torque-titulo" class="field-input" type="text" placeholder="Escribe el título del QR..." oninput="livePreview()">
             </div>
             <div class="field-group" style="margin-bottom:10px">
               <label class="field-label">Descripción</label>
-              <input id="f-qr-torque-desc" class="field-input" type="text" placeholder="..." oninput="livePreview()">
+              <input id="f-qr-torque-desc" class="field-input" type="text" placeholder="Escribe la descripción del QR..." oninput="livePreview()">
             </div>
             <label class="field-label">Imagen del código QR</label>
             <div class="qr-upload-zone" id="zone-torque" onclick="triggerQrUpload('torque')"
@@ -711,7 +711,7 @@
           <div class="section-label"><i class="fas fa-heartbeat text-amber-500"></i>Sección Health</div>
           <div class="field-group">
             <label class="field-label">Título de la sección</label>
-            <input id="f-health-titulo" class="field-input" type="text" placeholder="SALUD OCUPACIONAL" oninput="livePreview()">
+            <input id="f-health-titulo" class="field-input" type="text" placeholder="Escribe el título de la sección..." oninput="livePreview()">
           </div>
 
           <!-- ══ COL IZQUIERDA: Ruido y Vibración ══ -->
@@ -719,7 +719,7 @@
           <div class="section-label"><i class="fas fa-ear-listen text-amber-400"></i>Columna Izquierda — Ruido y Vibración</div>
           <div class="field-group">
             <label class="field-label">Título columna izquierda</label>
-            <input id="f-health-left-titulo" class="field-input" type="text" placeholder="PROTECCIÓN RUIDO Y VIBRACIÓN" oninput="livePreview()">
+            <input id="f-health-left-titulo" class="field-input" type="text" placeholder="Escribe el título de la columna..." oninput="livePreview()">
           </div>
 
           <!-- Cuadro de niveles de ruido -->
@@ -728,7 +728,7 @@
               <label class="field-label" style="margin:0">🔊 Título del cuadro de ruido</label>
             </div>
             <input id="f-health-ruido-titulo" class="field-input" style="margin-bottom:8px" type="text"
-              placeholder="NIVELES DE EXPOSICIÓN AL RUIDO – BANCO HORIZONTAL" oninput="livePreview()">
+              placeholder="Escribe el título del cuadro de ruido..." oninput="livePreview()">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
               <label class="field-label" style="margin:0">Barras de nivel (máx. 4)</label>
               <button onclick="addHealthBarra()" style="font-size:10px;font-weight:700;color:#f59e0b;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:3px 10px;cursor:pointer">
@@ -755,25 +755,25 @@
           <div class="section-label"><i class="fas fa-person-walking text-amber-400"></i>Columna Derecha — Ergonomía</div>
           <div class="field-group">
             <label class="field-label">Título columna derecha</label>
-            <input id="f-health-right-titulo" class="field-input" type="text" placeholder="ERGONOMÍA EN CAMPO Y TALLER" oninput="livePreview()">
+            <input id="f-health-right-titulo" class="field-input" type="text" placeholder="Escribe el título de la columna..." oninput="livePreview()">
           </div>
 
           <!-- Sub-título cuadro correcto/incorrecto -->
           <div class="field-group">
             <label class="field-label">Título cuadro Correcto / Incorrecto</label>
             <input id="f-health-ergo-subtitulo" class="field-input" type="text"
-              placeholder="POSTURAS CORRECTAS – MANEJO DE HERRAMIENTAS DE FONDO" oninput="livePreview()">
+              placeholder="Escribe el título del cuadro..." oninput="livePreview()">
           </div>
           <div class="field-row" style="margin-bottom:12px">
             <div class="field-group">
               <label class="field-label">✅ Descripción CORRECTO</label>
               <textarea id="f-health-ergo-correcto" class="field-input field-textarea" style="min-height:60px"
-                placeholder="Espalda recta, rodillas flexionadas, carga cerca del cuerpo" oninput="livePreview()"></textarea>
+                placeholder="Escribe la descripción del cuadro correcto..." oninput="livePreview()"></textarea>
             </div>
             <div class="field-group">
               <label class="field-label">❌ Descripción INCORRECTO</label>
               <textarea id="f-health-ergo-incorrecto" class="field-input field-textarea" style="min-height:60px"
-                placeholder="Espalda doblada, carga alejada del cuerpo, giro brusco" oninput="livePreview()"></textarea>
+                placeholder="Escribe la descripción del cuadro incorrecto..." oninput="livePreview()"></textarea>
             </div>
           </div>
 
@@ -781,7 +781,7 @@
           <div class="field-group">
             <label class="field-label">💛 Nota de peso máximo</label>
             <input id="f-health-ergo-peso" class="field-input" type="text"
-              placeholder="Peso máx. manual sin apoyo mecánico: 25 kg — Para tubería..." oninput="livePreview()">
+              placeholder="Escribe la nota de peso máximo..." oninput="livePreview()">
           </div>
 
           <!-- QR Health -->
@@ -790,11 +790,11 @@
           <div class="qr-editor-block">
             <div class="field-group" style="margin-bottom:10px">
               <label class="field-label">Título del bloque QR</label>
-              <input id="f-qr-ergo-titulo" class="field-input" type="text" placeholder="Ej: Video: Ergonomía en campo" oninput="livePreview()">
+              <input id="f-qr-ergo-titulo" class="field-input" type="text" placeholder="Escribe el título del bloque QR..." oninput="livePreview()">
             </div>
             <div class="field-group" style="margin-bottom:10px">
               <label class="field-label">Descripción</label>
-              <input id="f-qr-ergo-desc" class="field-input" type="text" placeholder="Ej: Capacitación IHS — Manejo seguro de cargas" oninput="livePreview()">
+              <input id="f-qr-ergo-desc" class="field-input" type="text" placeholder="Escribe la descripción del QR..." oninput="livePreview()">
             </div>
             <label class="field-label">Imagen del código QR</label>
             <div class="qr-upload-zone" id="zone-ergo" onclick="triggerQrUpload('ergo')"
@@ -817,14 +817,14 @@
         
           <div class="field-group">
             <label class="field-label">Título de la sección</label>
-            <input id="f-env-titulo" class="field-input" type="text" placeholder="CUIDADO AMBIENTAL" oninput="livePreview()">
+            <input id="f-env-titulo" class="field-input" type="text" placeholder="Escribe el título de la sección..." oninput="livePreview()">
           </div>
         
           <div class="section-divider"></div>
           <div class="section-label"><i class="fas fa-droplet text-emerald-500"></i>Título — Columna Izquierda</div>
           <div class="field-group">
             <label class="field-label">Título bloque fluidos</label>
-            <input id="f-env-left-titulo" class="field-input" type="text" placeholder="CONTROL Y CONTENCIÓN DE FLUIDOS"
+            <input id="f-env-left-titulo" class="field-input" type="text" placeholder="Escribe el título del bloque de fluidos..."
               oninput="livePreview()">
           </div>
         
@@ -840,7 +840,7 @@
           <div class="section-label"><i class="fas fa-list-ol text-slate-400"></i>Protocolo de respuesta</div>
           <div class="field-group">
             <label class="field-label">Título del protocolo</label>
-            <input id="f-env-protocolo-titulo" class="field-input" type="text" placeholder="PROTOCOLO DE RESPUESTA A DERRAME"
+            <input id="f-env-protocolo-titulo" class="field-input" type="text" placeholder="Escribe el título del protocolo..."
               oninput="livePreview()">
           </div>
           <div id="env-protocolo-list"></div>
@@ -853,7 +853,7 @@
           <!-- Derrames counter -->
           <div class="field-group">
             <label class="field-label">Derrames no contenidos (número)</label>
-            <input id="f-env-derrames" class="field-input" type="number" placeholder="0" min="0" oninput="livePreview()">
+            <input id="f-env-derrames" class="field-input" type="number" placeholder="Escribe el número de derrames no contenidos..." min="0" oninput="livePreview()">
           </div>
         
           <div class="section-divider"></div>
@@ -861,17 +861,17 @@
           <div class="qr-editor-block">
             <div class="field-group" style="margin-bottom:10px">
               <label class="field-label">Título del bloque QR</label>
-              <input id="f-qr-ambiental-titulo" class="field-input" type="text" placeholder="Formato incidente ambiental"
+              <input id="f-qr-ambiental-titulo" class="field-input" type="text" placeholder="Escribe el título del bloque QR..."
                 oninput="livePreview()">
             </div>
             <div class="field-group" style="margin-bottom:10px">
               <label class="field-label">Descripción</label>
               <input id="f-qr-ambiental-desc" class="field-input" type="text"
-                placeholder="Reporte digital de incidente ambiental" oninput="livePreview()">
+                placeholder="Escribe la descripción del QR..." oninput="livePreview()">
             </div>
             <label class="field-label">Imagen del código QR</label>
             <div class="qr-upload-zone" id="zone-ambiental" onclick="triggerQrUpload('ambiental')"
-              ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')"
+              ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')"`
               ondrop="handleQrDrop(event,'ambiental')">
               <input type="file" id="file-qr-ambiental" accept="image/*" onchange="handleQrFile(event,'ambiental')"
                 onclick="event.stopPropagation()">
@@ -890,28 +890,28 @@
 
           <div class="field-group">
             <label class="field-label">Nombre completo *</label>
-            <input id="f-g-nombre" class="field-input" type="text" placeholder="José Luis Martínez" oninput="livePreview()">
+            <input id="f-g-nombre" class="field-input" type="text" placeholder="Escribe el nombre completo..." oninput="livePreview()">
           </div>
 
           <div class="field-row">
             <div class="field-group">
               <label class="field-label">Puesto</label>
-              <input id="f-g-puesto" class="field-input" type="text" placeholder="Técnico de Apriete" oninput="livePreview()">
+              <input id="f-g-puesto" class="field-input" type="text" placeholder="Escribe el puesto..." oninput="livePreview()">
             </div>
             <div class="field-group">
               <label class="field-label">Área / Sede</label>
-              <input id="f-g-area" class="field-input" type="text" placeholder="Taller Villahermosa" oninput="livePreview()">
+              <input id="f-g-area" class="field-input" type="text" placeholder="Escribe el área o sede..." oninput="livePreview()">
             </div>
           </div>
 
           <div class="field-group">
             <label class="field-label">Condiciones reportadas</label>
-            <input id="f-g-reportes" class="field-input" type="number" placeholder="12" min="0" oninput="livePreview()">
+            <input id="f-g-reportes" class="field-input" type="number" placeholder="Escribe el número de condiciones reportadas..." min="0" oninput="livePreview()">
           </div>
 
           <div class="field-group">
             <label class="field-label">Motivo del reconocimiento</label>
-            <textarea id="f-g-motivo" class="field-input field-textarea" style="min-height:100px" placeholder="¿Por qué es el Guardián QHSE de este mes?" oninput="livePreview()"></textarea>
+            <textarea id="f-g-motivo" class="field-input field-textarea" style="min-height:100px" placeholder="Escribe el motivo del reconocimiento..." oninput="livePreview()"></textarea>
           </div>
 
           <div class="section-divider"></div>

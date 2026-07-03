@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cementing | In Hole Solutions</title>
+  <title>Completions | In Hole Solutions</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -58,7 +58,7 @@
 
     /* Estado badge */
     .badge-planificado  { background:#dbeafe; color:#1d4ed8; }
-    .badge-en-proceso   { background:#fef9c3; color:#92400e; }
+    .badge-en-proceso   { background:#ffedd5; color:#c2410c; }
     .badge-terminado    { background:#dcfce7; color:#15803d; }
     .badge-alerta       { background:#fee2e2; color:#b91c1c; }
 
@@ -213,14 +213,14 @@
             <i class="fas fa-chevron-right text-[10px]"></i>
             <span>Completions</span>
             <i class="fas fa-chevron-right text-[10px]"></i>
-            <span>Servicios</span>
+            <span>Tracking In Hole</span>
             <i class="fas fa-chevron-right text-[10px]"></i>
-            <span class="text-slate-600 font-semibold">Cementing</span>
+            <span class="text-slate-600 font-semibold">Completions</span>
             </div>
             <h2 class="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-            <i class="fas fa-oil-well text-[#e31e24]"></i> Cementing
+            <i class="fas fa-oil-well text-[#e31e24]"></i> Completions
             </h2>
-            <p class="text-slate-500 mt-1 text-sm">Registro y seguimiento de operaciones de cementación.</p>
+            <p class="text-slate-500 mt-1 text-sm">Registro y seguimiento de operaciones.</p>
         </div>
         <div class="hidden sm:flex items-center gap-3">
             <!-- Icono notificación solicitudes (solo admin) -->
@@ -236,7 +236,7 @@
     </div>
 
     <!-- KPIs -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+    <div id="kpi-cards-container" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <!-- Total — tarjeta principal en rojo -->
         <div class="kpi-card kpi-main group">
             <div class="bg-white/20 rounded-xl p-3 transition-transform group-hover:scale-110 duration-300">
@@ -294,7 +294,7 @@
                     <i class="fas fa-pen-to-square text-amber-500"></i>
                     Solicitar Cambios
                 </button>
-                <button onclick="mostrarFormulario()" class="bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-sm shadow-red-200 whitespace-nowrap group">
+                <button onclick="abrirModalLineaProducto()" class="bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-sm shadow-red-200 whitespace-nowrap group">
                     <i class="fas fa-plus transition-transform group-hover:rotate-90 duration-300"></i>
                     Nueva Operación
                 </button>
@@ -354,8 +354,8 @@
                         <i class="fas fa-oil-well text-slate-300 text-3xl"></i>
                     </div>
                     <p class="text-slate-500 font-semibold">Sin operaciones registradas</p>
-                    <p class="text-slate-400 text-sm">Comienza registrando tu primera operación de cementación</p>
-                    <button onclick="mostrarFormulario()" class="mt-2 bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all">
+                    <p class="text-slate-400 text-sm">Comienza registrando tu primera operación.</p>
+                    <button onclick="abrirModalLineaProducto()" class="mt-2 bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all">
                         <i class="fas fa-plus"></i> Registrar Operación
                     </button>
                     </div>
@@ -383,7 +383,7 @@
                     <i class="fas fa-pen-to-square text-amber-500"></i>
                     Solicitar Cambios
                 </button>
-                <button onclick="mostrarFormulario()" class="bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-sm shadow-red-200 whitespace-nowrap group">
+                <button onclick="abrirModalLineaProducto()" class="bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-sm shadow-red-200 whitespace-nowrap group">
                     <i class="fas fa-plus transition-transform group-hover:rotate-90 duration-300"></i>
                     Registrar Operación
                 </button>
@@ -512,7 +512,7 @@
                                     <i class="fas fa-oil-well text-slate-300 text-3xl"></i>
                                 </div>
                                 <p class="text-slate-500 font-semibold">No hay operaciones registradas</p>
-                                <p class="text-slate-400 text-sm">Aún no se han registrado operaciones de cementación</p>
+                                <p class="text-slate-400 text-sm">Aún no se han registrado operaciones</p>
                             </div>
                         </td>
                     </tr>
@@ -527,7 +527,7 @@
             <!-- Cabecera del panel -->
             <div class="flex items-center justify-between px-8 py-2 border-b border-slate-100">
             <div>
-                <h3 id="form-titulo" class="text-xl font-bold text-slate-800">Nueva Operación de Cementación</h3>
+                <h3 id="form-titulo" class="text-xl font-bold text-slate-800">Nueva Operación</h3>
             </div>
             <button onclick="cerrarFormulario()" class="text-slate-400 hover:text-red-600 transition-colors h-9 w-9 rounded-xl border border-slate-200 flex items-center justify-center">
                 <i class="fas fa-times"></i>
@@ -725,7 +725,7 @@
             <div id="paso-3" class="hidden h-full overflow-y-auto">
 
                 <div class="flex items-center justify-between mb-5">
-                    <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Datos Técnicos de Flotación</p>
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Datos Técnicos</p>
                     <label class="flex items-center gap-2 cursor-pointer select-none">
                         <input type="checkbox" id="f-datos-tecnicos-na" class="w-4 h-4 accent-slate-400" onchange="toggleDatosTecnicos(this.checked)">
                         <span class="text-xs font-semibold text-slate-400">No aplica</span>
@@ -864,7 +864,7 @@
                 </div>
 
                 <!-- Accesorios de Flotación -->
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5">Accesorios de Flotación</p>
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5">Accesorios</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-7">
                     <div class="sm:col-span-2">
                         <label class="block text-xs font-semibold text-slate-500 mb-1.5">Diámetro, Libraje y Grado de Material de T.R.</label>
@@ -883,7 +883,7 @@
                         <input id="f-dp-peso-fluido" type="number" step="0.01" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Máximo Peso Permitido a Zapata</label>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Máximo Peso Permitido a Zapata (Klbs)</label>
                         <input id="f-dp-peso-max-zapata" type="number" step="0.01" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
@@ -999,6 +999,25 @@
                     <input type="number" id="f-safety-cards" min="3" onchange="generarSafetyCards()" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200" placeholder="Número de tarjetas realizadas">
                 </div>
                 <div id="safety-cards-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+
+                <!-- SECCIÓN: EVALUACIÓN DE CALIDAD EN EL SERVICIO -->
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5 mt-8">Evaluación de Calidad en el Servicio</p>
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="w-full text-xs">
+                        <thead>
+                            <tr class="bg-slate-700 text-white">
+                                <th class="px-3 py-2.5 text-left font-semibold w-32">Criterio</th>
+                                <th class="px-2 py-2.5 text-center font-semibold w-20 bg-red-500">1<br><span class="font-normal text-[10px]">Deficiente</span></th>
+                                <th class="px-2 py-2.5 text-center font-semibold w-20 bg-orange-400">2<br><span class="font-normal text-[10px]">Regular</span></th>
+                                <th class="px-2 py-2.5 text-center font-semibold w-20 bg-yellow-400 text-slate-800">3<br><span class="font-normal text-[10px]">Satisfactorio</span></th>
+                                <th class="px-2 py-2.5 text-center font-semibold w-20 bg-lime-500">4<br><span class="font-normal text-[10px]">Bueno</span></th>
+                                <th class="px-2 py-2.5 text-center font-semibold w-20 bg-green-600">5<br><span class="font-normal text-[10px]">Excelente</span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="eval-calidad-body">
+                        </tbody>
+                    </table>
+                </div>
 
             </div><!-- /paso-5 -->
 
@@ -1254,6 +1273,20 @@
                     </div>
 
                 </div>
+                <!-- Formatos: Otros -->
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 mt-6">Otros</p>
+                <div id="lista-otros-formatos" class="space-y-3 mb-3">
+                    <!-- Aquí se pintan dinámicamente los documentos "Otros" ya subidos -->
+                </div>
+
+                <div class="border border-dashed border-slate-300 rounded-xl px-4 py-3 flex items-center gap-3">
+                    <input id="input-nombre-otro" type="text" placeholder="Nombre del documento"
+                        class="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-200">
+                    <label class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-2 rounded-lg transition-all shrink-0">
+                        <i class="fas fa-arrow-up-from-bracket mr-1"></i> Agregar
+                        <input id="input-file-otro" type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="agregarOtroDocumento(this)">
+                    </label>
+                </div>
             </div><!-- /paso-6 -->
 
             </div><!-- /contenido pasos -->
@@ -1269,10 +1302,10 @@
                     <button id="btn-siguiente" onclick="pasoSiguiente()" class="bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
                         <i class="fas fa-arrow-right"></i> Siguiente 
                     </button>
-                    <button id="btn-guardar" onclick="guardarOperacion(false)" class="hidden bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
+                    <button id="btn-guardar" onclick="confirmarGuardarOperacion()" class="hidden bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
                         <i class="fas fa-floppy-disk"></i> Guardar Operación
                     </button>
-                    <button id="btn-finalizar" onclick="guardarOperacion(true)" class="hidden bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
+                    <button id="btn-finalizar" onclick="confirmarFinalizarOperacion()" class="hidden bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
                         <i class="fas fa-lock"></i> Finalizar Operación
                     </button>
                 </div>
@@ -1529,6 +1562,26 @@
                 <div class="flex justify-between"><span class="text-slate-500">Total de tarjetas</span><span id="rep-safety-count" class="text-white font-semibold">—</span></div>
                 <div id="rep-safety-ids" class="mt-2 flex flex-wrap gap-2"></div>
                 </div>
+
+                <!-- Evaluación de Calidad -->
+                <div id="rep-bloque-evaluacion" class="hidden mt-3 pt-3 border-t border-white/10">
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Evaluación de Calidad en el Servicio</p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs">
+                            <thead>
+                                <tr style="background:rgba(255,255,255,0.05);">
+                                    <th class="px-3 py-2 text-left text-slate-400 font-semibold">Criterio</th>
+                                    <th class="px-2 py-2 text-center text-red-400 font-semibold">1<br><span class="font-normal opacity-70">Deficiente</span></th>
+                                    <th class="px-2 py-2 text-center text-orange-400 font-semibold">2<br><span class="font-normal opacity-70">Regular</span></th>
+                                    <th class="px-2 py-2 text-center text-yellow-400 font-semibold">3<br><span class="font-normal opacity-70">Satisfactorio</span></th>
+                                    <th class="px-2 py-2 text-center text-lime-400 font-semibold">4<br><span class="font-normal opacity-70">Bueno</span></th>
+                                    <th class="px-2 py-2 text-center text-green-400 font-semibold">5<br><span class="font-normal opacity-70">Excelente</span></th>
+                                </tr>
+                            </thead>
+                            <tbody id="rep-eval-body"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
             </div>
 
@@ -1648,46 +1701,79 @@
         </div>
     </div>
 
+    <!-- PANEL CONFIRMAR GUARDAR -->
+    <div id="panel-confirmar-guardar" class="hidden fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div class="flex items-center gap-3 px-6 py-5">
+                <div class="bg-green-50 rounded-xl p-2">
+                    <i class="fas fa-floppy-disk text-green-600 text-sm"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-slate-700">Guardar operación</p>
+                    <p class="text-xs text-slate-400 mt-0.5">La operación será guardada</p>
+                </div>
+            </div>
+            <div class="px-6 pb-5">
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    Se guardarán los datos capturados hasta ahora. Podrás seguir editando la operación más adelante.
+                </p>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
+                <button onclick="cerrarPanelConfirmarGuardar()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-semibold px-5 py-2 rounded-xl transition-all">
+                    Cancelar
+                </button>
+                <button onclick="cerrarPanelConfirmarGuardar(); guardarOperacion(false);" class="bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-5 py-2 rounded-xl transition-all">
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANEL CONFIRMAR FINALIZAR -->
+    <div id="panel-confirmar-finalizar" class="hidden fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div class="flex items-center gap-3 px-6 py-5">
+                <div class="bg-blue-50 rounded-xl p-2">
+                    <i class="fas fa-lock text-blue-600 text-sm"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-slate-700">Finalizar operación</p>
+                    <p class="text-xs text-slate-400 mt-0.5">Esta acción no se puede deshacer</p>
+                </div>
+            </div>
+            <div class="px-6 pb-5">
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    ¿Seguro que quieres finalizar la operación? Una vez finalizada, <strong>ya no se podrán realizar cambios</strong>.
+                </p>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
+                <button onclick="cerrarPanelConfirmarFinalizar()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-semibold px-5 py-2 rounded-xl transition-all">
+                    Cancelar
+                </button>
+                <button onclick="cerrarPanelConfirmarFinalizar(); guardarOperacion(true);" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-5 py-2 rounded-xl transition-all">
+                    Finalizar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- PANEL SOLICITAR EDICIÓN (solo empleados) -->
     <div id="panel-solicitud-edicion" class="hidden fixed inset-0 z-[150] bg-black/40 backdrop-blur-sm px-4 flex items-center justify-center">
         <div class="flex items-start gap-0">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg panel-entrada">
-            <!-- Header -->
             <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100">
                 <div class="flex items-center gap-3">
-                    <div class="bg-amber-50 rounded-xl p-2.5">
-                        <i class="fas fa-pen-to-square text-amber-500 text-lg"></i>
+                    <div class="bg-purple-50 rounded-xl p-2.5">
+                        <i class="fas fa-file-circle-xmark text-purple-500 text-lg"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-bold text-slate-800">Solicitar Cambios</h3>
-                        <p class="text-xs text-slate-400 mt-0.5">Elige el tipo de cambio y la operación</p>
+                        <h3 class="text-base font-bold text-slate-800">Solicitar Eliminación de PDF</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Elige la operación y el PDF a eliminar</p>
                     </div>
                 </div>
                 <button onclick="cerrarPanelSolicitud()" class="text-slate-400 hover:text-red-600 transition-colors h-9 w-9 rounded-xl border border-slate-200 flex items-center justify-center">
                     <i class="fas fa-times"></i>
                 </button>
-            </div>
-
-            <!-- Tipo de cambio -->
-            <div class="px-6 pt-4 pb-2">
-                <label class="block text-xs font-semibold text-slate-500 mb-2">¿Qué cambio deseas solicitar? <span class="text-red-400">*</span></label>
-                <div class="grid grid-cols-3 gap-2" id="tipo-cambio-opciones">
-                    <button type="button" onclick="seleccionarTipoCambio('edicion')" id="tipo-edicion"
-                        class="tipo-cambio-btn flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 border-slate-200 hover:border-amber-300 hover:bg-amber-50 transition-all text-center">
-                        <i class="fas fa-pen-to-square text-amber-500 text-lg"></i>
-                        <span class="text-xs font-semibold text-slate-600">Solicitar Edición</span>
-                    </button>
-                    <button type="button" onclick="seleccionarTipoCambio('eliminar-reporte')" id="tipo-eliminar-reporte"
-                        class="tipo-cambio-btn flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 border-slate-200 hover:border-red-300 hover:bg-red-50 transition-all text-center">
-                        <i class="fas fa-trash text-red-500 text-lg"></i>
-                        <span class="text-xs font-semibold text-slate-600">Eliminar Reporte</span>
-                    </button>
-                    <button type="button" onclick="seleccionarTipoCambio('eliminar-pdf')" id="tipo-eliminar-pdf"
-                        class="tipo-cambio-btn flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 border-slate-200 hover:border-purple-300 hover:bg-purple-50 transition-all text-center">
-                        <i class="fas fa-file-circle-xmark text-purple-500 text-lg"></i>
-                        <span class="text-xs font-semibold text-slate-600">Eliminar PDF</span>
-                    </button>
-                </div>
             </div>
 
             <!-- Lista de operaciones -->
@@ -1739,6 +1825,34 @@
 </div>
 
     <!-- MODAL DE CONFIRMACIÓN PERSONALIZADO -->
+
+    <!-- Modal: Línea de producto -->
+    <div id="modal-linea-producto" class="hidden fixed inset-0 z-[350] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 flex flex-col gap-6">
+            <div>
+                <h4 class="text-slate-800 font-bold text-lg">Nueva Operación</h4>
+                <p class="text-slate-400 text-sm mt-1">Selecciona la línea de producto antes de continuar.</p>
+            </div>
+            <div class="flex flex-col gap-2">
+                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Línea de producto</label>
+                <select id="select-linea-producto" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-200">
+                    <option value="">Selecciona una opción...</option>
+                    <option value="Cased Hole Completions">Cased Hole Completions</option>
+                    <option value="Cementing">Cementing</option>
+                    <option value="Flow Control & Gas Lift">Flow Control & Gas Lift</option>
+                    <option value="Servicios">Servicios</option>
+                </select>
+            </div>
+            <div class="flex gap-3 justify-end">
+                <button onclick="cerrarModalLineaProducto()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-500 text-sm font-semibold hover:bg-slate-50 transition-all">
+                    Cancelar
+                </button>
+                <button onclick="confirmarLineaProducto()" class="px-5 py-2.5 rounded-xl bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold transition-all">
+                    Continuar
+                </button>
+            </div>
+        </div>
+    </div>
 
     <div id="modal-confirm" class="hidden fixed inset-0 z-[300] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-7 text-center">
@@ -1864,6 +1978,11 @@
                     campoIngeniero.classList.remove('focus:ring-2', 'focus:ring-red-200');
                 }
             }
+            // Mostrar las tarjetas KPI (Total / En Proceso / Terminadas) solo para Empleados
+            const kpiContainer = document.getElementById('kpi-cards-container');
+            if (kpiContainer) {
+                kpiContainer.classList.toggle('hidden', rolUsuario !== 'Empleado');
+            }
 
             await cargarOperaciones();
         }
@@ -1934,7 +2053,7 @@
         if (contador) contador.textContent = `${datos.length} operación${datos.length !== 1 ? 'es' : ''}`;
 
         datos.forEach((op, index) => {
-            const badge = badgeEstatus(op.estatus);
+            const badge = badgeEstatus(op);
 
             // Clase de borde según estatus
             const bordeClase = {
@@ -2024,7 +2143,7 @@
         filaVacia.classList.add('hidden');
 
         conJobId.forEach((op, index) => {
-            const badge = badgeEstatus(op.estatus);
+            const badge = badgeEstatus(op);
             const tr = document.createElement('tr');
             tr.className = 'border-b border-slate-100 hover:bg-slate-50 transition-all fila-animada';
             tr.style.animationDelay = `${index * 60}ms`;
@@ -2093,7 +2212,7 @@
         filaVacia.classList.add('hidden');
 
         datos.forEach((op, index) => {
-            const badge    = badgeEstatus(op.estatus);
+            const badge = badgeEstatus(op);
             const empleado = op.ingeniero || 'Sin nombre';
             const iniciales = empleado.split(' ').slice(0, 2).map(p => p[0]).join('').toUpperCase();
             const coloresAvatar = ['bg-blue-100 text-blue-700','bg-purple-100 text-purple-700',
@@ -2138,15 +2257,15 @@
                                 <i class="fas fa-file-arrow-down mr-1"></i> PDF
                             </button>`
                         }
-                        ${op.reporte_eliminar_autorizado
-                            ? `<button onclick="eliminarOperacion('${op.id}')" title="Eliminar reporte autorizado" class="text-red-500 hover:text-red-700 text-xs px-2 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-all">
-                                <i class="fas fa-trash-can"></i>
+                        ${op.finalizada && op.estatus_revision === 'en_revision'
+                            ? `<button onclick="revisarOperacion('${op.id}', 'aprobado')" title="Aprobar operación" class="text-green-500 hover:text-green-700 text-xs px-2 py-1.5 rounded-lg border border-green-200 hover:bg-green-50 transition-all">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button onclick="revisarOperacion('${op.id}', 'rechazado')" title="Rechazar operación" class="text-red-500 hover:text-red-700 text-xs px-2 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-all">
+                                <i class="fas fa-times"></i>
                             </button>`
-                            : `<button disabled title="Requiere autorización para eliminar" class="text-slate-300 text-xs px-2 py-1.5 rounded-lg border border-slate-100 bg-slate-50 cursor-not-allowed">
-                                <i class="fas fa-trash-can"></i>
-                            </button>`
+                            : ''
                         }
-                        
                     </div>
                 </td>
             `;
@@ -2197,9 +2316,9 @@
     }
 
     function actualizarKPIs(datos) {
-        const total     = datos.length;
-        const enProceso = datos.filter(o => o.estatus === 'En Proceso').length;
-        const terminadas = datos.filter(o => o.estatus === 'Terminado Exitoso').length;
+        const total      = datos.length;
+        const enProceso  = datos.filter(o => !o.finalizada).length;
+        const terminadas = datos.filter(o => o.finalizada && o.estatus_revision === 'aprobado').length;
 
         contarAnimado('kpi-total', total);
         contarAnimado('kpi-proceso', enProceso, 900);
@@ -2211,14 +2330,18 @@
     }
 
     // ── BADGE DE ESTATUS ──
-    function badgeEstatus(estatus) {
-        const mapa = {
-            'Planificado':       { clase: 'badge-planificado', texto: 'Planificado' },
-            'En Proceso':        { clase: 'badge-en-proceso',  texto: 'En Proceso' },
-            'Terminado Exitoso': { clase: 'badge-terminado',   texto: 'Terminado Exitoso' },
-            'Alerta Técnica':    { clase: 'badge-alerta',      texto: 'Alerta Técnica' },
-        };
-        return mapa[estatus] || { clase: 'bg-slate-100 text-slate-500', texto: estatus || 'Sin estatus' };
+    function badgeEstatus(op) {
+        if (op.finalizada) {
+            const mapaRevision = {
+                en_revision: { clase: 'badge-tracking-pendiente', texto: 'En Revisión' },
+                aprobado:    { clase: 'badge-tracking-aprobado',  texto: 'Aprobado' },
+                rechazado:   { clase: 'badge-tracking-rechazado', texto: 'Rechazado' }
+            };
+            return mapaRevision[op.estatus_revision] || mapaRevision.en_revision;
+        }
+
+        // Mientras no esté finalizada, siempre se muestra "En Proceso"
+        return { clase: 'badge-en-proceso', texto: 'En Proceso' };
     }
 
     // ── FORMATO FECHA ──
@@ -2317,24 +2440,47 @@
         document.querySelectorAll('.skeleton-row').forEach(r => r.remove());
     }
 
-
     // ── ESTADO DEL FORMULARIO ──
     let pasoActual = 1;
     let operacionEditandoId = null;
+    let lineaProductoSeleccionada = '';
+    let otrosFormatos = [];   // Lista de documentos "Otros" de la operación en edición
+    let soloFormatosActivo = false;   // true = solo se puede editar la pestaña "Formatos"
 
+    // Modal Línea de Producto
+    function abrirModalLineaProducto() {
+        document.getElementById('select-linea-producto').value = '';
+        document.getElementById('modal-linea-producto').classList.remove('hidden');
+    }
+
+    function cerrarModalLineaProducto() {
+        document.getElementById('modal-linea-producto').classList.add('hidden');
+    }
+
+    function confirmarLineaProducto() {
+        const linea = document.getElementById('select-linea-producto').value;
+        if (!linea) {
+            alert('Por favor selecciona una línea de producto.');
+            return;
+        }
+        lineaProductoSeleccionada = linea;
+        cerrarModalLineaProducto();
+        mostrarFormulario();
+    }
 
     // ── ABRIR / CERRAR ──
     async function mostrarFormulario(id = null) {
         operacionEditandoId = id;
         herramientasSeleccionadas = [];
         limpiarFormulario();
+        renderEvaluacionCalidad();
         irPaso(1);
         cargarCatalogo();
         renderizarSeleccionadas();
 
         if (id) {
             const opLocal = operaciones.find(o => o.id === id);
-            if (opLocal?.finalizada) {
+            if (opLocal?.finalizada && opLocal?.estatus_revision !== 'rechazado') {
                 mostrarToast('🔒 Esta operación está finalizada y no puede editarse.');
                 return;
             }
@@ -2354,7 +2500,7 @@
             await cargarHerramientasEnFormulario(id);
             await cargarBitacoraEnFormulario(id);
         } else {
-            document.getElementById('form-titulo').textContent = 'Nueva Operación de Cementación';
+            document.getElementById('form-titulo').textContent = 'Nueva Operación';
             // Autocompletar ingeniero si es Empleado
             if (rolUsuario === 'Empleado') {
                 const campoIngeniero = document.getElementById('f-ingeniero');
@@ -2453,6 +2599,133 @@
 
     function pasoSiguiente() { if (pasoActual < 6) irPaso(pasoActual + 1); }
     function pasoAnterior()  { if (pasoActual > 1) irPaso(pasoActual - 1); }
+
+    // ── EVALUACIÓN DE CALIDAD EN EL SERVICIO ──
+    const CRITERIOS_CALIDAD = [
+        {
+            id: 'personal',
+            nombre: 'Personal',
+            descripciones: [
+                'Insuficiente entrenamiento y competencia para realizar un trabajo satisfactorio',
+                'El personal no cuenta con el equipo de protección personal completo para proveer un servicio totalmente satisfactorio',
+                'El personal esta entrenado y es competente de acuerdo a los requerimientos del servicio',
+                'El personal es competente y experimentado durante la provisión del servicio',
+                'El personal es disciplinado y profesional, el desempeño refleja un nivel superior en comparación con otras compañías'
+            ]
+        },
+        {
+            id: 'equipo',
+            nombre: 'Equipo',
+            descripciones: [
+                'Inadecuado y/o equipo no confiable',
+                'Equipo cumplió su función, sin embargo presento problemas y las expectativas de calidad fueron bajas',
+                'La cantidad y calidad del equipo es adecuado de acuerdo a los requerimientos del servicio',
+                'El equipo utilizado es apto para el servicio, bien mantenido y confiable',
+                'El equipo supera las expectativas, el desempeño refleja un nivel superior en comparación con otras compañías'
+            ]
+        },
+        {
+            id: 'comunicacion',
+            nombre: 'Comunicación',
+            descripciones: [
+                'Inadecuada comunicación con el cliente y/o entre miembros del equipo',
+                'Bajo nivel de comunicación con el cliente y/o entre miembros del equipo',
+                'La comunicación es satisfactoria entre el cliente y entre los miembros del equipo',
+                'Buen entendimiento de los requerimientos del cliente, el personal trabaja como un equipo',
+                'El personal es sensible a los requerimientos del cliente y fomenta la colaboración entre todas las partes interesadas'
+            ]
+        },
+        {
+            id: 'hse',
+            nombre: 'HSE',
+            descripciones: [
+                'Perdida y/o daño ocurrido por no seguir un proceso de seguridad, salud o protección ambiental',
+                'No hay perdida y/o daño, sin embargo los procesos de IHS no son visibles o no se respetan',
+                'Ninguna perdida y/o daño imputable a IHS. Los procesos de seguridad, salud y protección ambiental son efectivos y se respetan',
+                'Todas las operaciones se conducen de manera segura, en acuerdo con los análisis de riesgo y procesos de seguridad',
+                'Se excede las expectativas en Seguridad, Salud y protección ambiental, el desempeño refleja un nivel superior en comparación con otras compañías'
+            ]
+        },
+        {
+            id: 'percepcion_general',
+            nombre: 'Percepción General',
+            descripciones: [
+                'En general el servicio no cumple con las expectativas',
+                'Los requerimientos se cumplieron pero en general el servicio estuvo por debajo de las expectativas',
+                'El nivel de servicio esta conforme con los acuerdos mutuamente establecidos con el cliente, y se cumplieron en tiempo y forma',
+                'En general el servicio fue bueno y excedió las expectativas en algunas áreas',
+                'El nivel de servicio excede las expectativas, el desempeño refleja un nivel superior en comparación con otras compañías'
+            ]
+        }
+    ];
+
+    const COLORES_CALIDAD = [
+        'bg-red-100 border-red-400 text-red-700',
+        'bg-orange-100 border-orange-400 text-orange-700',
+        'bg-yellow-100 border-yellow-400 text-yellow-700',
+        'bg-lime-100 border-lime-500 text-lime-800',
+        'bg-green-100 border-green-500 text-green-800'
+    ];
+
+    function renderEvaluacionCalidad() {
+        const tbody = document.getElementById('eval-calidad-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        CRITERIOS_CALIDAD.forEach(criterio => {
+            const tr = document.createElement('tr');
+            tr.className = 'border-t border-slate-100 hover:bg-slate-50';
+            let celdas = `<td class="px-3 py-3 font-semibold text-slate-700 align-top">${criterio.nombre}</td>`;
+            for (let i = 0; i < 5; i++) {
+                const val = i + 1;
+                celdas += `
+                    <td class="px-2 py-2 text-center align-top">
+                        <button type="button"
+                            onclick="seleccionarCalidad('${criterio.id}', ${val})"
+                            id="eval-${criterio.id}-${val}"
+                            title="${criterio.descripciones[i]}"
+                            class="w-full min-h-[60px] rounded-lg border-2 border-slate-200 text-slate-400 text-[10px] p-1.5 leading-tight transition-all hover:border-slate-400 cursor-pointer">
+                            ${criterio.descripciones[i]}
+                        </button>
+                    </td>`;
+            }
+            tr.innerHTML = celdas;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function seleccionarCalidad(criterioId, valor) {
+        for (let i = 1; i <= 5; i++) {
+            const btn = document.getElementById(`eval-${criterioId}-${i}`);
+            if (!btn) continue;
+            btn.className = 'w-full min-h-[60px] rounded-lg border-2 border-slate-200 text-slate-400 text-[10px] p-1.5 leading-tight transition-all hover:border-slate-400 cursor-pointer';
+        }
+        const seleccionado = document.getElementById(`eval-${criterioId}-${valor}`);
+        if (seleccionado) {
+            seleccionado.className = `w-full min-h-[60px] rounded-lg border-2 text-[10px] p-1.5 leading-tight font-semibold cursor-pointer ${COLORES_CALIDAD[valor - 1]}`;
+        }
+    }
+
+    function leerEvaluacionCalidad() {
+        const resultado = {};
+        CRITERIOS_CALIDAD.forEach(c => {
+            for (let i = 1; i <= 5; i++) {
+                const btn = document.getElementById(`eval-${c.id}-${i}`);
+                if (btn && btn.className.includes('font-semibold')) {
+                    resultado[c.id] = i;
+                    break;
+                }
+            }
+            if (!resultado[c.id]) resultado[c.id] = null;
+        });
+        return resultado;
+    }
+
+    function cargarEvaluacionCalidad(datos) {
+        if (!datos) return;
+        Object.entries(datos).forEach(([criterioId, valor]) => {
+            if (valor) seleccionarCalidad(criterioId, valor);
+        });
+    }
 
     // ── QHSE: CONFORMIDAD ──
     function toggleConformidad() {
@@ -2750,6 +3023,8 @@
             }
         }
 
+        cargarEvaluacionCalidad(op.evaluacion_calidad);
+
         // ── PASO 6: FORMATOS ──
         cargarEstadoFormatos(op);
     }
@@ -2757,7 +3032,15 @@
     // ── GENERAR ID ──
     async function generarJobId() {
         const año = new Date().getFullYear();
-        const prefijo = `CEM-${año}-`;
+
+        const prefijoMap = {
+            'Cementing':                'CEM',
+            'Cased Hole Completions':   'CHC',
+            'Flow Control & Gas Lift':  'FCG',
+            'Servicios':                'SER'
+        };
+        const codigo = prefijoMap[lineaProductoSeleccionada] || 'CEM';
+        const prefijo = `${codigo}-${año}-`;
 
         const res = await fetch(
             `${SUPABASE_URL}/rest/v1/cementing_operaciones?job_id=like.${prefijo}*&select=job_id&order=created_at.desc&limit=1`,
@@ -2767,7 +3050,7 @@
 
         let siguiente = 1;
         if (data.length > 0 && data[0].job_id) {
-            const ultimo = data[0].job_id; // ej. "CEM-2026-0042"
+            const ultimo = data[0].job_id;
             const partes = ultimo.split('-');
             const num = parseInt(partes[partes.length - 1], 10);
             if (!isNaN(num)) siguiente = num + 1;
@@ -2790,6 +3073,19 @@
     navigator.clipboard.writeText(texto).then(() => {
         mostrarToast('✅ ID copiado al portapapeles');
     });
+    }
+
+    function confirmarGuardarOperacion() {
+        document.getElementById('panel-confirmar-guardar').classList.remove('hidden');
+    }
+    function cerrarPanelConfirmarGuardar() {
+        document.getElementById('panel-confirmar-guardar').classList.add('hidden');
+    }
+    function confirmarFinalizarOperacion() {
+        document.getElementById('panel-confirmar-finalizar').classList.remove('hidden');
+    }
+    function cerrarPanelConfirmarFinalizar() {
+        document.getElementById('panel-confirmar-finalizar').classList.add('hidden');
     }
 
     // ── GUARDAR EN SUPABASE ──
@@ -2866,6 +3162,7 @@
             ...(jobId && { job_id: jobId }),
             usuario_id: usuarioId,
             finalizada: finalizar,
+            ...(finalizar && { estatus_revision: 'en_revision' }),
             numero_revision: finalizar
                 ? ((operacionEditandoId
                     ? (operaciones.find(o => o.id === operacionEditandoId)?.numero_revision || 0)
@@ -2895,6 +3192,7 @@
                 }
                 return ids.length > 0 ? ids : null;
             })(),
+            evaluacion_calidad: leerEvaluacionCalidad(),
         };
 
         try {
@@ -2959,7 +3257,7 @@
         document.getElementById('rep-duracion-bombeo').textContent = calcDuracion(op.fecha_inicio_bombeo, op.fecha_fin_bombeo);
         document.getElementById('rep-estancia').textContent        = calcEstancia(op.fecha_llegada, op.fecha_salida);
 
-        const badge = badgeEstatus(op.estatus);
+        const badge = badgeEstatus(op);
         const repEstatus = document.getElementById('rep-estatus-badge');
         repEstatus.textContent  = badge.texto;
         repEstatus.className    = `text-base font-bold px-3 py-1 rounded-full ${badge.clase}`;
@@ -3060,6 +3358,31 @@
             bloqueSafety.classList.add('hidden');
         }
 
+        // Evaluación de Calidad en el reporte
+        const bloqueEval = document.getElementById('rep-bloque-evaluacion');
+        const evalBody = document.getElementById('rep-eval-body');
+        const etiquetas = ['Personal', 'Equipo', 'Comunicación', 'HSE', 'Percepción General'];
+        const keys = ['personal', 'equipo', 'comunicacion', 'hse', 'percepcion_general'];
+        const colores = ['text-red-400', 'text-orange-400', 'text-yellow-400', 'text-lime-400', 'text-green-400'];
+
+        if (op.evaluacion_calidad && Object.values(op.evaluacion_calidad).some(v => v !== null)) {
+            bloqueEval.classList.remove('hidden');
+            evalBody.innerHTML = '';
+            keys.forEach((key, idx) => {
+                const val = op.evaluacion_calidad[key];
+                let celdas = `<td class="px-3 py-2 text-slate-300 font-semibold">${etiquetas[idx]}</td>`;
+                for (let i = 1; i <= 5; i++) {
+                    const activo = val === i;
+                    celdas += `<td class="px-2 py-2 text-center">
+                        ${activo ? `<span class="font-black text-xl ${colores[i-1]}">✓</span>` : '<span class="text-slate-600 text-xs">·</span>'}
+                    </td>`;
+                }
+                evalBody.innerHTML += `<tr class="border-t border-white/5">${celdas}</tr>`;
+            });
+        } else {
+            bloqueEval.classList.add('hidden');
+        }
+
         // Herramientas (por ahora vacío — se integrará con la tabla de herramientas en Sección 6)
         await cargarHerramientasEnReporte(id);
         await cargarBitacoraEnReporte(id);
@@ -3071,7 +3394,7 @@
 
         const btnEditarReporte = document.getElementById('btn-editar-reporte');
         if (btnEditarReporte) {
-            const puedeEditar = rolUsuario === 'Empleado' && !op.finalizada;
+            const puedeEditar = rolUsuario === 'Empleado' && (!op.finalizada || op.estatus_revision === 'rechazado');
             btnEditarReporte.classList.toggle('hidden', !puedeEditar);
         }
         document.body.style.overflow = 'hidden';
@@ -3144,6 +3467,13 @@
             if (url && url !== 'no_aplica') {
                 archivosEncontrados.push({ nombre: FORMATOS_NOMBRES_REP[id], url });
             }
+        }
+
+        // Documentos "Otros" (dinámicos)
+        if (Array.isArray(op.fmt_otros)) {
+            op.fmt_otros.forEach(doc => {
+                archivosEncontrados.push({ nombre: doc.nombre, url: doc.url });
+            });
         }
 
         if (archivosEncontrados.length === 0) {
@@ -3273,22 +3603,22 @@
         const op = operaciones.find(o => o.id === operacionViendoId);
         if (!op) return;
 
-        const rojo  = [227, 30, 36];
+        const rojo = [45, 45, 45];
         const gris  = [100, 116, 139];
         const negro = [30, 41, 59];
 
-        // ── Encabezado rojo ──
+        // ── Encabezado ──
         doc.setFillColor(...rojo);
         doc.rect(0, 0, 210, 28, 'F');
 
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(16);
         doc.setFont('helvetica', 'bold');
-        doc.text('IN HOLE SOLUTIONS', 14, 11);
+        doc.text('IN HOLE SOLUTIONS TRACKING SISTEM', 14, 11);
 
         doc.setFontSize(9);
         doc.setFont('helvetica', 'normal');
-        doc.text('Reporte Post-Operativo · Cementing', 14, 18);
+        doc.text('Reporte Post-Operativo', 14, 18);
         doc.text(`Generado: ${new Date().toLocaleString('es-MX')}`, 14, 24);
 
         // ── Título del pozo ──
@@ -3507,6 +3837,20 @@
             }
         }
 
+        // ── Sub-sección: Evaluación de Calidad ──
+        if (op.evaluacion_calidad && Object.values(op.evaluacion_calidad).some(v => v !== null)) {
+            const etiquetasPDF  = ['Personal', 'Equipo', 'Comunicación', 'HSE', 'Percepción General'];
+            const keysPDF = ['personal', 'equipo', 'comunicacion', 'hse', 'percepcion_general'];
+            const nivelTexto = ['', 'Deficiente', 'Regular', 'Satisfactorio', 'Bueno', 'Excelente'];
+
+            y = nuevaSeccion('EVALUACIÓN DE CALIDAD EN EL SERVICIO', y + 4, 7);
+            keysPDF.forEach((key, idx) => {
+                const val = op.evaluacion_calidad[key];
+                if (val) {
+                    y = fila(etiquetasPDF[idx], nivelTexto[val], y);
+                }
+            });
+        }
 
         // ── Tabla de herramientas en PDF ──
         if (herramientasDelReporte.length) {
@@ -3534,6 +3878,13 @@
             });
         }
 
+        // ── Texto firma al final del contenido ──
+        const yFinal = doc.lastAutoTable ? doc.lastAutoTable.finalY + 15 : 200;
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...gris);
+        doc.text('In Hole Solutions Tracking Sistem', 105, yFinal, { align: 'center' });
+
         // ── Encabezado y pie de página en TODAS las páginas ──
         const totalPaginas = doc.internal.getNumberOfPages();
         for (let i = 1; i <= totalPaginas; i++) {
@@ -3558,10 +3909,10 @@
                 doc.setTextColor(255, 255, 255);
                 doc.setFontSize(16);
                 doc.setFont('helvetica', 'bold');
-                doc.text('IN HOLE SOLUTIONS', 14, 11);
+                doc.text('IN HOLE SOLUTIONS TRACKING SISTEM', 14, 11);
                 doc.setFontSize(9);
                 doc.setFont('helvetica', 'normal');
-                doc.text('Reporte Post-Operativo · Cementing', 14, 18);
+                doc.text('Reporte Post-Operativo', 14, 18);
                 doc.text(`Generado: ${new Date().toLocaleString('es-MX')}`, 14, 24);
             }
         }
@@ -3844,6 +4195,7 @@
     // ── SOLICITAR EDICIÓN ──
     let operacionSolicitada = null;
     let formatoSolicitado = null;
+    let formatoOtroSolicitado = null; // { id, nombre } del documento "Otros" seleccionado, o null
 
     let tipoCambioSeleccionado = null;
 
@@ -3864,41 +4216,11 @@
         14: 'QA/QC (dimensionamiento y pruebas)'
     };
 
-    function seleccionarTipoCambio(tipo) {
-        tipoCambioSeleccionado = tipo;
-        formatoSolicitado = null;
-        document.getElementById('contenedor-lista-formatos').classList.add('hidden');
-        // Resetear estilos de todos
-        document.querySelectorAll('.tipo-cambio-btn').forEach(btn => {
-            btn.classList.remove('border-amber-400', 'bg-amber-50', 'border-red-400', 'bg-red-50', 'border-purple-400', 'bg-purple-50');
-            btn.classList.add('border-slate-200');
-        });
-        // Resaltar el seleccionado
-        const colores = tipo === 'edicion'
-            ? ['border-amber-400', 'bg-amber-50']
-            : tipo === 'eliminar-pdf'
-                ? ['border-purple-400', 'bg-purple-50']
-                : ['border-red-400', 'bg-red-50'];
-        const btnId = tipo === 'edicion' ? 'tipo-edicion' : tipo === 'eliminar-pdf' ? 'tipo-eliminar-pdf' : 'tipo-eliminar-reporte';
-        const btn = document.getElementById(btnId);
-        if (btn) {
-            btn.classList.remove('border-slate-200');
-            btn.classList.add(...colores);
-        }
-        
-        cargarOpsSolicitud();
-    }
-
     function abrirPanelSolicitud() {
         document.body.style.overflow = '';
-        operacionSolicitada   = null;
-        tipoCambioSeleccionado = null;
+        operacionSolicitada    = null;
+        tipoCambioSeleccionado = 'eliminar-pdf';
         document.getElementById('solicitud-motivo').value = '';
-        // Resetear tipo de cambio visual
-        document.querySelectorAll('.tipo-cambio-btn').forEach(btn => {
-            btn.classList.remove('border-amber-400', 'bg-amber-50', 'border-red-400', 'bg-red-50');
-            btn.classList.add('border-slate-200');
-        });
         document.getElementById('panel-solicitud-edicion').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
         cargarOpsSolicitud();
@@ -4013,6 +4335,7 @@
         const lista = document.getElementById('lista-formatos-solicitud');
         const op = operaciones.find(o => o.id === opId);
         formatoSolicitado = null;
+        formatoOtroSolicitado = null;
         lista.innerHTML = '';
 
         if (!op) { cont.classList.add('hidden'); return; }
@@ -4024,7 +4347,9 @@
                 return val && val !== 'no_aplica';
             });
 
-        if (!idssubidos.length) {
+        const otrosSubidos = Array.isArray(op.fmt_otros) ? op.fmt_otros.filter(d => d && d.id) : [];
+
+        if (!idssubidos.length && !otrosSubidos.length) {
             lista.innerHTML = `<p class="text-sm text-slate-400 text-center py-6">Esta operación no tiene PDFs Cargados.</p>`;
             cont.classList.remove('hidden');
             return;
@@ -4038,14 +4363,26 @@
                 <span class="text-sm text-slate-600">${FORMATOS_NOMBRES[id]}</span>
                 <div class="h-5 w-5 rounded-full border-2 border-slate-300 flex-shrink-0" id="check-fmt-${id}"></div>
             `;
-            div.addEventListener('click', () => seleccionarFormatoSolicitud(id, idssubidos));
+            div.addEventListener('click', () => seleccionarFormatoSolicitud(id, idssubidos, otrosSubidos));
+            lista.appendChild(div);
+        });
+
+        otrosSubidos.forEach(doc => {
+            const div = document.createElement('div');
+            div.id = `sol-fmt-otro-${doc.id}`;
+            div.className = 'flex items-center justify-between px-4 py-2.5 border-b border-slate-100 last:border-b-0 cursor-pointer hover:bg-purple-50 transition-all';
+            div.innerHTML = `
+                <span class="text-sm text-slate-600">${doc.nombre} <span class="text-[10px] text-slate-400 font-semibold uppercase">· Otros</span></span>
+                <div class="h-5 w-5 rounded-full border-2 border-slate-300 flex-shrink-0" id="check-fmt-otro-${doc.id}"></div>
+            `;
+            div.addEventListener('click', () => seleccionarFormatoOtroSolicitud(doc, idssubidos, otrosSubidos));
             lista.appendChild(div);
         });
 
         cont.classList.remove('hidden');
     }
 
-    function seleccionarFormatoSolicitud(id, idsDisponibles) {
+    function limpiarSeleccionFormatos(idsDisponibles, otrosSubidos) {
         idsDisponibles.forEach(fid => {
             const div = document.getElementById(`sol-fmt-${fid}`);
             const check = document.getElementById(`check-fmt-${fid}`);
@@ -4055,10 +4392,40 @@
                 check.innerHTML = '';
             }
         });
+        (otrosSubidos || []).forEach(doc => {
+            const div = document.getElementById(`sol-fmt-otro-${doc.id}`);
+            const check = document.getElementById(`check-fmt-otro-${doc.id}`);
+            if (div && check) {
+                div.classList.remove('bg-purple-50');
+                check.classList.remove('bg-purple-400', 'border-purple-400');
+                check.innerHTML = '';
+            }
+        });
+    }
+
+    function seleccionarFormatoSolicitud(id, idsDisponibles, otrosSubidos = []) {
+        limpiarSeleccionFormatos(idsDisponibles, otrosSubidos);
 
         formatoSolicitado = id;
+        formatoOtroSolicitado = null;
+
         const divSel   = document.getElementById(`sol-fmt-${id}`);
         const checkSel = document.getElementById(`check-fmt-${id}`);
+        if (divSel && checkSel) {
+            divSel.classList.add('bg-purple-50');
+            checkSel.classList.add('bg-purple-400', 'border-purple-400');
+            checkSel.innerHTML = '<i class="fas fa-check text-white text-[10px]"></i>';
+        }
+    }
+
+    function seleccionarFormatoOtroSolicitud(doc, idsDisponibles, otrosSubidos) {
+        limpiarSeleccionFormatos(idsDisponibles, otrosSubidos);
+
+        formatoSolicitado = null;
+        formatoOtroSolicitado = { id: doc.id, nombre: doc.nombre };
+
+        const divSel   = document.getElementById(`sol-fmt-otro-${doc.id}`);
+        const checkSel = document.getElementById(`check-fmt-otro-${doc.id}`);
         if (divSel && checkSel) {
             divSel.classList.add('bg-purple-50');
             checkSel.classList.add('bg-purple-400', 'border-purple-400');
@@ -4075,7 +4442,7 @@
             mostrarToast('⚠️ Selecciona una operación primero.', 'error');
             return;
         }
-        if (tipoCambioSeleccionado === 'eliminar-pdf' && !formatoSolicitado) {
+        if (tipoCambioSeleccionado === 'eliminar-pdf' && !formatoSolicitado && !formatoOtroSolicitado) {
             mostrarToast('⚠️ Selecciona cuál PDF quieres eliminar.', 'error');
             return;
         }
@@ -4098,14 +4465,16 @@
                 method: 'POST',
                 headers: { ...headers, 'Prefer': 'return=minimal' },
                 body: JSON.stringify({
-                    operacion_id: operacionSolicitada,
-                    usuario_id:   usuarioId,
-                    job_id:       op?.job_id || null,
-                    nombre_pozo:  op?.nombre_pozo || null,
-                    motivo:       motivo,
-                    tipo_cambio:  tipoCambioSeleccionado,
-                    formato_id:   tipoCambioSeleccionado === 'eliminar-pdf' ? formatoSolicitado : null,
-                    estatus:      'pendiente'
+                    operacion_id:        operacionSolicitada,
+                    usuario_id:           usuarioId,
+                    job_id:               op?.job_id || null,
+                    nombre_pozo:          op?.nombre_pozo || null,
+                    motivo:               motivo,
+                    tipo_cambio:          tipoCambioSeleccionado,
+                    formato_id:           tipoCambioSeleccionado === 'eliminar-pdf' ? formatoSolicitado : null,
+                    formato_otro_id:      tipoCambioSeleccionado === 'eliminar-pdf' ? (formatoOtroSolicitado?.id || null) : null,
+                    formato_otro_nombre:  tipoCambioSeleccionado === 'eliminar-pdf' ? (formatoOtroSolicitado?.nombre || null) : null,
+                    estatus:              'pendiente'
                 })
             });
 
@@ -4114,13 +4483,10 @@
                 mostrarToast('✅ Solicitud enviada. Espera la aprobación del administrador.', 'exito');
                 document.getElementById('solicitud-motivo').value = '';
                 operacionSolicitada    = null;
-                tipoCambioSeleccionado = null;
+                tipoCambioSeleccionado = 'eliminar-pdf';
                 formatoSolicitado      = null;
+                formatoOtroSolicitado  = null;
                 document.getElementById('contenedor-lista-formatos').classList.add('hidden');
-                document.querySelectorAll('.tipo-cambio-btn').forEach(btn => {
-                    btn.classList.remove('border-amber-400', 'bg-amber-50', 'border-red-400', 'bg-red-50', 'border-purple-400', 'bg-purple-50');
-                    btn.classList.add('border-slate-200');
-                });
                 cargarOpsSolicitud();
                 cargarHistorialSolicitudes();
             } else {
@@ -4159,21 +4525,24 @@
                 rechazada:  { label: 'No Aprobado', cls: 'bg-red-100 text-red-600'    }
             };
             const iconosTipo = {
-                'edicion':          '<i class="fas fa-pen-to-square text-amber-500"></i>',
-                'eliminar-reporte': '<i class="fas fa-trash text-red-500"></i>',
-                'eliminar-pdf':     '<i class="fas fa-file-circle-xmark text-purple-500"></i>'
+                'eliminar-pdf': '<i class="fas fa-file-circle-xmark text-purple-500"></i>'
             };
             const labelTipo = {
-                'edicion':          'Solicitar Edición',
-                'eliminar-reporte': 'Eliminar Reporte',
-                'eliminar-pdf':     'Eliminar PDF'
+                'eliminar-pdf': 'Eliminar PDF'
             };
 
             contenedor.innerHTML = '';
             data.forEach(s => {
                 const etq   = etiquetas[s.estatus] || etiquetas.pendiente;
                 const icono = iconosTipo[s.tipo_cambio] || '<i class="fas fa-pen text-slate-400"></i>';
-                const tipo  = (labelTipo[s.tipo_cambio]  || 'Solicitud') + (s.tipo_cambio === 'eliminar-pdf' && s.formato_id ? `: ${FORMATOS_NOMBRES[s.formato_id] || ''}` : '');
+                let tipo = labelTipo[s.tipo_cambio] || 'Solicitud';
+                if (s.tipo_cambio === 'eliminar-pdf') {
+                    if (s.formato_id) {
+                        tipo += `: ${FORMATOS_NOMBRES[s.formato_id] || ''}`;
+                    } else if (s.formato_otro_nombre) {
+                        tipo += `: ${s.formato_otro_nombre}`;
+                    }
+                }
                 const fecha = s.created_at
                     ? new Date(s.created_at).toLocaleDateString('es-MX', { day:'2-digit', month:'short', year:'numeric' })
                     : '—';
@@ -4264,6 +4633,9 @@
             data.forEach((sol, index) => {
                 const esPendiente = sol.estatus === 'pendiente';
                 const esCerrada = sol.estatus === 'aprobada' || sol.estatus === 'rechazada';
+                const nombrePdfSolicitado = sol.formato_id
+                    ? (FORMATOS_NOMBRES[sol.formato_id] || '')
+                    : (sol.formato_otro_nombre || '');
                 const badgeClase = {
                     'pendiente':  'bg-amber-100 text-amber-700',
                     'aprobada':   'bg-green-100 text-green-700',
@@ -4284,12 +4656,8 @@
                         </span>
                     </td>
                     <td class="px-6 py-4">
-                        ${sol.tipo_cambio === 'edicion'
-                            ? `<span class="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-full"><i class="fas fa-pen-to-square mr-1"></i>Edición</span>`
-                        : sol.tipo_cambio === 'eliminar-reporte'
-                            ? `<span class="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-full"><i class="fas fa-trash mr-1"></i>Eliminar Reporte</span>`
-                        : sol.tipo_cambio === 'eliminar-pdf'
-                            ? `<span class="bg-purple-100 text-purple-700 text-xs font-bold px-2.5 py-1 rounded-full" title="${FORMATOS_NOMBRES[sol.formato_id] || ''}"><i class="fas fa-file-circle-xmark mr-1"></i>PDF: ${FORMATOS_NOMBRES[sol.formato_id] || '—'}</span>`
+                        ${sol.tipo_cambio === 'eliminar-pdf'
+                            ? `<span class="bg-purple-100 text-purple-700 text-xs font-bold px-2.5 py-1 rounded-full" title="${nombrePdfSolicitado}"><i class="fas fa-file-circle-xmark mr-1"></i>PDF: ${nombrePdfSolicitado || '—'}</span>`
                             : `<span class="bg-slate-100 text-slate-400 text-xs font-bold px-2.5 py-1 rounded-full">—</span>`
                         }
                     </td>
@@ -4368,9 +4736,9 @@
         if (!ok) return;
 
         try {
-            // 1. Traer los datos de la solicitud (para saber el tipo y formato_id)
+            // 1. Traer los datos de la solicitud (para saber el tipo, formato_id o formato_otro_id)
             const resSol = await fetch(
-                `${SUPABASE_URL}/rest/v1/cementing_solicitudes_edicion?id=eq.${solicitudId}&select=tipo_cambio,formato_id`,
+                `${SUPABASE_URL}/rest/v1/cementing_solicitudes_edicion?id=eq.${solicitudId}&select=tipo_cambio,formato_id,formato_otro_id`,
                 { headers }
             );
             const [sol] = await resSol.json();
@@ -4384,17 +4752,28 @@
 
             // 3. Si se aprobó, desbloquear la operación
             if (decision === 'aprobada') {
-                const patchData = { finalizada: false };
+                // 3a. Consultar el estatus actual de la operación ANTES de desbloquearla,
+                // para saber si venía de "Aprobado" / "En Revisión" (y por lo tanto
+                // solo debe permitirse editar la pestaña de Formatos)
+                const resOp = await fetch(
+                    `${SUPABASE_URL}/rest/v1/cementing_operaciones?id=eq.${operacionId}&select=finalizada,estatus_revision`,
+                    { headers }
+                );
+                const [opActual] = await resOp.json();
+                const soloFormatos = !!(opActual?.finalizada &&
+                    (opActual?.estatus_revision === 'aprobado' || opActual?.estatus_revision === 'en_revision'));
+
+                const patchData = { finalizada: false, edicion_solo_formatos: soloFormatos };
 
                 if (sol?.tipo_cambio === 'eliminar-pdf' && sol?.formato_id) {
                     patchData.fmt_eliminar_autorizado = sol.formato_id;
-                    patchData.reporte_eliminar_autorizado = false;
-                } else if (sol?.tipo_cambio === 'eliminar-reporte') {
-                    patchData.reporte_eliminar_autorizado = true;
+                    patchData.fmt_otro_eliminar_autorizado = null;
+                } else if (sol?.tipo_cambio === 'eliminar-pdf' && sol?.formato_otro_id) {
+                    patchData.fmt_otro_eliminar_autorizado = sol.formato_otro_id;
                     patchData.fmt_eliminar_autorizado = null;
                 } else {
                     patchData.fmt_eliminar_autorizado = null;
-                    patchData.reporte_eliminar_autorizado = false;
+                    patchData.fmt_otro_eliminar_autorizado = null;
                 }
 
                 await fetch(`${SUPABASE_URL}/rest/v1/cementing_operaciones?id=eq.${operacionId}`, {
@@ -4413,6 +4792,44 @@
 
         } catch(e) {
             mostrarToast('Error al procesar la solicitud.', 'error');
+            console.error(e);
+        }
+    }
+
+    async function revisarOperacion(id, decision) {
+        const textos = {
+            aprobado:  { icono: '✅', titulo: 'Aprobar operación',  msg: 'El reporte quedará marcado como Aprobado.',  btn: 'Sí, aprobar',  color: 'bg-green-600 hover:bg-green-700' },
+            rechazado: { icono: '❌', titulo: 'Rechazar operación', msg: 'El reporte quedará marcado como Rechazado.', btn: 'Sí, rechazar', color: 'bg-[#e31e24] hover:bg-red-700' }
+        };
+        const t = textos[decision];
+
+        const ok = await confirmar({
+            icono: t.icono, titulo: t.titulo, mensaje: t.msg,
+            textoAceptar: t.btn, colorAceptar: t.color
+        });
+        if (!ok) return;
+
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/cementing_operaciones?id=eq.${id}`, {
+                method: 'PATCH',
+                headers,
+                body: JSON.stringify({ estatus_revision: decision })
+            });
+
+            if (!res.ok) {
+                mostrarToast('Error al actualizar el estatus.', 'error');
+                return;
+            }
+
+            mostrarToast(
+                decision === 'aprobado' ? '✅ Operación aprobada.' : '❌ Operación rechazada.',
+                decision === 'aprobado' ? 'exito' : 'info'
+            );
+
+            await cargarOperaciones();
+
+        } catch (e) {
+            mostrarToast('Error de conexión.', 'error');
             console.error(e);
         }
     }
@@ -4537,6 +4954,64 @@
         mostrarToast('✅ Archivo Cargado correctamente.', 'ok');
     }
 
+    async function agregarOtroDocumento(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const nombreInput = document.getElementById('input-nombre-otro');
+        const nombre = (nombreInput?.value || '').trim();
+
+        if (!nombre) {
+            mostrarToast('Escribe primero el nombre del documento.', 'error');
+            input.value = '';
+            return;
+        }
+
+        const opId = operacionEditandoId;
+        if (!opId) return mostrarToast('Guarda la operación primero.', 'error');
+
+        const ext  = file.name.split('.').pop();
+        const path = `formatos/${opId}/otros/${Date.now()}-${nombre.replace(/[^a-z0-9]+/gi, '-')}.${ext}`;
+
+        mostrarToast('Subiendo archivo...', 'info');
+
+        // Refrescar sesión antes de subir
+        await supabaseClient.auth.getSession();
+
+        const { error: upError } = await supabaseClient.storage
+            .from('cementing-archivos')
+            .upload(path, file, { upsert: false });
+
+        if (upError) return mostrarToast('Error al subir el archivo.', 'error');
+
+        const { data: urlData } = supabaseClient.storage
+            .from('cementing-archivos')
+            .getPublicUrl(path);
+
+        const nuevoDoc = {
+            id:     (crypto.randomUUID ? crypto.randomUUID() : `otro-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`),
+            nombre,
+            url:    urlData.publicUrl + '?t=' + Date.now()
+        };
+        otrosFormatos.push(nuevoDoc);
+
+        await fetch(`${SUPABASE_URL}/rest/v1/cementing_operaciones?id=eq.${opId}`, {
+            method: 'PATCH',
+            headers,
+            body: JSON.stringify({ fmt_otros: otrosFormatos })
+        });
+
+        // Actualizar copia local de la operación
+        const opLocal = operaciones.find(o => o.id === opId);
+        if (opLocal) opLocal.fmt_otros = otrosFormatos;
+
+        // Limpiar inputs y refrescar UI
+        nombreInput.value = '';
+        input.value = '';
+        renderOtrosFormatos(opLocal);
+        mostrarToast('✅ Documento agregado correctamente.', 'ok');
+    }
+
     async function eliminarPdfAutorizado(fmtId, opId) {
         const ok = await confirmar({
             icono: '🗑️',
@@ -4605,6 +5080,65 @@
         mostrarToast('✅ PDF eliminado. Ya puedes subir uno nuevo.', 'ok');
     }
 
+    async function eliminarOtroAutorizado(docId, opId) {
+        const op = operaciones.find(o => o.id === opId);
+        if (!op) return mostrarToast('No se encontró la operación.', 'error');
+
+        const doc = (op.fmt_otros || []).find(d => d.id === docId);
+        if (!doc) return mostrarToast('No se encontró el documento.', 'error');
+
+        const ok = await confirmar({
+            icono: '🗑️',
+            titulo: 'Eliminar documento',
+            mensaje: `¿Eliminar "${doc.nombre}"? Podrás subir uno nuevo después.`,
+            textoAceptar: 'Sí, eliminar',
+            colorAceptar: 'bg-[#e31e24] hover:bg-red-700'
+        });
+        if (!ok) return;
+
+        mostrarToast('Eliminando archivo...', 'info');
+
+        // 1. Derivar el path dentro del bucket a partir de la URL pública guardada
+        const urlSinQuery = doc.url.split('?')[0];
+        const marcador = '/cementing-archivos/';
+        const idx = urlSinQuery.indexOf(marcador);
+        if (idx !== -1) {
+            const path = urlSinQuery.slice(idx + marcador.length);
+            const { error: delError } = await supabaseClient.storage
+                .from('cementing-archivos')
+                .remove([path]);
+
+            if (delError) {
+                console.warn('No se pudo borrar del storage (puede que ya no exista):', delError);
+            }
+        }
+
+        // 2. Quitar el documento del arreglo fmt_otros y limpiar la autorización
+        const nuevoArreglo = (op.fmt_otros || []).filter(d => d.id !== docId);
+
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/cementing_operaciones?id=eq.${opId}`, {
+            method: 'PATCH',
+            headers,
+            body: JSON.stringify({ fmt_otros: nuevoArreglo, fmt_otro_eliminar_autorizado: null })
+        });
+
+        if (!res.ok) {
+            mostrarToast('Error al limpiar el registro.', 'error');
+            return;
+        }
+
+        // 3. Actualizar el estado local y refrescar la UI
+        op.fmt_otros = nuevoArreglo;
+        op.fmt_otro_eliminar_autorizado = null;
+
+        if (opId === operacionEditandoId) {
+            otrosFormatos = [...nuevoArreglo];
+            renderOtrosFormatos(op);
+        }
+
+        mostrarToast('✅ Documento eliminado. Ya puedes subir uno nuevo.', 'ok');
+    }
+
     async function noAplicaFormato(id) {
         const opId = operacionEditandoId;
         if (!opId) return mostrarToast('Guarda la operación primero.', 'error');
@@ -4658,6 +5192,10 @@
     }
 
     function cargarEstadoFormatos(op) {
+        // Cargar documentos "Otros"
+        otrosFormatos = (op && Array.isArray(op.fmt_otros)) ? [...op.fmt_otros] : [];
+        renderOtrosFormatos(op);
+
         for (let id = 1; id <= 14; id++) {
             const key      = FORMATOS_KEYS[id];
             const estadoEl = document.getElementById(`estado-fmt-${id}`);
@@ -4702,49 +5240,37 @@
         }
     }
 
-    // ── ELIMINAR OPERACIÓN ──
-    async function eliminarOperacion(id) {
-        const op = operaciones.find(o => o.id === id);
-        const ok = await confirmar({
-            icono: '🗑️',
-            titulo: 'Eliminar reporte completo',
-            mensaje: `¿Eliminar completamente el reporte del pozo "${op?.nombre_pozo || id}"? Se borrarán todos los datos, herramientas, bitácora y solicitudes. Esta acción no se puede deshacer.`,
-            textoAceptar: 'Sí, eliminar todo',
-            colorAceptar: 'bg-[#e31e24] hover:bg-red-700'
-        });
-        if (!ok) return;
+    // ── OTROS (documentos dinámicos) ──
+    function renderOtrosFormatos(op = null) {
+        const cont = document.getElementById('lista-otros-formatos');
+        if (!cont) return;
 
-        try {
-            // 1. Borrar herramientas
-            await fetch(`${SUPABASE_URL}/rest/v1/cementing_herramientas?operacion_id=eq.${id}`, {
-                method: 'DELETE', headers
-            });
-
-            // 2. Borrar bitácora
-            await fetch(`${SUPABASE_URL}/rest/v1/cementing_bitacora?operacion_id=eq.${id}`, {
-                method: 'DELETE', headers
-            });
-
-            // 3. Borrar solicitudes relacionadas
-            await fetch(`${SUPABASE_URL}/rest/v1/cementing_solicitudes_edicion?operacion_id=eq.${id}`, {
-                method: 'DELETE', headers
-            });
-
-            // 4. Borrar la operación principal
-            const res = await fetch(`${SUPABASE_URL}/rest/v1/cementing_operaciones?id=eq.${id}`, {
-                method: 'DELETE', headers
-            });
-
-            if (res.ok) {
-                await cargarOperaciones();
-                mostrarToast('🗑️ Reporte eliminado completamente.', 'info');
-            } else {
-                mostrarToast('Error al eliminar el reporte.', 'error');
-            }
-        } catch(e) {
-            mostrarToast('Error de conexión.', 'error');
-            console.error(e);
+        if (!otrosFormatos.length) {
+            cont.innerHTML = '';
+            return;
         }
+
+        if (!op) op = operaciones.find(o => o.id === operacionEditandoId);
+        const autorizadoId = op ? op.fmt_otro_eliminar_autorizado : null;
+
+        cont.innerHTML = otrosFormatos.map((doc) => `
+            <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3 min-w-0">
+                    <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
+                    <a href="${doc.url}" target="_blank" class="text-sm font-semibold text-slate-600 truncate hover:underline">${doc.nombre}</a>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <span class="flex items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                    ${doc.id && autorizadoId === doc.id ? `
+                    <button
+                        title="Eliminar este documento (autorizado por admin)"
+                        class="ml-2 text-red-400 hover:text-red-600 transition-all text-xs font-bold flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-red-50 border border-red-200"
+                        onclick="eliminarOtroAutorizado('${doc.id}', '${op.id}')">
+                        <i class="fas fa-times"></i> Quitar
+                    </button>` : ''}
+                </div>
+            </div>
+        `).join('');
     }
 
     // ── MODAL DE CONFIRMACIÓN PERSONALIZADO ──
@@ -4788,7 +5314,7 @@
           <i class="fas fa-bell text-amber-500 text-sm"></i>
         </div>
         <div>
-          <p class="text-sm font-bold text-slate-700">Solicitudes de Edición</p>
+          <p class="text-sm font-bold text-slate-700">Solicitudes</p>
           <p class="text-xs text-slate-400">Aprueba o rechaza solicitudes pendientes</p>
         </div>
       </div>
@@ -4977,7 +5503,7 @@
   <script>
     async function cerrarSesion() {
         await supabaseClient.auth.signOut();
-        window.location.href = 'intranet-login.html';
+        window.location.href = '../index.html';
     }
 
     function toggleMenu(id) {

@@ -13,14 +13,23 @@
   <style>
     .servicios-row > div[class*="col-"] {
       display: flex;
+      padding: 0 5px;
     }
     .servicios-row .portfolio-item {
       display: flex;
       flex-direction: column;
       width: 100%;
+      height: 100%;
     }
     .servicios-row .portfolio__content {
       flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .servicios-row .portfolio__title {
+      min-height: 3em;
+      line-height: 1.3;
+      margin-bottom: 4px;
     }
     .servicios-row .portfolio__img img {
       width: 100%;
@@ -298,99 +307,103 @@
             <h2 class="heading__title5">Proporcionando soluciones innovadoras y sostenibles.</h2>
           </div><!-- /heading -->
           <div class="col-sm-12 col-md-12 col-lg-6">
-            <p class="heading__desc">Nos enfocamos en desarrollar relaciones y proyectos de largo plazo, respaldados por experiencias, compromiso operativo y conocimiento especializado en la industria energética. Impulsamos relaciones de largo plazo mediante un enfoque basado en la eficiencia operativa, la innovación y la capacidad de adaptarnos a las necesidades de cada proyecto.</p>
+            <p class="heading__desc">Nos enfocamos en desarrollar relaciones y proyectos de largo plazo, respaldados por
+              experiencias, compromiso operativo y conocimiento especializado en la industria energética. Impulsamos
+              relaciones de largo plazo mediante un enfoque basado en la eficiencia operativa, la innovación y la capacidad
+              de adaptarnos a las necesidades de cada proyecto.</p>
           </div><!-- /heading -->
         </div><!-- /.row -->
-        <div class="row">
-          <div class="col-sm-12 col-md-12 col-lg-12">
-            <div class="row servicios-row">
-              <div class="sol-sm-12 col-md-6 col-lg-4">
-                <div class="portfolio-item">
-                  <div class="portfolio__img">
-                    <div class="portfolio__img portfolio__img--slider" id="sliderTorque">
-                      <img src="assets/images/sliders/asistenciaoperativa.jpeg" alt="portfolio img" class="slider-img active">
-                      <img src="assets/images/sliders/ServicioTorque1.jpeg" alt="portfolio img" class="slider-img">
-                      <img src="assets/images/sliders/ServicioTorque2.jpeg" alt="portfolio img" class="slider-img">
-                      <img src="assets/images/sliders/ServicioTorque3.jpeg" alt="portfolio img" class="slider-img">
-                      <img src="assets/images/sliders/ServicioTorque4.png" alt="portfolio img" class="slider-img">
-                      
-
-                      <button type="button" class="slider-arrow slider-arrow--prev" onclick="cambiarImagenServicio(event,'sliderTorque',-1)">&#10094;</button>
-                      <button type="button" class="slider-arrow slider-arrow--next" onclick="cambiarImagenServicio(event,'sliderTorque',1)">&#10095;</button>
-                    </div>
-                  </div><!-- /.portfolio-img -->
-                  <div class="portfolio__content">
-                    <h4 class="portfolio__title"><a href="#">SERVICIO DE TORQUE Y ASISTENCIA OPERATIVA</a></h4>
-                    <div class="portfolio__cat">
-                    </div><!-- /.portfolio-cat -->
-                    <div class="divider__line divider__lg"></div>
-                    <p class="portfolio__desc">Servicios especilizados para operaciones seguras, precisas y eficientes en cada proyecto.</p>
-                    <a href="#" class="btn btn__secondary btn__link">
-                    <!-- <span>Explorar m&aacute;s</span><i class="icon-arrow-right"></i>-->
-                    </a>
-                  </div><!-- /.portfolio-content -->
-                </div><!-- /.portfolio-item -->
-              </div>
-              
-              <div class="col-sm-12 col-md-6 col-lg-4">
-                <div class="portfolio-item">
-                  <div class="portfolio__img">
-                    <img src="assets/images/sliders/Calibracion.jpeg" alt="portfolio img">
-                  </div><!-- /.portfolio-img -->
-                  <div class="portfolio__content">
-                    <h4 class="portfolio__title"><a href="#">CALIBRACIÓN E INSPECCIÓN</a></h4>
-                    <div class="portfolio__cat">
-                    </div><!-- /.portfolio-cat -->
-                    <div class="divider__line divider__lg"></div>
-                       <p class="portfolio__desc">Inspección y verificación técnicas de herramientas y accesorios para asegurar confiablidad, precisión y cumplimiento operativo.</p>
-                          <a href="#" class="btn btn__secondary btn__link">
-                          <!-- <span>Explorar m&aacute;s</span><i class="icon-arrow-right"></i>-->
-                          </a>
-                  </div><!-- /.portfolio-content -->
-                </div><!-- /.portfolio-item -->
-              </div>
-
-              <div class="col-sm-12 col-md-6 col-lg-4">
-                <div class="portfolio-item">
-                  <div class="portfolio__img">
-                    <img src="assets/images/sliders/servicio.jpeg" alt="portfolio img">
-                  </div><!-- /.portfolio-img -->
-                  <div class="portfolio__content">
-                    <h4 class="portfolio__title"><a href="#">SERVICIO Y SUMINISTRO</a></h4>
-                    <h4 class="portfolio__title"><a href="#">DE CENTRADORES RÍGIDOS</a></h4>
-                    <div class="portfolio__cat">
-                    </div><!-- /.portfolio-cat -->
-                    <div class="divider__line divider__lg"></div>
-                    <p class="portfolio__desc">Centradores rígidos de una sola pieza diseñados para aportar estabilidad, precisión y desempeño durante las operaciones de pozo.
-                      </p>
-                    <a href="#" class="btn btn__secondary btn__link">
-                      <!--<span>Explorar m&aacute;s</span><i class="icon-arrow-right"></i>-->
-                    </a>
-                  </div><!-- /.portfolio-content -->
-                </div><!-- /.portfolio-item -->
-              </div>
-
-              <div class="col-sm-12 col-md-6 col-lg-4">
-                <div class="portfolio-item">
-                  <div class="portfolio__img">
-                    <img src="assets/images/sliders/Pruebas hidrostraticas.jpeg" alt="portfolio img">
-                  </div><!-- /.portfolio-img -->
-                  <div class="portfolio__content">
-                    <h4 class="portfolio__title"><a href="#">PRUEBAS HIDROSTÁTICAS</a></h4>
-                    <div class="portfolio__cat">
-                    </div><!-- /.portfolio-cat -->
-                    <div class="divider__line divider__lg"></div>
-                    <p class="portfolio__desc">Verificación de integridad y desempeño mediante pruebas hidrostáticas computarizadas y procesos de alta confiabilidad.
-                      </p>
-                    <a href="#" class="btn btn__secondary btn__link">
-                      <!--<span>Explorar m&aacute;s</span><i class="icon-arrow-right"></i>-->
-                    </a>
-                  </div><!-- /.portfolio-content -->
-                </div><!-- /.portfolio-item -->
-              </div>
-
-            </div><!-- /.row -->
-          </div><!-- /.col-lg-12 -->
+        <div class="row servicios-row justify-content-center no-gutters" style="margin: 0 -5px;">
+          <div class="col-sm-12 col-md-6 col-lg-3">
+            <div class="portfolio-item">
+              <div class="portfolio__img">
+                <div class="portfolio__img portfolio__img--slider" id="sliderTorque">
+                  <img src="assets/images/sliders/asistenciaoperativa.jpeg" alt="portfolio img" class="slider-img active">
+                  <img src="assets/images/sliders/ServicioTorque1.jpeg" alt="portfolio img" class="slider-img">
+                  <img src="assets/images/sliders/ServicioTorque2.jpeg" alt="portfolio img" class="slider-img">
+                  <img src="assets/images/sliders/ServicioTorque3.jpeg" alt="portfolio img" class="slider-img">
+                  <img src="assets/images/sliders/ServicioTorque4.png" alt="portfolio img" class="slider-img">
+    
+    
+                  <button type="button" class="slider-arrow slider-arrow--prev"
+                    onclick="cambiarImagenServicio(event,'sliderTorque',-1)">&#10094;</button>
+                  <button type="button" class="slider-arrow slider-arrow--next"
+                    onclick="cambiarImagenServicio(event,'sliderTorque',1)">&#10095;</button>
+                </div>
+              </div><!-- /.portfolio-img -->
+              <div class="portfolio__content">
+                <h4 class="portfolio__title"><a href="#">SERVICIO DE TORQUE Y ASISTENCIA OPERATIVA</a></h4>
+                <div class="portfolio__cat">
+                </div><!-- /.portfolio-cat -->
+                <div class="divider__line divider__lg"></div>
+                <p class="portfolio__desc">Servicios especilizados para operaciones seguras, precisas y eficientes en cada
+                  proyecto.</p>
+                <a href="#" class="btn btn__secondary btn__link">
+                  <!-- <span>Explorar m&aacute;s</span><i class="icon-arrow-right"></i>-->
+                </a>
+              </div><!-- /.portfolio-content -->
+            </div><!-- /.portfolio-item -->
+          </div>
+    
+          <div class="col-sm-12 col-md-6 col-lg-3">
+            <div class="portfolio-item">
+              <div class="portfolio__img">
+                <img src="assets/images/sliders/Calibracion.jpeg" alt="portfolio img">
+              </div><!-- /.portfolio-img -->
+              <div class="portfolio__content">
+                <h4 class="portfolio__title"><a href="#">CALIBRACIÓN E INSPECCIÓN</a></h4>
+                <div class="portfolio__cat">
+                </div><!-- /.portfolio-cat -->
+                <div class="divider__line divider__lg"></div>
+                <p class="portfolio__desc">Inspección y verificación técnicas de herramientas y accesorios para asegurar
+                  confiablidad, precisión y cumplimiento operativo.</p>
+                <a href="#" class="btn btn__secondary btn__link">
+                  <!-- <span>Explorar m&aacute;s</span><i class="icon-arrow-right"></i>-->
+                </a>
+              </div><!-- /.portfolio-content -->
+            </div><!-- /.portfolio-item -->
+          </div>
+    
+          <div class="col-sm-12 col-md-6 col-lg-3">
+            <div class="portfolio-item">
+              <div class="portfolio__img">
+                <img src="assets/images/sliders/servicio.jpeg" alt="portfolio img">
+              </div><!-- /.portfolio-img -->
+              <div class="portfolio__content">
+                <h4 class="portfolio__title"><a href="#">SERVICIO Y SUMINISTRO<br>DE CENTRADORES RÍGIDOS</a></h4>
+                <div class="portfolio__cat">
+                </div><!-- /.portfolio-cat -->
+                <div class="divider__line divider__lg"></div>
+                <p class="portfolio__desc">Centradores rígidos de una sola pieza diseñados para aportar estabilidad,
+                  precisión y desempeño durante las operaciones de pozo.
+                </p>
+                <a href="#" class="btn btn__secondary btn__link">
+                  <!--<span>Explorar m&aacute;s</span><i class="icon-arrow-right"></i>-->
+                </a>
+              </div><!-- /.portfolio-content -->
+            </div><!-- /.portfolio-item -->
+          </div>
+    
+          <div class="col-sm-12 col-md-6 col-lg-3">
+            <div class="portfolio-item">
+              <div class="portfolio__img">
+                <img src="assets/images/sliders/Pruebas hidrostraticas.jpeg" alt="portfolio img">
+              </div><!-- /.portfolio-img -->
+              <div class="portfolio__content">
+                <h4 class="portfolio__title"><a href="#">PRUEBAS HIDROSTÁTICAS</a></h4>
+                <div class="portfolio__cat">
+                </div><!-- /.portfolio-cat -->
+                <div class="divider__line divider__lg"></div>
+                <p class="portfolio__desc">Verificación de integridad y desempeño mediante pruebas hidrostáticas
+                  computarizadas y procesos de alta confiabilidad.
+                </p>
+                <a href="#" class="btn btn__secondary btn__link">
+                  <!--<span>Explorar m&aacute;s</span><i class="icon-arrow-right"></i>-->
+                </a>
+              </div><!-- /.portfolio-content -->
+            </div><!-- /.portfolio-item -->
+          </div>
+    
         </div><!-- /.row -->
       </div><!-- /.container -->
     </section><!-- /.portfolio carousel -->
