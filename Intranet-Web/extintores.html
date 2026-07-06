@@ -103,6 +103,10 @@
               6 kg
             </label>
             <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+              <input type="radio" name="verif-capacidad" value="4.5 kg" class="accent-[#e31e24] w-4 h-4">
+              4.5 kg
+            </label>
+            <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
               <input type="radio" name="verif-capacidad" value="2.5 kg" class="accent-[#e31e24] w-4 h-4">
               2.5 kg
             </label>
@@ -377,16 +381,44 @@
               <th class="py-2 pr-3 font-bold">Resultado</th>
               <th class="py-2 pr-3 font-bold">Registrado por</th>
               <th class="py-2 pr-3 font-bold text-center">PDF</th>
+              <th class="py-2 pr-3 font-bold text-center">Eliminar</th>
             </tr>
           </thead>
           <tbody id="tabla-historial-body">
-            <tr><td colspan="7" class="text-center text-slate-400 py-6">Cargando historial...</td></tr>
+            <tr><td colspan="8" class="text-center text-slate-400 py-6">Cargando historial...</td></tr>
           </tbody>
         </table>
       </div>
 
     </div>
   </div>
+
+  <!-- Modal de Confirmación para Eliminar -->
+  <div id="modal-confirmar-eliminar" class="hidden fixed inset-0 bg-black/60 z-[70] flex items-center justify-center p-6">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 md:p-8">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-[#e31e24]/10 flex items-center justify-center flex-shrink-0">
+          <i class="fas fa-triangle-exclamation text-[#e31e24]"></i>
+        </div>
+        <h4 class="font-bold text-slate-800">Eliminar verificación</h4>
+      </div>
+      <p class="text-sm text-slate-600 mb-6">
+        ¿Seguro que deseas eliminar esta verificación del historial? Esta acción no se puede deshacer.
+      </p>
+      <div class="flex justify-end gap-3">
+        <button onclick="cerrarModalConfirmarEliminar()"
+          class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100">
+          Cancelar
+        </button>
+        <button onclick="confirmarEliminarVerificacion()"
+          class="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-[#e31e24] hover:bg-red-700">
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer-componente"></div>
 
   <script>
     const { createClient } = supabase;
@@ -1498,7 +1530,7 @@
 
     async function cargarHistorialVerificaciones() {
       const tbody = document.getElementById('tabla-historial-body');
-      tbody.innerHTML = `<tr><td colspan="7" class="text-center text-slate-400 py-6">Cargando historial...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center text-slate-400 py-6">Cargando historial...</td></tr>`;
 
       const { data, error } = await supabaseClient
         .from('verificaciones_extintores')
@@ -1506,13 +1538,13 @@
         .order('fecha_verificacion', { ascending: false });
 
       if (error) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-red-500 py-6">Error al cargar el historial: ${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-red-500 py-6">Error al cargar el historial: ${error.message}</td></tr>`;
         console.error(error.message);
         return;
       }
 
       if (!data || data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-slate-400 py-6">Aún no hay verificaciones registradas.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-slate-400 py-6">Aún no hay verificaciones registradas.</td></tr>`;
         return;
       }
 
@@ -1554,9 +1586,54 @@
                 <i class="fas fa-file-pdf"></i>
               </button>
             </td>
+            <td class="py-2.5 pr-3 text-center">
+              <button onclick="eliminarVerificacion('${v.id}')" title="Eliminar verificación"
+                class="text-slate-400 hover:text-red-700 text-sm">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
           </tr>
         `;
       }).join('');
+    }
+
+    let idVerificacionAEliminar = null;
+
+    function eliminarVerificacion(id) {
+      idVerificacionAEliminar = id;
+      document.getElementById('modal-confirmar-eliminar').classList.remove('hidden');
+    }
+
+    function cerrarModalConfirmarEliminar() {
+      idVerificacionAEliminar = null;
+      document.getElementById('modal-confirmar-eliminar').classList.add('hidden');
+    }
+
+    async function confirmarEliminarVerificacion() {
+      const id = idVerificacionAEliminar;
+      if (!id) return;
+
+      const { data: filasBorradas, error } = await supabaseClient
+        .from('verificaciones_extintores')
+        .delete()
+        .eq('id', id)
+        .select();
+
+      cerrarModalConfirmarEliminar();
+
+      if (error) {
+        alert('Error al eliminar la verificación: ' + error.message);
+        console.error(error.message);
+        return;
+      }
+
+      if (!filasBorradas || filasBorradas.length === 0) {
+        alert('No se pudo eliminar el registro. Es posible que falte una política de permisos (RLS) en Supabase para borrar en la tabla verificaciones_extintores.');
+        return;
+      }
+
+      delete historialCache[id];
+      await cargarHistorialVerificaciones();
     }
 
     async function cargarCumplimientoMensual() {
@@ -1672,7 +1749,7 @@
       });
   </script>
 
-  <div id="footer-componente"></div>
+  
 
 </body>
 </html>

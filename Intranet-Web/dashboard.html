@@ -241,18 +241,18 @@
         </h3>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <a href="politicas.html" class="group relative p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl transition-all cursor-pointer">
+        <a id="card-politicas" href="politicas.html" class="group relative p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl transition-all cursor-pointer">
           <i class="fas fa-shield-halved text-[#e31e24] text-4xl mb-6"></i>
           <h4 class="text-lg font-bold text-slate-800 mb-2">Políticas Corporativas</h4>
           <p class="text-slate-500 text-sm leading-relaxed">Consulta y descarga las políticas de la empresa.</p>
         </a>
-        <a href="formatos.html"
+        <a id="card-formatos" href="formatos.html"
           class="group relative p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl transition-all cursor-pointer">
           <i class="fas fa-clipboard-list text-[#e31e24] text-4xl mb-6"></i>
           <h4 class="text-lg font-bold text-slate-800 mb-2">Formatos de Campo</h4>
           <p class="text-slate-500 text-sm leading-relaxed">Descarga formatos oficiales de reporte.</p>
         </a>
-        <a href="directorio.html"
+        <a id="card-directorio" href="directorio.html"
           class="group relative p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl transition-all cursor-pointer">
           <i class="fas fa-users-gear text-[#e31e24] text-4xl mb-6"></i>
           <h4 class="text-lg font-bold text-slate-800 mb-2">Directorio Interno</h4>
@@ -972,6 +972,22 @@
           document.getElementById('card-safety-alerts')?.classList.remove('hidden');
           document.getElementById('card-coc')?.classList.remove('hidden');
           document.getElementById('card-extintores')?.classList.remove('hidden');
+
+          // ── Reordenar tarjetas: prioridad QHSE arriba ──
+          const ordenQHSE = {
+            'card-safety-alerts': 1,
+            'card-coc': 2,
+            'card-capacitacion': 3,
+            'card-extintores': 4,
+            'card-politicas': 5,
+            'card-formatos': 6,
+            'card-directorio': 7,
+            'card-accesos': 8
+          };
+          Object.entries(ordenQHSE).forEach(([id, orden]) => {
+            const el = document.getElementById(id);
+            if (el) el.style.order = orden;
+          });
         }
         // Si el rol NO está en la lista, la tarjeta permanece oculta (hidden por defecto)
       }
