@@ -580,7 +580,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nombre del Pozo / Plataforma *</label>
-                    <input id="f-pozo" type="text" placeholder="Ej. Quesqui-4" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    <input id="f-pozo" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1.5">Equipo de Perforación / Rig</label>
@@ -640,7 +640,13 @@
                 </div>
 
                 <!-- VENTANA DE BOMBEO Y KPIs — debajo de la bitácora -->
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5 mt-7">Ventana de Bombeo de Cemento</p>
+                <div class="flex items-center justify-between mb-5 mt-7">
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Ventana de Bombeo</p>
+                    <label class="flex items-center gap-2 cursor-pointer select-none">
+                        <input type="checkbox" id="f-bombeo-na" class="w-4 h-4 accent-slate-400" onchange="toggleVentanaBombeo(this.checked)">
+                        <span class="text-xs font-semibold text-slate-400">No aplica</span>
+                    </label>
+                </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1.5">Inicio del Bombeo</label>
@@ -673,6 +679,16 @@
                 <div class="flex items-center justify-between mb-4">
                     <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Catálogo de Herramientas</p>
                     <input id="buscador-catalogo" type="text" placeholder="Buscar herramienta..." onkeyup="filtrarCatalogo()" class="px-3 py-1.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200 w-52">
+                </div>
+                <div class="flex items-center gap-2 mb-4">
+                    <button id="btn-tab-cementing" onclick="cambiarCatalogo('cementing')"
+                        class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all bg-[#e31e24] text-white">
+                        Cementing
+                    </button>
+                    <button id="btn-tab-cased-hole" onclick="cambiarCatalogo('cased_hole')"
+                        class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-500 hover:bg-slate-200">
+                        Cased Hole Completions
+                    </button>
                 </div>
                 <div class="overflow-x-auto rounded-xl border border-slate-200 mb-6" style="max-height:280px; overflow-y:auto;">
                     <table class="w-full text-xs">
@@ -725,7 +741,7 @@
             <div id="paso-3" class="hidden h-full overflow-y-auto">
 
                 <div class="flex items-center justify-between mb-5">
-                    <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Datos Técnicos</p>
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-400">INFORMACIÓN DE INGENIERIA - TÉCNICA</p>
                     <label class="flex items-center gap-2 cursor-pointer select-none">
                         <input type="checkbox" id="f-datos-tecnicos-na" class="w-4 h-4 accent-slate-400" onchange="toggleDatosTecnicos(this.checked)">
                         <span class="text-xs font-semibold text-slate-400">No aplica</span>
@@ -733,29 +749,12 @@
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-7">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Presión Diferencial / Válvula / Tapón (PSI)</label>
-                        <input id="f-presion" type="number" placeholder="Ej. 2800" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Línea de Producto</label>
+                        <input id="f-linea-producto" type="text" placeholder="Ej. Cementing, Packers, GasLift etc" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Temperatura de Trabajo (°C)</label>
-                        <input id="f-temperatura" type="number" step="0.1" placeholder="Ej. 180" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Prueba de Retención de Válvula</label>
-                        <select id="f-valvula" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200 text-slate-700">
-                            <option value="">Sin registrar</option>
-                            <option>Exitosa</option>
-                            <option>Fallida</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Presión de Corte (PSI)</label>
-                        <input id="f-presion-corte" type="number" placeholder="Ej. 1500" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
-                    </div>
-
-                    <div class="sm:col-span-2">
                         <div class="flex items-center justify-between mb-1.5">
-                            <label class="block text-xs font-semibold text-slate-500">Modelo de la Herramienta</label>
+                            <label class="block text-xs font-semibold text-slate-500">Modelo-Nombre del Equipo</label>
                             <label class="flex items-center gap-2 cursor-pointer select-none">
                                 <input type="checkbox" id="f-modelo-herramienta-na" class="w-4 h-4 accent-slate-400" onchange="toggleModeloHerramienta(this.checked)">
                                 <span class="text-xs font-semibold text-slate-400">No aplica</span>
@@ -765,132 +764,241 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Pines de Corte Pistón</label>
-                        <input id="f-pines-piston" type="number" placeholder="Ej. 4" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Grado de Acero-Material</label>
+                        <input id="f-grado-acero" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Pines de Corte Asiento</label>
-                        <input id="f-pines-asiento" type="number" placeholder="Ej. 4" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Temperatura de Trabajo (°C)</label>
+                        <input id="f-temperatura" type="number" step="0.1" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Niple Asiento "Tipo"</label>
-                        <input id="f-niple-asiento" type="text" placeholder="Ej. Tipo A" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Tipo de Mandril SMPO</label>
-                        <input id="f-mandril-smpo" type="text" placeholder="Ej. SMPO-3" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
-                    </div>
-                </div>
 
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5">Notas y Archivos Adjuntos</p>
-                <div class="mb-5">
-                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Notas Operativas</label>
-                    <textarea id="f-notas" rows="4" placeholder="Observaciones relevantes de la operación..." class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200 resize-none"></textarea>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Casing Size</label>
+                        <input id="f-casing-size" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Tamaño, Libraje y Conexión (P-B)</label>
+                        <input id="f-tamano-libraje-conexion" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">OD Máximo</label>
+                        <input id="f-od-maximo" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Material del Elastómero</label>
+                        <input id="f-material-elastomero" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Mínima Área de Flujo</label>
+                        <input id="f-area-flujo-min" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">ID Mínimo</label>
+                        <input id="f-id-minimo" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Seal Bore</label>
+                        <input id="f-seal-bore" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Máximo Rating Presión (Psi)</label>
+                        <input id="f-rating-presion-max" type="number" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Presión de Corte Pin (1st) - Total Shear Value</label>
+                        <input id="f-presion-corte-pin1" type="number" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Presión de Estallido (Psi)</label>
+                        <input id="f-presion-estallido" type="number" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Área de Pistón (Pulg/2)</label>
+                        <input id="f-area-piston" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Presión de Corte Pines (2st) - Total Shear Value</label>
+                        <input id="f-presion-corte-pin2" type="number"  class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Landing Profile</label>
+                        <input id="f-landing-profile" type="text" placeholder="Ej. Perfil de Niple de asiento, perfil de aterrizaje de tapones, Válvula de tormenta etc..." class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Presión de Activación</label>
+                        <input id="f-presion-activacion" type="number" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Presión de Apertura TRSV (Psi)</label>
+                        <input id="f-presion-apertura-trsv" type="number" placeholder="Nota: Únicamente para válvulas de tormenta" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">OD Esfera (Ball)</label>
+                        <input id="f-od-esfera" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Material del Flapper/Plunger</label>
+                        <input id="f-material-flapper" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Presión de Cierre TRSV (Psi)</label>
+                        <input id="f-presion-cierre-trsv" type="number" placeholder="Nota: Únicamente para válvulas de tormenta" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Presión de Trabajo Contra-Flujo Flapper/Plunger (Psi)</label>
+                        <input id="f-presion-contraflujo" type="number" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Cantidad de Plungers o Flappers</label>
+                        <input id="f-cantidad-plungers" type="number" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Cantidad de Cortadores PDC/Tungsteno (Drill Bit/Reamer)</label>
+                        <input id="f-cortadores-pdc" type="number" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nose/Crown Material (Drill Bit)</label>
+                        <input id="f-nose-crown-material" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+
+                    <div class="sm:col-start-2">
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Cantidad de Aletas (Drill Bit/Reamer)</label>
+                        <input id="f-cantidad-aletas" type="number" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
                 </div>
             </div><!-- /paso-3 -->
 
             <!-- ══ PASO 4 ══ -->
             <div id="paso-4" class="hidden h-full overflow-y-auto">
 
-                <!-- Información de Pozo -->
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5">Información de Pozo</p>
+                <!-- Información General -->
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5">Información General</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-7">
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nombre del Pozo</label>
-                        <input id="f-dp-nombre-pozo" type="text" placeholder="Ej. Pozo-123" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                        <input id="f-dp-nombre-pozo" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Pera</label>
-                        <input id="f-dp-pera" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nombre del Campo</label>
+                        <input id="f-dp-nombre-campo" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Representante del Cliente</label>
+                        <input id="f-dp-rep-cliente" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Representante IHS</label>
+                        <input id="f-dp-rep-ihs" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Cía. Operadora</label>
+                        <input id="f-dp-cia-operadora" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Número de Equipo (Rig)</label>
+                        <input id="f-dp-equipo" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Ubicación Geográfica</label>
+                        <input id="f-dp-ubicacion-geografica" type="text" placeholder="Ej. Costa Afuera, Tierra" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Fluido de Producción</label>
+                        <input id="f-dp-fluido-produccion" type="text" placeholder="Ej. Aceite pesado, Ligero, Gas, Vapor, Gas con Petróleo" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Estado</label>
+                        <input id="f-dp-estado" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Municipio</label>
+                        <input id="f-dp-municipio" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 mb-1.5">Localidad</label>
-                        <input id="f-dp-localidad" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                        <input id="f-dp-localidad" type="text" placeholder="Ej. Ejido o ranchería, comunidad, Poblado" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Equipo</label>
-                        <input id="f-dp-equipo" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Distrito</label>
+                        <input id="f-dp-distrito" type="text" placeholder="Ej. Villahermosa, Ciudad Del Carmen, Veracruz, Reynosa" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
-                    <div class="sm:col-span-2">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Tipo de Campo</label>
+                        <input id="f-dp-tipo-campo" type="text" placeholder="Ej. Exploratorio, Desarrollo, Producción, Abandono" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
                         <label class="block text-xs font-semibold text-slate-500 mb-1.5">Tipo de Intervención</label>
-                        <input id="f-dp-tipo-intervencion" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                        <input id="f-dp-tipo-intervencion" type="text" placeholder="Ej. Perforación, Reparación Mayor, Reparación Menor" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                 </div>
 
-                <!-- Características de Pozo -->
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5">Características de Pozo</p>
+                <!-- Datos Técnicos del Pozo -->
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5">Datos Técnicos del Pozo</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-7">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">TD (metros)</label>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Perforación Desarrollada (TD mts)</label>
                         <input id="f-dp-td" type="number" step="0.01" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">TVD (metros)</label>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Perforación Vertical Desarrollada (TVD mts)</label>
                         <input id="f-dp-tvd" type="number" step="0.01" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Tipo de Pozo (Direccional)</label>
-                        <input id="f-dp-tipo-direccional" type="text" placeholder="Ej. Vertical, J, S, Horizontal" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Tipo de Pozo</label>
+                        <input id="f-dp-tipo-pozo" type="text" placeholder="Ej. J, S, Vertical" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 mb-1.5">Ángulo Máximo (°)</label>
                         <input id="f-dp-angulo-maximo" type="number" step="0.01" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Máxima Temperatura (superficie)</label>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Última BL (TOL)</label>
+                        <input id="f-dp-ultima-bl" type="number" step="0.01" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Profundidad Zona de Interés (Mts)</label>
+                        <input id="f-dp-profundidad-zona-interes" type="number" step="0.01" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Temperatura de Fondo</label>
+                        <input id="f-dp-temp-fondo" type="number" step="0.1" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Temperatura en Superficie</label>
                         <input id="f-dp-temp-superficie" type="number" step="0.1" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Máxima Temperatura (fondo)</label>
-                        <input id="f-dp-temp-fondo" type="number" step="0.1" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Tipo de Fluido de Control</label>
+                        <input id="f-dp-tipo-fluido-control" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Densidad del Fluido de Control</label>
+                        <input id="f-dp-densidad-fluido-control" type="number" step="0.01" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div class="sm:col-span-2">
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Pozo con o sin Nivel</label>
-                        <input id="f-dp-con-sin-nivel" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Pérdida de Circulación (Mts)</label>
+                        <input id="f-dp-perdida-circulacion" type="number" step="0.01" placeholder="Ej. Nivel del Fluido del pozo" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                 </div>
 
-                <!-- Características del Equipo -->
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5">Características del Equipo</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-7">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Máximo Peso del Mástil (Toneladas)</label>
-                        <input id="f-dp-peso-mastil" type="number" step="0.01" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Máximo Peso de Top Drive</label>
-                        <input id="f-dp-peso-top-drive" type="number" step="0.01" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
-                    </div>
+                <!-- Profundidad de Instalación de Herramientas -->
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5">Profundidad de Instalación de Herramientas</p>
+                <div id="dp-herramientas-container" class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-3">
+                    <!-- Las filas de herramientas se generan aquí por JavaScript -->
                 </div>
-
-                <!-- Accesorios de Flotación -->
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5">Accesorios</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-7">
-                    <div class="sm:col-span-2">
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Diámetro, Libraje y Grado de Material de T.R.</label>
-                        <input id="f-dp-diametro-libraje-grado" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Profundidad de Asentamiento</label>
-                        <input id="f-dp-profundidad-asentamiento" type="number" step="0.01" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Tipo de Fluido de Perforación</label>
-                        <input id="f-dp-tipo-fluido" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Peso de Fluido de Perforación</label>
-                        <input id="f-dp-peso-fluido" type="number" step="0.01" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Máximo Peso Permitido a Zapata (Klbs)</label>
-                        <input id="f-dp-peso-max-zapata" type="number" step="0.01" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Ángulo en Punto de Asentamiento de la Zapata</label>
-                        <input id="f-dp-angulo-asentamiento-zapata" type="number" step="0.01" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
-                    </div>
-                </div>
+                <button type="button" onclick="agregarHerramientaPozo()" class="mb-7 inline-flex items-center gap-2 text-sm font-semibold text-red-600 hover:text-red-700 transition-colors">
+                    <i class="fas fa-plus-circle"></i> Agregar Herramienta
+                </button>
 
             </div><!-- /paso-4 -->
 
@@ -1422,105 +1530,180 @@
                 </p>
                 <div class="grid grid-cols-3 gap-4 text-sm">
                 <div class="flex justify-between">
-                    <span class="text-slate-500">Presión Diferencial/Válvula/Tapón</span>
-                    <span id="rep-presion" class="text-white font-semibold">—</span>
+                    <span class="text-slate-500">Línea de Producto</span>
+                    <span id="rep-linea-producto" class="text-white font-semibold">—</span>
                 </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Modelo-Nombre del Equipo</span>
+                    <span id="rep-modelo" class="text-white font-semibold">—</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Grado de Acero-Material</span>
+                    <span id="rep-grado-acero" class="text-white font-semibold">—</span>
+                </div>
+
                 <div class="flex justify-between">
                     <span class="text-slate-500">Temperatura de Trabajo</span>
                     <span id="rep-temperatura" class="text-white font-semibold">—</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="text-slate-500">Prueba de válvula</span>
-                    <span id="rep-valvula" class="text-green-400 font-semibold">—</span>
+                    <span class="text-slate-500">Casing Size</span>
+                    <span id="rep-casing-size" class="text-white font-semibold">—</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="text-slate-500">Presión de Corte</span>
-                    <span id="rep-presion-corte" class="text-white font-semibold">—</span>
+                    <span class="text-slate-500">Tamaño, Libraje y Conexión</span>
+                    <span id="rep-tamano-libraje-conexion" class="text-white font-semibold">—</span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span class="text-slate-500">OD Máximo</span>
+                    <span id="rep-od-maximo" class="text-white font-semibold">—</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="text-slate-500">Modelo de Herramienta</span>
-                    <span id="rep-modelo" class="text-white font-semibold">—</span>
+                    <span class="text-slate-500">Material del Elastómero</span>
+                    <span id="rep-material-elastomero" class="text-white font-semibold">—</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="text-slate-500">Pines Corte Pistón</span>
-                    <span id="rep-pines-piston" class="text-white font-semibold">—</span>
+                    <span class="text-slate-500">Mínima Área de Flujo</span>
+                    <span id="rep-area-flujo-min" class="text-white font-semibold">—</span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span class="text-slate-500">ID Mínimo</span>
+                    <span id="rep-id-minimo" class="text-white font-semibold">—</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="text-slate-500">Pines Corte Asiento</span>
-                    <span id="rep-pines-asiento" class="text-white font-semibold">—</span>
+                    <span class="text-slate-500">Seal Bore</span>
+                    <span id="rep-seal-bore" class="text-white font-semibold">—</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="text-slate-500">Niple Asiento "Tipo"</span>
-                    <span id="rep-niple-asiento" class="text-white font-semibold">—</span>
+                    <span class="text-slate-500">Máximo Rating Presión</span>
+                    <span id="rep-rating-presion-max" class="text-white font-semibold">—</span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Presión de Corte Pin (1st)</span>
+                    <span id="rep-presion-corte-pin1" class="text-white font-semibold">—</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="text-slate-500">Tipo de Mandril SMPO</span>
-                    <span id="rep-mandril-smpo" class="text-white font-semibold">—</span>
+                    <span class="text-slate-500">Presión de Estallido</span>
+                    <span id="rep-presion-estallido" class="text-white font-semibold">—</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Área de Pistón</span>
+                    <span id="rep-area-piston" class="text-white font-semibold">—</span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Presión de Corte Pines (2st)</span>
+                    <span id="rep-presion-corte-pin2" class="text-white font-semibold">—</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Landing Profile</span>
+                    <span id="rep-landing-profile" class="text-white font-semibold">—</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Presión de Activación</span>
+                    <span id="rep-presion-activacion" class="text-white font-semibold">—</span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Presión de Apertura TRSV</span>
+                    <span id="rep-presion-apertura-trsv" class="text-white font-semibold">—</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">OD Esfera (Ball)</span>
+                    <span id="rep-od-esfera" class="text-white font-semibold">—</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Material del Flapper/Plunger</span>
+                    <span id="rep-material-flapper" class="text-white font-semibold">—</span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Presión de Cierre TRSV</span>
+                    <span id="rep-presion-cierre-trsv" class="text-white font-semibold">—</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Presión Contra-Flujo Flapper/Plunger</span>
+                    <span id="rep-presion-contraflujo" class="text-white font-semibold">—</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Cantidad de Plungers o Flappers</span>
+                    <span id="rep-cantidad-plungers" class="text-white font-semibold">—</span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Cortadores PDC/Tungsteno</span>
+                    <span id="rep-cortadores-pdc" class="text-white font-semibold">—</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Nose/Crown Material</span>
+                    <span id="rep-nose-crown-material" class="text-white font-semibold">—</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Cantidad de Aletas</span>
+                    <span id="rep-cantidad-aletas" class="text-white font-semibold">—</span>
                 </div>
                 </div>
             </div>
             </div>
 
-            <!-- Información de Pozo -->
+            <!-- Información General -->
             <div class="px-6 pb-5">
             <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
-                <i class="fas fa-mountain mr-2"></i>Información de Pozo
+                <i class="fas fa-mountain mr-2"></i>Información General
                 </p>
                 <div class="grid grid-cols-3 gap-4 text-sm">
                 <div class="flex justify-between"><span class="text-slate-500">Nombre del Pozo</span><span id="rep-dp-nombre-pozo" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Pera</span><span id="rep-dp-pera" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Nombre del Campo</span><span id="rep-dp-nombre-campo" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Representante del Cliente</span><span id="rep-dp-rep-cliente" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Representante IHS</span><span id="rep-dp-rep-ihs" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Cía. Operadora</span><span id="rep-dp-cia-operadora" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Número de Equipo (Rig)</span><span id="rep-dp-equipo" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Ubicación Geográfica</span><span id="rep-dp-ubicacion-geografica" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Fluido de Producción</span><span id="rep-dp-fluido-produccion" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Estado</span><span id="rep-dp-estado" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Municipio</span><span id="rep-dp-municipio" class="text-white font-semibold">—</span></div>
                 <div class="flex justify-between"><span class="text-slate-500">Localidad</span><span id="rep-dp-localidad" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Equipo</span><span id="rep-dp-equipo" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Distrito</span><span id="rep-dp-distrito" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Tipo de Campo</span><span id="rep-dp-tipo-campo" class="text-white font-semibold">—</span></div>
                 <div class="flex justify-between"><span class="text-slate-500">Tipo de Intervención</span><span id="rep-dp-tipo-intervencion" class="text-white font-semibold">—</span></div>
                 </div>
             </div>
             </div>
 
-            <!-- Características de Pozo -->
+            <!-- Datos Técnicos del Pozo -->
             <div class="px-6 pb-5">
             <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
-                <i class="fas fa-mountain mr-2"></i>Características de Pozo
+                <i class="fas fa-mountain mr-2"></i>Datos Técnicos del Pozo
                 </p>
                 <div class="grid grid-cols-3 gap-4 text-sm">
-                <div class="flex justify-between"><span class="text-slate-500">TD (metros)</span><span id="rep-dp-td" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">TVD (metros)</span><span id="rep-dp-tvd" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Tipo de Pozo (Direccional)</span><span id="rep-dp-tipo-direccional" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">TD</span><span id="rep-dp-td" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">TVD</span><span id="rep-dp-tvd" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Tipo de Pozo</span><span id="rep-dp-tipo-pozo" class="text-white font-semibold">—</span></div>
                 <div class="flex justify-between"><span class="text-slate-500">Ángulo Máximo (°)</span><span id="rep-dp-angulo-maximo" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Máx. Temp. (superficie)</span><span id="rep-dp-temp-superficie" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Máx. Temp. (fondo)</span><span id="rep-dp-temp-fondo" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Pozo con o sin Nivel</span><span id="rep-dp-con-sin-nivel" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Última BL (TOL)</span><span id="rep-dp-ultima-bl" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Prof. Zona de Interés</span><span id="rep-dp-profundidad-zona-interes" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Temp. de Fondo</span><span id="rep-dp-temp-fondo" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Temp. en Superficie</span><span id="rep-dp-temp-superficie" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Tipo de Fluido de Control</span><span id="rep-dp-tipo-fluido-control" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Densidad Fluido de Control</span><span id="rep-dp-densidad-fluido-control" class="text-white font-semibold">—</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Pérdida de Circulación</span><span id="rep-dp-perdida-circulacion" class="text-white font-semibold">—</span></div>
                 </div>
             </div>
             </div>
 
-            <!-- Características del Equipo -->
+            <!-- Profundidad de Instalación de Herramientas -->
             <div class="px-6 pb-5">
             <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
-                <i class="fas fa-mountain mr-2"></i>Características del Equipo
+                <i class="fas fa-mountain mr-2"></i>Profundidad de Instalación de Herramientas
                 </p>
-                <div class="grid grid-cols-3 gap-4 text-sm">
-                <div class="flex justify-between"><span class="text-slate-500">Máx. Peso del Mástil (Ton)</span><span id="rep-dp-peso-mastil" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Máx. Peso de Top Drive</span><span id="rep-dp-peso-top-drive" class="text-white font-semibold">—</span></div>
-                </div>
-            </div>
-            </div>
-
-            <!-- Accesorios de Flotación -->
-            <div class="px-6 pb-5">
-            <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
-                <i class="fas fa-mountain mr-2"></i>Accesorios de Flotación
-                </p>
-                <div class="grid grid-cols-3 gap-4 text-sm">
-                <div class="flex justify-between"><span class="text-slate-500">Diám./Libraje/Grado T.R.</span><span id="rep-dp-diametro-libraje-grado" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Profundidad de Asentamiento</span><span id="rep-dp-profundidad-asentamiento" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Tipo de Fluido de Perforación</span><span id="rep-dp-tipo-fluido" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Peso de Fluido de Perforación</span><span id="rep-dp-peso-fluido" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Máx. Peso Permitido a Zapata</span><span id="rep-dp-peso-max-zapata" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Ángulo Asentamiento Zapata</span><span id="rep-dp-angulo-asentamiento-zapata" class="text-white font-semibold">—</span></div>
+                <div id="rep-dp-herramientas" class="grid grid-cols-3 gap-4 text-sm">
+                <!-- Se llena dinámicamente por JS -->
                 </div>
             </div>
             </div>
@@ -1606,16 +1789,6 @@
                         </tr>
                     </tbody>
                 </table>
-            </div>
-            </div>
-
-            <!-- Notas y PDF -->
-            <div class="px-6 pb-5" id="rep-bloque-notas">
-            <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
-                <i class="fas fa-note-sticky mr-2"></i>Notas Operativas
-                </p>
-                <p id="rep-notas" class="text-sm text-slate-300 leading-relaxed">—</p>
             </div>
             </div>
 
@@ -1752,6 +1925,33 @@
                 </button>
                 <button onclick="cerrarPanelConfirmarFinalizar(); guardarOperacion(true);" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-5 py-2 rounded-xl transition-all">
                     Finalizar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANEL CONFIRMAR CAMBIO DE CATÁLOGO -->
+    <div id="panel-confirmar-cambio-catalogo" class="hidden fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div class="flex items-center gap-3 px-6 py-5">
+                <div class="bg-amber-50 rounded-xl p-2">
+                    <i class="fas fa-triangle-exclamation text-amber-600 text-sm"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-slate-700">Cambiar catálogo</p>
+                    <p class="text-xs text-slate-400 mt-0.5">Se perderá tu selección actual</p>
+                </div>
+            </div>
+            <div class="px-6 pb-5">
+                <p id="texto-confirmar-cambio-catalogo" class="text-sm text-slate-600 leading-relaxed">
+                </p>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
+                <button onclick="cerrarPanelConfirmarCambioCatalogo()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-semibold px-5 py-2 rounded-xl transition-all">
+                    Cancelar
+                </button>
+                <button onclick="confirmarCambioCatalogo()" class="bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-5 py-2 rounded-xl transition-all">
+                    Continuar
                 </button>
             </div>
         </div>
@@ -2475,7 +2675,6 @@
         limpiarFormulario();
         renderEvaluacionCalidad();
         irPaso(1);
-        cargarCatalogo();
         renderizarSeleccionadas();
 
         if (id) {
@@ -2486,17 +2685,22 @@
             }
             document.getElementById('form-titulo').textContent = 'Editar Operación';
             // Traer datos frescos desde Supabase
+            let op = opLocal;
             try {
                 const resFresh = await fetch(
                     `${SUPABASE_URL}/rest/v1/cementing_operaciones?id=eq.${id}&select=*`,
                     { headers }
                 );
                 const dataFresh = await resFresh.json();
-                const op = dataFresh[0] || opLocal;
+                op = dataFresh[0] || opLocal;
                 if (op) cargarDatosEnFormulario(op);
             } catch(e) {
                 if (opLocal) cargarDatosEnFormulario(opLocal);
             }
+
+            // El catálogo se ajusta a la línea de producto de ESTA operación
+            sincronizarCatalogoConLinea(op?.linea_producto);
+
             await cargarHerramientasEnFormulario(id);
             await cargarBitacoraEnFormulario(id);
         } else {
@@ -2508,6 +2712,9 @@
                     campoIngeniero.value = perfilNombre;
                 }
             }
+
+            // El catálogo se ajusta a la línea de producto que se eligió en el modal
+            sincronizarCatalogoConLinea(lineaProductoSeleccionada);
         }
 
         const panel = document.getElementById('panel-formulario');
@@ -2523,9 +2730,13 @@
 
     function toggleDatosTecnicos(bloqueado) {
         const ids = [
-            'f-presion', 'f-valvula', 'f-presion-corte', 'f-notas',
-            'f-temperatura', 'f-pines-piston', 'f-pines-asiento',
-            'f-niple-asiento', 'f-mandril-smpo'
+            'f-linea-producto', 'f-grado-acero', 'f-casing-size', 'f-tamano-libraje-conexion',
+            'f-od-maximo', 'f-material-elastomero', 'f-area-flujo-min', 'f-id-minimo',
+            'f-seal-bore', 'f-rating-presion-max', 'f-presion-corte-pin1', 'f-presion-estallido',
+            'f-area-piston', 'f-presion-corte-pin2', 'f-landing-profile', 'f-presion-activacion',
+            'f-presion-apertura-trsv', 'f-od-esfera', 'f-material-flapper', 'f-presion-cierre-trsv',
+            'f-presion-contraflujo', 'f-cantidad-plungers', 'f-cortadores-pdc', 'f-nose-crown-material',
+            'f-cantidad-aletas', 'f-temperatura'
         ];
         ids.forEach(id => {
             const el = document.getElementById(id);
@@ -2561,11 +2772,7 @@
 
     function toggleModeloHerramienta(bloqueado) {
         const campos = [
-            'f-modelo-herramienta',
-            'f-pines-piston',
-            'f-pines-asiento',
-            'f-niple-asiento',
-            'f-mandril-smpo'
+            'f-modelo-herramienta'
         ];
 
         campos.forEach(id => {
@@ -2579,6 +2786,28 @@
                 el.classList.remove('bg-slate-50', 'text-slate-300', 'cursor-not-allowed');
             }
         });
+    }
+
+    function toggleVentanaBombeo(bloqueado) {
+        const campos = ['f-inicio-bombeo', 'f-fin-bombeo'];
+
+        campos.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.disabled = bloqueado;
+            if (bloqueado) {
+                el.value = '';
+                el.classList.add('bg-slate-50', 'text-slate-300', 'cursor-not-allowed');
+            } else {
+                el.classList.remove('bg-slate-50', 'text-slate-300', 'cursor-not-allowed');
+            }
+        });
+
+        if (bloqueado) {
+            document.getElementById('calc-bombeo').textContent = 'No aplica';
+        } else {
+            calcularTiempos();
+        }
     }
 
     // ── NAVEGACIÓN ENTRE PASOS ──
@@ -2794,14 +3023,143 @@
     // ── INVENTARIO DE HERRAMIENTAS ──
     let catalogoHerramientas = [];
     let herramientasSeleccionadas = [];
+    let catalogoTablaActiva = 'cementing'; // 'cementing' o 'cased_hole'
+
+    // ── HERRAMIENTAS DE POZO (dinámicas, paso 4) ──
+    let herramientasPozo = [''];   // arranca con 1 campo vacío
+
+    function renderHerramientasPozo() {
+        const cont = document.getElementById('dp-herramientas-container');
+        if (!cont) return;
+        cont.innerHTML = herramientasPozo.map((valor, i) => `
+            <div class="relative">
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Herramienta ${i + 1}</label>
+                <input type="text"
+                    data-index="${i}"
+                    value="${(valor || '').replace(/"/g, '&quot;')}"
+                    oninput="actualizarHerramientaPozo(${i}, this.value)"
+                    placeholder="Ej. Mandril SPMO, Packer, Cople Flotador, Zapata, Niple de asiento @ 1000 mts"
+                    class="w-full px-4 py-2.5 pr-10 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                ${herramientasPozo.length > 1 ? `
+                <button type="button" onclick="eliminarHerramientaPozo(${i})"
+                    class="absolute right-3 top-[34px] text-slate-400 hover:text-red-600 transition-colors"
+                    title="Quitar herramienta">
+                    <i class="fas fa-times-circle"></i>
+                </button>` : ''}
+            </div>
+        `).join('');
+    }
+
+    function agregarHerramientaPozo() {
+        herramientasPozo.push('');
+        renderHerramientasPozo();
+        // Foco automático al nuevo campo
+        const inputs = document.querySelectorAll('#dp-herramientas-container input');
+        if (inputs.length) inputs[inputs.length - 1].focus();
+    }
+
+    function eliminarHerramientaPozo(index) {
+        if (herramientasPozo.length <= 1) return; // siempre dejar al menos 1
+        herramientasPozo.splice(index, 1);
+        renderHerramientasPozo();
+    }
+
+    function actualizarHerramientaPozo(index, valor) {
+        herramientasPozo[index] = valor;
+    }
+
+    const TABLAS_CATALOGO = {
+        cementing:  'cementing_catalogo_herramientas',
+        cased_hole: 'cased_hole_catalogo_herramientas'
+    };
+
+    // Relaciona el valor guardado en "línea de producto" con la tabla de catálogo correspondiente
+    const LINEA_A_CATALOGO = {
+        'Cementing': 'cementing',
+        'Cased Hole Completions': 'cased_hole'
+        // 'Flow Control & Gas Lift' y 'Servicios' aún no tienen catálogo propio,
+        // por eso caen en "cementing" por defecto (ver función de abajo).
+    };
+
+    function pintarBotonesCatalogo(tipo, mostrarAmbas = true) {
+        const btnCem = document.getElementById('btn-tab-cementing');
+        const btnCH  = document.getElementById('btn-tab-cased-hole');
+        const activo   = 'px-4 py-1.5 rounded-xl text-xs font-bold transition-all bg-[#e31e24] text-white';
+        const inactivo = 'px-4 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-500 hover:bg-slate-200';
+        btnCem.className = (tipo === 'cementing')  ? activo : inactivo;
+        btnCH.className  = (tipo === 'cased_hole') ? activo : inactivo;
+
+        // Si la línea tiene catálogo propio (Cementing / Cased Hole), solo se ve ese botón.
+        // Si no tiene catálogo propio (Flow Control & Gas Lift, Servicios, etc.),
+        // se muestran ambos botones para poder elegir de cuál integrar herramientas.
+        if (mostrarAmbas) {
+            btnCem.classList.remove('hidden');
+            btnCH.classList.remove('hidden');
+        } else {
+            btnCem.classList.toggle('hidden', tipo !== 'cementing');
+            btnCH.classList.toggle('hidden', tipo !== 'cased_hole');
+        }
+    }
+
+    function sincronizarCatalogoConLinea(linea) {
+        const tipo = LINEA_A_CATALOGO[linea] || 'cementing';
+        const tieneCatalogoPropio = LINEA_A_CATALOGO.hasOwnProperty(linea);
+        catalogoTablaActiva = tipo;
+        pintarBotonesCatalogo(tipo, !tieneCatalogoPropio);
+        cargarCatalogo();
+    }
 
     async function cargarCatalogo() {
         try {
-            const res = await fetch(`${SUPABASE_URL}/rest/v1/cementing_catalogo_herramientas?order=numero.asc`, { headers });
+            const tabla = TABLAS_CATALOGO[catalogoTablaActiva];
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/${tabla}?order=numero.asc`, { headers });
             catalogoHerramientas = await res.json();
             renderizarCatalogo(catalogoHerramientas);
         } catch(e) {
             console.error('Error cargando catálogo:', e);
+        }
+    }
+
+    let tipoCatalogoPendiente = null;
+
+    function cambiarCatalogo(tipo) {
+        if (catalogoTablaActiva === tipo) return;
+
+        if (herramientasSeleccionadas.length > 0) {
+            tipoCatalogoPendiente = tipo;
+            document.getElementById('texto-confirmar-cambio-catalogo').textContent =
+                `Tienes ${herramientasSeleccionadas.length} herramienta(s) seleccionada(s). ` +
+                `Si cambias de catálogo se perderá esa selección. ¿Deseas continuar?`;
+            document.getElementById('panel-confirmar-cambio-catalogo').classList.remove('hidden');
+            return;
+        }
+
+        aplicarCambioCatalogo(tipo);
+    }
+
+    function aplicarCambioCatalogo(tipo) {
+        catalogoTablaActiva = tipo;
+
+        // Limpia la selección actual (los ids no son comparables entre tablas distintas)
+        herramientasSeleccionadas = [];
+        renderizarSeleccionadas();
+
+        pintarBotonesCatalogo(tipo);
+
+        document.getElementById('buscador-catalogo').value = '';
+        cargarCatalogo();
+    }
+
+    function cerrarPanelConfirmarCambioCatalogo() {
+        document.getElementById('panel-confirmar-cambio-catalogo').classList.add('hidden');
+        tipoCatalogoPendiente = null;
+    }
+
+    function confirmarCambioCatalogo() {
+        document.getElementById('panel-confirmar-cambio-catalogo').classList.add('hidden');
+        if (tipoCatalogoPendiente) {
+            aplicarCambioCatalogo(tipoCatalogoPendiente);
+            tipoCatalogoPendiente = null;
         }
     }
 
@@ -2814,7 +3172,7 @@
             return;
         }
         lista.forEach(h => {
-            const yaSeleccionada = herramientasSeleccionadas.some(s => s.catalogoId === h.id);
+            const yaSeleccionada = herramientasSeleccionadas.some(s => s.catalogoId === h.id && s.catalogoOrigen === catalogoTablaActiva);
             const tr = document.createElement('tr');
             tr.className = 'border-t border-slate-100';
             tr.id = `cat-row-${h.id}`;
@@ -2844,8 +3202,8 @@
 
     function seleccionarHerramienta(catalogoId) {
         const h = catalogoHerramientas.find(x => x.id === catalogoId);
-        if (!h || herramientasSeleccionadas.some(s => s.catalogoId === catalogoId)) return;
-        herramientasSeleccionadas.push({ catalogoId: h.id, np: h.np, descripcion: h.descripcion, estadoFinal: 'Instalado en Pozo' });
+        if (!h || herramientasSeleccionadas.some(s => s.catalogoId === catalogoId && s.catalogoOrigen === catalogoTablaActiva)) return;
+        herramientasSeleccionadas.push({ catalogoId: h.id, catalogoOrigen: catalogoTablaActiva, np: h.np, descripcion: h.descripcion, estadoFinal: 'Instalado en Pozo' });
         renderizarSeleccionadas();
         const btn = document.getElementById(`btn-sel-${catalogoId}`);
         if (btn) {
@@ -2907,15 +3265,23 @@
     function limpiarFormulario() {
         const naCheck = document.getElementById('f-datos-tecnicos-na');
         if (naCheck) { naCheck.checked = false; toggleDatosTecnicos(false); }
+        const naBombeo = document.getElementById('f-bombeo-na');
+        if (naBombeo) { naBombeo.checked = false; toggleVentanaBombeo(false); }
 
         ['f-cliente','f-pozo','f-rig','f-ingeniero','f-llegada','f-salida',
-        'f-inicio-bombeo','f-fin-bombeo','f-presion','f-temperatura','f-valvula',
-        'f-presion-corte','f-modelo-herramienta','f-pines-piston','f-pines-asiento',
-        'f-niple-asiento','f-mandril-smpo','f-notas',
-        'f-dp-nombre-pozo','f-dp-pera','f-dp-localidad','f-dp-equipo','f-dp-tipo-intervencion',
-        'f-dp-td','f-dp-tvd','f-dp-tipo-direccional','f-dp-angulo-maximo','f-dp-temp-superficie','f-dp-temp-fondo','f-dp-con-sin-nivel',
-        'f-dp-peso-mastil','f-dp-peso-top-drive',
-        'f-dp-diametro-libraje-grado','f-dp-profundidad-asentamiento','f-dp-tipo-fluido','f-dp-peso-fluido','f-dp-peso-max-zapata','f-dp-angulo-asentamiento-zapata'].forEach(id => {
+        'f-inicio-bombeo','f-fin-bombeo','f-linea-producto','f-temperatura',
+        'f-modelo-herramienta','f-grado-acero','f-casing-size','f-tamano-libraje-conexion',
+        'f-od-maximo','f-material-elastomero','f-area-flujo-min','f-id-minimo',
+        'f-seal-bore','f-rating-presion-max','f-presion-corte-pin1','f-presion-estallido',
+        'f-area-piston','f-presion-corte-pin2','f-landing-profile','f-presion-activacion',
+        'f-presion-apertura-trsv','f-od-esfera','f-material-flapper','f-presion-cierre-trsv',
+        'f-presion-contraflujo','f-cantidad-plungers','f-cortadores-pdc','f-nose-crown-material',
+        'f-cantidad-aletas',
+        'f-dp-nombre-pozo','f-dp-nombre-campo','f-dp-rep-cliente','f-dp-rep-ihs','f-dp-cia-operadora','f-dp-equipo',
+        'f-dp-ubicacion-geografica','f-dp-fluido-produccion','f-dp-estado','f-dp-municipio','f-dp-localidad','f-dp-distrito',
+        'f-dp-tipo-campo','f-dp-tipo-intervencion',
+        'f-dp-td','f-dp-tvd','f-dp-tipo-pozo','f-dp-angulo-maximo','f-dp-ultima-bl','f-dp-profundidad-zona-interes',
+        'f-dp-temp-fondo','f-dp-temp-superficie','f-dp-tipo-fluido-control','f-dp-densidad-fluido-control','f-dp-perdida-circulacion'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.value = '';
         });
@@ -2923,6 +3289,8 @@
         document.getElementById('calc-estancia').textContent = '— días';
         herramientasSeleccionadas = [];
         renderizarSeleccionadas();
+        herramientasPozo = [''];
+        renderHerramientasPozo();
         // Limpiar bitácora
         document.getElementById('tabla-bitacora').innerHTML = '';
         document.getElementById('bloque-bitacora').classList.add('hidden');
@@ -2958,44 +3326,76 @@
         document.getElementById('f-salida').value   = op.fecha_salida?.slice(0,10) || '';
         document.getElementById('f-inicio-bombeo').value   = op.fecha_inicio_bombeo?.slice(0,16) || '';
         document.getElementById('f-fin-bombeo').value      = op.fecha_fin_bombeo?.slice(0,16) || '';
+        const naBombeo = document.getElementById('f-bombeo-na');
+        if (naBombeo) {
+            naBombeo.checked = op.bombeo_na || false;
+            toggleVentanaBombeo(op.bombeo_na || false);
+        }
         const naCheck = document.getElementById('f-datos-tecnicos-na');
         if (naCheck) {
             naCheck.checked = op.datos_tecnicos_na || false;
             toggleDatosTecnicos(op.datos_tecnicos_na || false);
         }
-        document.getElementById('f-presion').value         = op.presion_asentamiento || '';
         document.getElementById('f-temperatura').value     = op.temperatura_trabajo || '';
-        document.getElementById('f-valvula').value         = op.prueba_valvula || '';
-        document.getElementById('f-presion-corte').value   = op.presion_corte || '';
         document.getElementById('f-modelo-herramienta-na').checked = op.modelo_herramienta_na || false;
         document.getElementById('f-modelo-herramienta').value = op.modelo_herramienta || '';
-        document.getElementById('f-pines-piston').value    = op.pines_corte_piston || '';
-        document.getElementById('f-pines-asiento').value   = op.pines_corte_asiento || '';
-        document.getElementById('f-niple-asiento').value   = op.niple_asiento_tipo || '';
-        document.getElementById('f-mandril-smpo').value    = op.mandril_smpo || '';
+        document.getElementById('f-linea-producto').value        = op.linea_producto || '';
+        document.getElementById('f-grado-acero').value            = op.grado_acero_material || '';
+        document.getElementById('f-casing-size').value            = op.casing_size || '';
+        document.getElementById('f-tamano-libraje-conexion').value = op.tamano_libraje_conexion || '';
+        document.getElementById('f-od-maximo').value               = op.od_maximo || '';
+        document.getElementById('f-material-elastomero').value     = op.material_elastomero || '';
+        document.getElementById('f-area-flujo-min').value          = op.area_flujo_minima || '';
+        document.getElementById('f-id-minimo').value                = op.id_minimo || '';
+        document.getElementById('f-seal-bore').value                = op.seal_bore || '';
+        document.getElementById('f-rating-presion-max').value      = op.rating_presion_maximo || '';
+        document.getElementById('f-presion-corte-pin1').value      = op.presion_corte_pin1 || '';
+        document.getElementById('f-presion-estallido').value       = op.presion_estallido || '';
+        document.getElementById('f-area-piston').value              = op.area_piston || '';
+        document.getElementById('f-presion-corte-pin2').value      = op.presion_corte_pin2 || '';
+        document.getElementById('f-landing-profile').value         = op.landing_profile || '';
+        document.getElementById('f-presion-activacion').value      = op.presion_activacion || '';
+        document.getElementById('f-presion-apertura-trsv').value   = op.presion_apertura_trsv || '';
+        document.getElementById('f-od-esfera').value                = op.od_esfera || '';
+        document.getElementById('f-material-flapper').value        = op.material_flapper_plunger || '';
+        document.getElementById('f-presion-cierre-trsv').value     = op.presion_cierre_trsv || '';
+        document.getElementById('f-presion-contraflujo').value     = op.presion_contraflujo || '';
+        document.getElementById('f-cantidad-plungers').value       = op.cantidad_plungers_flappers || '';
+        document.getElementById('f-cortadores-pdc').value          = op.cortadores_pdc_tungsteno || '';
+        document.getElementById('f-nose-crown-material').value     = op.nose_crown_material || '';
+        document.getElementById('f-cantidad-aletas').value         = op.cantidad_aletas || '';
         toggleModeloHerramienta(op.modelo_herramienta_na || false);
-        document.getElementById('f-notas').value           = op.notas || '';
-        document.getElementById('f-dp-nombre-pozo').value                = op.dp_nombre_pozo || '';
-        document.getElementById('f-dp-pera').value                       = op.dp_pera || '';
-        document.getElementById('f-dp-localidad').value                  = op.dp_localidad || '';
-        document.getElementById('f-dp-equipo').value                     = op.dp_equipo || '';
-        document.getElementById('f-dp-tipo-intervencion').value          = op.dp_tipo_intervencion || '';
-        document.getElementById('f-dp-td').value                         = op.dp_td || '';
-        document.getElementById('f-dp-tvd').value                        = op.dp_tvd || '';
-        document.getElementById('f-dp-tipo-direccional').value           = op.dp_tipo_direccional || '';
-        document.getElementById('f-dp-angulo-maximo').value               = op.dp_angulo_maximo || '';
-        document.getElementById('f-dp-temp-superficie').value             = op.dp_temp_superficie || '';
-        document.getElementById('f-dp-temp-fondo').value                  = op.dp_temp_fondo || '';
-        document.getElementById('f-dp-con-sin-nivel').value                = op.dp_con_sin_nivel || '';
-        document.getElementById('f-dp-peso-mastil').value                  = op.dp_peso_mastil || '';
-        document.getElementById('f-dp-peso-top-drive').value               = op.dp_peso_top_drive || '';
-        document.getElementById('f-dp-diametro-libraje-grado').value       = op.dp_diametro_libraje_grado || '';
-        document.getElementById('f-dp-profundidad-asentamiento').value     = op.dp_profundidad_asentamiento || '';
-        document.getElementById('f-dp-tipo-fluido').value                  = op.dp_tipo_fluido || '';
-        document.getElementById('f-dp-peso-fluido').value                  = op.dp_peso_fluido || '';
-        document.getElementById('f-dp-peso-max-zapata').value              = op.dp_peso_max_zapata || '';
-        document.getElementById('f-dp-angulo-asentamiento-zapata').value   = op.dp_angulo_asentamiento_zapata || '';
+        document.getElementById('f-dp-nombre-pozo').value                  = op.dp_nombre_pozo || '';
+        document.getElementById('f-dp-nombre-campo').value                 = op.dp_nombre_campo || '';
+        document.getElementById('f-dp-rep-cliente').value                  = op.dp_rep_cliente || '';
+        document.getElementById('f-dp-rep-ihs').value                      = op.dp_rep_ihs || '';
+        document.getElementById('f-dp-cia-operadora').value                = op.dp_cia_operadora || '';
+        document.getElementById('f-dp-equipo').value                       = op.dp_equipo || '';
+        document.getElementById('f-dp-ubicacion-geografica').value         = op.dp_ubicacion_geografica || '';
+        document.getElementById('f-dp-fluido-produccion').value            = op.dp_fluido_produccion || '';
+        document.getElementById('f-dp-estado').value                       = op.dp_estado || '';
+        document.getElementById('f-dp-municipio').value                    = op.dp_municipio || '';
+        document.getElementById('f-dp-localidad').value                    = op.dp_localidad || '';
+        document.getElementById('f-dp-distrito').value                     = op.dp_distrito || '';
+        document.getElementById('f-dp-tipo-campo').value                   = op.dp_tipo_campo || '';
+        document.getElementById('f-dp-tipo-intervencion').value            = op.dp_tipo_intervencion || '';
+        document.getElementById('f-dp-td').value                          = op.dp_td || '';
+        document.getElementById('f-dp-tvd').value                         = op.dp_tvd || '';
+        document.getElementById('f-dp-tipo-pozo').value                    = op.dp_tipo_pozo || '';
+        document.getElementById('f-dp-angulo-maximo').value                = op.dp_angulo_maximo || '';
+        document.getElementById('f-dp-ultima-bl').value                    = op.dp_ultima_bl || '';
+        document.getElementById('f-dp-profundidad-zona-interes').value     = op.dp_profundidad_zona_interes || '';
+        document.getElementById('f-dp-temp-fondo').value                   = op.dp_temp_fondo || '';
+        document.getElementById('f-dp-temp-superficie').value              = op.dp_temp_superficie || '';
+        document.getElementById('f-dp-tipo-fluido-control').value          = op.dp_tipo_fluido_control || '';
+        document.getElementById('f-dp-densidad-fluido-control').value      = op.dp_densidad_fluido_control || '';
+        document.getElementById('f-dp-perdida-circulacion').value          = op.dp_perdida_circulacion || '';
+        herramientasPozo = (Array.isArray(op.dp_herramientas) && op.dp_herramientas.length > 0)
+            ? [...op.dp_herramientas]
+            : [''];
+        renderHerramientasPozo();
         calcularTiempos();
+
         // ── PASO 5: QHSE ──
         document.getElementById('f-conformidad').value = op.conformidad || '';
         toggleConformidad();
@@ -3125,40 +3525,64 @@
             estatus:               document.getElementById('f-estatus').value,
             fecha_llegada:         document.getElementById('f-llegada').value || null,
             fecha_salida:          document.getElementById('f-salida').value || null,
-            fecha_inicio_bombeo:   document.getElementById('f-inicio-bombeo').value || null,
-            fecha_fin_bombeo:      document.getElementById('f-fin-bombeo').value || null,
+            bombeo_na:             document.getElementById('f-bombeo-na').checked,
+            fecha_inicio_bombeo:   document.getElementById('f-bombeo-na').checked ? null : document.getElementById('f-inicio-bombeo').value || null,
+            fecha_fin_bombeo:      document.getElementById('f-bombeo-na').checked ? null : document.getElementById('f-fin-bombeo').value || null,
             datos_tecnicos_na:     document.getElementById('f-datos-tecnicos-na').checked,
-            presion_asentamiento:  document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-presion').value) || null,
             temperatura_trabajo:   document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-temperatura').value) || null,
-            prueba_valvula:        document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-valvula').value || null,
-            presion_corte:         document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-presion-corte').value) || null,
             modelo_herramienta_na: document.getElementById('f-modelo-herramienta-na').checked,
             modelo_herramienta:    (document.getElementById('f-datos-tecnicos-na').checked || document.getElementById('f-modelo-herramienta-na').checked) ? null : document.getElementById('f-modelo-herramienta').value || null,
-            pines_corte_piston:    document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-pines-piston').value) || null,
-            pines_corte_asiento:   document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-pines-asiento').value) || null,
-            niple_asiento_tipo:    document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-niple-asiento').value || null,
-            mandril_smpo:          document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-mandril-smpo').value || null,
-            notas:                 document.getElementById('f-notas').value || null,
+            linea_producto:            document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-linea-producto').value || null,
+            grado_acero_material:      document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-grado-acero').value || null,
+            casing_size:               document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-casing-size').value || null,
+            tamano_libraje_conexion:   document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-tamano-libraje-conexion').value || null,
+            od_maximo:                 document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-od-maximo').value || null,
+            material_elastomero:       document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-material-elastomero').value || null,
+            area_flujo_minima:         document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-area-flujo-min').value || null,
+            id_minimo:                 document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-id-minimo').value || null,
+            seal_bore:                 document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-seal-bore').value || null,
+            rating_presion_maximo:     document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-rating-presion-max').value) || null,
+            presion_corte_pin1:        document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-presion-corte-pin1').value) || null,
+            presion_estallido:         document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-presion-estallido').value) || null,
+            area_piston:               document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-area-piston').value || null,
+            presion_corte_pin2:        document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-presion-corte-pin2').value) || null,
+            landing_profile:           document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-landing-profile').value || null,
+            presion_activacion:        document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-presion-activacion').value) || null,
+            presion_apertura_trsv:     document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-presion-apertura-trsv').value) || null,
+            od_esfera:                 document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-od-esfera').value || null,
+            material_flapper_plunger:  document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-material-flapper').value || null,
+            presion_cierre_trsv:       document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-presion-cierre-trsv').value) || null,
+            presion_contraflujo:       document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-presion-contraflujo').value) || null,
+            cantidad_plungers_flappers: document.getElementById('f-datos-tecnicos-na').checked ? null : parseInt(document.getElementById('f-cantidad-plungers').value) || null,
+            cortadores_pdc_tungsteno:  document.getElementById('f-datos-tecnicos-na').checked ? null : parseInt(document.getElementById('f-cortadores-pdc').value) || null,
+            nose_crown_material:       document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-nose-crown-material').value || null,
+            cantidad_aletas:           document.getElementById('f-datos-tecnicos-na').checked ? null : parseInt(document.getElementById('f-cantidad-aletas').value) || null,
             dp_nombre_pozo:                  document.getElementById('f-dp-nombre-pozo').value || null,
-            dp_pera:                          document.getElementById('f-dp-pera').value || null,
-            dp_localidad:                    document.getElementById('f-dp-localidad').value || null,
+            dp_nombre_campo:                 document.getElementById('f-dp-nombre-campo').value || null,
+            dp_rep_cliente:                  document.getElementById('f-dp-rep-cliente').value || null,
+            dp_rep_ihs:                       document.getElementById('f-dp-rep-ihs').value || null,
+            dp_cia_operadora:                document.getElementById('f-dp-cia-operadora').value || null,
             dp_equipo:                        document.getElementById('f-dp-equipo').value || null,
+            dp_ubicacion_geografica:         document.getElementById('f-dp-ubicacion-geografica').value || null,
+            dp_fluido_produccion:            document.getElementById('f-dp-fluido-produccion').value || null,
+            dp_estado:                       document.getElementById('f-dp-estado').value || null,
+            dp_municipio:                    document.getElementById('f-dp-municipio').value || null,
+            dp_localidad:                    document.getElementById('f-dp-localidad').value || null,
+            dp_distrito:                     document.getElementById('f-dp-distrito').value || null,
+            dp_tipo_campo:                   document.getElementById('f-dp-tipo-campo').value || null,
             dp_tipo_intervencion:             document.getElementById('f-dp-tipo-intervencion').value || null,
             dp_td:                            parseFloat(document.getElementById('f-dp-td').value) || null,
             dp_tvd:                           parseFloat(document.getElementById('f-dp-tvd').value) || null,
-            dp_tipo_direccional:              document.getElementById('f-dp-tipo-direccional').value || null,
+            dp_tipo_pozo:                     document.getElementById('f-dp-tipo-pozo').value || null,
             dp_angulo_maximo:                 parseFloat(document.getElementById('f-dp-angulo-maximo').value) || null,
-            dp_temp_superficie:               parseFloat(document.getElementById('f-dp-temp-superficie').value) || null,
+            dp_ultima_bl:                     parseFloat(document.getElementById('f-dp-ultima-bl').value) || null,
+            dp_profundidad_zona_interes:      parseFloat(document.getElementById('f-dp-profundidad-zona-interes').value) || null,
             dp_temp_fondo:                    parseFloat(document.getElementById('f-dp-temp-fondo').value) || null,
-            dp_con_sin_nivel:                 document.getElementById('f-dp-con-sin-nivel').value || null,
-            dp_peso_mastil:                   parseFloat(document.getElementById('f-dp-peso-mastil').value) || null,
-            dp_peso_top_drive:                parseFloat(document.getElementById('f-dp-peso-top-drive').value) || null,
-            dp_diametro_libraje_grado:        document.getElementById('f-dp-diametro-libraje-grado').value || null,
-            dp_profundidad_asentamiento:      parseFloat(document.getElementById('f-dp-profundidad-asentamiento').value) || null,
-            dp_tipo_fluido:                   document.getElementById('f-dp-tipo-fluido').value || null,
-            dp_peso_fluido:                   parseFloat(document.getElementById('f-dp-peso-fluido').value) || null,
-            dp_peso_max_zapata:               parseFloat(document.getElementById('f-dp-peso-max-zapata').value) || null,
-            dp_angulo_asentamiento_zapata:    parseFloat(document.getElementById('f-dp-angulo-asentamiento-zapata').value) || null,
+            dp_temp_superficie:               parseFloat(document.getElementById('f-dp-temp-superficie').value) || null,
+            dp_tipo_fluido_control:           document.getElementById('f-dp-tipo-fluido-control').value || null,
+            dp_densidad_fluido_control:       parseFloat(document.getElementById('f-dp-densidad-fluido-control').value) || null,
+            dp_perdida_circulacion:           parseFloat(document.getElementById('f-dp-perdida-circulacion').value) || null,
+            dp_herramientas:                  herramientasPozo.filter(h => h && h.trim() !== ''),
             ...(jobId && { job_id: jobId }),
             usuario_id: usuarioId,
             finalizada: finalizar,
@@ -3276,44 +3700,67 @@
         document.getElementById('rep-fin-bombeo').textContent    = formatearFechaHora(op.fecha_fin_bombeo);
 
         // Técnicos
-        document.getElementById('rep-presion').textContent       = op.presion_asentamiento ? `${op.presion_asentamiento} PSI` : '—';
         document.getElementById('rep-temperatura').textContent   = op.temperatura_trabajo  ? `${op.temperatura_trabajo} °C`   : '—';
-        document.getElementById('rep-valvula').textContent       = op.prueba_valvula       || '—';
-        document.getElementById('rep-presion-corte').textContent = op.presion_corte        ? `${op.presion_corte} PSI`        : '—';
         document.getElementById('rep-modelo').textContent        = op.modelo_herramienta_na ? 'No aplica' : (op.modelo_herramienta || '—');
-        document.getElementById('rep-pines-piston').textContent  = op.pines_corte_piston   ?? '—';
-        document.getElementById('rep-pines-asiento').textContent = op.pines_corte_asiento  ?? '—';
-        document.getElementById('rep-niple-asiento').textContent = op.niple_asiento_tipo   || '—';
-        document.getElementById('rep-mandril-smpo').textContent  = op.mandril_smpo         || '—';
-        document.getElementById('rep-dp-nombre-pozo').textContent       = op.dp_nombre_pozo || '—';
-        document.getElementById('rep-dp-pera').textContent              = op.dp_pera || '—';
-        document.getElementById('rep-dp-localidad').textContent         = op.dp_localidad || '—';
-        document.getElementById('rep-dp-equipo').textContent             = op.dp_equipo || '—';
-        document.getElementById('rep-dp-tipo-intervencion').textContent  = op.dp_tipo_intervencion || '—';
+        document.getElementById('rep-linea-producto').textContent            = op.linea_producto || '—';
+        document.getElementById('rep-grado-acero').textContent               = op.grado_acero_material || '—';
+        document.getElementById('rep-casing-size').textContent               = op.casing_size || '—';
+        document.getElementById('rep-tamano-libraje-conexion').textContent   = op.tamano_libraje_conexion || '—';
+        document.getElementById('rep-od-maximo').textContent                 = op.od_maximo || '—';
+        document.getElementById('rep-material-elastomero').textContent      = op.material_elastomero || '—';
+        document.getElementById('rep-area-flujo-min').textContent            = op.area_flujo_minima || '—';
+        document.getElementById('rep-id-minimo').textContent                 = op.id_minimo || '—';
+        document.getElementById('rep-seal-bore').textContent                 = op.seal_bore || '—';
+        document.getElementById('rep-rating-presion-max').textContent       = op.rating_presion_maximo ? `${op.rating_presion_maximo} PSI` : '—';
+        document.getElementById('rep-presion-corte-pin1').textContent       = op.presion_corte_pin1 ? `${op.presion_corte_pin1} PSI` : '—';
+        document.getElementById('rep-presion-estallido').textContent        = op.presion_estallido ? `${op.presion_estallido} PSI` : '—';
+        document.getElementById('rep-area-piston').textContent               = op.area_piston || '—';
+        document.getElementById('rep-presion-corte-pin2').textContent       = op.presion_corte_pin2 ? `${op.presion_corte_pin2} PSI` : '—';
+        document.getElementById('rep-landing-profile').textContent          = op.landing_profile || '—';
+        document.getElementById('rep-presion-activacion').textContent       = op.presion_activacion ? `${op.presion_activacion} PSI` : '—';
+        document.getElementById('rep-presion-apertura-trsv').textContent    = op.presion_apertura_trsv ? `${op.presion_apertura_trsv} PSI` : '—';
+        document.getElementById('rep-od-esfera').textContent                 = op.od_esfera || '—';
+        document.getElementById('rep-material-flapper').textContent         = op.material_flapper_plunger || '—';
+        document.getElementById('rep-presion-cierre-trsv').textContent      = op.presion_cierre_trsv ? `${op.presion_cierre_trsv} PSI` : '—';
+        document.getElementById('rep-presion-contraflujo').textContent      = op.presion_contraflujo ? `${op.presion_contraflujo} PSI` : '—';
+        document.getElementById('rep-cantidad-plungers').textContent        = op.cantidad_plungers_flappers ?? '—';
+        document.getElementById('rep-cortadores-pdc').textContent           = op.cortadores_pdc_tungsteno ?? '—';
+        document.getElementById('rep-nose-crown-material').textContent      = op.nose_crown_material || '—';
+        document.getElementById('rep-cantidad-aletas').textContent          = op.cantidad_aletas ?? '—';
+        document.getElementById('rep-dp-nombre-pozo').textContent          = op.dp_nombre_pozo || '—';
+        document.getElementById('rep-dp-nombre-campo').textContent         = op.dp_nombre_campo || '—';
+        document.getElementById('rep-dp-rep-cliente').textContent          = op.dp_rep_cliente || '—';
+        document.getElementById('rep-dp-rep-ihs').textContent              = op.dp_rep_ihs || '—';
+        document.getElementById('rep-dp-cia-operadora').textContent        = op.dp_cia_operadora || '—';
+        document.getElementById('rep-dp-equipo').textContent               = op.dp_equipo || '—';
+        document.getElementById('rep-dp-ubicacion-geografica').textContent = op.dp_ubicacion_geografica || '—';
+        document.getElementById('rep-dp-fluido-produccion').textContent    = op.dp_fluido_produccion || '—';
+        document.getElementById('rep-dp-estado').textContent               = op.dp_estado || '—';
+        document.getElementById('rep-dp-municipio').textContent            = op.dp_municipio || '—';
+        document.getElementById('rep-dp-localidad').textContent            = op.dp_localidad || '—';
+        document.getElementById('rep-dp-distrito').textContent             = op.dp_distrito || '—';
+        document.getElementById('rep-dp-tipo-campo').textContent           = op.dp_tipo_campo || '—';
+        document.getElementById('rep-dp-tipo-intervencion').textContent    = op.dp_tipo_intervencion || '—';
 
-        document.getElementById('rep-dp-td').textContent                 = op.dp_td  != null ? `${op.dp_td} m`  : '—';
-        document.getElementById('rep-dp-tvd').textContent                = op.dp_tvd != null ? `${op.dp_tvd} m` : '—';
-        document.getElementById('rep-dp-tipo-direccional').textContent   = op.dp_tipo_direccional || '—';
-        document.getElementById('rep-dp-angulo-maximo').textContent      = op.dp_angulo_maximo != null ? `${op.dp_angulo_maximo}°` : '—';
-        document.getElementById('rep-dp-temp-superficie').textContent    = op.dp_temp_superficie != null ? `${op.dp_temp_superficie} °C` : '—';
-        document.getElementById('rep-dp-temp-fondo').textContent         = op.dp_temp_fondo != null ? `${op.dp_temp_fondo} °C` : '—';
-        document.getElementById('rep-dp-con-sin-nivel').textContent      = op.dp_con_sin_nivel || '—';
+        document.getElementById('rep-dp-td').textContent                   = op.dp_td  != null ? `${op.dp_td} m`  : '—';
+        document.getElementById('rep-dp-tvd').textContent                  = op.dp_tvd != null ? `${op.dp_tvd} m` : '—';
+        document.getElementById('rep-dp-tipo-pozo').textContent            = op.dp_tipo_pozo || '—';
+        document.getElementById('rep-dp-angulo-maximo').textContent        = op.dp_angulo_maximo != null ? `${op.dp_angulo_maximo}°` : '—';
+        document.getElementById('rep-dp-ultima-bl').textContent            = op.dp_ultima_bl != null ? `${op.dp_ultima_bl} m` : '—';
+        document.getElementById('rep-dp-profundidad-zona-interes').textContent = op.dp_profundidad_zona_interes != null ? `${op.dp_profundidad_zona_interes} m` : '—';
+        document.getElementById('rep-dp-temp-fondo').textContent           = op.dp_temp_fondo != null ? `${op.dp_temp_fondo} °C` : '—';
+        document.getElementById('rep-dp-temp-superficie').textContent      = op.dp_temp_superficie != null ? `${op.dp_temp_superficie} °C` : '—';
+        document.getElementById('rep-dp-tipo-fluido-control').textContent  = op.dp_tipo_fluido_control || '—';
+        document.getElementById('rep-dp-densidad-fluido-control').textContent = op.dp_densidad_fluido_control != null ? `${op.dp_densidad_fluido_control} gr/cm³` : '—';
+        document.getElementById('rep-dp-perdida-circulacion').textContent  = op.dp_perdida_circulacion != null ? `${op.dp_perdida_circulacion} m` : '—';
 
-        document.getElementById('rep-dp-peso-mastil').textContent        = op.dp_peso_mastil != null ? `${op.dp_peso_mastil} Ton` : '—';
-        document.getElementById('rep-dp-peso-top-drive').textContent     = op.dp_peso_top_drive != null ? `${op.dp_peso_top_drive}` : '—';
-
-        document.getElementById('rep-dp-diametro-libraje-grado').textContent     = op.dp_diametro_libraje_grado || '—';
-        document.getElementById('rep-dp-profundidad-asentamiento').textContent   = op.dp_profundidad_asentamiento != null ? `${op.dp_profundidad_asentamiento} m` : '—';
-        document.getElementById('rep-dp-tipo-fluido').textContent                = op.dp_tipo_fluido || '—';
-        document.getElementById('rep-dp-peso-fluido').textContent = op.dp_peso_fluido != null ? `${op.dp_peso_fluido} gr/cm³` : '—';
-        document.getElementById('rep-dp-peso-max-zapata').textContent            = op.dp_peso_max_zapata != null ? `${op.dp_peso_max_zapata}` : '—';
-        document.getElementById('rep-dp-angulo-asentamiento-zapata').textContent = op.dp_angulo_asentamiento_zapata != null ? `${op.dp_angulo_asentamiento_zapata}°` : '—';
-        document.getElementById('rep-notas').textContent    = op.notas                || 'Sin notas.';
-        // Ocultar bloque de notas si "No aplica" está marcado
-        const bloqueNotasRep = document.getElementById('rep-bloque-notas');
-        if (bloqueNotasRep) {
-            bloqueNotasRep.classList.toggle('hidden', op.datos_tecnicos_na === true);
-        }
+        const repHerramientas = document.getElementById('rep-dp-herramientas');
+        const listaHerramientas = Array.isArray(op.dp_herramientas) ? op.dp_herramientas.filter(h => h && h.trim() !== '') : [];
+        repHerramientas.innerHTML = listaHerramientas.length > 0
+            ? listaHerramientas.map((h, i) => `
+                <div class="flex justify-between"><span class="text-slate-500">Herramienta ${i + 1}</span><span class="text-white font-semibold">${h}</span></div>
+              `).join('')
+            : '<div class="text-slate-500">—</div>';
 
         // ── QHSE ──
         const conformidadTextos = {
@@ -3740,53 +4187,72 @@
         y = fila('Fin del Bombeo',     formatearFechaHora(op.fecha_fin_bombeo),      y);
 
         if (!op.datos_tecnicos_na) {
-            y = nuevaSeccion('DATOS TÉCNICOS DE FLOTACIÓN', y + 4, 9);
-            y = fila('Presión Diferencial/Válvula/Tapón', op.presion_asentamiento ? `${op.presion_asentamiento} PSI` : '—', y);
+            y = nuevaSeccion('DATOS TÉCNICOS', y + 4, 27);
+            y = fila('Línea de Producto',         op.linea_producto || '—', y);
+            y = fila('Modelo-Nombre del Equipo',  op.modelo_herramienta_na ? 'No aplica' : (op.modelo_herramienta || '—'), y);
+            y = fila('Grado de Acero-Material',   op.grado_acero_material || '—', y);
             y = fila('Temperatura de Trabajo',    op.temperatura_trabajo  ? `${op.temperatura_trabajo} °C`   : '—', y);
-            y = fila('Prueba de Retención',       op.prueba_valvula || '—', y);
-            y = fila('Presión de Corte',          op.presion_corte        ? `${op.presion_corte} PSI`        : '—', y);
-            y = fila('Modelo de Herramienta',     op.modelo_herramienta_na ? 'No aplica' : (op.modelo_herramienta || '—'), y);
-            y = fila('Pines Corte Pistón',        op.pines_corte_piston   ?? '—', y);
-            y = fila('Pines Corte Asiento',       op.pines_corte_asiento  ?? '—', y);
-            y = fila('Niple Asiento "Tipo"',      op.niple_asiento_tipo   || '—', y);
-            y = fila('Tipo de Mandril SMPO',      op.mandril_smpo         || '—', y);
+            y = fila('Casing Size',               op.casing_size || '—', y);
+            y = fila('Tamaño, Libraje y Conexión', op.tamano_libraje_conexion || '—', y);
+            y = fila('OD Máximo',                 op.od_maximo || '—', y);
+            y = fila('Material del Elastómero',   op.material_elastomero || '—', y);
+            y = fila('Mínima Área de Flujo',      op.area_flujo_minima || '—', y);
+            y = fila('ID Mínimo',                 op.id_minimo || '—', y);
+            y = fila('Seal Bore',                 op.seal_bore || '—', y);
+            y = fila('Máximo Rating Presión',     op.rating_presion_maximo ? `${op.rating_presion_maximo} PSI` : '—', y);
+            y = fila('Presión de Corte Pin (1st)', op.presion_corte_pin1 ? `${op.presion_corte_pin1} PSI` : '—', y);
+            y = fila('Presión de Estallido',      op.presion_estallido ? `${op.presion_estallido} PSI` : '—', y);
+            y = fila('Área de Pistón',            op.area_piston || '—', y);
+            y = fila('Presión de Corte Pines (2st)', op.presion_corte_pin2 ? `${op.presion_corte_pin2} PSI` : '—', y);
+            y = fila('Landing Profile',           op.landing_profile || '—', y);
+            y = fila('Presión de Activación',     op.presion_activacion ? `${op.presion_activacion} PSI` : '—', y);
+            y = fila('Presión de Apertura TRSV',  op.presion_apertura_trsv ? `${op.presion_apertura_trsv} PSI` : '—', y);
+            y = fila('OD Esfera (Ball)',          op.od_esfera || '—', y);
+            y = fila('Material del Flapper/Plunger', op.material_flapper_plunger || '—', y);
+            y = fila('Presión de Cierre TRSV',    op.presion_cierre_trsv ? `${op.presion_cierre_trsv} PSI` : '—', y);
+            y = fila('Presión Contra-Flujo Flapper/Plunger', op.presion_contraflujo ? `${op.presion_contraflujo} PSI` : '—', y);
+            y = fila('Cantidad de Plungers o Flappers', op.cantidad_plungers_flappers ?? '—', y);
+            y = fila('Cortadores PDC/Tungsteno',  op.cortadores_pdc_tungsteno ?? '—', y);
+            y = fila('Nose/Crown Material',       op.nose_crown_material || '—', y);
+            y = fila('Cantidad de Aletas',        op.cantidad_aletas ?? '—', y);
         }
-        y = nuevaSeccion('INFORMACIÓN DE POZO', y + 4, 5);
-        y = fila('Nombre del Pozo',          op.dp_nombre_pozo || '—', y);
-        y = fila('Pera',                     op.dp_pera || '—', y);
-        y = fila('Localidad',                op.dp_localidad || '—', y);
-        y = fila('Equipo',                   op.dp_equipo || '—', y);
-        y = fila('Tipo de Intervención',     op.dp_tipo_intervencion || '—', y);
+        y = nuevaSeccion('INFORMACIÓN GENERAL', y + 4, 14);
+        y = fila('Nombre del Pozo',            op.dp_nombre_pozo || '—', y);
+        y = fila('Nombre del Campo',           op.dp_nombre_campo || '—', y);
+        y = fila('Representante del Cliente',  op.dp_rep_cliente || '—', y);
+        y = fila('Representante IHS',          op.dp_rep_ihs || '—', y);
+        y = fila('Cía. Operadora',             op.dp_cia_operadora || '—', y);
+        y = fila('Número de Equipo (Rig)',     op.dp_equipo || '—', y);
+        y = fila('Ubicación Geográfica',       op.dp_ubicacion_geografica || '—', y);
+        y = fila('Fluido de Producción',       op.dp_fluido_produccion || '—', y);
+        y = fila('Estado',                     op.dp_estado || '—', y);
+        y = fila('Municipio',                  op.dp_municipio || '—', y);
+        y = fila('Localidad',                  op.dp_localidad || '—', y);
+        y = fila('Distrito',                   op.dp_distrito || '—', y);
+        y = fila('Tipo de Campo',               op.dp_tipo_campo || '—', y);
+        y = fila('Tipo de Intervención',       op.dp_tipo_intervencion || '—', y);
 
-        y = nuevaSeccion('CARACTERÍSTICAS DE POZO', y + 4, 7);
-        y = fila('TD (metros)',              op.dp_td  != null ? `${op.dp_td} m`  : '—', y);
-        y = fila('TVD (metros)',             op.dp_tvd != null ? `${op.dp_tvd} m` : '—', y);
-        y = fila('Tipo de Pozo (Direccional)', op.dp_tipo_direccional || '—', y);
-        y = fila('Ángulo Máximo (°)',        op.dp_angulo_maximo != null ? `${op.dp_angulo_maximo}°` : '—', y);
-        y = fila('Máxima Temperatura (superficie)', op.dp_temp_superficie != null ? `${op.dp_temp_superficie} °C` : '—', y);
-        y = fila('Máxima Temperatura (fondo)',      op.dp_temp_fondo != null ? `${op.dp_temp_fondo} °C` : '—', y);
-        y = fila('Pozo con o sin Nivel',     op.dp_con_sin_nivel || '—', y);
+        y = nuevaSeccion('DATOS TÉCNICOS DEL POZO', y + 4, 11);
+        y = fila('Perforación Desarrollada (TD)',            op.dp_td  != null ? `${op.dp_td} m`  : '—', y);
+        y = fila('Perforación Vertical Desarrollada (TVD)',   op.dp_tvd != null ? `${op.dp_tvd} m` : '—', y);
+        y = fila('Tipo de Pozo',               op.dp_tipo_pozo || '—', y);
+        y = fila('Ángulo Máximo (°)',          op.dp_angulo_maximo != null ? `${op.dp_angulo_maximo}°` : '—', y);
+        y = fila('Última BL (TOL)',            op.dp_ultima_bl != null ? `${op.dp_ultima_bl} m` : '—', y);
+        y = fila('Profundidad Zona de Interés', op.dp_profundidad_zona_interes != null ? `${op.dp_profundidad_zona_interes} m` : '—', y);
+        y = fila('Temperatura de Fondo',       op.dp_temp_fondo != null ? `${op.dp_temp_fondo} °C` : '—', y);
+        y = fila('Temperatura en Superficie',  op.dp_temp_superficie != null ? `${op.dp_temp_superficie} °C` : '—', y);
+        y = fila('Tipo de Fluido de Control',   op.dp_tipo_fluido_control || '—', y);
+        y = fila('Densidad del Fluido de Control', op.dp_densidad_fluido_control != null ? `${op.dp_densidad_fluido_control} gr/cm³` : '—', y);
+        y = fila('Pérdida de Circulación',     op.dp_perdida_circulacion != null ? `${op.dp_perdida_circulacion} m` : '—', y);
 
-        y = nuevaSeccion('CARACTERÍSTICAS DEL EQUIPO', y + 4, 2);
-        y = fila('Máximo Peso del Mástil (Ton)', op.dp_peso_mastil != null ? `${op.dp_peso_mastil} Ton` : '—', y);
-        y = fila('Máximo Peso de Top Drive', op.dp_peso_top_drive != null ? `${op.dp_peso_top_drive}` : '—', y);
-
-        y = nuevaSeccion('ACCESORIOS DE FLOTACIÓN', y + 4, 6);
-        y = fila('Diámetro, Libraje y Grado de Material de T.R.', op.dp_diametro_libraje_grado || '—', y);
-        y = fila('Profundidad de Asentamiento', op.dp_profundidad_asentamiento != null ? `${op.dp_profundidad_asentamiento} m` : '—', y);
-        y = fila('Tipo de Fluido de Perforación', op.dp_tipo_fluido || '—', y);
-        y = fila('Peso de Fluido de Perforación', op.dp_peso_fluido != null ? `${op.dp_peso_fluido} gr/cm³` : '—', y);
-        y = fila('Máximo Peso Permitido a Zapata', op.dp_peso_max_zapata != null ? `${op.dp_peso_max_zapata}` : '—', y);
-        y = fila('Ángulo en Punto de Asentamiento de la Zapata', op.dp_angulo_asentamiento_zapata != null ? `${op.dp_angulo_asentamiento_zapata}°` : '—', y);
-
-        if (op.notas && !op.datos_tecnicos_na) {
-            y = nuevaSeccion('NOTAS OPERATIVAS', y + 4, 0);
-            doc.setFontSize(8.5);
-            doc.setFont('helvetica', 'normal');
-            doc.setTextColor(...negro);
-            const lines = doc.splitTextToSize(op.notas, 180);
-            doc.text(lines, 14, y);
-            y += lines.length * 5 + 4;
+        const pdfHerramientas = Array.isArray(op.dp_herramientas) ? op.dp_herramientas.filter(h => h && h.trim() !== '') : [];
+        y = nuevaSeccion('PROFUNDIDAD DE INSTALACIÓN DE HERRAMIENTAS', y + 4, Math.max(pdfHerramientas.length, 1));
+        if (pdfHerramientas.length > 0) {
+            pdfHerramientas.forEach((h, i) => {
+                y = fila(`Herramienta ${i + 1}`, h, y);
+            });
+        } else {
+            y = fila('Herramienta 1', '—', y);
         }
 
         // ── SECCIÓN QHSE ──
@@ -3932,51 +4398,6 @@
         }));
     }
 
-    // ── GUARDAR BITÁCORA EN SUPABASE ──
-    async function guardarBitacora(operacionId) {
-        if (rolUsuario !== 'Empleado') return;
-
-        const filas = document.querySelectorAll('#tabla-bitacora tr[data-fecha]');
-        if (!filas.length) return;
-
-        // 1. Borrar registros anteriores de esta operación
-        await fetch(`${SUPABASE_URL}/rest/v1/cementing_bitacora?operacion_id=eq.${operacionId}`, {
-            method: 'DELETE',
-            headers
-        });
-
-        // 2. Construir payload con las filas actuales
-        const payload = [];
-        filas.forEach(tr => {
-            const fecha        = tr.dataset.fecha;
-            const horaInicio   = tr.querySelector('.bit-inicio')?.value  || null;
-            const horaTermino  = tr.querySelector('.bit-termino')?.value || null;
-            const observacion  = tr.querySelector('.bit-obs')?.value.trim() || null;
-            const sinActividad = tr.querySelector('.bit-sin-actividad')?.checked || false;
-
-            // Guarda si tiene datos O si está marcado como sin actividad
-            if (horaInicio || horaTermino || observacion || sinActividad) {
-                payload.push({
-                    operacion_id:   operacionId,
-                    fecha,
-                    hora_inicio:    horaInicio,
-                    hora_termino:   horaTermino,
-                    observacion,
-                    sin_actividad:  sinActividad
-                });
-            }
-        });
-
-        if (!payload.length) return;
-
-        // 3. Insertar todas de una vez
-        await fetch(`${SUPABASE_URL}/rest/v1/cementing_bitacora`, {
-            method: 'POST',
-            headers: { ...headers, 'Prefer': 'return=representation' },
-            body: JSON.stringify(payload)
-        });
-    }
-
     // ── GUARDAR HERRAMIENTAS EN SUPABASE ──
     async function guardarHerramientas(operacionId) {
         // 1. Borrar herramientas anteriores de esta operación (para reemplazarlas limpiamente)
@@ -4061,38 +4482,43 @@
 
         try {
             const res = await fetch(
-                `${SUPABASE_URL}/rest/v1/cementing_bitacora?operacion_id=eq.${operacionId}&order=fecha.asc`,
+                `${SUPABASE_URL}/rest/v1/cementing_bitacora?operacion_id=eq.${operacionId}&order=fecha.asc,orden.asc`,
                 { headers }
             );
             const data = await res.json();
-
-            console.log('Bitácora recibida de Supabase:', data);       // ← AGREGA ESTO
-            console.log('Filas en tabla:', document.querySelectorAll('#tabla-bitacora tr[data-fecha]').length); // ← Y ESTO
-
             if (!data.length) return;
 
-            // Primero genera las filas vacías basándose en las fechas del formulario
-            // (calcularTiempos ya fue llamado antes, así que las filas ya existen)
-            data.forEach(registro => {
-                const tr = document.querySelector(`#tabla-bitacora tr[data-fecha="${registro.fecha}"]`);
-                if (!tr) return; // si la fila no existe por algún desfase de fechas, la ignora
+            // Agrupar los registros por fecha
+            const porFecha = {};
+            data.forEach(r => {
+                if (!porFecha[r.fecha]) porFecha[r.fecha] = [];
+                porFecha[r.fecha].push(r);
+            });
 
-                const inputInicio  = tr.querySelector('.bit-inicio');
-                const inputTermino = tr.querySelector('.bit-termino');
-                const inputObs     = tr.querySelector('.bit-obs');
+            const tbody = document.getElementById('tabla-bitacora');
 
-                if (inputInicio  && registro.hora_inicio)   inputInicio.value  = registro.hora_inicio.slice(0, 5);
-                if (inputTermino && registro.hora_termino)  inputTermino.value = registro.hora_termino.slice(0, 5);
-                if (inputObs     && registro.observacion)   inputObs.value     = registro.observacion;
+            Object.keys(porFecha).forEach(fechaStr => {
+                // Quitar el bloque vacío por defecto y el botón "+ Agregar" de ese día
+                tbody.querySelectorAll(`tr[data-fecha="${fechaStr}"]`).forEach(tr => tr.remove());
+                const filaBoton = tbody.querySelector(`tr[data-fila-agregar="${fechaStr}"]`);
+                if (filaBoton) filaBoton.remove();
 
-                // Restaurar estado "sin actividad"
-                if (registro.sin_actividad) {
-                    const chk = tr.querySelector('.bit-sin-actividad');
-                    if (chk) {
-                        chk.checked = true;
-                        chk.dispatchEvent(new Event('change'));
-                    }
-                }
+                const fechaLabel = new Date(fechaStr + 'T00:00').toLocaleDateString('es-MX', { weekday: 'short', day: '2-digit', month: 'short' });
+
+                // Crear primero la fila del botón "+ Agregar", para poder insertar los bloques antes de ella
+                const filaBotonEl = agregarFilaBotonAgregar(tbody, fechaStr);
+
+                // Reconstruir un bloque por cada registro guardado, en orden
+                porFecha[fechaStr].forEach((registro, idx) => {
+                    agregarFilaBloque(tbody, fechaStr, fechaLabel, {
+                        horaInicio:   registro.hora_inicio  ? registro.hora_inicio.slice(0, 5)  : '',
+                        horaTermino:  registro.hora_termino ? registro.hora_termino.slice(0, 5) : '',
+                        observacion:  registro.observacion || '',
+                        sinActividad: registro.sin_actividad || false
+                    }, idx === 0, filaBotonEl);
+                });
+
+                actualizarRowspanFecha(tbody, fechaStr);
             });
 
         } catch(e) {
@@ -4111,11 +4537,12 @@
         if (!herramientasSeleccionadas.length) return;
 
         const filas = herramientasSeleccionadas.map(h => ({
-            operacion_id: operacionId,
-            catalogo_id:  h.catalogoId,
-            np:           h.np,
-            descripcion:  h.descripcion,
-            estado_final: h.estadoFinal
+            operacion_id:    operacionId,
+            catalogo_id:     h.catalogoId,
+            catalogo_origen: h.catalogoOrigen || 'cementing',
+            np:              h.np,
+            descripcion:     h.descripcion,
+            estado_final:    h.estadoFinal
         }));
 
         await fetch(`${SUPABASE_URL}/rest/v1/cementing_herramientas`, {
@@ -4130,16 +4557,29 @@
         if (rolUsuario !== 'Empleado') return;
 
         const filas = [];
+        const contadorPorFecha = {};
+
+        // Ver qué fechas están marcadas como "sin actividad" (checkbox solo existe en el primer bloque del día)
+        const sinActividadPorFecha = {};
+        document.querySelectorAll('#tabla-bitacora .bit-sin-actividad').forEach(chk => {
+            const tr = chk.closest('tr[data-fecha]');
+            if (tr) sinActividadPorFecha[tr.dataset.fecha] = chk.checked;
+        });
+
         document.querySelectorAll('#tabla-bitacora tr[data-fecha]').forEach(tr => {
-            const fecha        = tr.dataset.fecha;
-            const sinActividad = tr.querySelector('.bit-sin-actividad')?.checked || false;
-            const horaInicio   = tr.querySelector('.bit-inicio')?.value || null;
+            const fecha = tr.dataset.fecha;
+            contadorPorFecha[fecha] = (contadorPorFecha[fecha] || 0) + 1;
+            const orden = contadorPorFecha[fecha];
+            const sinActividad = sinActividadPorFecha[fecha] || false;
+
+            const horaInicio   = tr.querySelector('.bit-inicio')?.value  || null;
             const horaTermino  = tr.querySelector('.bit-termino')?.value || null;
-            const observacion  = tr.querySelector('.bit-obs')?.value || null;
+            const observacion  = tr.querySelector('.bit-obs')?.value     || null;
 
             filas.push({
                 operacion_id:  operacionId,
                 fecha,
+                orden,
                 hora_inicio:   sinActividad ? null : horaInicio,
                 hora_termino:  sinActividad ? null : horaTermino,
                 observacion:   sinActividad ? null : observacion,
@@ -4149,7 +4589,6 @@
 
         if (!filas.length) return;
 
-        // Borrar registros previos de esta operación y reinsertar
         await fetch(`${SUPABASE_URL}/rest/v1/cementing_bitacora?operacion_id=eq.${operacionId}`, {
             method: 'DELETE',
             headers
@@ -4171,15 +4610,25 @@
             );
             const data = await res.json();
 
+            // La pestaña del catálogo debe quedarse en el mismo origen
+            // (Cementing / Cased Hole) en el que se guardaron las herramientas,
+            // sin importar el texto libre de "Línea de Producto" del paso 3.
+            if (data.length && data[0].catalogo_origen && data[0].catalogo_origen !== catalogoTablaActiva) {
+                catalogoTablaActiva = data[0].catalogo_origen;
+                pintarBotonesCatalogo(catalogoTablaActiva, true);
+                await cargarCatalogo();
+            }
+
             // Resetea el estado
             herramientasSeleccionadas = [];
 
             data.forEach(h => {
                 herramientasSeleccionadas.push({
-                    catalogoId:  h.catalogo_id,
-                    np:          h.np || '',
-                    descripcion: h.descripcion || '',
-                    estadoFinal: h.estado_final || 'Instalado en Pozo'
+                    catalogoId:     h.catalogo_id,
+                    catalogoOrigen: h.catalogo_origen || catalogoTablaActiva,
+                    np:             h.np || '',
+                    descripcion:    h.descripcion || '',
+                    estadoFinal:    h.estado_final || 'Instalado en Pozo'
                 });
             });
 
@@ -5396,107 +5845,186 @@
 
     // ── BITÁCORA: genera filas por día ──
     function generarFilasBitacora() {
-    // Solo para Empleado
-    if (rolUsuario !== 'Empleado') return;
+        if (rolUsuario !== 'Empleado') return;
 
-    const llegada = document.getElementById('f-llegada').value;
-    const salida  = document.getElementById('f-salida').value;
-    const bloque  = document.getElementById('bloque-bitacora');
-    const tbody   = document.getElementById('tabla-bitacora');
-    const resumen = document.getElementById('bitacora-resumen');
+        const llegada = document.getElementById('f-llegada').value;
+        const salida  = document.getElementById('f-salida').value;
+        const bloque  = document.getElementById('bloque-bitacora');
+        const tbody   = document.getElementById('tabla-bitacora');
+        const resumen = document.getElementById('bitacora-resumen');
 
-    if (!llegada || !salida || llegada >= salida) {
-        bloque.classList.add('hidden');
+        if (!llegada || !salida || llegada >= salida) {
+            bloque.classList.add('hidden');
+            tbody.innerHTML = '';
+            return;
+        }
+
+        const inicio = new Date(llegada + 'T00:00');
+        const fin    = new Date(salida  + 'T00:00');
+        const dInicio = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
+        const dFin    = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate());
+        const diffMs   = dFin - dInicio;
+        const totalDias = Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1;
+
+        // Guardar bloques existentes por fecha (ahora es un ARREGLO de bloques, no un solo objeto)
+        const datosExistentes = {};
+        tbody.querySelectorAll('tr[data-fecha]').forEach(tr => {
+            const fecha = tr.dataset.fecha;
+            if (!datosExistentes[fecha]) datosExistentes[fecha] = [];
+            datosExistentes[fecha].push({
+                horaInicio:   tr.querySelector('.bit-inicio')?.value  || '',
+                horaTermino:  tr.querySelector('.bit-termino')?.value || '',
+                observacion:  tr.querySelector('.bit-obs')?.value     || '',
+                sinActividad: tr.querySelector('.bit-sin-actividad')?.checked || false
+            });
+        });
+
         tbody.innerHTML = '';
-        return;
+
+        for (let i = 0; i < totalDias; i++) {
+            const d = new Date(dInicio);
+            d.setDate(dInicio.getDate() + i);
+            const yyyy = d.getFullYear();
+            const mm   = String(d.getMonth() + 1).padStart(2, '0');
+            const dd   = String(d.getDate()).padStart(2, '0');
+            const fechaStr   = `${yyyy}-${mm}-${dd}`;
+            const fechaLabel = d.toLocaleDateString('es-MX', { weekday: 'short', day: '2-digit', month: 'short' });
+
+            const bloques = (datosExistentes[fechaStr] && datosExistentes[fechaStr].length)
+                ? datosExistentes[fechaStr]
+                : [{ horaInicio: '', horaTermino: '', observacion: '', sinActividad: false }];
+
+            bloques.forEach((b, idx) => {
+                agregarFilaBloque(tbody, fechaStr, fechaLabel, b, idx === 0);
+            });
+
+            agregarFilaBotonAgregar(tbody, fechaStr);
+            actualizarRowspanFecha(tbody, fechaStr);
+        }
+
+        resumen.textContent = `${totalDias} día${totalDias !== 1 ? 's' : ''}`;
+        bloque.classList.remove('hidden');
     }
 
-    // Parsear como fecha local (no UTC) agregando T00:00 para forzar hora local
-    const inicio = new Date(llegada + 'T00:00');
-    const fin    = new Date(salida  + 'T00:00');
-
-    // Normalizar a medianoche para contar días completos
-    const dInicio = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
-    const dFin    = new Date(fin.getFullYear(),    fin.getMonth(),    fin.getDate());
-
-    const diffMs   = dFin - dInicio;
-    const totalDias = Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1; // +1 incluye el día de llegada
-
-    // Guardar filas existentes para no borrar lo que el usuario ya escribió
-    const datosExistentes = {};
-    tbody.querySelectorAll('tr[data-fecha]').forEach(tr => {
-        const fecha = tr.dataset.fecha;
-        datosExistentes[fecha] = {
-        horaInicio:  tr.querySelector('.bit-inicio')?.value || '',
-        horaTermino: tr.querySelector('.bit-termino')?.value || '',
-        observacion: tr.querySelector('.bit-obs')?.value || '',
-        sinActividad: tr.querySelector('.bit-sin-actividad')?.checked || false
-        };
-    });
-
-    tbody.innerHTML = '';
-
-    for (let i = 0; i < totalDias; i++) {
-        const d = new Date(dInicio);
-        d.setDate(dInicio.getDate() + i);
-
-        const yyyy = d.getFullYear();
-        const mm   = String(d.getMonth() + 1).padStart(2, '0');
-        const dd   = String(d.getDate()).padStart(2, '0');
-        const fechaStr = `${yyyy}-${mm}-${dd}`;
-        const fechaLabel = d.toLocaleDateString('es-MX', { weekday: 'short', day: '2-digit', month: 'short' });
-
-        const prev = datosExistentes[fechaStr] || {};
-
+    function agregarFilaBloque(tbody, fechaStr, fechaLabel, datos, esPrimero, insertarAntesDe = null) {
         const tr = document.createElement('tr');
         tr.dataset.fecha = fechaStr;
         tr.className = 'border-b border-slate-100 hover:bg-slate-50 transition-colors';
-        const esSinActividad = prev.sinActividad || false;
-        tr.innerHTML = `
-        <td class="px-4 py-3">
-            <span class="font-semibold text-slate-600">${fechaLabel}</span>
-            <br><span class="text-slate-400 text-[10px]">${fechaStr}</span>
-        </td>
-        <td class="px-4 py-2">
-            <input type="time" class="bit-inicio w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-red-200" value="${prev.horaInicio || ''}" ${esSinActividad ? 'disabled' : ''}>
-        </td>
-        <td class="px-4 py-2">
-            <input type="time" class="bit-termino w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-red-200" value="${prev.horaTermino || ''}" ${esSinActividad ? 'disabled' : ''}>
-        </td>
-        <td class="px-4 py-2">
-            <input type="text" class="bit-obs w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-red-200" placeholder="¿Qué sucedió este día?" value="${prev.observacion || ''}" ${esSinActividad ? 'disabled' : ''}>
-        </td>
-        <td class="px-4 py-2 text-center">
-            <label class="flex flex-col items-center gap-1 cursor-pointer" title="Sin actividad este día">
+
+        const esSinActividad = datos.sinActividad || false;
+
+        const celdaFecha = esPrimero
+            ? `<td class="px-4 py-3 align-top" data-celda-fecha>
+                <span class="font-semibold text-slate-600">${fechaLabel || ''}</span>
+                <br><span class="text-slate-400 text-[10px]">${fechaStr}</span>
+            </td>`
+            : '';
+
+        const celdaAccion = esPrimero
+            ? `<label class="flex flex-col items-center gap-1 cursor-pointer" title="Sin actividad este día">
                 <input type="checkbox" class="bit-sin-actividad w-4 h-4 accent-slate-400 cursor-pointer" ${esSinActividad ? 'checked' : ''}>
                 <span class="text-[10px] text-slate-400 leading-none">N/A</span>
-            </label>
-        </td>
+            </label>`
+            : `<button type="button" class="bit-eliminar-bloque text-slate-300 hover:text-red-500" title="Eliminar este bloque">
+                <i class="fas fa-trash"></i>
+            </button>`;
+
+        tr.innerHTML = `
+            ${celdaFecha}
+            <td class="px-4 py-2">
+                <input type="time" class="bit-inicio w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-red-200" value="${datos.horaInicio || ''}" ${esSinActividad ? 'disabled' : ''}>
+            </td>
+            <td class="px-4 py-2">
+                <input type="time" class="bit-termino w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-red-200" value="${datos.horaTermino || ''}" ${esSinActividad ? 'disabled' : ''}>
+            </td>
+            <td class="px-4 py-2">
+                <input type="text" class="bit-obs w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-red-200" placeholder="¿Qué sucedió este día?" value="${datos.observacion || ''}" ${esSinActividad ? 'disabled' : ''}>
+            </td>
+            <td class="px-4 py-2 text-center">${celdaAccion}</td>
         `;
-        tbody.appendChild(tr);
 
-        // Listener para la casilla "sin actividad"
-        tr.querySelector('.bit-sin-actividad').addEventListener('change', function() {
-            const bloqueado = this.checked;
-            tr.querySelector('.bit-inicio').disabled  = bloqueado;
-            tr.querySelector('.bit-termino').disabled = bloqueado;
-            tr.querySelector('.bit-obs').disabled     = bloqueado;
-            if (bloqueado) {
-                tr.querySelector('.bit-inicio').value  = '';
-                tr.querySelector('.bit-termino').value = '';
-                tr.querySelector('.bit-obs').value     = '';
-                tr.classList.add('bg-slate-50', 'opacity-60');
-            } else {
-                tr.classList.remove('bg-slate-50', 'opacity-60');
+        if (insertarAntesDe) {
+            tbody.insertBefore(tr, insertarAntesDe);
+        } else {
+            tbody.appendChild(tr);
+        }
+
+        const chkNA = tr.querySelector('.bit-sin-actividad');
+        if (chkNA) {
+            const bloquearBotonAgregar = (bloqueado) => {
+                const filaBoton = tbody.querySelector(`tr[data-fila-agregar="${fechaStr}"]`);
+                const btn = filaBoton?.querySelector('.bit-agregar-bloque');
+                if (btn) {
+                    btn.disabled = bloqueado;
+                    btn.classList.toggle('opacity-40', bloqueado);
+                    btn.classList.toggle('cursor-not-allowed', bloqueado);
+                    btn.classList.toggle('hover:text-red-500', !bloqueado);
+                }
+            };
+
+            chkNA.addEventListener('change', function() {
+                const bloqueado = this.checked;
+                document.querySelectorAll(`#tabla-bitacora tr[data-fecha="${fechaStr}"]`).forEach(fila => {
+                    const i = fila.querySelector('.bit-inicio');
+                    const t = fila.querySelector('.bit-termino');
+                    const o = fila.querySelector('.bit-obs');
+                    if (i) i.disabled = bloqueado;
+                    if (t) t.disabled = bloqueado;
+                    if (o) o.disabled = bloqueado;
+                    if (bloqueado) {
+                        if (i) i.value = '';
+                        if (t) t.value = '';
+                        if (o) o.value = '';
+                        fila.classList.add('bg-slate-50', 'opacity-60');
+                    } else {
+                        fila.classList.remove('bg-slate-50', 'opacity-60');
+                    }
+                });
+                bloquearBotonAgregar(bloqueado);
+            });
+
+            if (esSinActividad) {
+                document.querySelectorAll(`#tabla-bitacora tr[data-fecha="${fechaStr}"]`).forEach(fila => fila.classList.add('bg-slate-50', 'opacity-60'));
+                bloquearBotonAgregar(true);
             }
-        });
+        }
 
-        // Aplicar estado visual si ya venía marcado al cargar
-        if (esSinActividad) tr.classList.add('bg-slate-50', 'opacity-60');
+        const btnEliminar = tr.querySelector('.bit-eliminar-bloque');
+        if (btnEliminar) {
+            btnEliminar.addEventListener('click', function() {
+                tr.remove();
+                actualizarRowspanFecha(tbody, fechaStr);
+            });
+        }
+
+        return tr;
     }
 
-    resumen.textContent = `${totalDias} día${totalDias !== 1 ? 's' : ''}`;
-    bloque.classList.remove('hidden');
+    function agregarFilaBotonAgregar(tbody, fechaStr) {
+        const trBoton = document.createElement('tr');
+        trBoton.dataset.filaAgregar = fechaStr;
+        trBoton.className = 'border-b border-slate-200';
+        trBoton.innerHTML = `
+            <td colspan="5" class="px-4 py-2 text-center">
+                <button type="button" class="bit-agregar-bloque text-xs font-semibold text-red-500 hover:text-red-600">
+                    <i class="fas fa-plus mr-1"></i>Agregar actividad
+                </button>
+            </td>
+        `;
+        tbody.appendChild(trBoton);
+
+        trBoton.querySelector('.bit-agregar-bloque').addEventListener('click', function() {
+            agregarFilaBloque(tbody, fechaStr, null, { horaInicio: '', horaTermino: '', observacion: '', sinActividad: false }, false, trBoton);
+            actualizarRowspanFecha(tbody, fechaStr);
+        });
+
+        return trBoton;
+    }
+
+    function actualizarRowspanFecha(tbody, fechaStr) {
+        const filas = tbody.querySelectorAll(`tr[data-fecha="${fechaStr}"]`);
+        const celdaFecha = tbody.querySelector(`tr[data-fecha="${fechaStr}"] td[data-celda-fecha]`);
+        if (celdaFecha) celdaFecha.rowSpan = filas.length;
     }
   </script>
 
