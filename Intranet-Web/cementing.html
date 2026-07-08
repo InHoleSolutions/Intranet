@@ -740,26 +740,14 @@
             <!-- ══ PASO 3 ══ -->
             <div id="paso-3" class="hidden h-full overflow-y-auto">
 
-                <div class="flex items-center justify-between mb-5">
-                    <p class="text-xs font-bold uppercase tracking-widest text-slate-400">INFORMACIÓN DE INGENIERIA - TÉCNICA</p>
-                    <label class="flex items-center gap-2 cursor-pointer select-none">
-                        <input type="checkbox" id="f-datos-tecnicos-na" class="w-4 h-4 accent-slate-400" onchange="toggleDatosTecnicos(this.checked)">
-                        <span class="text-xs font-semibold text-slate-400">No aplica</span>
-                    </label>
-                </div>
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5">INFORMACIÓN DE INGENIERIA - TÉCNICA</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-7">
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 mb-1.5">Línea de Producto</label>
                         <input id="f-linea-producto" type="text" placeholder="Ej. Cementing, Packers, GasLift etc" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
-                        <div class="flex items-center justify-between mb-1.5">
-                            <label class="block text-xs font-semibold text-slate-500">Modelo-Nombre del Equipo</label>
-                            <label class="flex items-center gap-2 cursor-pointer select-none">
-                                <input type="checkbox" id="f-modelo-herramienta-na" class="w-4 h-4 accent-slate-400" onchange="toggleModeloHerramienta(this.checked)">
-                                <span class="text-xs font-semibold text-slate-400">No aplica</span>
-                            </label>
-                        </div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Modelo-Nombre del Equipo</label>
                         <input id="f-modelo-herramienta" type="text" placeholder="Ej. RTTS-5500" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
 
@@ -809,7 +797,13 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Presión de Corte Pin (1st) - Total Shear Value</label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-semibold text-slate-500">Presión de Corte Pin (1st) - Total Shear Value</label>
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input type="checkbox" id="f-presion-corte-pin1-na" class="w-4 h-4 accent-slate-400" onchange="toggleCampoNA(this.checked, 'f-presion-corte-pin1')">
+                                <span class="text-xs font-semibold text-slate-400">No aplica</span>
+                            </label>
+                        </div>
                         <input id="f-presion-corte-pin1" type="number" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
@@ -818,61 +812,139 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Área de Pistón (Pulg/2)</label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-semibold text-slate-500">Área de Pistón (Pulg/2)</label>
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input type="checkbox" id="f-area-piston-na" class="w-4 h-4 accent-slate-400" onchange="toggleCampoNA(this.checked, 'f-area-piston')">
+                                <span class="text-xs font-semibold text-slate-400">No aplica</span>
+                            </label>
+                        </div>
                         <input id="f-area-piston" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Presión de Corte Pines (2st) - Total Shear Value</label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-semibold text-slate-500">Presión de Corte Pines (2st) - Total Shear Value</label>
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input type="checkbox" id="f-presion-corte-pin2-na" class="w-4 h-4 accent-slate-400" onchange="toggleCampoNA(this.checked, 'f-presion-corte-pin2')">
+                                <span class="text-xs font-semibold text-slate-400">No aplica</span>
+                            </label>
+                        </div>
                         <input id="f-presion-corte-pin2" type="number"  class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Landing Profile</label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-semibold text-slate-500">Landing Profile</label>
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input type="checkbox" id="f-landing-profile-na" class="w-4 h-4 accent-slate-400" onchange="toggleCampoNA(this.checked, 'f-landing-profile')">
+                                <span class="text-xs font-semibold text-slate-400">No aplica</span>
+                            </label>
+                        </div>
                         <input id="f-landing-profile" type="text" placeholder="Ej. Perfil de Niple de asiento, perfil de aterrizaje de tapones, Válvula de tormenta etc..." class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Presión de Activación</label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-semibold text-slate-500">Presión de Activación</label>
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input type="checkbox" id="f-presion-activacion-na" class="w-4 h-4 accent-slate-400" onchange="toggleCampoNA(this.checked, 'f-presion-activacion')">
+                                <span class="text-xs font-semibold text-slate-400">No aplica</span>
+                            </label>
+                        </div>
                         <input id="f-presion-activacion" type="number" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Presión de Apertura TRSV (Psi)</label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-semibold text-slate-500">Presión de Apertura TRSV (Psi)</label>
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input type="checkbox" id="f-presion-apertura-trsv-na" class="w-4 h-4 accent-slate-400" onchange="toggleCampoNA(this.checked, 'f-presion-apertura-trsv')">
+                                <span class="text-xs font-semibold text-slate-400">No aplica</span>
+                            </label>
+                        </div>
                         <input id="f-presion-apertura-trsv" type="number" placeholder="Nota: Únicamente para válvulas de tormenta" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">OD Esfera (Ball)</label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-semibold text-slate-500">OD Esfera (Ball)</label>
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input type="checkbox" id="f-od-esfera-na" class="w-4 h-4 accent-slate-400" onchange="toggleCampoNA(this.checked, 'f-od-esfera')">
+                                <span class="text-xs font-semibold text-slate-400">No aplica</span>
+                            </label>
+                        </div>
                         <input id="f-od-esfera" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Material del Flapper/Plunger</label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-semibold text-slate-500">Material del Flapper/Plunger</label>
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input type="checkbox" id="f-material-flapper-na" class="w-4 h-4 accent-slate-400" onchange="toggleCampoNA(this.checked, 'f-material-flapper')">
+                                <span class="text-xs font-semibold text-slate-400">No aplica</span>
+                            </label>
+                        </div>
                         <input id="f-material-flapper" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Presión de Cierre TRSV (Psi)</label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-semibold text-slate-500">Presión de Cierre TRSV (Psi)</label>
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input type="checkbox" id="f-presion-cierre-trsv-na" class="w-4 h-4 accent-slate-400" onchange="toggleCampoNA(this.checked, 'f-presion-cierre-trsv')">
+                                <span class="text-xs font-semibold text-slate-400">No aplica</span>
+                            </label>
+                        </div>
                         <input id="f-presion-cierre-trsv" type="number" placeholder="Nota: Únicamente para válvulas de tormenta" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Presión de Trabajo Contra-Flujo Flapper/Plunger (Psi)</label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-semibold text-slate-500">Presión de Trabajo Contra-Flujo Flapper/Plunger (Psi)</label>
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input type="checkbox" id="f-presion-contraflujo-na" class="w-4 h-4 accent-slate-400" onchange="toggleCampoNA(this.checked, 'f-presion-contraflujo')">
+                                <span class="text-xs font-semibold text-slate-400">No aplica</span>
+                            </label>
+                        </div>
                         <input id="f-presion-contraflujo" type="number" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Cantidad de Plungers o Flappers</label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-semibold text-slate-500">Cantidad de Plungers o Flappers</label>
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input type="checkbox" id="f-cantidad-plungers-na" class="w-4 h-4 accent-slate-400" onchange="toggleCampoNA(this.checked, 'f-cantidad-plungers')">
+                                <span class="text-xs font-semibold text-slate-400">No aplica</span>
+                            </label>
+                        </div>
                         <input id="f-cantidad-plungers" type="number" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Cantidad de Cortadores PDC/Tungsteno (Drill Bit/Reamer)</label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-semibold text-slate-500">Cantidad de Cortadores PDC/Tungsteno (Drill Bit/Reamer)</label>
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input type="checkbox" id="f-cortadores-pdc-na" class="w-4 h-4 accent-slate-400" onchange="toggleCampoNA(this.checked, 'f-cortadores-pdc')">
+                                <span class="text-xs font-semibold text-slate-400">No aplica</span>
+                            </label>
+                        </div>
                         <input id="f-cortadores-pdc" type="number" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nose/Crown Material (Drill Bit)</label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-semibold text-slate-500">Nose/Crown Material (Drill Bit)</label>
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input type="checkbox" id="f-nose-crown-material-na" class="w-4 h-4 accent-slate-400" onchange="toggleCampoNA(this.checked, 'f-nose-crown-material')">
+                                <span class="text-xs font-semibold text-slate-400">No aplica</span>
+                            </label>
+                        </div>
                         <input id="f-nose-crown-material" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
 
                     <div class="sm:col-start-2">
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Cantidad de Aletas (Drill Bit/Reamer)</label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-semibold text-slate-500">Cantidad de Aletas (Drill Bit/Reamer)</label>
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input type="checkbox" id="f-cantidad-aletas-na" class="w-4 h-4 accent-slate-400" onchange="toggleCampoNA(this.checked, 'f-cantidad-aletas')">
+                                <span class="text-xs font-semibold text-slate-400">No aplica</span>
+                            </label>
+                        </div>
                         <input id="f-cantidad-aletas" type="number" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                 </div>
@@ -1528,123 +1600,125 @@
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
                 <i class="fas fa-flask-vial mr-2"></i>Datos Técnicos
                 </p>
-                <div class="grid grid-cols-3 gap-4 text-sm">
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Línea de Producto</span>
-                    <span id="rep-linea-producto" class="text-white font-semibold">—</span>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-sm">
+
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Línea de Producto</p>
+                    <p id="rep-linea-producto" class="text-white font-semibold">—</p>
                 </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Modelo-Nombre del Equipo</span>
-                    <span id="rep-modelo" class="text-white font-semibold">—</span>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Modelo-Nombre del Equipo</p>
+                    <p id="rep-modelo" class="text-white font-semibold">—</p>
                 </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Grado de Acero-Material</span>
-                    <span id="rep-grado-acero" class="text-white font-semibold">—</span>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Grado de Acero-Material</p>
+                    <p id="rep-grado-acero" class="text-white font-semibold">—</p>
                 </div>
 
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Temperatura de Trabajo</span>
-                    <span id="rep-temperatura" class="text-white font-semibold">—</span>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Temperatura de Trabajo</p>
+                    <p id="rep-temperatura" class="text-white font-semibold">—</p>
                 </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Casing Size</span>
-                    <span id="rep-casing-size" class="text-white font-semibold">—</span>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Casing Size</p>
+                    <p id="rep-casing-size" class="text-white font-semibold">—</p>
                 </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Tamaño, Libraje y Conexión</span>
-                    <span id="rep-tamano-libraje-conexion" class="text-white font-semibold">—</span>
-                </div>
-
-                <div class="flex justify-between">
-                    <span class="text-slate-500">OD Máximo</span>
-                    <span id="rep-od-maximo" class="text-white font-semibold">—</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Material del Elastómero</span>
-                    <span id="rep-material-elastomero" class="text-white font-semibold">—</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Mínima Área de Flujo</span>
-                    <span id="rep-area-flujo-min" class="text-white font-semibold">—</span>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Tamaño, Libraje y Conexión</p>
+                    <p id="rep-tamano-libraje-conexion" class="text-white font-semibold">—</p>
                 </div>
 
-                <div class="flex justify-between">
-                    <span class="text-slate-500">ID Mínimo</span>
-                    <span id="rep-id-minimo" class="text-white font-semibold">—</span>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">OD Máximo</p>
+                    <p id="rep-od-maximo" class="text-white font-semibold">—</p>
                 </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Seal Bore</span>
-                    <span id="rep-seal-bore" class="text-white font-semibold">—</span>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Material del Elastómero</p>
+                    <p id="rep-material-elastomero" class="text-white font-semibold">—</p>
                 </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Máximo Rating Presión</span>
-                    <span id="rep-rating-presion-max" class="text-white font-semibold">—</span>
-                </div>
-
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Presión de Corte Pin (1st)</span>
-                    <span id="rep-presion-corte-pin1" class="text-white font-semibold">—</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Presión de Estallido</span>
-                    <span id="rep-presion-estallido" class="text-white font-semibold">—</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Área de Pistón</span>
-                    <span id="rep-area-piston" class="text-white font-semibold">—</span>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Mínima Área de Flujo</p>
+                    <p id="rep-area-flujo-min" class="text-white font-semibold">—</p>
                 </div>
 
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Presión de Corte Pines (2st)</span>
-                    <span id="rep-presion-corte-pin2" class="text-white font-semibold">—</span>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">ID Mínimo</p>
+                    <p id="rep-id-minimo" class="text-white font-semibold">—</p>
                 </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Landing Profile</span>
-                    <span id="rep-landing-profile" class="text-white font-semibold">—</span>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Seal Bore</p>
+                    <p id="rep-seal-bore" class="text-white font-semibold">—</p>
                 </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Presión de Activación</span>
-                    <span id="rep-presion-activacion" class="text-white font-semibold">—</span>
-                </div>
-
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Presión de Apertura TRSV</span>
-                    <span id="rep-presion-apertura-trsv" class="text-white font-semibold">—</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">OD Esfera (Ball)</span>
-                    <span id="rep-od-esfera" class="text-white font-semibold">—</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Material del Flapper/Plunger</span>
-                    <span id="rep-material-flapper" class="text-white font-semibold">—</span>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Máximo Rating Presión</p>
+                    <p id="rep-rating-presion-max" class="text-white font-semibold">—</p>
                 </div>
 
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Presión de Cierre TRSV</span>
-                    <span id="rep-presion-cierre-trsv" class="text-white font-semibold">—</span>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Presión de Corte Pin (1st)</p>
+                    <p id="rep-presion-corte-pin1" class="text-white font-semibold">—</p>
                 </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Presión Contra-Flujo Flapper/Plunger</span>
-                    <span id="rep-presion-contraflujo" class="text-white font-semibold">—</span>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Presión de Estallido</p>
+                    <p id="rep-presion-estallido" class="text-white font-semibold">—</p>
                 </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Cantidad de Plungers o Flappers</span>
-                    <span id="rep-cantidad-plungers" class="text-white font-semibold">—</span>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Área de Pistón</p>
+                    <p id="rep-area-piston" class="text-white font-semibold">—</p>
                 </div>
 
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Cortadores PDC/Tungsteno</span>
-                    <span id="rep-cortadores-pdc" class="text-white font-semibold">—</span>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Presión de Corte Pines (2st)</p>
+                    <p id="rep-presion-corte-pin2" class="text-white font-semibold">—</p>
                 </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Nose/Crown Material</span>
-                    <span id="rep-nose-crown-material" class="text-white font-semibold">—</span>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Landing Profile</p>
+                    <p id="rep-landing-profile" class="text-white font-semibold">—</p>
                 </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Cantidad de Aletas</span>
-                    <span id="rep-cantidad-aletas" class="text-white font-semibold">—</span>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Presión de Activación</p>
+                    <p id="rep-presion-activacion" class="text-white font-semibold">—</p>
                 </div>
+
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Presión de Apertura TRSV</p>
+                    <p id="rep-presion-apertura-trsv" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">OD Esfera (Ball)</p>
+                    <p id="rep-od-esfera" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Material del Flapper/Plunger</p>
+                    <p id="rep-material-flapper" class="text-white font-semibold">—</p>
+                </div>
+
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Presión de Cierre TRSV</p>
+                    <p id="rep-presion-cierre-trsv" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Presión Contra-Flujo Flapper/Plunger</p>
+                    <p id="rep-presion-contraflujo" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Cantidad de Plungers o Flappers</p>
+                    <p id="rep-cantidad-plungers" class="text-white font-semibold">—</p>
+                </div>
+
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Cortadores PDC/Tungsteno</p>
+                    <p id="rep-cortadores-pdc" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Nose/Crown Material</p>
+                    <p id="rep-nose-crown-material" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Cantidad de Aletas</p>
+                    <p id="rep-cantidad-aletas" class="text-white font-semibold">—</p>
+                </div>
+
                 </div>
             </div>
             </div>
@@ -1655,21 +1729,69 @@
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
                 <i class="fas fa-mountain mr-2"></i>Información General
                 </p>
-                <div class="grid grid-cols-3 gap-4 text-sm">
-                <div class="flex justify-between"><span class="text-slate-500">Nombre del Pozo</span><span id="rep-dp-nombre-pozo" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Nombre del Campo</span><span id="rep-dp-nombre-campo" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Representante del Cliente</span><span id="rep-dp-rep-cliente" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Representante IHS</span><span id="rep-dp-rep-ihs" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Cía. Operadora</span><span id="rep-dp-cia-operadora" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Número de Equipo (Rig)</span><span id="rep-dp-equipo" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Ubicación Geográfica</span><span id="rep-dp-ubicacion-geografica" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Fluido de Producción</span><span id="rep-dp-fluido-produccion" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Estado</span><span id="rep-dp-estado" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Municipio</span><span id="rep-dp-municipio" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Localidad</span><span id="rep-dp-localidad" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Distrito</span><span id="rep-dp-distrito" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Tipo de Campo</span><span id="rep-dp-tipo-campo" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Tipo de Intervención</span><span id="rep-dp-tipo-intervencion" class="text-white font-semibold">—</span></div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-sm">
+
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Nombre del Pozo</p>
+                    <p id="rep-dp-nombre-pozo" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Nombre del Campo</p>
+                    <p id="rep-dp-nombre-campo" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Representante del Cliente</p>
+                    <p id="rep-dp-rep-cliente" class="text-white font-semibold">—</p>
+                </div>
+
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Representante IHS</p>
+                    <p id="rep-dp-rep-ihs" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Cía. Operadora</p>
+                    <p id="rep-dp-cia-operadora" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Número de Equipo (Rig)</p>
+                    <p id="rep-dp-equipo" class="text-white font-semibold">—</p>
+                </div>
+
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Ubicación Geográfica</p>
+                    <p id="rep-dp-ubicacion-geografica" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Fluido de Producción</p>
+                    <p id="rep-dp-fluido-produccion" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Estado</p>
+                    <p id="rep-dp-estado" class="text-white font-semibold">—</p>
+                </div>
+
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Municipio</p>
+                    <p id="rep-dp-municipio" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Localidad</p>
+                    <p id="rep-dp-localidad" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Distrito</p>
+                    <p id="rep-dp-distrito" class="text-white font-semibold">—</p>
+                </div>
+
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Tipo de Campo</p>
+                    <p id="rep-dp-tipo-campo" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Tipo de Intervención</p>
+                    <p id="rep-dp-tipo-intervencion" class="text-white font-semibold">—</p>
+                </div>
+
                 </div>
             </div>
             </div>
@@ -1680,18 +1802,56 @@
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
                 <i class="fas fa-mountain mr-2"></i>Datos Técnicos del Pozo
                 </p>
-                <div class="grid grid-cols-3 gap-4 text-sm">
-                <div class="flex justify-between"><span class="text-slate-500">TD</span><span id="rep-dp-td" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">TVD</span><span id="rep-dp-tvd" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Tipo de Pozo</span><span id="rep-dp-tipo-pozo" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Ángulo Máximo (°)</span><span id="rep-dp-angulo-maximo" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Última BL (TOL)</span><span id="rep-dp-ultima-bl" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Prof. Zona de Interés</span><span id="rep-dp-profundidad-zona-interes" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Temp. de Fondo</span><span id="rep-dp-temp-fondo" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Temp. en Superficie</span><span id="rep-dp-temp-superficie" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Tipo de Fluido de Control</span><span id="rep-dp-tipo-fluido-control" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Densidad Fluido de Control</span><span id="rep-dp-densidad-fluido-control" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Pérdida de Circulación</span><span id="rep-dp-perdida-circulacion" class="text-white font-semibold">—</span></div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-sm">
+
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">TD</p>
+                    <p id="rep-dp-td" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">TVD</p>
+                    <p id="rep-dp-tvd" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Tipo de Pozo</p>
+                    <p id="rep-dp-tipo-pozo" class="text-white font-semibold">—</p>
+                </div>
+
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Ángulo Máximo (°)</p>
+                    <p id="rep-dp-angulo-maximo" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Última BL (TOL)</p>
+                    <p id="rep-dp-ultima-bl" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Prof. Zona de Interés</p>
+                    <p id="rep-dp-profundidad-zona-interes" class="text-white font-semibold">—</p>
+                </div>
+
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Temp. de Fondo</p>
+                    <p id="rep-dp-temp-fondo" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Temp. en Superficie</p>
+                    <p id="rep-dp-temp-superficie" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Tipo de Fluido de Control</p>
+                    <p id="rep-dp-tipo-fluido-control" class="text-white font-semibold">—</p>
+                </div>
+
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Densidad Fluido de Control</p>
+                    <p id="rep-dp-densidad-fluido-control" class="text-white font-semibold">—</p>
+                </div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Pérdida de Circulación</p>
+                    <p id="rep-dp-perdida-circulacion" class="text-white font-semibold">—</p>
+                </div>
+
                 </div>
             </div>
             </div>
@@ -1702,7 +1862,7 @@
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
                 <i class="fas fa-mountain mr-2"></i>Profundidad de Instalación de Herramientas
                 </p>
-                <div id="rep-dp-herramientas" class="grid grid-cols-3 gap-4 text-sm">
+                <div id="rep-dp-herramientas" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-sm">
                 <!-- Se llena dinámicamente por JS -->
                 </div>
             </div>
@@ -2728,64 +2888,16 @@
         document.body.style.overflow = 'hidden';
     }
 
-    function toggleDatosTecnicos(bloqueado) {
-        const ids = [
-            'f-linea-producto', 'f-grado-acero', 'f-casing-size', 'f-tamano-libraje-conexion',
-            'f-od-maximo', 'f-material-elastomero', 'f-area-flujo-min', 'f-id-minimo',
-            'f-seal-bore', 'f-rating-presion-max', 'f-presion-corte-pin1', 'f-presion-estallido',
-            'f-area-piston', 'f-presion-corte-pin2', 'f-landing-profile', 'f-presion-activacion',
-            'f-presion-apertura-trsv', 'f-od-esfera', 'f-material-flapper', 'f-presion-cierre-trsv',
-            'f-presion-contraflujo', 'f-cantidad-plungers', 'f-cortadores-pdc', 'f-nose-crown-material',
-            'f-cantidad-aletas', 'f-temperatura'
-        ];
-        ids.forEach(id => {
-            const el = document.getElementById(id);
-            if (!el) return;
-            el.disabled = bloqueado;
-            if (bloqueado) {
-                el.value = '';
-                el.classList.add('bg-slate-50', 'text-slate-300', 'cursor-not-allowed');
-            } else {
-                el.classList.remove('bg-slate-50', 'text-slate-300', 'cursor-not-allowed');
-            }
-        });
-
-        // Modelo de herramienta: si "No aplica general" se activa, también bloquea el modelo
-        // y desactiva/oculta su checkbox propio
-        const checkModelo = document.getElementById('f-modelo-herramienta-na');
+    function toggleCampoNA(bloqueado, id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.disabled = bloqueado;
         if (bloqueado) {
-            if (checkModelo) checkModelo.checked = false;
-            toggleModeloHerramienta(false); // resetea visualmente
-            document.getElementById('f-modelo-herramienta').disabled = true;
-            document.getElementById('f-modelo-herramienta').value = '';
-            document.getElementById('f-modelo-herramienta').classList.add('bg-slate-50', 'text-slate-300', 'cursor-not-allowed');
-            if (checkModelo) checkModelo.disabled = true;
+            el.value = '';
+            el.classList.add('bg-slate-50', 'text-slate-300', 'cursor-not-allowed');
         } else {
-            document.getElementById('f-modelo-herramienta').classList.remove('bg-slate-50', 'text-slate-300', 'cursor-not-allowed');
-            if (checkModelo) checkModelo.disabled = false;
-            // El campo modelo se rehabilita salvo que su propio "No aplica" esté marcado
-            if (checkModelo && !checkModelo.checked) {
-                document.getElementById('f-modelo-herramienta').disabled = false;
-            }
+            el.classList.remove('bg-slate-50', 'text-slate-300', 'cursor-not-allowed');
         }
-    }
-
-    function toggleModeloHerramienta(bloqueado) {
-        const campos = [
-            'f-modelo-herramienta'
-        ];
-
-        campos.forEach(id => {
-            const el = document.getElementById(id);
-            if (!el) return;
-            el.disabled = bloqueado;
-            if (bloqueado) {
-                el.value = '';
-                el.classList.add('bg-slate-50', 'text-slate-300', 'cursor-not-allowed');
-            } else {
-                el.classList.remove('bg-slate-50', 'text-slate-300', 'cursor-not-allowed');
-            }
-        });
     }
 
     function toggleVentanaBombeo(bloqueado) {
@@ -3263,8 +3375,6 @@
 
     // ── LIMPIAR FORMULARIO ──
     function limpiarFormulario() {
-        const naCheck = document.getElementById('f-datos-tecnicos-na');
-        if (naCheck) { naCheck.checked = false; toggleDatosTecnicos(false); }
         const naBombeo = document.getElementById('f-bombeo-na');
         if (naBombeo) { naBombeo.checked = false; toggleVentanaBombeo(false); }
 
@@ -3331,13 +3441,7 @@
             naBombeo.checked = op.bombeo_na || false;
             toggleVentanaBombeo(op.bombeo_na || false);
         }
-        const naCheck = document.getElementById('f-datos-tecnicos-na');
-        if (naCheck) {
-            naCheck.checked = op.datos_tecnicos_na || false;
-            toggleDatosTecnicos(op.datos_tecnicos_na || false);
-        }
         document.getElementById('f-temperatura').value     = op.temperatura_trabajo || '';
-        document.getElementById('f-modelo-herramienta-na').checked = op.modelo_herramienta_na || false;
         document.getElementById('f-modelo-herramienta').value = op.modelo_herramienta || '';
         document.getElementById('f-linea-producto').value        = op.linea_producto || '';
         document.getElementById('f-grado-acero').value            = op.grado_acero_material || '';
@@ -3364,7 +3468,6 @@
         document.getElementById('f-cortadores-pdc').value          = op.cortadores_pdc_tungsteno || '';
         document.getElementById('f-nose-crown-material').value     = op.nose_crown_material || '';
         document.getElementById('f-cantidad-aletas').value         = op.cantidad_aletas || '';
-        toggleModeloHerramienta(op.modelo_herramienta_na || false);
         document.getElementById('f-dp-nombre-pozo').value                  = op.dp_nombre_pozo || '';
         document.getElementById('f-dp-nombre-campo').value                 = op.dp_nombre_campo || '';
         document.getElementById('f-dp-rep-cliente').value                  = op.dp_rep_cliente || '';
@@ -3528,35 +3631,33 @@
             bombeo_na:             document.getElementById('f-bombeo-na').checked,
             fecha_inicio_bombeo:   document.getElementById('f-bombeo-na').checked ? null : document.getElementById('f-inicio-bombeo').value || null,
             fecha_fin_bombeo:      document.getElementById('f-bombeo-na').checked ? null : document.getElementById('f-fin-bombeo').value || null,
-            datos_tecnicos_na:     document.getElementById('f-datos-tecnicos-na').checked,
-            temperatura_trabajo:   document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-temperatura').value) || null,
-            modelo_herramienta_na: document.getElementById('f-modelo-herramienta-na').checked,
-            modelo_herramienta:    (document.getElementById('f-datos-tecnicos-na').checked || document.getElementById('f-modelo-herramienta-na').checked) ? null : document.getElementById('f-modelo-herramienta').value || null,
-            linea_producto:            document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-linea-producto').value || null,
-            grado_acero_material:      document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-grado-acero').value || null,
-            casing_size:               document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-casing-size').value || null,
-            tamano_libraje_conexion:   document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-tamano-libraje-conexion').value || null,
-            od_maximo:                 document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-od-maximo').value || null,
-            material_elastomero:       document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-material-elastomero').value || null,
-            area_flujo_minima:         document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-area-flujo-min').value || null,
-            id_minimo:                 document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-id-minimo').value || null,
-            seal_bore:                 document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-seal-bore').value || null,
-            rating_presion_maximo:     document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-rating-presion-max').value) || null,
-            presion_corte_pin1:        document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-presion-corte-pin1').value) || null,
-            presion_estallido:         document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-presion-estallido').value) || null,
-            area_piston:               document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-area-piston').value || null,
-            presion_corte_pin2:        document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-presion-corte-pin2').value) || null,
-            landing_profile:           document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-landing-profile').value || null,
-            presion_activacion:        document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-presion-activacion').value) || null,
-            presion_apertura_trsv:     document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-presion-apertura-trsv').value) || null,
-            od_esfera:                 document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-od-esfera').value || null,
-            material_flapper_plunger:  document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-material-flapper').value || null,
-            presion_cierre_trsv:       document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-presion-cierre-trsv').value) || null,
-            presion_contraflujo:       document.getElementById('f-datos-tecnicos-na').checked ? null : parseFloat(document.getElementById('f-presion-contraflujo').value) || null,
-            cantidad_plungers_flappers: document.getElementById('f-datos-tecnicos-na').checked ? null : parseInt(document.getElementById('f-cantidad-plungers').value) || null,
-            cortadores_pdc_tungsteno:  document.getElementById('f-datos-tecnicos-na').checked ? null : parseInt(document.getElementById('f-cortadores-pdc').value) || null,
-            nose_crown_material:       document.getElementById('f-datos-tecnicos-na').checked ? null : document.getElementById('f-nose-crown-material').value || null,
-            cantidad_aletas:           document.getElementById('f-datos-tecnicos-na').checked ? null : parseInt(document.getElementById('f-cantidad-aletas').value) || null,
+            temperatura_trabajo:   parseFloat(document.getElementById('f-temperatura').value) || null,
+            modelo_herramienta:    document.getElementById('f-modelo-herramienta').value || null,
+            linea_producto:            document.getElementById('f-linea-producto').value || null,
+            grado_acero_material:      document.getElementById('f-grado-acero').value || null,
+            casing_size:               document.getElementById('f-casing-size').value || null,
+            tamano_libraje_conexion:   document.getElementById('f-tamano-libraje-conexion').value || null,
+            od_maximo:                 document.getElementById('f-od-maximo').value || null,
+            material_elastomero:       document.getElementById('f-material-elastomero').value || null,
+            area_flujo_minima:         document.getElementById('f-area-flujo-min').value || null,
+            id_minimo:                 document.getElementById('f-id-minimo').value || null,
+            seal_bore:                 document.getElementById('f-seal-bore').value || null,
+            rating_presion_maximo:     parseFloat(document.getElementById('f-rating-presion-max').value) || null,
+            presion_corte_pin1:        parseFloat(document.getElementById('f-presion-corte-pin1').value) || null,
+            presion_estallido:         parseFloat(document.getElementById('f-presion-estallido').value) || null,
+            area_piston:               document.getElementById('f-area-piston').value || null,
+            presion_corte_pin2:        parseFloat(document.getElementById('f-presion-corte-pin2').value) || null,
+            landing_profile:           document.getElementById('f-landing-profile').value || null,
+            presion_activacion:        parseFloat(document.getElementById('f-presion-activacion').value) || null,
+            presion_apertura_trsv:     parseFloat(document.getElementById('f-presion-apertura-trsv').value) || null,
+            od_esfera:                 document.getElementById('f-od-esfera').value || null,
+            material_flapper_plunger:  document.getElementById('f-material-flapper').value || null,
+            presion_cierre_trsv:       parseFloat(document.getElementById('f-presion-cierre-trsv').value) || null,
+            presion_contraflujo:       parseFloat(document.getElementById('f-presion-contraflujo').value) || null,
+            cantidad_plungers_flappers: parseInt(document.getElementById('f-cantidad-plungers').value) || null,
+            cortadores_pdc_tungsteno:  parseInt(document.getElementById('f-cortadores-pdc').value) || null,
+            nose_crown_material:       document.getElementById('f-nose-crown-material').value || null,
+            cantidad_aletas:           parseInt(document.getElementById('f-cantidad-aletas').value) || null,
             dp_nombre_pozo:                  document.getElementById('f-dp-nombre-pozo').value || null,
             dp_nombre_campo:                 document.getElementById('f-dp-nombre-campo').value || null,
             dp_rep_cliente:                  document.getElementById('f-dp-rep-cliente').value || null,
@@ -3701,7 +3802,7 @@
 
         // Técnicos
         document.getElementById('rep-temperatura').textContent   = op.temperatura_trabajo  ? `${op.temperatura_trabajo} °C`   : '—';
-        document.getElementById('rep-modelo').textContent        = op.modelo_herramienta_na ? 'No aplica' : (op.modelo_herramienta || '—');
+        document.getElementById('rep-modelo').textContent        = op.modelo_herramienta || '—';
         document.getElementById('rep-linea-producto').textContent            = op.linea_producto || '—';
         document.getElementById('rep-grado-acero').textContent               = op.grado_acero_material || '—';
         document.getElementById('rep-casing-size').textContent               = op.casing_size || '—';
@@ -3758,9 +3859,12 @@
         const listaHerramientas = Array.isArray(op.dp_herramientas) ? op.dp_herramientas.filter(h => h && h.trim() !== '') : [];
         repHerramientas.innerHTML = listaHerramientas.length > 0
             ? listaHerramientas.map((h, i) => `
-                <div class="flex justify-between"><span class="text-slate-500">Herramienta ${i + 1}</span><span class="text-white font-semibold">${h}</span></div>
+                <div class="bg-white/5 rounded-lg px-3 py-2">
+                    <p class="text-[11px] text-slate-500 mb-1">Herramienta ${i + 1}</p>
+                    <p class="text-white font-semibold">${h}</p>
+                </div>
               `).join('')
-            : '<div class="text-slate-500">—</div>';
+            : '<div class="text-slate-500 col-span-full">—</div>';
 
         // ── QHSE ──
         const conformidadTextos = {
@@ -4186,10 +4290,10 @@
         y = fila('Inicio del Bombeo',  formatearFechaHora(op.fecha_inicio_bombeo),   y);
         y = fila('Fin del Bombeo',     formatearFechaHora(op.fecha_fin_bombeo),      y);
 
-        if (!op.datos_tecnicos_na) {
+        {
             y = nuevaSeccion('DATOS TÉCNICOS', y + 4, 27);
             y = fila('Línea de Producto',         op.linea_producto || '—', y);
-            y = fila('Modelo-Nombre del Equipo',  op.modelo_herramienta_na ? 'No aplica' : (op.modelo_herramienta || '—'), y);
+            y = fila('Modelo-Nombre del Equipo',  op.modelo_herramienta || '—', y);
             y = fila('Grado de Acero-Material',   op.grado_acero_material || '—', y);
             y = fila('Temperatura de Trabajo',    op.temperatura_trabajo  ? `${op.temperatura_trabajo} °C`   : '—', y);
             y = fila('Casing Size',               op.casing_size || '—', y);
