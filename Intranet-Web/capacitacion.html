@@ -184,8 +184,8 @@
 
     <!-- ── TARJETA MATRIZ HSE ── -->
     <div class="mb-6 anim-fade-up">
-    <button onclick="toggleMatriz()"
-        class="w-full bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 rounded-2xl p-6 text-left transition-all shadow-lg group relative overflow-hidden">
+    <div onclick="toggleMatriz()" role="button" tabindex="0"
+        class="w-full bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 rounded-2xl p-6 text-left transition-all shadow-lg group relative overflow-hidden cursor-pointer">
         <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-16 translate-x-16 group-hover:scale-110 transition-transform duration-500"></div>
         <div class="absolute bottom-0 left-0 w-24 h-24 bg-[#e31e24]/10 rounded-full translate-y-10 -translate-x-8"></div>
         <div class="flex items-center justify-between relative z-10">
@@ -199,14 +199,18 @@
             <p class="text-xs text-slate-400 mt-0.5">Cursos · Aplica / No Aplica</p>
             </div>
         </div>
-        <div class="flex items-center gap-3">
-            <span class="hidden sm:flex items-center gap-1.5 bg-white/10 text-slate-300 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-xl">
+        <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            <button onclick="event.stopPropagation(); generarPDFMatrizHSE()" title="Descargar PDF de la matriz"
+            class="flex items-center justify-center h-8 w-8 bg-white/10 hover:bg-[#e31e24] text-slate-300 hover:text-white rounded-xl transition-all flex-shrink-0">
+            <i class="fas fa-file-pdf text-sm"></i>
+            </button>
+            <span class="hidden sm:flex items-center gap-1.5 bg-white/10 text-slate-300 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-xl flex-shrink-0">
             <i class="fas fa-graduation-cap text-[#e31e24]"></i> Ver matriz
             </span>
-            <i id="matriz-chevron" class="fas fa-chevron-down text-slate-400 text-lg transition-transform duration-300"></i>
+            <i id="matriz-chevron" class="fas fa-chevron-down text-slate-400 text-lg transition-transform duration-300 flex-shrink-0"></i>
         </div>
         </div>
-    </button>
+    </div>
 
     <!-- Panel de la matriz (colapsable) -->
     <div id="panel-matriz" class="hidden mt-3 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
@@ -244,8 +248,8 @@
 
     <!-- ── TARJETA MATRIZ HSE (INTERNA) ── -->
     <div class="mb-6 anim-fade-up">
-    <button onclick="toggleMatrizInterna()"
-        class="w-full bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 rounded-2xl p-6 text-left transition-all shadow-lg group relative overflow-hidden">
+    <div onclick="toggleMatrizInterna()" role="button" tabindex="0"
+        class="w-full bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 rounded-2xl p-6 text-left transition-all shadow-lg group relative overflow-hidden cursor-pointer">
         <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-16 translate-x-16 group-hover:scale-110 transition-transform duration-500"></div>
         <div class="absolute bottom-0 left-0 w-24 h-24 bg-[#e31e24]/10 rounded-full translate-y-10 -translate-x-8"></div>
         <div class="flex items-center justify-between relative z-10">
@@ -259,14 +263,18 @@
             <p class="text-xs text-slate-400 mt-0.5">Cursos · Aplica / No Aplica</p>
             </div>
         </div>
-        <div class="flex items-center gap-3">
-            <span class="hidden sm:flex items-center gap-1.5 bg-white/10 text-slate-300 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-xl">
+        <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            <button onclick="event.stopPropagation(); generarPDFMatrizHSEInterna()" title="Descargar PDF de la matriz"
+            class="flex items-center justify-center h-8 w-8 bg-white/10 hover:bg-[#e31e24] text-slate-300 hover:text-white rounded-xl transition-all flex-shrink-0">
+            <i class="fas fa-file-pdf text-sm"></i>
+            </button>
+            <span class="hidden sm:flex items-center gap-1.5 bg-white/10 text-slate-300 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-xl flex-shrink-0">
             <i class="fas fa-graduation-cap text-[#e31e24]"></i> Ver matriz
             </span>
-            <i id="matriz-interna-chevron" class="fas fa-chevron-down text-slate-400 text-lg transition-transform duration-300"></i>
+            <i id="matriz-interna-chevron" class="fas fa-chevron-down text-slate-400 text-lg transition-transform duration-300 flex-shrink-0"></i>
         </div>
         </div>
-    </button>
+    </div>
 
     <!-- Panel de la matriz interna (colapsable) -->
     <div id="panel-matriz-interna" class="hidden mt-3 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
@@ -427,6 +435,7 @@
                 <div class="flex flex-wrap items-start justify-between gap-3 mb-1">
                   <div>
                     <h2 id="perfil-nombre" class="text-2xl font-black text-slate-800 leading-tight"></h2>
+                    <p id="perfil-puesto" class="text-sm text-slate-400 font-medium mt-0.5"></p>
                   </div>
                 </div>
 
@@ -464,6 +473,30 @@
               </div>
               <div class="progress-bar">
                 <div id="perfil-progress-fill" class="progress-fill bg-emerald-500"></div>
+              </div>
+            </div>
+
+            <!-- Contadores de cumplimiento (igual que el PDF individual) -->
+            <div class="mt-5 pt-5 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
+              <div>
+                <p id="perfil-asignados" class="text-lg font-black text-slate-800"></p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Asignados</p>
+              </div>
+              <div>
+                <p id="perfil-completados" class="text-lg font-black text-slate-800"></p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Completados</p>
+              </div>
+              <div>
+                <p id="perfil-vigentes" class="text-lg font-black text-emerald-600"></p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Vigentes</p>
+              </div>
+              <div>
+                <p id="perfil-proximos" class="text-lg font-black text-amber-500"></p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Próx. a vencer</p>
+              </div>
+              <div>
+                <p id="perfil-vencidos" class="text-lg font-black text-[#e31e24]"></p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Vencidos</p>
               </div>
             </div>
           </div>
@@ -539,6 +572,10 @@
               <i class="fas fa-camera text-xs"></i>
               <input type="file" accept=".jpg,.jpeg,.png,.webp" class="hidden" onchange="abrirEditorFoto(event, document.getElementById('modal-emp-id').value)">
             </label>
+            <button id="modal-emp-foto-eliminar" type="button" onclick="eliminarFotoEmpleado()" title="Eliminar foto"
+              class="hidden absolute -bottom-1 -left-1 h-8 w-8 rounded-full bg-slate-600 text-white flex items-center justify-center shadow-md hover:bg-slate-800 transition-colors">
+              <i class="fas fa-trash text-xs"></i>
+            </button>
           </div>
         </div>
 
@@ -655,6 +692,31 @@
           Cancelar
         </button>
         <button onclick="confirmarEliminarConstancia()"
+          class="flex-1 bg-[#e31e24] hover:bg-red-700 text-white font-bold rounded-xl py-2.5 text-sm transition-all shadow-md shadow-red-200">
+          <i class="fas fa-trash mr-2"></i>Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MODAL CONFIRMAR ELIMINAR FOTO ── -->
+  <div id="modal-confirmar-eliminar-foto" class="hidden fixed inset-0 z-[400] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden text-center">
+      <div class="pt-8 pb-2 px-6">
+        <div class="mx-auto h-16 w-16 rounded-2xl bg-red-50 flex items-center justify-center mb-4">
+          <i class="fas fa-image-slash text-2xl text-[#e31e24]"></i>
+        </div>
+        <h3 class="text-lg font-black text-slate-800">¿Eliminar foto?</h3>
+        <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+          Se eliminará la foto del empleado de forma permanente, del sitio y de Supabase. No se puede deshacer.
+        </p>
+      </div>
+      <div class="flex gap-3 p-6 pt-4">
+        <button onclick="cerrarModal('modal-confirmar-eliminar-foto')"
+          class="flex-1 border border-slate-200 text-slate-600 font-bold rounded-xl py-2.5 text-sm hover:bg-slate-50 transition-colors">
+          Cancelar
+        </button>
+        <button onclick="confirmarEliminarFoto()"
           class="flex-1 bg-[#e31e24] hover:bg-red-700 text-white font-bold rounded-xl py-2.5 text-sm transition-all shadow-md shadow-red-200">
           <i class="fas fa-trash mr-2"></i>Eliminar
         </button>
@@ -999,6 +1061,16 @@
 
       document.getElementById('perfil-nombre').textContent = emp.nombre;
 
+      const catEmp = CATEGORIAS_HSE.find(c => c.key === emp.categoria);
+      document.getElementById('perfil-puesto').textContent = catEmp ? catEmp.label : 'Sin categoría asignada';
+
+      const statsEmp = calcularStatsEmpleado(emp);
+      document.getElementById('perfil-asignados').textContent   = statsEmp.asignados;
+      document.getElementById('perfil-completados').textContent = statsEmp.completados;
+      document.getElementById('perfil-vigentes').textContent    = statsEmp.vigentes;
+      document.getElementById('perfil-proximos').textContent    = statsEmp.proximos;
+      document.getElementById('perfil-vencidos').textContent    = statsEmp.vencidos;
+
       const cursos    = emp.cursos || [];
       const pendientes = emp.cursos_pendientes || [];
 
@@ -1172,6 +1244,28 @@
     }
 
     // ────────────────────────────────────────────
+    // CALCULA CUMPLIMIENTO Y CONTADORES DE UN EMPLEADO (para el PDF)
+    // ────────────────────────────────────────────
+    function calcularStatsEmpleado(emp) {
+      const cursos     = emp.cursos || [];
+      const pendientes = emp.cursos_pendientes || [];
+
+      let vigentes = 0, proximos = 0, vencidos = 0;
+      cursos.forEach(c => {
+        const estC = estadoCurso(diasRestantes(c.fecha_vencimiento));
+        if (estC === 'vigente')      vigentes++;
+        else if (estC === 'proximo') proximos++;
+        else if (estC === 'vencido') vencidos++;
+      });
+
+      const asignados   = cursos.length + pendientes.length;
+      const completados = cursos.length;
+      const pct = asignados > 0 ? Math.round((completados / asignados) * 100) : 0;
+
+      return { asignados, completados, vigentes, proximos, vencidos, pct };
+    }
+
+    // ────────────────────────────────────────────
     // CONSTRUYE UNA SECCIÓN DE EMPLEADO DENTRO DEL PDF
     // (la usan tanto el PDF individual como el masivo)
     // ────────────────────────────────────────────
@@ -1191,7 +1285,7 @@
       doc.text('IN HOLE SOLUTIONS', 14, 13);
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
-      doc.text('Reporte de Capacitación HSE', 14, 20);
+      doc.text('Competency & HSE Training Record', 14, 20);
 
       // Línea de acento debajo del encabezado
       doc.setFillColor(30, 41, 59);
@@ -1199,32 +1293,77 @@
 
       // Datos del empleado
       doc.setTextColor(30, 41, 59);
-      doc.setFontSize(14);
+      doc.setFontSize(13);
       doc.setFont('helvetica', 'bold');
-      doc.text(emp.nombre, 14, 40);
+      doc.text(`Empleado: ${emp.nombre}`, 14, 40);
 
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(100, 116, 139);
-      doc.text(cat ? cat.label : 'Sin categoría asignada', 14, 46);
-      doc.text(`Cursos realizados: ${cursos.length}`, 14, 58);
+      doc.text(`Puesto: ${cat ? cat.label : 'Sin categoría asignada'}`, 14, 46);
 
-      // Tabla de cursos realizados
-      const filasCursos = cursos.map(c => {
+      // ────────────────────────────────────────────
+      // Cumplimiento de HSE (barra + contadores)
+      // ────────────────────────────────────────────
+      const stats = calcularStatsEmpleado(emp);
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(100, 116, 139);
+      doc.text('Cumplimiento de HSE:', 14, 60);
+
+      // Barra de fondo (gris)
+      doc.setFillColor(226, 232, 240);
+      doc.roundedRect(14, 64, 150, 5, 2, 2, 'F');
+
+      // Barra de progreso (color según %)
+      const colorBarra = stats.pct >= 80 ? [21, 128, 61] : stats.pct >= 50 ? [202, 138, 4] : [185, 28, 28];
+      doc.setFillColor(colorBarra[0], colorBarra[1], colorBarra[2]);
+      const anchoBarra = (150 * stats.pct) / 100;
+      if (anchoBarra > 0) doc.roundedRect(14, 64, anchoBarra, 5, 2, 2, 'F');
+
+      // Porcentaje
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(30, 41, 59);
+      doc.text(`${stats.pct}%`, 168, 68.5);
+
+      // Contadores
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(71, 85, 105);
+      doc.text(`Cursos asignados: ${stats.asignados}`, 14, 78);
+      doc.text(`Cursos completados: ${stats.completados}`, 14, 84);
+      doc.text(`Vigentes: ${stats.vigentes}`, 14, 90);
+      doc.text(`Próximos a vencer: ${stats.proximos}`, 14, 96);
+      doc.text(`Vencidos: ${stats.vencidos}`, 14, 102);
+
+      // Clasifica cada curso del empleado como Externo o Interno,
+      // según en qué catálogo esté registrado su nombre
+      const esCursoInterno = (nombreCurso) => cursosHSEInterna.some(c => c.nombre === nombreCurso);
+
+      const cursosExternos = cursos.filter(c => !esCursoInterno(c.nombre));
+      const cursosInternos = cursos.filter(c =>  esCursoInterno(c.nombre));
+
+      const filaCurso = (c) => {
         const dias  = diasRestantes(c.fecha_vencimiento);
         const estC  = estadoCurso(dias);
         const label = estC === 'vigente' ? 'Vigente' : estC === 'proximo' ? 'Próx. a vencer' : estC === 'vencido' ? 'Vencido' : '—';
         return [c.nombre, formatFecha(c.fecha_inicio), formatFecha(c.fecha_vencimiento), label];
-      });
+      };
 
-      doc.autoTable({
-        startY: 64,
-        head: [['Curso', 'Inicio', 'Vencimiento', 'Estado']],
-        body: filasCursos.length ? filasCursos : [['Sin cursos registrados', '—', '—', '—']],
+      const estilosTabla = {
         theme: 'grid',
+        tableWidth: 182,
         headStyles: { fillColor: [30, 41, 59], textColor: 255, fontStyle: 'bold', fontSize: 9 },
         bodyStyles: { fontSize: 9, textColor: [51, 65, 85] },
         alternateRowStyles: { fillColor: [248, 250, 252] },
+        columnStyles: {
+          0: { cellWidth: 82 },  // Curso
+          1: { cellWidth: 30 },  // Inicio
+          2: { cellWidth: 32 },  // Vencimiento
+          3: { cellWidth: 38 },  // Estado
+        },
         didParseCell: function(data) {
           if (data.column.index === 3 && data.cell.section === 'body') {
             const val = data.cell.raw;
@@ -1241,6 +1380,22 @@
             data.cell.styles.fontStyle = 'bold';
           }
         },
+      };
+
+      // Tabla: Capacitación Externa
+      doc.autoTable({
+        startY: 112,
+        head: [['Capacitación Externa', 'Inicio', 'Vencimiento', 'Estado']],
+        body: cursosExternos.length ? cursosExternos.map(filaCurso) : [['Sin cursos registrados', '—', '—', '—']],
+        ...estilosTabla,
+      });
+
+      // Tabla: Capacitación Interna
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 8,
+        head: [['Capacitación Interna', 'Inicio', 'Vencimiento', 'Estado']],
+        body: cursosInternos.length ? cursosInternos.map(filaCurso) : [['Sin cursos registrados', '—', '—', '—']],
+        ...estilosTabla,
       });
 
       let cursorY = doc.lastAutoTable.finalY + 10;
@@ -1248,29 +1403,30 @@
       // Constancias digitales con código QR (solo cursos que tienen constancia adjunta)
       const cursosConConstancia = cursos.filter(c => c.constancia_url);
       if (cursosConConstancia.length) {
-        const qrSize  = 24;
-        const porFila = 6;
-        const filas   = Math.ceil(cursosConConstancia.length / porFila);
-        const altoCaja = 16 + filas * (qrSize + 12);
+        const qrSize   = 24;
+        const porFila  = 6;
+        const filas    = Math.ceil(cursosConConstancia.length / porFila);
+        const altoCaja = 20 + filas * (qrSize + 12);
 
         if (cursorY + altoCaja > 280) { doc.addPage(); cursorY = 20; }
 
         // Fondo de la caja
         doc.setFillColor(248, 250, 252);
         doc.setDrawColor(226, 232, 240);
-        doc.roundedRect(10, cursorY - 6, 190, altoCaja, 3, 3, 'FD');
+        doc.setLineWidth(0.3);
+        doc.roundedRect(10, cursorY - 6, 190, altoCaja, 4, 4, 'FD');
 
         doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(30, 41, 59);
-        doc.text('Constancias digitales (escanea para verificar)', 14, cursorY);
-        cursorY += 10;
+        doc.text('Constancias digitales', 16, cursorY + 2);
+        cursorY += 14;
 
         let col   = 0;
         let filaY = cursorY;
 
         for (const c of cursosConConstancia) {
-          const x = 14 + col * (qrSize + 6);
+          const x = 16 + col * (qrSize + 6);
           const qrDataUrl = await QRCode.toDataURL(c.constancia_url, { width: 128, margin: 1 });
           doc.addImage(qrDataUrl, 'PNG', x, filaY, qrSize, qrSize);
           doc.setFontSize(7);
@@ -1290,12 +1446,22 @@
     // ────────────────────────────────────────────
     function agregarPiePagina(doc) {
       const paginas = doc.internal.getNumberOfPages();
+      const textoLegal = 'Documento generado desde la Plataforma de Gestión HSE de IN HOLE SOLUTIONS. La reproducción, distribución o modificación no autorizada queda restringida. Este documento se considera una copia no controlada una vez descargado de la plataforma.';
+
       for (let i = 1; i <= paginas; i++) {
         doc.setPage(i);
-        doc.setFontSize(8);
+
+        // Línea separadora sutil
+        doc.setDrawColor(226, 232, 240);
+        doc.setLineWidth(0.2);
+        doc.line(14, 280, 196, 280);
+
+        // Texto legal (justificado, se ajusta automáticamente a varias líneas)
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'normal');
         doc.setTextColor(148, 163, 184);
-        doc.text(`Página ${i} de ${paginas}`, 14, 290);
-        doc.text('Sistema de Capacitación HSE — In Hole Solutions', 196, 290, { align: 'right' });
+        const lineasLegales = doc.splitTextToSize(textoLegal, 182);
+        doc.text(lineasLegales, 14, 286, { align: 'justify', maxWidth: 182 });
       }
     }
 
@@ -1306,6 +1472,9 @@
       const emp = empleadoActual;
       if (!emp) return;
 
+      if (!cursosHSE.length)        await cargarCursosHSE(false);
+      if (!cursosHSEInterna.length) await cargarCursosHSEInterna(false);
+
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
 
@@ -1313,6 +1482,351 @@
       agregarPiePagina(doc);
 
       doc.save(`Capacitacion_${emp.nombre.replace(/\s+/g, '_')}.pdf`);
+    }
+
+    // ────────────────────────────────────────────
+    // PDF MATRIZ HSE EXTERNA (gráfica + lista de cursos)
+    // ────────────────────────────────────────────
+    async function generarPDFMatrizHSE() {
+      if (!cursosHSE.length) await cargarCursosHSE(false);
+
+      if (!cursosHSE.length) {
+        mostrarToast('No hay cursos registrados en la matriz', 'err');
+        return;
+      }
+
+      // Landscape automático si hay muchas categorías (evita que la tabla se comprima)
+      const orientacion = CATEGORIAS_HSE.length > 5 ? 'l' : 'p';
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: orientacion, unit: 'mm', format: 'a4' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+
+      // ── Encabezado corporativo ──
+      doc.setFillColor(217, 217, 217);
+      doc.rect(0, 0, pageWidth, 28, 'F');
+      doc.setTextColor(30, 41, 59);
+      doc.setFontSize(15);
+      doc.setFont('helvetica', 'bold');
+      doc.text('IN HOLE SOLUTIONS', 14, 13);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Matriz de Capacitación HSE (Externa)', 14, 20);
+
+      doc.setFillColor(30, 41, 59);
+      doc.rect(0, 28, pageWidth, 1.5, 'F');
+
+      // Fecha de generación
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text(`Generado: ${new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}`, pageWidth - 14, 20, { align: 'right' });
+
+      // ── Resumen numérico (misma vigencia real que usa el dashboard, por empleado) ──
+      let vigentes = 0, proximos = 0, vencidos = 0;
+      todosEmpleados.forEach(emp => {
+        (emp.cursos || []).forEach(c => {
+          const d = diasRestantes(c.fecha_vencimiento);
+          if (d === null) return;
+          if (d < 0)        vencidos++;
+          else if (d <= 45) proximos++;
+          else              vigentes++;
+        });
+      });
+      const totalCursos = vigentes + proximos + vencidos;
+
+      // Porcentajes reales de vigencia por empleado
+      const pctCumplimientoReal = totalCursos > 0 ? Math.round((vigentes / totalCursos) * 100) : 0;
+      const pctProximoReal      = totalCursos > 0 ? Math.round((proximos / totalCursos) * 100) : 0;
+      const pctVencidoReal      = totalCursos > 0 ? Math.round((vencidos / totalCursos) * 100) : 0;
+
+      const numVigentesReal = vigentes;
+      const numProximosReal = proximos;
+      const numVencidosReal = vencidos;
+
+      // ── Gráfica de dona (imagen) ──
+      let cursorY = 38;
+      if (typeof graficaInstance !== 'undefined' && graficaInstance) {
+        const chartImg = graficaInstance.toBase64Image();
+        const imgSize  = 55;
+        const imgX     = (pageWidth - imgSize) / 2;
+        doc.addImage(chartImg, 'PNG', imgX, cursorY, imgSize, imgSize);
+        cursorY += imgSize + 6;
+
+        // Porcentaje de cumplimiento centrado dentro de la dona
+        const pctCumplimiento = pctCumplimientoReal;
+        const centerX = imgX + imgSize / 2;
+        const centerY = (cursorY - imgSize - 6) + imgSize / 2;
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(30, 41, 59);
+        doc.text(`${pctCumplimiento}%`, centerX, centerY, { align: 'center' });
+        doc.setFontSize(6);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(148, 163, 184);
+        doc.text('TRAINING COMPLIANCE', centerX, centerY + 4, { align: 'center' });
+
+        cursorY += 2;
+
+        // Fila: % Expiring Soon   ·   % Expired/Pending
+        const pctProximo = pctProximoReal;
+        const pctVencido = pctVencidoReal;
+        doc.setFontSize(9);
+        const partes = [
+          { pct: pctProximo, label: 'Expiring Soon',   color: [217, 119, 6]  },
+          { pct: pctVencido, label: 'Expired/Pending',  color: [227, 30, 36] },
+        ];
+        const espacio = '      ';
+        doc.setFont('helvetica', 'bold');
+        let anchoFila = 0;
+        partes.forEach((p, i) => {
+          anchoFila += doc.getTextWidth(`${p.pct}% `) + doc.getTextWidth(p.label);
+          if (i < partes.length - 1) anchoFila += doc.getTextWidth(espacio);
+        });
+        let xF = (pageWidth - anchoFila) / 2;
+        partes.forEach((p, i) => {
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(p.color[0], p.color[1], p.color[2]);
+          doc.text(`${p.pct}% `, xF, cursorY);
+          xF += doc.getTextWidth(`${p.pct}% `);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(100, 116, 139);
+          doc.text(p.label, xF, cursorY);
+          xF += doc.getTextWidth(p.label);
+          if (i < partes.length - 1) xF += doc.getTextWidth(espacio);
+        });
+
+        cursorY += 9;
+
+        // Leyenda con puntos de color + número de cursos
+        const leyenda = [
+          { color: [34, 197, 94],  label: `Current (${numVigentesReal})` },
+          { color: [245, 158, 11], label: `Expiring Soon (${numProximosReal})` },
+          { color: [227, 30, 36],  label: `Expired / Pending (${numVencidosReal})` },
+        ];
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        const espacioLeyenda = 6;
+        let anchoLeyenda = 0;
+        leyenda.forEach((l, i) => {
+          anchoLeyenda += 5 + doc.getTextWidth(l.label);
+          if (i < leyenda.length - 1) anchoLeyenda += espacioLeyenda;
+        });
+        let xL = (pageWidth - anchoLeyenda) / 2;
+        leyenda.forEach((l, i) => {
+          doc.setFillColor(l.color[0], l.color[1], l.color[2]);
+          doc.circle(xL + 1.2, cursorY - 1, 1.2, 'F');
+          xL += 4;
+          doc.setTextColor(71, 85, 105);
+          doc.text(l.label, xL, cursorY);
+          xL += doc.getTextWidth(l.label);
+          if (i < leyenda.length - 1) xL += espacioLeyenda;
+        });
+
+        cursorY += 12;
+      }
+
+      // ── Tabla de cursos (vista lista) ──
+      const encabezados = ['Curso', ...CATEGORIAS_HSE.map(c => c.label)];
+      const filas = cursosHSE.map(c => [
+        c.nombre,
+        ...CATEGORIAS_HSE.map(cat => (c.categorias?.[cat.key] ? 'Aplica' : 'N/A')),
+      ]);
+
+      doc.autoTable({
+        startY: cursorY,
+        head: [encabezados],
+        body: filas,
+        theme: 'grid',
+        headStyles: { fillColor: [30, 41, 59], textColor: 255, fontStyle: 'bold', fontSize: 8, halign: 'center' },
+        bodyStyles: { fontSize: 8, textColor: [51, 65, 85], valign: 'middle' },
+        alternateRowStyles: { fillColor: [248, 250, 252] }, // rayas alternas suaves (slate-50)
+        columnStyles: { 0: { cellWidth: orientacion === 'l' ? 70 : 55, halign: 'left', fontStyle: 'bold' } },
+        styles: { halign: 'center' },
+        didParseCell: function(data) {
+          if (data.column.index > 0 && data.cell.section === 'body') {
+            if (data.cell.raw === 'Aplica') {
+              data.cell.styles.textColor = [21, 128, 61];
+              data.cell.styles.fillColor = [220, 252, 231];
+              data.cell.styles.fontStyle = 'bold';
+            } else {
+              data.cell.styles.textColor = [148, 163, 184];
+            }
+          }
+        },
+      });
+
+      agregarPiePagina(doc);
+      doc.save('Matriz_Capacitacion_HSE_Externa.pdf');
+    }
+
+    // ────────────────────────────────────────────
+    // PDF MATRIZ HSE INTERNA (gráfica + lista de cursos)
+    // ────────────────────────────────────────────
+    async function generarPDFMatrizHSEInterna() {
+      if (!cursosHSEInterna.length) await cargarCursosHSEInterna(false);
+
+      if (!cursosHSEInterna.length) {
+        mostrarToast('No hay cursos registrados en la matriz interna', 'err');
+        return;
+      }
+
+      const orientacion = CATEGORIAS_HSE.length > 5 ? 'l' : 'p';
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: orientacion, unit: 'mm', format: 'a4' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+
+      doc.setFillColor(217, 217, 217);
+      doc.rect(0, 0, pageWidth, 28, 'F');
+      doc.setTextColor(30, 41, 59);
+      doc.setFontSize(15);
+      doc.setFont('helvetica', 'bold');
+      doc.text('IN HOLE SOLUTIONS', 14, 13);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Matriz de Capacitación HSE (Interna)', 14, 20);
+
+      doc.setFillColor(30, 41, 59);
+      doc.rect(0, 28, pageWidth, 1.5, 'F');
+
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text(`Generado: ${new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}`, pageWidth - 14, 20, { align: 'right' });
+
+      // ── Resumen numérico (misma vigencia real que usa el dashboard, por empleado) ──
+      let vigentes = 0, proximos = 0, vencidos = 0;
+      todosEmpleados.forEach(emp => {
+        (emp.cursos || []).forEach(c => {
+          const d = diasRestantes(c.fecha_vencimiento);
+          if (d === null) return;
+          if (d < 0)        vencidos++;
+          else if (d <= 45) proximos++;
+          else              vigentes++;
+        });
+      });
+      const totalCursos = vigentes + proximos + vencidos;
+
+      // Porcentajes reales de vigencia por empleado
+      const pctCumplimientoReal = totalCursos > 0 ? Math.round((vigentes / totalCursos) * 100) : 0;
+      const pctProximoReal      = totalCursos > 0 ? Math.round((proximos / totalCursos) * 100) : 0;
+      const pctVencidoReal      = totalCursos > 0 ? Math.round((vencidos / totalCursos) * 100) : 0;
+
+      const numVigentesReal = vigentes;
+      const numProximosReal = proximos;
+      const numVencidosReal = vencidos;
+
+      let cursorY = 38;
+      if (typeof graficaInstance !== 'undefined' && graficaInstance) {
+        const chartImg = graficaInstance.toBase64Image();
+        const imgSize  = 55;
+        const imgX     = (pageWidth - imgSize) / 2;
+        doc.addImage(chartImg, 'PNG', imgX, cursorY, imgSize, imgSize);
+        cursorY += imgSize + 6;
+
+        // Porcentaje de cumplimiento centrado dentro de la dona
+        const pctCumplimiento = pctCumplimientoReal;
+        const centerX = imgX + imgSize / 2;
+        const centerY = (cursorY - imgSize - 6) + imgSize / 2;
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(30, 41, 59);
+        doc.text(`${pctCumplimiento}%`, centerX, centerY, { align: 'center' });
+        doc.setFontSize(6);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(148, 163, 184);
+        doc.text('TRAINING COMPLIANCE', centerX, centerY + 4, { align: 'center' });
+
+        cursorY += 2;
+
+        // Fila: % Expiring Soon   ·   % Expired/Pending
+        const pctProximo = pctProximoReal;
+        const pctVencido = pctVencidoReal;
+        doc.setFontSize(9);
+        const partes = [
+          { pct: pctProximo, label: 'Expiring Soon',   color: [217, 119, 6]  },
+          { pct: pctVencido, label: 'Expired/Pending',  color: [227, 30, 36] },
+        ];
+        const espacio = '      ';
+        doc.setFont('helvetica', 'bold');
+        let anchoFila = 0;
+        partes.forEach((p, i) => {
+          anchoFila += doc.getTextWidth(`${p.pct}% `) + doc.getTextWidth(p.label);
+          if (i < partes.length - 1) anchoFila += doc.getTextWidth(espacio);
+        });
+        let xF = (pageWidth - anchoFila) / 2;
+        partes.forEach((p, i) => {
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(p.color[0], p.color[1], p.color[2]);
+          doc.text(`${p.pct}% `, xF, cursorY);
+          xF += doc.getTextWidth(`${p.pct}% `);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(100, 116, 139);
+          doc.text(p.label, xF, cursorY);
+          xF += doc.getTextWidth(p.label);
+          if (i < partes.length - 1) xF += doc.getTextWidth(espacio);
+        });
+
+        cursorY += 9;
+
+        // Leyenda con puntos de color + número de cursos
+        const leyenda = [
+          { color: [34, 197, 94],  label: `Current (${numVigentesReal})` },
+          { color: [245, 158, 11], label: `Expiring Soon (${numProximosReal})` },
+          { color: [227, 30, 36],  label: `Expired / Pending (${numVencidosReal})` },
+        ];
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        const espacioLeyenda = 6;
+        let anchoLeyenda = 0;
+        leyenda.forEach((l, i) => {
+          anchoLeyenda += 5 + doc.getTextWidth(l.label);
+          if (i < leyenda.length - 1) anchoLeyenda += espacioLeyenda;
+        });
+        let xL = (pageWidth - anchoLeyenda) / 2;
+        leyenda.forEach((l, i) => {
+          doc.setFillColor(l.color[0], l.color[1], l.color[2]);
+          doc.circle(xL + 1.2, cursorY - 1, 1.2, 'F');
+          xL += 4;
+          doc.setTextColor(71, 85, 105);
+          doc.text(l.label, xL, cursorY);
+          xL += doc.getTextWidth(l.label);
+          if (i < leyenda.length - 1) xL += espacioLeyenda;
+        });
+
+        cursorY += 12;
+      }
+
+      const encabezados = ['Curso', ...CATEGORIAS_HSE.map(c => c.label)];
+      const filas = cursosHSEInterna.map(c => [
+        c.nombre,
+        ...CATEGORIAS_HSE.map(cat => (c.categorias?.[cat.key] ? 'Aplica' : 'N/A')),
+      ]);
+
+      doc.autoTable({
+        startY: cursorY,
+        head: [encabezados],
+        body: filas,
+        theme: 'grid',
+        headStyles: { fillColor: [30, 41, 59], textColor: 255, fontStyle: 'bold', fontSize: 8, halign: 'center' },
+        bodyStyles: { fontSize: 8, textColor: [51, 65, 85], valign: 'middle' },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        columnStyles: { 0: { cellWidth: orientacion === 'l' ? 70 : 55, halign: 'left', fontStyle: 'bold' } },
+        styles: { halign: 'center' },
+        didParseCell: function(data) {
+          if (data.column.index > 0 && data.cell.section === 'body') {
+            if (data.cell.raw === 'Aplica') {
+              data.cell.styles.textColor = [21, 128, 61];
+              data.cell.styles.fillColor = [220, 252, 231];
+              data.cell.styles.fontStyle = 'bold';
+            } else {
+              data.cell.styles.textColor = [148, 163, 184];
+            }
+          }
+        },
+      });
+
+      agregarPiePagina(doc);
+      doc.save('Matriz_Capacitacion_HSE_Interna.pdf');
     }
 
     // ────────────────────────────────────────────
@@ -1329,6 +1843,9 @@
       btn.innerHTML = '<i class="fas fa-spinner fa-spin text-sm"></i>';
 
       try {
+        if (!cursosHSE.length)        await cargarCursosHSE(false);
+        if (!cursosHSEInterna.length) await cargarCursosHSEInterna(false);
+
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
@@ -1635,6 +2152,7 @@
       document.getElementById('modal-pendientes-list').innerHTML = '';
       document.getElementById('modal-emp-foto-img').classList.add('hidden');
       document.getElementById('modal-emp-foto-icon').classList.remove('hidden');
+      document.getElementById('modal-emp-foto-eliminar').classList.add('hidden');
       document.getElementById('modal-empleado').classList.remove('hidden');
     }
 
@@ -1648,11 +2166,54 @@
         document.getElementById('modal-emp-foto-img').src = emp.foto_url;
         document.getElementById('modal-emp-foto-img').classList.remove('hidden');
         document.getElementById('modal-emp-foto-icon').classList.add('hidden');
+        document.getElementById('modal-emp-foto-eliminar').classList.remove('hidden');
       } else {
         document.getElementById('modal-emp-foto-img').classList.add('hidden');
         document.getElementById('modal-emp-foto-icon').classList.remove('hidden');
+        document.getElementById('modal-emp-foto-eliminar').classList.add('hidden');
       }
       document.getElementById('modal-empleado').classList.remove('hidden');
+    }
+
+    // Abre el modal de confirmación bonito para borrar la foto
+    function eliminarFotoEmpleado() {
+      if (!empleadoActual || !empleadoActual.foto_url) return;
+      document.getElementById('modal-confirmar-eliminar-foto').classList.remove('hidden');
+    }
+
+    // Ejecuta el borrado real tras confirmar: quita el archivo de Supabase Storage
+    // y limpia el campo foto_url en la base de datos
+    async function confirmarEliminarFoto() {
+      const emp = empleadoActual;
+      if (!emp) return;
+
+      cerrarModal('modal-confirmar-eliminar-foto');
+
+      if (emp.foto_url) {
+        const rutaArchivo = emp.foto_url.split('/fotos-personal/')[1];
+        if (rutaArchivo) {
+          await supabaseClient.storage.from('fotos-personal').remove([rutaArchivo]);
+        }
+      }
+
+      const { error } = await supabaseClient
+        .from('cap_hse_empleados')
+        .update({ foto_url: null })
+        .eq('id', emp.id);
+
+      if (error) {
+        console.error(error);
+        mostrarToast('Error al eliminar la foto', 'err');
+        return;
+      }
+
+      document.getElementById('modal-emp-foto-img').classList.add('hidden');
+      document.getElementById('modal-emp-foto-icon').classList.remove('hidden');
+      document.getElementById('modal-emp-foto-eliminar').classList.add('hidden');
+
+      mostrarToast('Foto eliminada ✓', 'ok');
+      await cargarEmpleados();
+      empleadoActual = todosEmpleados.find(e => e.id === emp.id);
     }
 
     // ────────────────────────────────────────────
@@ -1820,6 +2381,7 @@
         document.getElementById('modal-emp-foto-img').src = urlData.publicUrl;
         document.getElementById('modal-emp-foto-img').classList.remove('hidden');
         document.getElementById('modal-emp-foto-icon').classList.add('hidden');
+        document.getElementById('modal-emp-foto-eliminar').classList.remove('hidden');
       }
 
       cerrarEditorFoto();
@@ -2349,7 +2911,7 @@
     }
 
     function tablaCursos() {
-    const encCats = CATEGORIAS_HSE.map(c => `<th class="px-3 py-3 text-center text-[10px] font-black uppercase tracking-wider text-slate-400 whitespace-nowrap">${c.label}</th>`).join('');
+    const encCats = CATEGORIAS_HSE.map(c => `<th class="px-2 py-3 text-center text-[10px] font-black uppercase tracking-wider text-slate-400">${c.label}</th>`).join('');
     const filas = cursosHSE.map(c => {
         const dias = diasRestantes(c.fecha_vencimiento);
         const est  = estadoCurso(dias);
@@ -2382,10 +2944,10 @@
     }).join('');
 
     return `<div class="overflow-x-auto rounded-xl border border-slate-100">
-        <table class="w-full text-left">
+        <table class="w-full text-left table-fixed">
         <thead class="bg-slate-50">
             <tr>
-            <th class="px-4 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400">Curso</th>
+            <th class="px-4 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400 w-1/2">Curso</th>
             ${encCats}
             <th class="px-3 py-3"></th>
             </tr>
@@ -2716,7 +3278,7 @@
     }
 
     function tablaCursosInterna() {
-      const encCats = CATEGORIAS_HSE.map(c => `<th class="px-3 py-3 text-center text-[10px] font-black uppercase tracking-wider text-slate-400 whitespace-nowrap">${c.label}</th>`).join('');
+      const encCats = CATEGORIAS_HSE.map(c => `<th class="px-2 py-3 text-center text-[10px] font-black uppercase tracking-wider text-slate-400">${c.label}</th>`).join('');
       const filas = cursosHSEInterna.map(c => {
           const cats = CATEGORIAS_HSE.map(cat => {
           const aplica = c.categorias?.[cat.key];
@@ -2746,10 +3308,10 @@
       }).join('');
 
       return `<div class="overflow-x-auto rounded-xl border border-slate-100">
-          <table class="w-full text-left">
+          <table class="w-full text-left table-fixed">
           <thead class="bg-slate-50">
               <tr>
-              <th class="px-4 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400">Curso</th>
+              <th class="px-4 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400 w-1/2">Curso</th>
               ${encCats}
               <th class="px-3 py-3"></th>
               </tr>
@@ -2937,7 +3499,7 @@
   </script>
 
   <!-- ── MODAL NUEVA/EDITAR CATEGORÍA ── -->
-  <div id="modal-nueva-categoria" class="hidden fixed inset-0 z-[250] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="modal-nueva-categoria" class="hidden fixed inset-0 z-[260] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden">
       <div class="bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-5 flex items-center justify-between">
         <h3 id="modal-nueva-categoria-titulo" class="text-base font-black text-white uppercase tracking-tight">Nueva Categoría</h3>
