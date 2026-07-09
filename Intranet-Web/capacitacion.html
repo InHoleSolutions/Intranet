@@ -190,13 +190,12 @@
         <div class="absolute bottom-0 left-0 w-24 h-24 bg-[#e31e24]/10 rounded-full translate-y-10 -translate-x-8"></div>
         <div class="flex items-center justify-between relative z-10">
         <div class="flex items-center gap-4">
-            <div class="h-12 w-12 rounded-2xl bg-[#e31e24] flex items-center justify-center shadow-lg shadow-red-900/50">
-            <i class="fas fa-table-cells text-white text-xl"></i>
+            <div class="h-12 w-12 flex items-center justify-center">
+            <i class="fa-solid fa-helmet-safety fa-3x" style="color: #ffffff;"></i>
             </div>
             <div>
-            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Gestión QHSE</p>
-            <h2 class="text-xl font-black text-white tracking-tight">Matriz de Capacitación HSE (Externa)</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Cursos · Aplica / No Aplica</p>
+            <h2 class="text-xl font-black text-white tracking-tight">Capacitación HSE - Externa</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Capacitación Externa Requerida por Puesto</p>
             </div>
         </div>
         <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
@@ -205,7 +204,7 @@
             <i class="fas fa-file-pdf text-sm"></i>
             </button>
             <span class="hidden sm:flex items-center gap-1.5 bg-white/10 text-slate-300 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-xl flex-shrink-0">
-            <i class="fas fa-graduation-cap text-[#e31e24]"></i> Ver matriz
+             Ver matriz
             </span>
             <i id="matriz-chevron" class="fas fa-chevron-down text-slate-400 text-lg transition-transform duration-300 flex-shrink-0"></i>
         </div>
@@ -254,13 +253,12 @@
         <div class="absolute bottom-0 left-0 w-24 h-24 bg-[#e31e24]/10 rounded-full translate-y-10 -translate-x-8"></div>
         <div class="flex items-center justify-between relative z-10">
         <div class="flex items-center gap-4">
-            <div class="h-12 w-12 rounded-2xl bg-[#e31e24] flex items-center justify-center shadow-lg shadow-red-900/50">
-            <i class="fas fa-shield-halved text-white text-xl"></i>
+            <div class="h-12 w-12 flex items-center justify-center">
+            <i class="fa-solid fa-helmet-safety fa-3x" style="color: #ffffff;"></i>
             </div>
             <div>
-            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Gestión QHSE</p>
-            <h2 class="text-xl font-black text-white tracking-tight">Matriz de Capacitación HSE (Interna)</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Cursos · Aplica / No Aplica</p>
+            <h2 class="text-xl font-black text-white tracking-tight">Capacitación HSE - Interna</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Capacitación Interna Requerida por Puesto</p>
             </div>
         </div>
         <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
@@ -269,7 +267,7 @@
             <i class="fas fa-file-pdf text-sm"></i>
             </button>
             <span class="hidden sm:flex items-center gap-1.5 bg-white/10 text-slate-300 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-xl flex-shrink-0">
-            <i class="fas fa-graduation-cap text-[#e31e24]"></i> Ver matriz
+             Ver matriz
             </span>
             <i id="matriz-interna-chevron" class="fas fa-chevron-down text-slate-400 text-lg transition-transform duration-300 flex-shrink-0"></i>
         </div>
@@ -378,6 +376,10 @@
               class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-600 focus:outline-none focus:border-[#e31e24] transition-colors">
               <option value="">Todas las categorías</option>
             </select>
+            <button id="btn-gestionar-categorias" onclick="abrirModalGestionarCategorias()" title="Gestionar categorías"
+              class="h-9 w-9 flex-shrink-0 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors">
+              <i class="fas fa-gear text-sm"></i>
+            </button>
             <button id="btn-descargar-todos" onclick="generarPDFTodos()" title="Descargar PDF de todos"
               class="h-9 w-9 flex-shrink-0 rounded-xl bg-slate-900 hover:bg-[#e31e24] text-white flex items-center justify-center transition-colors">
               <i class="fas fa-file-zipper text-sm"></i>
@@ -579,11 +581,19 @@
           </div>
         </div>
 
+        <input type="hidden" id="modal-emp-categoria-original">
         <div class="grid grid-cols-2 gap-4">
           <div class="col-span-2">
             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nombre completo *</label>
             <input id="modal-emp-nombre" type="text" placeholder="Ej. Juan Pérez López"
               class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#e31e24] transition-colors">
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Categoría</label>
+            <select id="modal-emp-categoria"
+              class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#e31e24] transition-colors">
+              <option value="">— Sin categoría —</option>
+            </select>
           </div>
         </div>
 
@@ -2162,6 +2172,8 @@
       document.getElementById('modal-titulo').textContent = 'Editar Empleado';
       document.getElementById('modal-emp-id').value      = emp.id;
       document.getElementById('modal-emp-nombre').value  = emp.nombre || '';
+      document.getElementById('modal-emp-categoria').value = emp.categoria || '';
+      document.getElementById('modal-emp-categoria-original').value = emp.categoria || '';
       if (emp.foto_url) {
         document.getElementById('modal-emp-foto-img').src = emp.foto_url;
         document.getElementById('modal-emp-foto-img').classList.remove('hidden');
@@ -2471,19 +2483,33 @@
 
     // GUARDAR EMPLEADO
     async function guardarEmpleado() {
-      const id      = document.getElementById('modal-emp-id').value;
-      const nombre  = document.getElementById('modal-emp-nombre').value.trim();
+      const id               = document.getElementById('modal-emp-id').value;
+      const nombre           = document.getElementById('modal-emp-nombre').value.trim();
+      const categoria        = document.getElementById('modal-emp-categoria').value || null;
+      const categoriaOriginal = document.getElementById('modal-emp-categoria-original').value || null;
 
       if (!nombre) { mostrarToast('El nombre es obligatorio', 'err'); return; }
 
+      const payload = { nombre, categoria };
+      const cambioCategoria = categoria !== categoriaOriginal;
+
+      if (cambioCategoria) {
+        // Recalcula pendientes según la nueva categoría, sin tocar lo ya completado.
+        await cargarCursosHSE(false);
+        const yaRealizados = (empleadoActual?.cursos || []).map(c => c.nombre);
+
+        payload.cursos_pendientes = categoria
+          ? cursosHSE
+              .filter(c => c.categorias?.[categoria] === true && !yaRealizados.includes(c.nombre))
+              .map(c => ({ nombre: c.nombre, prioridad: 'alta' }))
+          : [];
+      }
+
       let error;
       if (id) {
-        // Editar: este modal SOLO maneja nombre y foto.
-        // No se tocan cursos ni cursos_pendientes para no sobrescribirlos.
-        ({ error } = await supabaseClient.from('cap_hse_empleados').update({ nombre }).eq('id', id));
+        ({ error } = await supabaseClient.from('cap_hse_empleados').update(payload).eq('id', id));
       } else {
-        // Nuevo empleado: se crea sin cursos; se agregan después desde el perfil.
-        ({ error } = await supabaseClient.from('cap_hse_empleados').insert({ nombre, cursos: [], cursos_pendientes: [] }));
+        ({ error } = await supabaseClient.from('cap_hse_empleados').insert({ ...payload, cursos: [], cursos_pendientes: payload.cursos_pendientes || [] }));
       }
 
       if (error) {
@@ -2694,6 +2720,19 @@
         });
         selectEmpNuevo.value = valorActual;
       }
+
+      const selectEmpEditar = document.getElementById('modal-emp-categoria');
+      if (selectEmpEditar) {
+        const valorActual = selectEmpEditar.value;
+        selectEmpEditar.innerHTML = '<option value="">— Sin categoría —</option>';
+        CATEGORIAS_HSE.forEach(cat => {
+          const opt = document.createElement('option');
+          opt.value = cat.key;
+          opt.textContent = cat.label;
+          selectEmpEditar.appendChild(opt);
+        });
+        selectEmpEditar.value = valorActual;
+      }
     }
 
     let categoriaAEliminar = null;
@@ -2773,13 +2812,18 @@
     }
 
     function eliminarCategoriaHSE(key, label) {
-      const enUso = todosEmpleados.some(e => e.categoria === key);
-      if (enUso) {
-        mostrarToast('No puedes eliminar esta categoría: hay empleados asignados a ella', 'err');
-        return;
-      }
+      const empleadosAfectados = todosEmpleados.filter(e => e.categoria === key).length;
       categoriaAEliminar = key;
       document.getElementById('confirmar-eliminar-categoria-nombre').textContent = label;
+
+      const aviso = document.getElementById('confirmar-eliminar-categoria-aviso');
+      if (empleadosAfectados > 0) {
+        aviso.textContent = `${empleadosAfectados} empleado(s) tienen esta categoría. Se quedarán sin categoría, pero no se borrará ningún otro dato suyo.`;
+        aviso.classList.remove('hidden');
+      } else {
+        aviso.classList.add('hidden');
+      }
+
       document.getElementById('modal-confirmar-eliminar-categoria').classList.remove('hidden');
     }
 
@@ -2791,17 +2835,28 @@
         .delete()
         .eq('key', categoriaAEliminar);
 
-      cerrarModal('modal-confirmar-eliminar-categoria');
-
       if (error) {
+        cerrarModal('modal-confirmar-eliminar-categoria');
         mostrarToast('Error al eliminar la categoría', 'err');
         return;
       }
 
+      // Los empleados que tenían esta categoría se quedan sin categoría,
+      // y se limpian sus pendientes (ya no aplica ninguno sin categoría).
+      const empleadosAfectados = todosEmpleados.filter(e => e.categoria === categoriaAEliminar);
+      for (const emp of empleadosAfectados) {
+        await supabaseClient
+          .from('cap_hse_empleados')
+          .update({ categoria: null, cursos_pendientes: [] })
+          .eq('id', emp.id);
+      }
+
+      cerrarModal('modal-confirmar-eliminar-categoria');
       mostrarToast('Categoría eliminada ✓', 'ok');
       categoriaAEliminar = null;
       await cargarCategoriasHSE();
       renderListaGestionCategorias();
+      await cargarEmpleados();
     }
 
     let cursosHSE     = [];
@@ -3558,6 +3613,7 @@
         <p class="text-sm text-slate-500 mt-2 leading-relaxed">
           Esta acción eliminará <strong id="confirmar-eliminar-categoria-nombre" class="text-slate-700"></strong> de forma permanente. No se puede deshacer.
         </p>
+        <p id="confirmar-eliminar-categoria-aviso" class="hidden text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2 mt-3 leading-relaxed"></p>
       </div>
       <div class="flex gap-3 p-6 pt-4">
         <button onclick="cerrarModal('modal-confirmar-eliminar-categoria')"
@@ -3595,10 +3651,6 @@
           <select id="modal-emp-nuevo-categoria"
             class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#e31e24] transition-colors">
           </select>
-          <button type="button" onclick="abrirModalGestionarCategorias()"
-            class="mt-1.5 text-xs font-bold text-[#e31e24] hover:underline">
-            <i class="fas fa-gear mr-1"></i>Gestionar categorías
-          </button>
         </div>
 
         <div class="flex gap-3 pt-2">

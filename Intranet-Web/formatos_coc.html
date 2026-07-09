@@ -33,6 +33,7 @@
   /* Tabla (border-collapse y min-width no tienen clase Tailwind directa) */
   .coc-table { width:100%; border-collapse:collapse; min-width:1200px; }
   .coc-table thead tr { background:#f1f5f9; border-bottom:2px solid var(--border); }
+  .coc-table thead th { position: sticky; top: 0; background:#f1f5f9; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
   .coc-table th { padding:12px 14px; font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); white-space:nowrap; text-align:left; }
   .coc-table th:first-child { padding-left:1.5rem; }
   .coc-table th:last-child  { padding-right:1.5rem; text-align:center; }
@@ -50,6 +51,30 @@
   #toast.show  { opacity:1; transform:translateY(0); }
   #toast.success i { color:#4ade80; }
   #toast.error   i { color:#f87171; }
+
+  .check-guardado {
+    position:absolute;
+    top:2px;
+    right:2px;
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    background:#4ade80;
+    color:#fff;
+    font-size:9px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    opacity:0;
+    transform:scale(0.5);
+    transition:opacity .25s ease, transform .25s ease;
+    pointer-events:none;
+    z-index:5;
+  }
+  .check-guardado.show {
+    opacity:1;
+    transform:scale(1);
+  }
   /* Animaciones de entrada */
   @keyframes slideUp { from{opacity:0;transform:translateY(18px);} to{opacity:1;transform:translateY(0);} }
   .animate-in { animation:slideUp 0.5s ease both; }
@@ -85,6 +110,18 @@
   .skeleton-cell { height:14px; border-radius:6px; background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%); background-size:700px 100%; animation:shimmer 1.4s infinite; }
 
   .coc-table tbody tr.fila-activa { background:#fef8f8 !important; box-shadow: inset 3px 0 0 #c8181e; }
+
+  .kebab-menu { position: relative; display:inline-block; }
+  .kebab-btn { background:#f1f5f9; border:none; border-radius:8px; width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; color:#475569; font-size:14px; transition:background .15s; }
+  .kebab-btn:hover, .kebab-btn.active { background:#e2e8f0; }
+  .kebab-dropdown { display:none; position:fixed; width:180px; background:#fff; border:1px solid #e2e8f0; border-radius:10px; box-shadow:0 8px 24px rgba(15,23,42,.14); z-index:500; overflow:hidden; padding:4px; }
+  .kebab-dropdown.open { display:block; }
+  .kebab-dropdown button { display:flex; align-items:center; gap:8px; width:100%; padding:8px 10px; background:none; border:none; border-radius:7px; font-size:12.5px; font-weight:600; color:#334155; cursor:pointer; text-align:left; }
+  .kebab-dropdown button:hover { background:#f1f5f9; }
+  .kebab-dropdown button i { width:14px; text-align:center; color:#64748b; }
+  .kebab-dropdown button.kebab-item-danger { color:#c8181e; }
+  .kebab-dropdown button.kebab-item-danger i { color:#c8181e; }
+  .coc-table tbody tr.fila-incompleta:not(.fila-activa) { box-shadow: inset 3px 0 0 #ca8a04; }
 </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -128,6 +165,14 @@
             <span class="text-[10px] font-semibold tracking-[0.15em] uppercase" style="color:rgba(255,255,255,.4);">Registrados Hoy</span>
         </div>
         <div class="w-px self-stretch" style="background:rgba(255,255,255,.1);"></div>
+        <div class="flex flex-col gap-[2px]">
+            <span class="text-white leading-none text-[1.8rem] font-bold" style="font-family:'Rajdhani',sans-serif;">
+                <span id="stat-completos" style="color:#16a34a;">—</span>
+                <span style="color:rgba(255,255,255,.3);font-weight:400;">·</span>
+                <span id="stat-incompletos" style="color:#ca8a04;">—</span>
+            </span>
+            <span class="text-[10px] font-semibold tracking-[0.15em] uppercase" style="color:rgba(255,255,255,.4);">Completos · Incompletos</span>
+        </div>
         </div>
     </div>
   </section>
@@ -182,7 +227,7 @@
         </button>
         <span id="filtro-resultado" class="text-[12px] text-slate-400 ml-auto"></span>
       </div>
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto overflow-y-auto" style="max-height: 560px;">
         <table class="coc-table">
           <thead>
             <tr>
@@ -276,9 +321,58 @@
       t.querySelector('i').className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
       setTimeout(() => { t.className = ''; }, 3200);
     }
+
+    function mostrarCheckCelda(input) {
+      const td = input.closest('td');
+      if (!td) return;
+      let check = td.querySelector('.check-guardado');
+      if (!check) {
+        check = document.createElement('span');
+        check.className = 'check-guardado';
+        check.innerHTML = '<i class="fas fa-check"></i>';
+        td.appendChild(check);
+      }
+      check.classList.remove('show');
+      void check.offsetWidth; // fuerza reinicio de la animación si se guarda rápido varias veces
+      check.classList.add('show');
+      clearTimeout(check._timeout);
+      check._timeout = setTimeout(() => check.classList.remove('show'), 1300);
+    }
+
+    function saltarSiguienteCampo(event, input) {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      const tr = input.closest('tr');
+      const campos = Array.from(tr.querySelectorAll('input[data-key]'));
+      const idx = campos.indexOf(input);
+      const siguiente = campos[idx + 1];
+      if (siguiente) {
+        siguiente.focus();
+        siguiente.select();
+      } else {
+        input.blur();
+      }
+    }
+
+    function saltarSiguienteSubfila(event, input) {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      const tr = input.closest('tr');
+      const campos = Array.from(tr.querySelectorAll('input[data-subfila-key]'));
+      const idx = campos.indexOf(input);
+      const siguiente = campos[idx + 1];
+      if (siguiente) {
+        siguiente.focus();
+        siguiente.select();
+      } else {
+        input.blur();
+      }
+    }
+
     function setSaving(v) {
       document.getElementById('saving-dot').style.display = v ? 'block' : 'none';
     }
+
     async function init() {
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { 
@@ -333,8 +427,10 @@
 
       document.getElementById('stat-total').textContent = data.length;
       document.getElementById('stat-today').textContent = todayCount;
+      document.querySelectorAll('#coc-tbody tr:not(.subfila-group)').forEach(tr => actualizarBadge(tr));
       actualizarEmptyState();
       poblarFiltroCustomer(data);
+      contarEstados();
     }
     function escAttr(s) { return String(s || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 
@@ -367,22 +463,22 @@
         const val = escAttr(data[col.key] || col.default || '');
         if (col.addBtn) {
           html += `<td style="position:relative;">
-            <input type="text" class="cell-input ${col.cls}" data-key="${col.key}" placeholder="${col.placeholder}" value="${val}" onfocus="this.closest('tr').classList.add('fila-activa')" onblur="this.closest('tr').classList.remove('fila-activa');guardarCelda(this)" onkeydown="if(event.key==='Enter')this.blur()">
-            <button onclick=\"agregarSubfila(this)\" style=\"background:#f9e5e6;border:none;border-radius:6px;padding:2px 8px;cursor:pointer;color:#c8181e;font-size:13px;font-weight:bold;\">+</button>
+            <input type="text" class="cell-input ${col.cls}" data-key="${col.key}" placeholder="${col.placeholder}" value="${val}" onfocus="this.closest('tr').classList.add('fila-activa')" onblur="this.closest('tr').classList.remove('fila-activa');guardarCelda(this)" onkeydown="saltarSiguienteCampo(event, this)">
             ${col.expandBtn ? `<button onclick=\"abrirModal(this.closest('td').querySelector('input'), '${col.label}')\" style=\"background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;\" title=\"Ver texto completo\"><i class='fas fa-expand-alt'></i></button>` : ''}
             <div class="subfilas-container"></div>
           </td>`;
         } else {
           html += `<td style="position:relative;">
-            <input type="${col.type || 'text'}" class="cell-input ${col.cls}" data-key="${col.key}" placeholder="${col.placeholder}" value="${val}" onblur="guardarCelda(this)" onkeydown="if(event.key==='Enter')this.blur()">
+            <input type="${col.type || 'text'}" class="cell-input ${col.cls}" data-key="${col.key}" placeholder="${col.placeholder}" value="${val}" onblur="guardarCelda(this)" onkeydown="saltarSiguienteCampo(event, this)">
             ${col.expandBtn ? `<button onclick=\"abrirModal(this.closest('td').querySelector('input'), '${col.label}')\" style=\"background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;\" title=\"Ver texto completo\"><i class='fas fa-expand-alt'></i></button>` : ''}
           </td>`;
         }
       });
       html += `<td><span class="badge-estado badge-incompleto" data-badge><i class="fas fa-circle-dot"></i> Incompleto</span></td>`;
-      html += `<td style="display:flex;gap:6px;justify-content:center;align-items:center;">
-        <button class="btn btn-danger-ghost" onclick="eliminarFila(this)" title="Eliminar"><i class="fas fa-trash"></i></button>
-        <button class="btn" onclick="generarPDF(this)" title="Generar PDF" style="background:#f9e5e6;border:none;border-radius:8px;padding:6px 10px;cursor:pointer;color:#c8181e;"><i class="fas fa-file-pdf"></i></button>
+      html += `<td style="text-align:center;">
+        <button type="button" class="kebab-btn" onclick="toggleKebabMenu(this)" title="Más acciones">
+          <i class="fas fa-ellipsis-vertical"></i>
+        </button>
       </td>`;
 
       tr.innerHTML = html;
@@ -398,16 +494,16 @@
           <td></td>
           <td></td>
           <td style="position:relative;">
-            <input type="text" class="cell-input xl" data-subfila-key="descripcion" placeholder="Descripción…" value="${escAttr(sf.description || '')}" onblur="guardarSubfilas(this)">
+            <input type="text" class="cell-input xl" data-subfila-key="descripcion" placeholder="Descripción…" value="${escAttr(sf.description || '')}" onblur="guardarSubfilas(this)" onkeydown="saltarSiguienteSubfila(event, this)">
             <button onclick="abrirModal(this.closest('td').querySelector('input'), 'Description')" style="background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;" title="Ver texto completo"><i class="fas fa-expand-alt"></i></button>
           </td>
-          <td><input type="text" class="cell-input" data-subfila-key="qty" placeholder="0" value="${escAttr(sf.qty || '')}" onblur="guardarSubfilas(this)"></td>
+          <td><input type="text" class="cell-input" data-subfila-key="qty" placeholder="0" value="${escAttr(sf.qty || '')}" onblur="guardarSubfilas(this)" onkeydown="saltarSiguienteSubfila(event, this)"></td>
           <td style="position:relative;">
-            <input type="text" class="cell-input wide" data-subfila-key="serial_lote" placeholder="S/N ó LOTE" value="${escAttr(sf.serial_lote || '')}" onblur="guardarSubfilas(this)">
+            <input type="text" class="cell-input wide" data-subfila-key="serial_lote" placeholder="S/N ó LOTE" value="${escAttr(sf.serial_lote || '')}" onblur="guardarSubfilas(this)" onkeydown="saltarSiguienteSubfila(event, this)">
             <button onclick="abrirModal(this.closest('td').querySelector('input'), 'Serial No. / LOTE')" style="background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;" title="Ver texto completo"><i class="fas fa-expand-alt"></i></button>
           </td>
           <td style="position:relative;">
-            <input type="text" class="cell-input wide" data-subfila-key="part_no" placeholder="Part No." value="${escAttr(sf.part_no || '')}" onblur="guardarSubfilas(this)">
+            <input type="text" class="cell-input wide" data-subfila-key="part_no" placeholder="Part No." value="${escAttr(sf.part_no || '')}" onblur="guardarSubfilas(this)" onkeydown="saltarSiguienteSubfila(event, this)">
             <button onclick="abrirModal(this.closest('td').querySelector('input'), 'Part No.')" style="background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;" title="Ver texto completo"><i class="fas fa-expand-alt"></i></button>
           </td>
           <td colspan="7" style="text-align:right;">
@@ -420,6 +516,42 @@
 
       actualizarEmptyState();
     }
+
+    let _kebabBtnActual = null;
+
+    function toggleKebabMenu(btn) {
+      const dropdown = document.getElementById('kebab-dropdown-global');
+      const yaAbierto = dropdown.classList.contains('open') && _kebabBtnActual === btn;
+      cerrarKebabMenus();
+      if (yaAbierto) return;
+
+      _kebabBtnActual = btn;
+      const rect = btn.getBoundingClientRect();
+      dropdown.style.top  = (rect.bottom + 4) + 'px';
+      dropdown.style.left = Math.max(8, rect.right - 180) + 'px';
+      dropdown.classList.add('open');
+      btn.classList.add('active');
+    }
+
+    function cerrarKebabMenus() {
+      document.getElementById('kebab-dropdown-global').classList.remove('open');
+      document.querySelectorAll('.kebab-btn.active').forEach(b => b.classList.remove('active'));
+    }
+
+    function kebabAccion(tipo) {
+      const btn = _kebabBtnActual;
+      cerrarKebabMenus();
+      if (!btn) return;
+      if (tipo === 'subfila')  agregarSubfila(btn);
+      if (tipo === 'pdf')      generarPDF(btn);
+      if (tipo === 'eliminar') eliminarFila(btn);
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.kebab-btn') && !e.target.closest('#kebab-dropdown-global')) cerrarKebabMenus();
+    });
+    document.addEventListener('scroll', cerrarKebabMenus, true);
+
     function agregarFila() {
       crearFila();
       const filas = document.querySelectorAll('#coc-tbody tr');
@@ -439,16 +571,16 @@
         <td></td>
         <td></td>
         <td style="position:relative;">
-          <input type="text" class="cell-input xl" data-subfila-key="descripcion" placeholder="Descripción…" onblur="guardarSubfilas(this)">
+          <input type="text" class="cell-input xl" data-subfila-key="descripcion" placeholder="Descripción…" onblur="guardarSubfilas(this)" onkeydown="saltarSiguienteSubfila(event, this)">
           <button onclick="abrirModal(this.closest('td').querySelector('input'), 'Description')" style="background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;" title="Ver texto completo"><i class="fas fa-expand-alt"></i></button>
         </td>
-        <td><input type="text" class="cell-input" data-subfila-key="qty" placeholder="0" onblur="guardarSubfilas(this)"></td>
+        <td><input type="text" class="cell-input" data-subfila-key="qty" placeholder="0" onblur="guardarSubfilas(this)" onkeydown="saltarSiguienteSubfila(event, this)"></td>
         <td style="position:relative;">
-          <input type="text" class="cell-input wide" data-subfila-key="serial_lote" placeholder="S/N ó LOTE" onblur="guardarSubfilas(this)">
+          <input type="text" class="cell-input wide" data-subfila-key="serial_lote" placeholder="S/N ó LOTE" onblur="guardarSubfilas(this)" onkeydown="saltarSiguienteSubfila(event, this)">
           <button onclick="abrirModal(this.closest('td').querySelector('input'), 'Serial No. / LOTE')" style="background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;" title="Ver texto completo"><i class="fas fa-expand-alt"></i></button>
         </td>
         <td style="position:relative;">
-          <input type="text" class="cell-input wide" data-subfila-key="part_no" placeholder="Part No." onblur="guardarSubfilas(this)">
+          <input type="text" class="cell-input wide" data-subfila-key="part_no" placeholder="Part No." onblur="guardarSubfilas(this)" onkeydown="saltarSiguienteSubfila(event, this)">
           <button onclick="abrirModal(this.closest('td').querySelector('input'), 'Part No.')" style="background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;" title="Ver texto completo"><i class="fas fa-expand-alt"></i></button>
         </td>
         <td colspan="7" style="text-align:right;">
@@ -537,14 +669,17 @@
           showToast('Error en subfilas: ' + subfilaErr.message, 'error');
         } else {
           showToast('Registro y subfilas actualizados');
+          mostrarCheckCelda(input);
         }
       } else {
         showToast('Registro guardado');
+        mostrarCheckCelda(input);
       }
 
       await actualizarEstadisticas();
       setSaving(false);
       actualizarBadge(tr);
+      contarEstados();
     }
 
     async function guardarSubfilas(input) {
@@ -578,7 +713,10 @@
       if (subfilasData.length > 0) {
         const { error } = await sb.from('coc_subfilas').insert(subfilasData);
         if (error) showToast('Error en subfilas: ' + error.message, 'error');
-        else showToast('Subfila guardada');
+        else {
+          showToast('Subfila guardada');
+          mostrarCheckCelda(input);
+        }
       }
 
       setSaving(false);
@@ -596,8 +734,8 @@
     }
     document.getElementById('btn-confirmar-eliminar').addEventListener('click', async () => {
       if (!_btnEliminarPendiente) return;
-      cerrarModalEliminar();
       const tr = _btnEliminarPendiente.closest('tr');
+      cerrarModalEliminar();
       const id = tr.dataset.id;
       if (id) {
         setSaving(true);
@@ -617,6 +755,7 @@
       actualizarEmptyState();
       showToast('Fila eliminada');
       await actualizarEstadisticas();
+      contarEstados();
     });
 
     async function actualizarEstadisticas() {
@@ -629,6 +768,16 @@
     function actualizarEmptyState() {
       const n = document.querySelectorAll('#coc-tbody tr').length;
       document.getElementById('empty-state').style.display = n === 0 ? 'flex' : 'none';
+    }
+    function contarEstados() {
+      const filas = document.querySelectorAll('#coc-tbody tr:not(.subfila-group)');
+      let completos = 0, incompletos = 0;
+      filas.forEach(tr => {
+        if (tr.querySelector('.badge-completo')) completos++;
+        else if (tr.querySelector('.badge-incompleto')) incompletos++;
+      });
+      document.getElementById('stat-completos').textContent = completos;
+      document.getElementById('stat-incompletos').textContent = incompletos;
     }
     // btn-sign-out se registra después de que el header se inserta en el DOM (ver script del header al final)
     
@@ -737,7 +886,7 @@
       // Calcular altura de cada fila primero
       const alturasPorFila = todasLasFilas.map(fila => {
         doc.setFont('helvetica', 'normal');
-        doc.setFontSize(11);
+        doc.setFontSize(9);
         const lineHeight = 5;
         let maxLines = 1;
         fila.forEach((v, i) => {
@@ -759,7 +908,7 @@
 
         // Dibujar solo columnas 1-4 (Description, Qty, Serial No., Part No.)
         doc.setFont('helvetica', 'normal');
-        doc.setFontSize(11);
+        doc.setFontSize(9);
         doc.setTextColor(30, 30, 30);
         for (let i = 1; i <= 4; i++) {
           const lines = doc.splitTextToSize(fila[i], colW[i] - 2);
@@ -842,16 +991,28 @@
       const p2 = 'We also certify that the products listed above comply with the conditions and requirements of the applicable contract of purchase order, unless otherwise specified, and conform in all respects to IN HOLE SOLUTIONS procedures and specifications.';
       const p3 = 'This Certificate of Conformance is issued under our Quality Management System.';
 
-      // p1: ocupa ~14mm (2 líneas de texto)
-      let yP = verificarPagina(yPost + 27, 14);
-      doc.text(p1, 14, yP, { align: 'justify', maxWidth: W - 28 });
-
-      // p2: ocupa ~18mm (3 líneas de texto)
+      // Calculamos primero las posiciones Y de los párrafos (sin dibujar texto todavía)
+      let yP  = verificarPagina(yPost + 27, 14);
       let yP2 = verificarPagina(yP + 10, 18);
-      doc.text(p2, 14, yP2, { align: 'justify', maxWidth: W - 28 });
-
-      // p3 + firma: ocupa ~45mm (texto + imagen firma + DATE)
       let yP3 = verificarPagina(yP2 + 14, 45);
+
+      // ── MARCA DE AGUA (se dibuja ANTES que el texto, para quedar DETRÁS) ──
+      const wmW = 65;
+      const wmH = 65;
+      const wmX = (W - wmW) / 2;
+      const zonaInicio = yP;
+      const zonaFin    = yP3;
+      const wmY        = zonaInicio + (zonaFin - zonaInicio - wmH) / 2;
+
+      doc.saveGraphicsState();
+      doc.setGState(new doc.GState({ opacity: 0.80 }));
+      doc.addImage(MARCA_DE_AGUA_BASE64, 'PNG', wmX, wmY, wmW, wmH);
+      doc.restoreGraphicsState();
+      // ── FIN MARCA DE AGUA ──
+
+      // Ahora sí dibujamos el texto y la firma ENCIMA de la marca de agua
+      doc.text(p1, 14, yP, { align: 'justify', maxWidth: W - 28 });
+      doc.text(p2, 14, yP2, { align: 'justify', maxWidth: W - 28 });
       doc.text(p3, 14, yP3, { align: 'justify', maxWidth: W - 28 });
       doc.addImage(FIRMA_IMG_BASE64, 'PNG', 30, yP3 + 16, 90, 30);
 
@@ -874,21 +1035,6 @@
       doc.text('DATE:', 155, yP3 + 66);
       doc.setFont('helvetica', 'bold');
       doc.text(fecha_emision, 169, yP3 + 66);
-
-      // ── MARCA DE AGUA ──
-      const wmW = 65;  // ancho en mm (ajusta a tu gusto)
-      const wmH = 65;  // alto en mm (ajusta a tu gusto)
-      const wmX = (W - wmW) / 2;        // centrada horizontalmente
-      
-      const zonaInicio = yP;
-      const zonaFin    = yP3;
-      const wmY        = zonaInicio + (zonaFin - zonaInicio - wmH) / 2;
-
-      doc.saveGraphicsState();
-      doc.setGState(new doc.GState({ opacity: 0.80 }));  // 0.12 = muy tenue, sube si quieres más visible
-      doc.addImage(MARCA_DE_AGUA_BASE64, 'PNG', wmX, wmY, wmW, wmH);
-      doc.restoreGraphicsState();
-      // ── FIN MARCA DE AGUA ──
 
       // ── PIE DE PÁGINA (dinámico, se adapta a cualquier página) ──
       const totalPages = doc.getNumberOfPages();
@@ -1031,9 +1177,11 @@
       if (completo) {
         badge.className = 'badge-estado badge-completo';
         badge.innerHTML = '<i class="fas fa-check-circle"></i> Completo';
+        tr.classList.remove('fila-incompleta');
       } else {
         badge.className = 'badge-estado badge-incompleto';
         badge.innerHTML = '<i class="fas fa-circle-dot"></i> Incompleto';
+        tr.classList.add('fila-incompleta');
       }
     }
 
@@ -1123,6 +1271,18 @@
   </script>
 
   <div id="footer-componente"></div>
+
+  <div id="kebab-dropdown-global" class="kebab-dropdown">
+    <button type="button" onclick="kebabAccion('subfila')">
+      <i class="fas fa-plus"></i> Agregar subfila
+    </button>
+    <button type="button" onclick="kebabAccion('pdf')">
+      <i class="fas fa-file-pdf"></i> Generar PDF
+    </button>
+    <button type="button" class="kebab-item-danger" onclick="kebabAccion('eliminar')">
+      <i class="fas fa-trash"></i> Eliminar
+    </button>
+  </div>
 
 </body>
 </html>
