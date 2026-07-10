@@ -4199,13 +4199,13 @@
         doc.setFillColor(226, 232, 240);
         doc.roundedRect(14.8, 49.8, 55, 18, 3, 3, 'F');
         doc.roundedRect(77.8, 49.8, 55, 18, 3, 3, 'F');
-        doc.roundedRect(140.8, 49.8, 57, 18, 3, 3, 'F');
+        doc.roundedRect(140.8, 49.8, 56, 18, 3, 3, 'F');
 
         // Tarjeta principal, encima de la sombra
         doc.setFillColor(...grisClaro);
         doc.roundedRect(14, 49, 55, 18, 3, 3, 'F');
         doc.roundedRect(77, 49, 55, 18, 3, 3, 'F');
-        doc.roundedRect(140, 49, 57, 18, 3, 3, 'F');
+        doc.roundedRect(140, 49, 56, 18, 3, 3, 'F');
 
         const kpiLabel = (x, y, label, valor) => {
             doc.setFillColor(...colorMarca);
@@ -4385,7 +4385,7 @@
 
             // ── Sub-sección: Detalle de Observación ──
             if (op.conformidad === 'observaciones') {
-                y = nuevaSeccion('DETALLE DE OBSERVACIÓN', y + 2, 4);
+                y = nuevaSeccion('DETALLE DE OBSERVACIÓN', y + 4, 4);
                 y = fila('Tipo de Observación',  op.tipo_observacion  || '—', y);
                 y = fila('Responsable',           op.obs_responsable   || '—', y);
                 y = fila('Descripción',           op.obs_descripcion   || '—', y);
@@ -4394,7 +4394,7 @@
 
             // ── Sub-sección: Reporte NC ──
             if (op.conformidad === 'no_conforme') {
-                y = nuevaSeccion('REPORTE PRELIMINAR — NO CONFORME', y + 2, 7);
+                y = nuevaSeccion('REPORTE PRELIMINAR — NO CONFORME', y + 4, 7);
                 y = fila('Folio NC',              op.folio_nc          || '—', y);
                 y = fila('Tipo de Hallazgo',      op.tipo_hallazgo     || '—', y);
                 y = fila('Responsable',           op.nc_responsable    || '—', y);
@@ -4406,7 +4406,7 @@
 
             // ── Sub-sección: HSE Safety Cards ──
             if (op.safety_cards_count && op.safety_cards_count >= 1) {
-                y = nuevaSeccion('HSE — SAFETY ALERT CARDS', y + 2, op.safety_cards_count + 1);
+                y = nuevaSeccion('HSE — SAFETY ALERT CARDS', y + 4, op.safety_cards_count + 1);
                 y = fila('Total de Tarjetas Realizadas', String(op.safety_cards_count), y);
 
                 if (Array.isArray(op.safety_cards_ids) && op.safety_cards_ids.length > 0) {
@@ -4442,7 +4442,7 @@
             // Si no cabe, salta de página para que el título no quede solo.
             if (y + 30 > LIMITE_PAGINA) {
                 doc.addPage();
-                y = 38;
+                y = 36;
             }
             y = seccion('INVENTARIO DE HERRAMIENTAS', y);
             doc.autoTable({
@@ -4487,7 +4487,8 @@
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(...gris);
             const anioActual = new Date().getFullYear();
-            const footerText = `©${anioActual} IN HOLE SOLUTIONS - Todos los derechos reservados. Este documento contiene información confidencial y propiedad de In Hole Solutions, los usuarios de este documento declaran que la información contenida en él no será reproducida, utilizada o divulgada en su totalidad o en parte para ningún fin excepto el especificado y autorizado por In Hole Solutions.`;
+            const folioTexto = op.job_id ? `IN HOLE SOLUTIONS TRACKING SISTEM · ID: ${op.job_id}  |  ` : `IN HOLE SOLUTIONS TRACKING SISTEM  |  `;
+            const footerText = `${folioTexto}©${anioActual} IN HOLE SOLUTIONS - Todos los derechos reservados. Este documento contiene información confidencial y propiedad de In Hole Solutions, los usuarios de este documento declaran que la información contenida en él no será reproducida, utilizada o divulgada en su totalidad o en parte para ningún fin excepto el especificado y autorizado por In Hole Solutions.`;
             doc.text(footerText, 14, 282, { maxWidth: 170, lineHeightFactor: 1.3});
             const numRev = String(op.numero_revision || 1).padStart(2, '0');
             doc.text(`Rev-${numRev}`, 170, 290);
