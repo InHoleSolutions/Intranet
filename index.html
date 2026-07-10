@@ -43,10 +43,20 @@
       height: 220px;
     }
     .portfolio__img--slider .slider-img {
-      display: none !important;
+      display: block !important;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      z-index: 1;
+      transition: opacity 0.6s ease-in-out;
     }
     .portfolio__img--slider .slider-img.active {
-      display: block !important;
+      opacity: 1;
+      z-index: 2;
     }
     .slider-arrow {
       position: absolute;
@@ -110,6 +120,9 @@
       </li>
       <li onclick="cargarFoto('assets/images/sliders/Menu3.jpeg'),togglenew('q1','q2');">
         <img src="assets/images/sliders/Menu3.jpeg">
+      </li>
+      <li onclick="cargarFoto('assets/images/sliders/Menu4.jpeg'),togglenew('q1','q2');">
+        <img src="assets/images/sliders/Menu4.jpeg">
       </li>
     </ul>
   </div>
@@ -367,15 +380,25 @@
           <div class="col-sm-12 col-md-6 col-lg-3">
             <div class="portfolio-item">
               <div class="portfolio__img">
-                <img src="assets/images/sliders/servicio.jpeg" alt="portfolio img">
+                <div class="portfolio__img portfolio__img--slider" id="sliderCentradores">
+                  <img src="assets/images/sliders/servicio.jpeg" alt="portfolio img" class="slider-img">
+                  <img src="assets/images/sliders/Centradores 1.jpeg" alt="portfolio img" class="slider-img active">
+                  <img src="assets/images/sliders/Centradores 2.jpeg" alt="portfolio img" class="slider-img">
+                  <img src="assets/images/sliders/Centradores 3.jpeg" alt="portfolio img" class="slider-img">
+                  <img src="assets/images/sliders/Centradores 4.jpeg" alt="portfolio img" class="slider-img">
+
+                  <button type="button" class="slider-arrow slider-arrow--prev"
+                    onclick="cambiarImagenServicio(event,'sliderCentradores',-1)">&#10094;</button>
+                  <button type="button" class="slider-arrow slider-arrow--next"
+                    onclick="cambiarImagenServicio(event,'sliderCentradores',1)">&#10095;</button>
+                </div>
               </div><!-- /.portfolio-img -->
               <div class="portfolio__content">
-                <h4 class="portfolio__title"><a href="#">SERVICIO Y SUMINISTRO<br>DE CENTRADORES RÍGIDOS</a></h4>
+                <h4 class="portfolio__title"><a href="#">SERVICIO Y SUMINISTRO<br>DE CENTRADORES</a></h4>
                 <div class="portfolio__cat">
                 </div><!-- /.portfolio-cat -->
                 <div class="divider__line divider__lg"></div>
-                <p class="portfolio__desc">Centradores rígidos de una sola pieza diseñados para aportar estabilidad,
-                  precisión y desempeño durante las operaciones de pozo.
+                <p class="portfolio__desc">Centradores rígidos y semi-rígidos diseñados para aportar estabilidad, precisión y desempeño durante las operaciones de pozo.
                 </p>
                 <a href="#" class="btn btn__secondary btn__link">
                   <!--<span>Explorar m&aacute;s</span><i class="icon-arrow-right"></i>-->
