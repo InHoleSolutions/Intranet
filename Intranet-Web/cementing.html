@@ -3905,6 +3905,61 @@
         document.getElementById('panel-confirmar-finalizar').classList.add('hidden');
     }
 
+    // ── QHSE: mapear prefijo del job_id a nombre de línea de producto ──
+    const PREFIJO_A_SERVICIO = {
+        'CEM': 'Cementing',
+        'FCG': 'Flow Control & Gas Lift',
+        'SER': 'Servicios',
+        'CHC': 'Cased Hole Completions'
+    };
+    function servicioDesdeJobId(jobId) {
+        if (!jobId) return 'Cementing';
+        const prefijo = jobId.split('-')[0];
+        return PREFIJO_A_SERVICIO[prefijo] || 'Cementing';
+    }
+
+    // ── QHSE: SINCRONIZAR NO CONFORMIDAD ──
+    async function sincronizarNoConformidad(op) {
+        if (!op.folio_nc) return;
+
+        const payload = {
+            folio_nc:            op.folio_nc,
+            servicio:            servicioDesdeJobId(op.job_id),
+            operacion_id:        op.id,
+            job_id:              op.job_id || null,
+            pozo:                op.nombre_pozo || null,
+            cliente:             op.cliente || null,
+            campo:               op.dp_nombre_campo || null,
+            ingeniero:           op.ingeniero || null,
+            tipo_hallazgo:       op.tipo_hallazgo || null,
+            nc_descripcion:      op.nc_descripcion || null,
+            nc_accion:           op.nc_accion || null,
+            nc_responsable:      op.nc_responsable || null,
+            nc_corregido:        op.nc_corregido || null,
+            nc_comentarios:      op.nc_comentarios || null,
+            safety_cards_count:  op.safety_cards_count || null,
+            safety_cards_ids:    op.safety_cards_ids || null,
+            evaluacion_calidad:  op.evaluacion_calidad || null,
+            updated_at:          new Date().toISOString(),
+        };
+
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/qhse_no_conformidades?on_conflict=folio_nc`, {
+                method: 'POST',
+                headers: {
+                    ...headers,
+                    'Prefer': 'resolution=merge-duplicates,return=minimal'
+                },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) {
+                console.error('No se pudo sincronizar el folio NC:', await res.text());
+            }
+        } catch (e) {
+            console.error('Error de conexión al sincronizar folio NC:', e);
+        }
+    }
+
     // ── GUARDAR EN SUPABASE ──
     async function guardarOperacion(finalizar = false) {
         const btnGuardar = document.getElementById('btn-guardar');
@@ -4055,6 +4110,9 @@
             if (res.ok) {
                 const data = await res.json();
                 const opId = operacionEditandoId || data[0]?.id;
+
+                // ── QHSE: sincronizar folio NC si aplica ──
+                if (data[0]) await sincronizarNoConformidad(data[0]);
 
                 // Guardar herramientas y bitácora ligadas al ID de la operación
                 await guardarHerramientas(opId);

@@ -290,6 +290,12 @@
           <h4 class="text-lg font-bold text-slate-800 mb-2 relative z-10">Verificación de Extintores</h4>
           <p class="text-slate-500 text-sm leading-relaxed relative z-10">Consulta y registra el estado de los extintores.</p>
         </a>
+        <a id="card-qhse-nc" href="qhse-nc.html"
+          class="hidden group relative p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl transition-all cursor-pointer overflow-hidden">
+          <i class="fas fa-file-circle-exclamation text-[#e31e24] text-4xl mb-6 relative z-10"></i>
+          <h4 class="text-lg font-bold text-slate-800 mb-2 relative z-10">No Conformidades (NC)</h4>
+          <p class="text-slate-500 text-sm leading-relaxed relative z-10">Da seguimiento a los folios de servicio no conforme.</p>
+        </a>
       </div>
     </div>
 
@@ -972,17 +978,19 @@
           document.getElementById('card-safety-alerts')?.classList.remove('hidden');
           document.getElementById('card-coc')?.classList.remove('hidden');
           document.getElementById('card-extintores')?.classList.remove('hidden');
+          document.getElementById('card-qhse-nc')?.classList.remove('hidden'); 
 
           // ── Reordenar tarjetas: prioridad QHSE arriba ──
           const ordenQHSE = {
             'card-safety-alerts': 1,
             'card-coc': 2,
-            'card-capacitacion': 3,
-            'card-extintores': 4,
-            'card-politicas': 5,
-            'card-formatos': 6,
-            'card-directorio': 7,
-            'card-accesos': 8
+            'card-qhse-nc': 3,
+            'card-capacitacion': 4,
+            'card-extintores': 5,
+            'card-politicas': 6,
+            'card-formatos': 7,
+            'card-directorio': 8,
+            'card-accesos': 9
           };
           Object.entries(ordenQHSE).forEach(([id, orden]) => {
             const el = document.getElementById(id);

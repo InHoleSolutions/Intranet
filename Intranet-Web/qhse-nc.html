@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QHSE · No Conformidades</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+  <!-- ── HEADER (mismo patrón que dashboard.html/cementing.html) ── -->
+  <header class="bg-white border-b border-slate-100 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div>
+        <h1 class="text-xl font-bold text-slate-800">
+          <i class="fas fa-file-circle-exclamation text-[#e31e24] mr-2"></i>
+          No Conformidades (QHSE)
+        </h1>
+        <p class="text-sm text-slate-400">Seguimiento de folios NC de todos los servicios</p>
+      </div>
+      <a href="dashboard.html" class="text-sm text-slate-500 hover:text-[#e31e24] transition-colors">
+        <i class="fas fa-arrow-left mr-1"></i> Volver al Dashboard
+      </a>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 py-8">
+    <div id="contenido-principal" class="hidden">
+      <!-- Aquí van la lista y el modal (Pasos 4.2 y 4.3) -->
+      <p class="text-slate-400">Cargando folios NC...</p>
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_URL = 'https://bgqlvkvlscujikhzzazf.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJncWx2a3Zsc2N1amlraHp6YXpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NzA0OTQsImV4cCI6MjA5NDM0NjQ5NH0.RuNCaTgjTN1mTA6kkjfXwz05epUYzARqGj8L3I2v350';
+    const headers = {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`
+    };
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function verificarAcceso() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) { window.location.href = "intranet-login.html"; return; }
+
+      const { data: perfil } = await supabaseClient
+        .from('perfiles').select('rol').eq('id', session.user.id).single();
+
+      const rolesPermitidos = ['QHSE', 'qhse', 'admin', 'administrador', 'Administrador'];
+      if (!perfil || !rolesPermitidos.includes(perfil.rol)) {
+        alert('No tienes permiso para ver esta sección.');
+        window.location.href = "dashboard.html";
+        return;
+      }
+
+      // Acceso concedido: mostrar contenido y cargar datos
+      document.getElementById('contenido-principal').classList.remove('hidden');
+      await cargarFoliosNC(); // la definimos en el Paso 4.2
+    }
+
+    // Placeholder temporal hasta el Paso 4.2
+    async function cargarFoliosNC() {
+      console.log('Aquí cargaremos los folios en el siguiente paso.');
+    }
+
+    verificarAcceso();
+  </script>
+</body>
+</html>
