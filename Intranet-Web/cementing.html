@@ -208,6 +208,59 @@
             align-items: flex-start;
         }
     }
+
+    /* ══ BITÁCORA: tarjetas en móvil ══ */
+    @media (max-width: 640px) {
+        #contenedor-tabla-bitacora {
+            border: none;
+            overflow-x: visible;
+        }
+        #tabla-bitacora-el thead { display: none; }
+        #tabla-bitacora-el, #tabla-bitacora-el tbody { display: block; width: 100%; }
+
+        #tabla-bitacora-el tr[data-fecha] {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 12px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+
+        #tabla-bitacora-el td { padding: 0 !important; border: none !important; }
+
+        #tabla-bitacora-el td[data-celda-fecha] {
+            grid-column: 1 / -1;
+            padding-bottom: 10px !important;
+            margin-bottom: 4px;
+            border-bottom: 1px solid #f1f5f9 !important;
+        }
+        #tabla-bitacora-el td[data-celda-accion],
+        #tabla-bitacora-el td[data-label="Observación del día"] {
+            grid-column: 1 / -1;
+        }
+
+        #tabla-bitacora-el td[data-label]::before {
+            content: attr(data-label);
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+
+        #tabla-bitacora-el tr[data-fila-agregar] {
+            display: block;
+            border: none;
+            background: transparent;
+            padding: 2px 0 16px;
+        }
+    }
   </style>
 </head>
 <body class="bg-[#f8fafc] min-h-screen flex flex-col">
@@ -668,8 +721,8 @@
                     <span id="bitacora-resumen" class="text-xs text-slate-400 bg-slate-100 px-3 py-1 rounded-full"></span>
                   </div>
 
-                  <div class="overflow-x-auto rounded-xl border border-slate-200">
-                    <table class="w-full text-xs">
+                  <div class="overflow-x-auto rounded-xl border border-slate-200" id="contenedor-tabla-bitacora">
+                    <table class="w-full text-xs" id="tabla-bitacora-el">
                       <thead>
                         <tr class="bg-slate-50 text-slate-400 uppercase tracking-wider">
                           <th class="px-4 py-3 text-left w-32">Fecha</th>
@@ -6485,16 +6538,16 @@
 
         tr.innerHTML = `
             ${celdaFecha}
-            <td class="px-4 py-2">
+            <td class="px-4 py-2" data-label="Hora inicio">
                 <input type="time" class="bit-inicio w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-red-200" value="${datos.horaInicio || ''}" ${esSinActividad ? 'disabled' : ''}>
             </td>
-            <td class="px-4 py-2">
+            <td class="px-4 py-2" data-label="Hora término">
                 <input type="time" class="bit-termino w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-red-200" value="${datos.horaTermino || ''}" ${esSinActividad ? 'disabled' : ''}>
             </td>
-            <td class="px-4 py-2">
+            <td class="px-4 py-2" data-label="Observación del día">
                 <input type="text" class="bit-obs w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-red-200" placeholder="¿Qué sucedió este día?" value="${datos.observacion || ''}" ${esSinActividad ? 'disabled' : ''}>
             </td>
-            <td class="px-4 py-2 text-center">${celdaAccion}</td>
+            <td class="px-4 py-2 text-center" data-celda-accion>${celdaAccion}</td>
         `;
 
         if (insertarAntesDe) {
