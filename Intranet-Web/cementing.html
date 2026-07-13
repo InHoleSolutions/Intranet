@@ -1619,9 +1619,14 @@
                 <h3 id="rep-titulo" class="text-white text-lg font-bold">Reporte de Operación</h3>
                 <p id="rep-subtitulo" class="text-slate-400 text-xs mt-0.5">Vista de solo lectura</p>
             </div>
-            <button onclick="cerrarReporte()" class="text-slate-400 hover:text-white h-8 w-8 rounded-lg flex items-center justify-center transition-colors" style="background:rgba(255,255,255,0.08);">
-                <i class="fas fa-times text-sm"></i>
-            </button>
+            <div class="flex items-center gap-2">
+                <button id="btn-editar-reporte" onclick="editarDesdeReporte()" class="text-slate-300 hover:text-white text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-2" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);">
+                    <i class="fas fa-pen"></i> Editar operación
+                </button>
+                <button onclick="cerrarReporte()" class="text-slate-400 hover:text-white h-8 w-8 rounded-lg flex items-center justify-center transition-colors" style="background:rgba(255,255,255,0.08);">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
             </div>
 
             <!-- Pestañas -->
@@ -2126,11 +2131,8 @@
             </div><!-- fin rep-tab-bitacora -->
 
             <!-- Footer con firma -->
-            <div class="px-6 py-4 rounded-b-2xl flex items-center justify-between" style="background:rgba(255,255,255,0.04); border-top:1px solid rgba(255,255,255,0.08);">
+            <div class="px-6 py-4 rounded-b-2xl flex items-center justify-center" style="background:rgba(255,255,255,0.04); border-top:1px solid rgba(255,255,255,0.08);">
             <p class="text-xs text-slate-500">In Hole Solutions · Intranet Corporativa</p>
-            <button id="btn-editar-reporte" onclick="editarDesdeReporte()" class="text-slate-300 hover:text-white text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-2" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);">
-                <i class="fas fa-pen"></i> Editar operación
-            </button>
             </div>
 
         </div>
