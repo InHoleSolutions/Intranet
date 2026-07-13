@@ -783,8 +783,8 @@ function togglenew(obj,obj2) {
         var obj=document.getElementById(obj);
 		var obj2=document.getElementById(obj2);
           
-			obj.style.display = "block";
-          	obj2.style.display = "none";
+		if (obj) { obj.style.display = "block"; }
+		if (obj2) { obj2.style.display = "none"; }
 }
 </script>
 

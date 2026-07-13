@@ -119,6 +119,12 @@
     .bg-entrada {
         animation: fadeInBg 0.25s ease both;
     }
+    /* Modal de Nueva Operación: pantalla completa en móvil */
+    @media (min-width: 640px) {
+        #panel-formulario-card {
+            height: calc(100vh - 3rem) !important;
+        }
+    }
     /* ── TRACKING BADGES ── */
     .badge-tracking-pendiente  { background:#fef9c3; color:#92400e; border: 1px solid #fde68a; }
     .badge-tracking-aprobado   { background:#dcfce7; color:#15803d; border: 1px solid #86efac; }
@@ -197,6 +203,11 @@
         align-items: center;
         justify-content: center;
     }
+    @media (max-width: 639px) {
+        #panel-solicitud-edicion:not(.hidden) {
+            align-items: flex-start;
+        }
+    }
   </style>
 </head>
 <body class="bg-[#f8fafc] min-h-screen flex flex-col">
@@ -206,7 +217,7 @@
   <main class="flex-1 max-w-[1440px] mx-auto p-6 md:p-10
              pt-[60px] sm:pt-[120px] lg:pt-[130px] 3xl:pt-[150px]">
     <!-- TÍTULO DE PÁGINA -->
-    <div class="mb-8 flex items-center justify-between">
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
             <a href="dashboard.html" class="text-slate-400 hover:text-[#e31e24] text-sm transition-colors"><i class="fas fa-home"></i></a>
@@ -222,13 +233,13 @@
             </h2>
             <p class="text-slate-500 mt-1 text-sm">Registro y seguimiento de operaciones.</p>
         </div>
-        <div class="hidden sm:flex items-center gap-3">
+        <div class="flex items-center gap-3">
             <!-- Icono notificación solicitudes (solo admin) -->
             <div id="btn-notif-solicitudes" class="hidden relative p-2 rounded-xl bg-amber-50 border border-amber-100 hover:bg-amber-100 transition-all" onclick="togglePanelSolicitudesFlotante()">
                 <i class="fas fa-bell text-amber-500 text-lg"></i>
                 <span id="badge-notif-count" class="hidden">0</span>
             </div>
-            <div class="flex items-center gap-2 bg-green-50 border border-green-100 rounded-xl px-4 py-2">
+            <div class="hidden sm:flex items-center gap-2 bg-green-50 border border-green-100 rounded-xl px-4 py-2">
                 <span class="h-2 w-2 bg-green-400 rounded-full animate-pulse"></span>
                 <span class="text-xs font-bold text-green-600 uppercase tracking-wider">Sistema Activo</span>
             </div>
@@ -368,7 +379,7 @@
 
     <!-- HISTORIAL DE IDs (solo empleados) -->
     <div id="seccion-jobids" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
-        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <div class="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-0 sm:justify-between">
             <div class="flex items-center gap-3">
                 <div class="bg-red-50 rounded-xl p-2">
                     <i class="fas fa-id-badge text-[#e31e24] text-sm"></i>
@@ -378,18 +389,18 @@
                     <p class="text-xs text-slate-400 mt-0.5">Historial de operaciones que has registrado</p>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <button onclick="event.stopPropagation(); abrirPanelSolicitud()" class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 hover:border-slate-300 text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all whitespace-nowrap">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                <button onclick="event.stopPropagation(); abrirPanelSolicitud()" class="w-full sm:w-auto justify-center bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 hover:border-slate-300 text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all whitespace-nowrap">
                     <i class="fas fa-pen-to-square text-amber-500"></i>
                     Solicitar Cambios
                 </button>
-                <button onclick="abrirModalLineaProducto()" class="bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-sm shadow-red-200 whitespace-nowrap group">
+                <button onclick="abrirModalLineaProducto()" class="w-full sm:w-auto justify-center bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-sm shadow-red-200 whitespace-nowrap group">
                     <i class="fas fa-plus transition-transform group-hover:rotate-90 duration-300"></i>
                     Registrar Operación
                 </button>
             </div>
         </div>
-        <div class="overflow-x-auto">
+        <div class="hidden sm:block overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
                     <tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-400">
@@ -415,6 +426,17 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <!-- Vista de tarjetas (solo móvil) -->
+        <div id="cards-jobids" class="sm:hidden p-4 space-y-3">
+            <div id="fila-vacia-jobids-movil" class="text-center py-10">
+                <div class="bg-slate-100 rounded-full p-5 inline-flex mb-3">
+                    <i class="fas fa-id-badge text-slate-300 text-3xl"></i>
+                </div>
+                <p class="text-slate-500 font-semibold">No hay IDs Generados por ahora</p>
+                <p class="text-slate-400 text-sm">Registra tu primera operación para generar un ID</p>
+            </div>
         </div>
     </div>
 
@@ -492,7 +514,7 @@
                 <i class="fas fa-xmark"></i> Limpiar
             </button>
         </div>
-        <div class="overflow-x-auto">
+        <div class="hidden sm:block overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
                     <tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-400">
@@ -519,45 +541,69 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Vista de tarjetas (solo móvil) -->
+        <div id="cards-admin" class="sm:hidden p-4 space-y-3">
+            <div id="fila-vacia-admin-movil" class="text-center py-10">
+                <div class="bg-slate-100 rounded-full p-5 inline-flex mb-3">
+                    <i class="fas fa-oil-well text-slate-300 text-3xl"></i>
+                </div>
+                <p class="text-slate-500 font-semibold">No hay operaciones registradas</p>
+                <p class="text-slate-400 text-sm">Aún no se han registrado operaciones</p>
+            </div>
+        </div>
     </div>
 
     <!-- PANEL FORMULARIO (oculto por defecto) -->
-    <div id="panel-formulario" class="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm items-center justify-center px-4 py-6 bg-entrada overflow-y-auto">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl panel-entrada flex flex-col overflow-hidden" style="height:calc(100vh - 3rem);">
+    <div id="panel-formulario" class="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm items-center justify-center px-0 py-0 sm:px-4 sm:py-6 bg-entrada overflow-y-auto">
+        <div class="bg-white rounded-none sm:rounded-3xl shadow-2xl w-full max-w-4xl panel-entrada flex flex-col overflow-hidden" style="height:100vh;" id="panel-formulario-card">
             <!-- Cabecera del panel -->
-            <div class="flex items-center justify-between px-8 py-2 border-b border-slate-100">
+            <div class="flex items-center justify-between px-4 sm:px-8 py-2 border-b border-slate-100">
             <div>
                 <h3 id="form-titulo" class="text-xl font-bold text-slate-800">Nueva Operación</h3>
             </div>
-            <button onclick="cerrarFormulario()" class="text-slate-400 hover:text-red-600 transition-colors h-9 w-9 rounded-xl border border-slate-200 flex items-center justify-center">
+            <button onclick="cerrarFormulario()" class="text-slate-400 hover:text-red-600 transition-colors h-10 w-10 sm:h-9 sm:w-9 rounded-xl border border-slate-200 flex items-center justify-center">
                 <i class="fas fa-times"></i>
             </button>
             </div>
 
             <!-- Pestañas de pasos -->
-            <div class="flex flex-nowrap border-b border-slate-100 px-8 gap-1">
-            <button onclick="irPaso(1)" id="tab-1" class="tab-btn active px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
-                1. Logística y Tiempos
-            </button>
-            <button onclick="irPaso(2)" id="tab-2" class="tab-btn px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
-                2. Inventario
-            </button>
-            <button onclick="irPaso(3)" id="tab-3" class="tab-btn px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
-                3. Datos Técnicos
-            </button>
-            <button onclick="irPaso(4)" id="tab-4" class="tab-btn px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
-                4. Datos de Pozo
-            </button>
-            <button onclick="irPaso(5)" id="tab-5" class="tab-btn px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
-                5. Gestión QHSE
-            </button>
-            <button onclick="irPaso(6)" id="tab-6" class="tab-btn px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
-                6. Formatos
-            </button>
+            <div class="hidden sm:flex flex-nowrap border-b border-slate-100 px-8 gap-1">
+                <button onclick="irPaso(1)" id="tab-1" class="tab-btn active px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
+                    1. Logística y Tiempos
+                </button>
+                <button onclick="irPaso(2)" id="tab-2" class="tab-btn px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
+                    2. Inventario
+                </button>
+                <button onclick="irPaso(3)" id="tab-3" class="tab-btn px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
+                    3. Datos Técnicos
+                </button>
+                <button onclick="irPaso(4)" id="tab-4" class="tab-btn px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
+                    4. Datos de Pozo
+                </button>
+                <button onclick="irPaso(5)" id="tab-5" class="tab-btn px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
+                    5. Gestión QHSE
+                </button>
+                <button onclick="irPaso(6)" id="tab-6" class="tab-btn px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
+                    6. Formatos
+                </button>
+            </div>
+
+            <!-- Selector de pasos (solo móvil) -->
+            <div class="sm:hidden px-8 py-2 border-b border-slate-100">
+                <select id="tab-select-mobile" onchange="irPaso(parseInt(this.value))"
+                    class="w-full px-3 py-2 text-sm font-semibold border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-200">
+                    <option value="1">1. Logística y Tiempos</option>
+                    <option value="2">2. Inventario</option>
+                    <option value="3">3. Datos Técnicos</option>
+                    <option value="4">4. Datos de Pozo</option>
+                    <option value="5">5. Gestión QHSE</option>
+                    <option value="6">6. Formatos</option>
+                </select>
             </div>
 
             <!-- Contenido de pasos -->
-            <div class="px-8 py-7 flex-1 overflow-hidden">
+            <div class="px-4 sm:px-8 py-7 flex-1 overflow-hidden">
 
             <!-- ══ PASO 1 ══ -->
             <div id="paso-1" class="h-full overflow-y-auto">
@@ -676,9 +722,9 @@
             <div id="paso-2" class="hidden h-full overflow-y-auto">
 
                 <!-- Tabla catálogo (selección) -->
-                <div class="flex items-center justify-between mb-4">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
                     <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Catálogo de Herramientas</p>
-                    <input id="buscador-catalogo" type="text" placeholder="Buscar herramienta..." onkeyup="filtrarCatalogo()" class="px-3 py-1.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200 w-52">
+                    <input id="buscador-catalogo" type="text" placeholder="Buscar herramienta..." onkeyup="filtrarCatalogo()" class="px-3 py-1.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200 w-full sm:w-52">
                 </div>
                 <div class="flex items-center gap-2 mb-4">
                     <button id="btn-tab-cementing" onclick="cambiarCatalogo('cementing')"
@@ -690,7 +736,7 @@
                         Cased Hole Completions
                     </button>
                 </div>
-                <div class="overflow-x-auto rounded-xl border border-slate-200 mb-6" style="max-height:280px; overflow-y:auto;">
+                <div class="hidden sm:block overflow-x-auto rounded-xl border border-slate-200 mb-6" style="max-height:280px; overflow-y:auto;">
                     <table class="w-full text-xs">
                         <thead class="sticky top-0 z-10">
                             <tr class="bg-slate-50 text-slate-400 uppercase tracking-wider">
@@ -711,10 +757,14 @@
                     </table>
                 </div>
 
+                <!-- Vista de tarjetas (solo móvil) -->
+                <div id="cards-catalogo" class="sm:hidden mb-6 space-y-2" style="max-height:400px; overflow-y:auto;">
+                </div>
+
                 <!-- Tabla herramientas seleccionadas -->
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Herramientas Seleccionadas</p>
-                <div class="overflow-x-auto rounded-xl border border-slate-200">
-                    <table class="w-full text-xs">
+                <div class="hidden sm:block overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="w-full text-xs">
                         <thead>
                             <tr class="bg-slate-50 text-slate-400 uppercase tracking-wider">
                                 <th class="px-4 py-3 text-left">No.</th>
@@ -733,6 +783,10 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Vista de tarjetas (solo móvil) -->
+                <div id="cards-seleccionadas" class="sm:hidden space-y-2">
                 </div>
 
             </div><!-- /paso-2 -->
@@ -788,7 +842,13 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Seal Bore</label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-semibold text-slate-500">Seal Bore</label>
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input type="checkbox" id="f-seal-bore-na" class="w-4 h-4 accent-slate-400" onchange="toggleCampoNA(this.checked, 'f-seal-bore')">
+                                <span class="text-xs font-semibold text-slate-400">No aplica</span>
+                            </label>
+                        </div>
                         <input id="f-seal-bore" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
                     <div>
@@ -1182,7 +1242,7 @@
 
                 <!-- SECCIÓN: EVALUACIÓN DE CALIDAD EN EL SERVICIO -->
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5 mt-8">Evaluación de Calidad en el Servicio</p>
-                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                <div class="hidden sm:block overflow-x-auto rounded-xl border border-slate-200">
                     <table class="w-full text-xs">
                         <thead>
                             <tr class="bg-slate-700 text-white">
@@ -1198,6 +1258,9 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Vista de tarjetas (solo móvil) -->
+                <div id="eval-calidad-cards" class="sm:hidden space-y-4"></div>
 
             </div><!-- /paso-5 -->
 
@@ -1472,20 +1535,20 @@
             </div><!-- /contenido pasos -->
 
             <!-- Footer del panel -->
-            <div class="px-8 py-5 border-t border-slate-100 flex items-center justify-between">
-                <button id="btn-anterior" onclick="pasoAnterior()" class="hidden text-slate-500 hover:text-slate-700 text-sm font-semibold px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all">
+            <div class="px-4 sm:px-8 py-4 sm:py-5 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-0">
+                <button id="btn-anterior" onclick="pasoAnterior()" class="hidden order-3 sm:order-1 w-full sm:w-auto flex items-center justify-center text-slate-500 hover:text-slate-700 text-sm font-semibold px-5 py-3 sm:py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all">
                     <i class="fas fa-arrow-left mr-2"></i> Anterior
                 </button>
-                <div class="flex-1"></div>
-                <div class="flex gap-3">
-                    <button onclick="cerrarFormulario()" class="text-slate-400 text-sm px-5 py-2.5 rounded-xl hover:bg-slate-50 transition-all">Cancelar</button>
-                    <button id="btn-siguiente" onclick="pasoSiguiente()" class="bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
+                <div class="hidden sm:block flex-1"></div>
+                <div class="order-1 sm:order-2 w-full sm:w-auto flex flex-col-reverse sm:flex-row gap-3">
+                    <button onclick="cerrarFormulario()" class="w-full sm:w-auto text-slate-400 text-sm px-5 py-3 sm:py-2.5 rounded-xl hover:bg-slate-50 transition-all">Cancelar</button>
+                    <button id="btn-siguiente" onclick="pasoSiguiente()" class="w-full sm:w-auto bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-6 py-3 sm:py-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
                         <i class="fas fa-arrow-right"></i> Siguiente 
                     </button>
-                    <button id="btn-guardar" onclick="confirmarGuardarOperacion()" class="hidden bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
+                    <button id="btn-guardar" onclick="confirmarGuardarOperacion()" class="hidden w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-6 py-3 sm:py-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
                         <i class="fas fa-floppy-disk"></i> Guardar Operación
                     </button>
-                    <button id="btn-finalizar" onclick="confirmarFinalizarOperacion()" class="hidden bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
+                    <button id="btn-finalizar" onclick="confirmarFinalizarOperacion()" class="hidden w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-6 py-3 sm:py-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
                         <i class="fas fa-lock"></i> Finalizar Operación
                     </button>
                 </div>
@@ -1494,8 +1557,8 @@
         </div>
     </div>
     <!-- PANEL VISTA GERENCIAL (solo lectura) -->
-    <div id="panel-reporte" class="hidden fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm overflow-y-auto py-10 px-4">
-        <div class="rounded-2xl shadow-2xl w-full max-w-4xl" style="background:#1e2332;">
+    <div id="panel-reporte" class="hidden fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm overflow-y-auto py-0 px-0 sm:py-10 sm:px-4">
+        <div class="rounded-none sm:rounded-2xl shadow-2xl w-full max-w-4xl min-h-screen sm:min-h-0" style="background:#1e2332;">
 
             <!-- Cabecera -->
             <div class="flex items-center justify-between px-6 py-5" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
@@ -1522,7 +1585,7 @@
 
             <div id="rep-tab-datos">
             <!-- KPIs automáticos -->
-            <div class="grid grid-cols-3 gap-3 px-6 py-5" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 px-6 py-5" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
             <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.06);">
                 <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">⏱️ Duración del Bombeo</p>
                 <p id="rep-duracion-bombeo" class="text-white text-base font-bold">—</p>
@@ -1538,7 +1601,7 @@
             </div>
 
             <!-- Cuerpo del reporte -->
-            <div class="px-6 py-5 grid grid-cols-2 gap-4">
+            <div class="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <!-- Columna izq: Identificación -->
             <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
@@ -1600,7 +1663,7 @@
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
                 <i class="fas fa-flask-vial mr-2"></i>Datos Técnicos
                 </p>
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-sm">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-sm">
 
                 <div class="bg-white/5 rounded-lg px-3 py-2">
                     <p class="text-[11px] text-slate-500 mb-1">Línea de Producto</p>
@@ -1729,7 +1792,7 @@
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
                 <i class="fas fa-mountain mr-2"></i>Información General
                 </p>
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-sm">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-sm">
 
                 <div class="bg-white/5 rounded-lg px-3 py-2">
                     <p class="text-[11px] text-slate-500 mb-1">Nombre del Pozo</p>
@@ -1802,7 +1865,7 @@
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
                 <i class="fas fa-mountain mr-2"></i>Datos Técnicos del Pozo
                 </p>
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-sm">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-sm">
 
                 <div class="bg-white/5 rounded-lg px-3 py-2">
                     <p class="text-[11px] text-slate-500 mb-1">TD</p>
@@ -1909,7 +1972,7 @@
                 <!-- Evaluación de Calidad -->
                 <div id="rep-bloque-evaluacion" class="hidden mt-3 pt-3 border-t border-white/10">
                     <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Evaluación de Calidad en el Servicio</p>
-                    <div class="overflow-x-auto">
+                    <div class="hidden sm:block overflow-x-auto">
                         <table class="w-full text-xs">
                             <thead>
                                 <tr style="background:rgba(255,255,255,0.05);">
@@ -1924,6 +1987,9 @@
                             <tbody id="rep-eval-body"></tbody>
                         </table>
                     </div>
+
+                    <!-- Vista de tarjetas (solo móvil) -->
+                    <div id="rep-eval-cards" class="sm:hidden space-y-2"></div>
                 </div>
             </div>
             </div>
@@ -1933,7 +1999,7 @@
             <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
                 <i class="fas fa-boxes-stacked mr-2"></i>Inventario de Herramientas
             </p>
-            <div class="overflow-x-auto rounded-xl" style="border:1px solid rgba(255,255,255,0.08);">
+            <div class="hidden sm:block overflow-x-auto rounded-xl" style="border:1px solid rgba(255,255,255,0.08);">
                 <table class="w-full text-xs">
                     <thead>
                         <tr style="background:rgba(255,255,255,0.05);">
@@ -1950,6 +2016,9 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Vista de tarjetas (solo móvil) -->
+            <div id="rep-cards-herramientas" class="sm:hidden space-y-2"></div>
             </div>
 
             <!-- Archivos Adjuntos -->
@@ -1970,7 +2039,7 @@
             <div id="rep-tab-bitacora" class="hidden">
                 <div class="px-6 py-5">
                     <div class="rounded-xl overflow-hidden" style="border:1px solid rgba(255,255,255,0.08);">
-                        <div class="overflow-x-auto">
+                        <div class="hidden sm:block overflow-x-auto">
                             <table class="w-full text-sm">
                                 <thead>
                                     <tr style="background:rgba(255,255,255,0.06);">
@@ -1990,6 +2059,14 @@
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+
+                        <!-- Vista de tarjetas (solo móvil) -->
+                        <div id="rep-cards-bitacora" class="sm:hidden p-3 space-y-2">
+                            <p class="text-center text-slate-500 text-sm py-6">
+                                <i class="fas fa-calendar-xmark text-2xl mb-2 block text-slate-600"></i>
+                                Sin registros de bitácora.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -2118,9 +2195,9 @@
     </div>
 
     <!-- PANEL SOLICITAR EDICIÓN (solo empleados) -->
-    <div id="panel-solicitud-edicion" class="hidden fixed inset-0 z-[150] bg-black/40 backdrop-blur-sm px-4 flex items-center justify-center">
-        <div class="flex items-start gap-0">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg panel-entrada">
+    <div id="panel-solicitud-edicion" class="hidden fixed inset-0 z-[150] bg-black/40 backdrop-blur-sm px-0 py-0 sm:px-4 sm:py-6 flex items-center justify-center overflow-y-auto">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-0 w-full sm:w-auto">
+        <div class="bg-white rounded-none sm:rounded-3xl shadow-2xl w-full sm:max-w-lg panel-entrada">
             <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100">
                 <div class="flex items-center gap-3">
                     <div class="bg-purple-50 rounded-xl p-2.5">
@@ -2166,7 +2243,7 @@
         </div>
 
         <!-- Panel historial lateral -->
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm panel-entrada ml-4 flex flex-col" style="max-height:600px;">
+        <div class="bg-white rounded-none sm:rounded-3xl shadow-2xl w-full sm:max-w-sm panel-entrada sm:ml-4 flex flex-col" style="max-height:600px;">
             <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
                 <div class="bg-slate-50 rounded-xl p-2">
                     <i class="fas fa-clock-rotate-left text-slate-400 text-sm"></i>
@@ -2489,21 +2566,28 @@
 
         document.getElementById('seccion-jobids').classList.remove('hidden');
 
-        const tbody     = document.getElementById('tabla-jobids');
-        const filaVacia = document.getElementById('fila-vacia-jobids');
+        const tbody          = document.getElementById('tabla-jobids');
+        const filaVacia       = document.getElementById('fila-vacia-jobids');
+        const cards          = document.getElementById('cards-jobids');
+        const filaVaciaMovil = document.getElementById('fila-vacia-jobids-movil');
 
         tbody.querySelectorAll('tr:not(#fila-vacia-jobids)').forEach(r => r.remove());
+        cards.querySelectorAll('.card-jobid').forEach(c => c.remove());
 
         const conJobId = datos.filter(op => op.job_id);
 
         if (!conJobId.length) {
             filaVacia.classList.remove('hidden');
+            filaVaciaMovil.classList.remove('hidden');
             return;
         }
         filaVacia.classList.add('hidden');
+        filaVaciaMovil.classList.add('hidden');
 
         conJobId.forEach((op, index) => {
             const badge = badgeEstatus(op);
+
+            // Fila de tabla (desktop) — igual que antes
             const tr = document.createElement('tr');
             tr.className = 'border-b border-slate-100 hover:bg-slate-50 transition-all fila-animada';
             tr.style.animationDelay = `${index * 60}ms`;
@@ -2539,6 +2623,39 @@
                 </td>
             `;
             tbody.appendChild(tr);
+
+            // Tarjeta (móvil)
+            const card = document.createElement('div');
+            card.className = 'card-jobid border border-slate-200 rounded-xl p-4 fila-animada';
+            card.style.animationDelay = `${index * 60}ms`;
+            card.innerHTML = `
+                <div class="flex items-start justify-between mb-2 gap-2">
+                    <span class="font-mono font-bold text-[#e31e24] text-xs bg-red-50 px-2.5 py-1 rounded-lg">${op.job_id}</span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${badge.clase} whitespace-nowrap">
+                        ${badge.texto}
+                    </span>
+                </div>
+                <p class="font-bold text-slate-800 text-sm">${op.nombre_pozo || '—'}</p>
+                <p class="text-xs text-slate-400 mb-2">${op.rig || 'Sin rig'}</p>
+                <div class="flex items-center justify-between text-xs text-slate-500 mb-3">
+                    <span>${op.cliente || '—'}</span>
+                    <span>${formatearFecha(op.created_at)}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="abrirOperacion('${op.id}')" class="flex-1 text-blue-500 hover:text-blue-700 text-xs font-bold px-3 py-2 rounded-lg border border-blue-200 hover:bg-blue-50 transition-all">
+                        <i class="fas fa-eye mr-1"></i> Ver
+                    </button>
+                    ${op.finalizada
+                        ? `<button onclick="verYExportarPDF('${op.id}')" class="flex-1 text-green-500 hover:text-green-700 text-xs font-bold px-3 py-2 rounded-lg border border-green-200 hover:bg-green-50 transition-all">
+                            <i class="fas fa-file-arrow-down mr-1"></i> PDF
+                        </button>`
+                        : `<button disabled title="Solo disponible después de Finalizar la operación" class="flex-1 text-slate-300 text-xs font-bold px-3 py-2 rounded-lg border border-slate-100 bg-slate-50 cursor-not-allowed">
+                            <i class="fas fa-file-arrow-down mr-1"></i> PDF
+                        </button>`
+                    }
+                </div>
+            `;
+            cards.appendChild(card);
         });
     }
 
@@ -2549,7 +2666,6 @@
         document.getElementById('tabla-principal').classList.add('hidden');
         document.getElementById('seccion-admin').classList.remove('hidden');
 
-        // Carga solicitudes solo la primera vez
         if (!document.getElementById('admin-filtro-pozo').dataset.init) {
             cargarSolicitudes();
             operacionesAdmin = datos;
@@ -2559,17 +2675,22 @@
             document.getElementById('admin-filtro-fecha').addEventListener('change',    aplicarFiltrosAdmin);
         }
 
-        const tbody     = document.getElementById('tabla-admin');
-        const filaVacia = document.getElementById('fila-vacia-admin');
+        const tbody          = document.getElementById('tabla-admin');
+        const filaVacia       = document.getElementById('fila-vacia-admin');
+        const cards          = document.getElementById('cards-admin');
+        const filaVaciaMovil = document.getElementById('fila-vacia-admin-movil');
 
         tbody.querySelectorAll('tr:not(#fila-vacia-admin)').forEach(r => r.remove());
+        cards.querySelectorAll('.card-admin').forEach(c => c.remove());
 
         if (!datos.length) {
             filaVacia.classList.remove('hidden');
+            filaVaciaMovil.classList.remove('hidden');
             return;
         }
         document.getElementById('admin-filtro-pozo').closest('div.px-6').classList.remove('hidden');
         filaVacia.classList.add('hidden');
+        filaVaciaMovil.classList.add('hidden');
 
         datos.forEach((op, index) => {
             const badge = badgeEstatus(op);
@@ -2579,6 +2700,24 @@
                 'bg-green-100 text-green-700','bg-orange-100 text-orange-700','bg-rose-100 text-rose-700'];
             const colorAvatar = coloresAvatar[empleado.charCodeAt(0) % coloresAvatar.length];
 
+            const accionesRevision = (op.finalizada && op.estatus_revision === 'en_revision')
+                ? `<button onclick="revisarOperacion('${op.id}', 'aprobado')" title="Aprobar operación" class="text-green-500 hover:text-green-700 text-xs px-2 py-1.5 rounded-lg border border-green-200 hover:bg-green-50 transition-all">
+                    <i class="fas fa-check"></i>
+                </button>
+                <button onclick="revisarOperacion('${op.id}', 'rechazado')" title="Rechazar operación" class="text-red-500 hover:text-red-700 text-xs px-2 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-all">
+                    <i class="fas fa-times"></i>
+                </button>`
+                : '';
+
+            const botonPDF = op.finalizada
+                ? `<button onclick="verYExportarPDF('${op.id}')" class="flex-1 text-green-500 hover:text-green-700 text-xs font-bold px-3 py-2 rounded-lg border border-green-200 hover:bg-green-50 transition-all">
+                    <i class="fas fa-file-arrow-down mr-1"></i> PDF
+                </button>`
+                : `<button disabled title="Solo disponible después de Finalizar la operación" class="flex-1 text-slate-300 text-xs font-bold px-3 py-2 rounded-lg border border-slate-100 bg-slate-50 cursor-not-allowed">
+                    <i class="fas fa-file-arrow-down mr-1"></i> PDF
+                </button>`;
+
+            // Fila de tabla (desktop) — igual que antes
             const tr = document.createElement('tr');
             tr.className = 'border-b border-slate-100 hover:bg-slate-50 transition-all fila-animada';
             tr.style.animationDelay = `${index * 60}ms`;
@@ -2617,19 +2756,42 @@
                                 <i class="fas fa-file-arrow-down mr-1"></i> PDF
                             </button>`
                         }
-                        ${op.finalizada && op.estatus_revision === 'en_revision'
-                            ? `<button onclick="revisarOperacion('${op.id}', 'aprobado')" title="Aprobar operación" class="text-green-500 hover:text-green-700 text-xs px-2 py-1.5 rounded-lg border border-green-200 hover:bg-green-50 transition-all">
-                                <i class="fas fa-check"></i>
-                            </button>
-                            <button onclick="revisarOperacion('${op.id}', 'rechazado')" title="Rechazar operación" class="text-red-500 hover:text-red-700 text-xs px-2 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-all">
-                                <i class="fas fa-times"></i>
-                            </button>`
-                            : ''
-                        }
+                        ${accionesRevision}
                     </div>
                 </td>
             `;
             tbody.appendChild(tr);
+
+            // Tarjeta (móvil)
+            const card = document.createElement('div');
+            card.className = 'card-admin border border-slate-200 rounded-xl p-4 fila-animada';
+            card.style.animationDelay = `${index * 60}ms`;
+            card.innerHTML = `
+                <div class="flex items-center justify-between mb-3 gap-2">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <div class="h-8 w-8 rounded-full ${colorAvatar} flex items-center justify-center text-xs font-black flex-shrink-0">${iniciales}</div>
+                        <span class="text-sm font-semibold text-slate-700 truncate">${empleado}</span>
+                    </div>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${badge.clase} whitespace-nowrap">
+                        ${badge.texto}
+                    </span>
+                </div>
+                <div class="mb-2">
+                    ${op.job_id
+                        ? `<span class="font-mono font-bold text-[#e31e24] text-xs bg-red-50 px-2.5 py-1 rounded-lg">${op.job_id}</span>`
+                        : `<span class="text-slate-300 text-xs">Sin ID</span>`}
+                </div>
+                <p class="font-bold text-slate-800 text-sm">${op.nombre_pozo || '—'}</p>
+                <p class="text-xs text-slate-400 mb-3">${op.rig || 'Sin rig'} · ${formatearFecha(op.created_at)}</p>
+                <div class="flex items-center gap-2 mb-2">
+                    <button onclick="abrirOperacion('${op.id}')" class="flex-1 text-blue-500 hover:text-blue-700 text-xs font-bold px-3 py-2 rounded-lg border border-blue-200 hover:bg-blue-50 transition-all">
+                        <i class="fas fa-eye mr-1"></i> Ver
+                    </button>
+                    ${botonPDF}
+                </div>
+                ${accionesRevision ? `<div class="flex items-center gap-2">${accionesRevision}</div>` : ''}
+            `;
+            cards.appendChild(card);
         });
     }
 
@@ -2932,6 +3094,9 @@
         document.getElementById(`tab-${n}`).classList.add('active');
         pasoActual = n;
 
+        const selMobile = document.getElementById('tab-select-mobile');
+        if (selMobile) selMobile.value = n;
+
         document.getElementById('btn-anterior').classList.toggle('hidden', n === 1);
         document.getElementById('btn-siguiente').classList.toggle('hidden', n === 6);
         document.getElementById('btn-guardar').classList.toggle('hidden', n !== 6);
@@ -3010,9 +3175,15 @@
 
     function renderEvaluacionCalidad() {
         const tbody = document.getElementById('eval-calidad-body');
-        if (!tbody) return;
+        const cardsContainer = document.getElementById('eval-calidad-cards');
+        if (!tbody || !cardsContainer) return;
         tbody.innerHTML = '';
+        cardsContainer.innerHTML = '';
+
+        const NIVEL_LABEL = ['1 - Deficiente', '2 - Regular', '3 - Satisfactorio', '4 - Bueno', '5 - Excelente'];
+
         CRITERIOS_CALIDAD.forEach(criterio => {
+            // Fila de tabla (desktop) — igual que antes
             const tr = document.createElement('tr');
             tr.className = 'border-t border-slate-100 hover:bg-slate-50';
             let celdas = `<td class="px-3 py-3 font-semibold text-slate-700 align-top">${criterio.nombre}</td>`;
@@ -3031,18 +3202,50 @@
             }
             tr.innerHTML = celdas;
             tbody.appendChild(tr);
+
+            // Tarjeta (móvil): criterio + 5 opciones apiladas
+            const card = document.createElement('div');
+            card.className = 'border border-slate-200 rounded-xl p-4';
+            let botonesMovil = '';
+            for (let i = 0; i < 5; i++) {
+                const val = i + 1;
+                botonesMovil += `
+                    <button type="button"
+                        onclick="seleccionarCalidad('${criterio.id}', ${val})"
+                        id="eval-m-${criterio.id}-${val}"
+                        class="w-full text-left rounded-lg border-2 border-slate-200 text-slate-500 text-xs p-3 mb-2 leading-snug transition-all cursor-pointer">
+                        <span class="font-bold block mb-0.5">${NIVEL_LABEL[i]}</span>
+                        ${criterio.descripciones[i]}
+                    </button>`;
+            }
+            card.innerHTML = `
+                <p class="font-bold text-slate-700 text-sm mb-3">${criterio.nombre}</p>
+                ${botonesMovil}
+            `;
+            cardsContainer.appendChild(card);
         });
     }
 
     function seleccionarCalidad(criterioId, valor) {
         for (let i = 1; i <= 5; i++) {
-            const btn = document.getElementById(`eval-${criterioId}-${i}`);
-            if (!btn) continue;
-            btn.className = 'w-full min-h-[60px] rounded-lg border-2 border-slate-200 text-slate-400 text-[10px] p-1.5 leading-tight transition-all hover:border-slate-400 cursor-pointer';
+            const btnDesktop = document.getElementById(`eval-${criterioId}-${i}`);
+            if (btnDesktop) {
+                btnDesktop.className = 'w-full min-h-[60px] rounded-lg border-2 border-slate-200 text-slate-400 text-[10px] p-1.5 leading-tight transition-all hover:border-slate-400 cursor-pointer';
+            }
+            const btnMobile = document.getElementById(`eval-m-${criterioId}-${i}`);
+            if (btnMobile) {
+                btnMobile.className = 'w-full text-left rounded-lg border-2 border-slate-200 text-slate-500 text-xs p-3 mb-2 leading-snug transition-all cursor-pointer';
+            }
         }
-        const seleccionado = document.getElementById(`eval-${criterioId}-${valor}`);
-        if (seleccionado) {
-            seleccionado.className = `w-full min-h-[60px] rounded-lg border-2 text-[10px] p-1.5 leading-tight font-semibold cursor-pointer ${COLORES_CALIDAD[valor - 1]}`;
+
+        const seleccionadoDesktop = document.getElementById(`eval-${criterioId}-${valor}`);
+        if (seleccionadoDesktop) {
+            seleccionadoDesktop.className = `w-full min-h-[60px] rounded-lg border-2 text-[10px] p-1.5 leading-tight font-semibold cursor-pointer ${COLORES_CALIDAD[valor - 1]}`;
+        }
+
+        const seleccionadoMobile = document.getElementById(`eval-m-${criterioId}-${valor}`);
+        if (seleccionadoMobile) {
+            seleccionadoMobile.className = `w-full text-left rounded-lg border-2 text-xs p-3 mb-2 leading-snug font-semibold cursor-pointer ${COLORES_CALIDAD[valor - 1]}`;
         }
     }
 
@@ -3236,26 +3439,15 @@
 
     function cambiarCatalogo(tipo) {
         if (catalogoTablaActiva === tipo) return;
-
-        if (herramientasSeleccionadas.length > 0) {
-            tipoCatalogoPendiente = tipo;
-            document.getElementById('texto-confirmar-cambio-catalogo').textContent =
-                `Tienes ${herramientasSeleccionadas.length} herramienta(s) seleccionada(s). ` +
-                `Si cambias de catálogo se perderá esa selección. ¿Deseas continuar?`;
-            document.getElementById('panel-confirmar-cambio-catalogo').classList.remove('hidden');
-            return;
-        }
-
         aplicarCambioCatalogo(tipo);
     }
 
     function aplicarCambioCatalogo(tipo) {
         catalogoTablaActiva = tipo;
 
-        // Limpia la selección actual (los ids no son comparables entre tablas distintas)
-        herramientasSeleccionadas = [];
-        renderizarSeleccionadas();
-
+        // La selección se conserva al cambiar de catálogo: cada herramienta
+        // guarda su propio "catalogoOrigen", así que se pueden mezclar
+        // herramientas de Cementing y Cased Hole Completions en la misma tabla.
         pintarBotonesCatalogo(tipo);
 
         document.getElementById('buscador-catalogo').value = '';
@@ -3277,14 +3469,27 @@
 
     function renderizarCatalogo(lista) {
         const tbody = document.getElementById('tabla-catalogo');
-        if (!tbody) return;
-        tbody.innerHTML = '';
+        const cards = document.getElementById('cards-catalogo');
+        if (!tbody || !cards) return;
+
         if (!lista.length) {
             tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-slate-400">Sin resultados.</td></tr>`;
+            cards.innerHTML = `<p class="text-center text-slate-400 py-6 text-sm">Sin resultados.</p>`;
             return;
         }
+
+        tbody.innerHTML = '';
+        cards.innerHTML = '';
+
         lista.forEach(h => {
             const yaSeleccionada = herramientasSeleccionadas.some(s => s.catalogoId === h.id && s.catalogoOrigen === catalogoTablaActiva);
+            const claseBtn = yaSeleccionada
+                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                : 'bg-red-50 hover:bg-red-100 text-[#e31e24] border border-red-100';
+            const textoBtn = yaSeleccionada ? 'Agregada' : 'Seleccionar';
+            const disabledAttr = yaSeleccionada ? 'disabled' : '';
+
+            // Fila de tabla (desktop)
             const tr = document.createElement('tr');
             tr.className = 'border-t border-slate-100';
             tr.id = `cat-row-${h.id}`;
@@ -3293,14 +3498,28 @@
                 <td class="px-4 py-2 font-mono text-slate-700">${h.np}</td>
                 <td class="px-4 py-2 text-slate-700">${h.descripcion}</td>
                 <td class="px-4 py-2 text-center">
-                    <button onclick="seleccionarHerramienta(${h.id})" id="btn-sel-${h.id}"
-                        class="text-xs font-bold px-3 py-1 rounded-lg transition-all ${yaSeleccionada ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-red-50 hover:bg-red-100 text-[#e31e24] border border-red-100'}"
-                        ${yaSeleccionada ? 'disabled' : ''}>
-                        ${yaSeleccionada ? 'Agregada' : 'Seleccionar'}
+                    <button onclick="seleccionarHerramienta(${h.id})" data-cat-id="${h.id}" data-rol="sel"
+                        class="text-xs font-bold px-3 py-1 rounded-lg transition-all ${claseBtn}" ${disabledAttr}>
+                        ${textoBtn}
                     </button>
                 </td>
             `;
             tbody.appendChild(tr);
+
+            // Tarjeta (móvil)
+            const card = document.createElement('div');
+            card.className = 'border border-slate-200 rounded-xl p-3';
+            card.id = `cat-card-${h.id}`;
+            card.innerHTML = `
+                <p class="text-[10px] uppercase tracking-wider text-slate-400 mb-1">No. ${h.numero}</p>
+                <p class="text-xs font-mono text-slate-700 mb-1">${h.np}</p>
+                <p class="text-sm text-slate-700 mb-3">${h.descripcion}</p>
+                <button onclick="seleccionarHerramienta(${h.id})" data-cat-id="${h.id}" data-rol="sel"
+                    class="w-full text-xs font-bold px-3 py-2 rounded-lg transition-all ${claseBtn}" ${disabledAttr}>
+                    ${textoBtn}
+                </button>
+            `;
+            cards.appendChild(card);
         });
     }
 
@@ -3317,34 +3536,51 @@
         if (!h || herramientasSeleccionadas.some(s => s.catalogoId === catalogoId && s.catalogoOrigen === catalogoTablaActiva)) return;
         herramientasSeleccionadas.push({ catalogoId: h.id, catalogoOrigen: catalogoTablaActiva, np: h.np, descripcion: h.descripcion, estadoFinal: 'Instalado en Pozo' });
         renderizarSeleccionadas();
-        const btn = document.getElementById(`btn-sel-${catalogoId}`);
-        if (btn) {
+        document.querySelectorAll(`[data-cat-id="${catalogoId}"][data-rol="sel"]`).forEach(btn => {
             btn.disabled = true;
             btn.textContent = 'Agregada';
-            btn.className = 'text-xs font-bold px-3 py-1 rounded-lg bg-slate-100 text-slate-400 cursor-not-allowed';
-        }
+            btn.className = btn.className.replace(
+                'bg-red-50 hover:bg-red-100 text-[#e31e24] border border-red-100',
+                'bg-slate-100 text-slate-400 cursor-not-allowed'
+            );
+        });
     }
 
     function quitarSeleccionada(catalogoId) {
         herramientasSeleccionadas = herramientasSeleccionadas.filter(s => s.catalogoId !== catalogoId);
         renderizarSeleccionadas();
-        const btn = document.getElementById(`btn-sel-${catalogoId}`);
-        if (btn) {
+        document.querySelectorAll(`[data-cat-id="${catalogoId}"][data-rol="sel"]`).forEach(btn => {
             btn.disabled = false;
             btn.textContent = 'Seleccionar';
-            btn.className = 'text-xs font-bold px-3 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-[#e31e24] border border-red-100 transition-all';
-        }
+            btn.className = btn.className.replace(
+                'bg-slate-100 text-slate-400 cursor-not-allowed',
+                'bg-red-50 hover:bg-red-100 text-[#e31e24] border border-red-100'
+            );
+        });
     }
 
     function renderizarSeleccionadas() {
         const tbody = document.getElementById('tabla-seleccionadas');
-        if (!tbody) return;
-        tbody.innerHTML = '';
+        const cards = document.getElementById('cards-seleccionadas');
+        if (!tbody || !cards) return;
+
         if (!herramientasSeleccionadas.length) {
             tbody.innerHTML = `<tr id="fila-vacia-tools"><td colspan="5" class="px-4 py-10 text-center text-slate-400"><i class="fas fa-toolbox text-2xl mb-2 block"></i>Selecciona herramientas del catálogo.</td></tr>`;
+            cards.innerHTML = `<p class="text-center text-slate-400 py-6 text-sm"><i class="fas fa-toolbox text-2xl mb-2 block"></i>Selecciona herramientas del catálogo.</p>`;
             return;
         }
+
+        tbody.innerHTML = '';
+        cards.innerHTML = '';
+
         herramientasSeleccionadas.forEach((h, i) => {
+            const opciones = `
+                <option ${h.estadoFinal === 'Instalado en Pozo' ? 'selected' : ''}>Instalado en Pozo</option>
+                <option ${h.estadoFinal === 'Devuelto a Almacen' ? 'selected' : ''}>Devuelto a Almacen</option>
+                <option ${h.estadoFinal === 'Dañado / Rechazado' ? 'selected' : ''}>Dañado / Rechazado</option>
+            `;
+
+            // Fila de tabla (desktop)
             const tr = document.createElement('tr');
             tr.className = 'border-t border-slate-100';
             tr.innerHTML = `
@@ -3353,9 +3589,7 @@
                 <td class="px-4 py-2 text-slate-700">${h.descripcion}</td>
                 <td class="px-4 py-2">
                     <select onchange="actualizarEstado(${h.catalogoId}, this.value)" class="px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-red-300">
-                        <option ${h.estadoFinal === 'Instalado en Pozo' ? 'selected' : ''}>Instalado en Pozo</option>
-                        <option ${h.estadoFinal === 'Devuelto a Almacen' ? 'selected' : ''}>Devuelto a Almacen</option>
-                        <option ${h.estadoFinal === 'Dañado / Rechazado' ? 'selected' : ''}>Dañado / Rechazado</option>
+                        ${opciones}
                     </select>
                 </td>
                 <td class="px-4 py-2 text-center">
@@ -3365,6 +3599,23 @@
                 </td>
             `;
             tbody.appendChild(tr);
+
+            // Tarjeta (móvil)
+            const card = document.createElement('div');
+            card.className = 'border border-slate-200 rounded-xl p-3';
+            card.innerHTML = `
+                <div class="flex items-start justify-between mb-2">
+                    <p class="text-xs font-mono text-slate-700">${h.np}</p>
+                    <button onclick="quitarSeleccionada(${h.catalogoId})" class="text-slate-300 hover:text-red-500 transition-colors">
+                        <i class="fas fa-trash-can"></i>
+                    </button>
+                </div>
+                <p class="text-sm text-slate-700 mb-3">${h.descripcion}</p>
+                <select onchange="actualizarEstado(${h.catalogoId}, this.value)" class="w-full px-2 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-red-300">
+                    ${opciones}
+                </select>
+            `;
+            cards.appendChild(card);
         });
     }
 
@@ -3912,15 +4163,21 @@
         // Evaluación de Calidad en el reporte
         const bloqueEval = document.getElementById('rep-bloque-evaluacion');
         const evalBody = document.getElementById('rep-eval-body');
+        const evalCards = document.getElementById('rep-eval-cards');
         const etiquetas = ['Personal', 'Equipo', 'Comunicación', 'HSE', 'Percepción General'];
         const keys = ['personal', 'equipo', 'comunicacion', 'hse', 'percepcion_general'];
         const colores = ['text-red-400', 'text-orange-400', 'text-yellow-400', 'text-lime-400', 'text-green-400'];
+        const nivelTextoCorto = ['Deficiente', 'Regular', 'Satisfactorio', 'Bueno', 'Excelente'];
 
         if (op.evaluacion_calidad && Object.values(op.evaluacion_calidad).some(v => v !== null)) {
             bloqueEval.classList.remove('hidden');
             evalBody.innerHTML = '';
+            evalCards.innerHTML = '';
+
             keys.forEach((key, idx) => {
                 const val = op.evaluacion_calidad[key];
+
+                // Fila de tabla (desktop) — igual que antes
                 let celdas = `<td class="px-3 py-2 text-slate-300 font-semibold">${etiquetas[idx]}</td>`;
                 for (let i = 1; i <= 5; i++) {
                     const activo = val === i;
@@ -3929,6 +4186,22 @@
                     </td>`;
                 }
                 evalBody.innerHTML += `<tr class="border-t border-white/5">${celdas}</tr>`;
+
+                // Tarjeta (móvil): criterio + nivel + descripción completa
+                const criterioInfo = CRITERIOS_CALIDAD.find(c => c.id === key);
+                const descripcion = (val && criterioInfo) ? criterioInfo.descripciones[val - 1] : 'Sin calificar';
+                const colorNivel = val ? colores[val - 1] : 'text-slate-500';
+                const textoNivel = val ? `${val} - ${nivelTextoCorto[val - 1]}` : 'Sin calificar';
+
+                evalCards.innerHTML += `
+                    <div class="rounded-xl p-3" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
+                        <div class="flex items-center justify-between mb-1">
+                            <p class="text-slate-300 font-semibold text-sm">${etiquetas[idx]}</p>
+                            <span class="font-bold text-xs ${colorNivel}">${textoNivel}</span>
+                        </div>
+                        <p class="text-slate-400 text-xs leading-snug">${descripcion}</p>
+                    </div>
+                `;
             });
         } else {
             bloqueEval.classList.add('hidden');
@@ -4070,7 +4343,9 @@
     // ── CARGAR BITÁCORA EN EL REPORTE ──
     async function cargarBitacoraEnReporte(operacionId) {
         const tbody = document.getElementById('rep-tabla-bitacora');
+        const cards = document.getElementById('rep-cards-bitacora');
         tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-slate-500 text-sm">Cargando...</td></tr>`;
+        cards.innerHTML = `<p class="text-center text-slate-500 text-sm py-6">Cargando...</p>`;
         try {
             const res = await fetch(
                 `${SUPABASE_URL}/rest/v1/cementing_bitacora?operacion_id=eq.${operacionId}&order=fecha.asc`,
@@ -4078,9 +4353,12 @@
             );
             const datos = await res.json();
             if (!datos.length) {
-                tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-10 text-center text-slate-500 text-sm"><i class="fas fa-calendar-xmark text-2xl mb-2 block text-slate-600"></i>Sin registros de bitácora.</td></tr>`;
+                const vacio = `<i class="fas fa-calendar-xmark text-2xl mb-2 block text-slate-600"></i>Sin registros de bitácora.`;
+                tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-10 text-center text-slate-500 text-sm">${vacio}</td></tr>`;
+                cards.innerHTML = `<p class="text-center text-slate-500 text-sm py-6">${vacio}</p>`;
                 return;
             }
+
             tbody.innerHTML = datos.map(r => {
                 const fecha = new Date(r.fecha + 'T00:00').toLocaleDateString('es-MX', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
                 if (r.sin_actividad) {
@@ -4098,8 +4376,42 @@
                     <td class="px-4 py-3 text-center"><span class="text-xs bg-green-900/40 text-green-400 px-2 py-0.5 rounded-full">Activo</span></td>
                 </tr>`;
             }).join('');
+
+            // Tarjetas (móvil)
+            cards.innerHTML = datos.map(r => {
+                const fecha = new Date(r.fecha + 'T00:00').toLocaleDateString('es-MX', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+
+                if (r.sin_actividad) {
+                    return `
+                        <div class="rounded-xl p-3" style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);">
+                            <div class="flex items-center justify-between mb-1">
+                                <p class="text-slate-300 font-semibold text-sm">${fecha}</p>
+                                <span class="text-xs bg-slate-700 text-slate-400 px-2 py-0.5 rounded-full">N/A</span>
+                            </div>
+                            <p class="text-slate-500 italic text-xs">Sin actividad</p>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="rounded-xl p-3" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-slate-300 font-semibold text-sm">${fecha}</p>
+                            <span class="text-xs bg-green-900/40 text-green-400 px-2 py-0.5 rounded-full">Activo</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-xs text-white font-mono mb-2">
+                            <span><i class="fas fa-clock text-slate-500 mr-1"></i>${r.hora_inicio || '—'}</span>
+                            <span class="text-slate-500">→</span>
+                            <span>${r.hora_termino || '—'}</span>
+                        </div>
+                        <p class="text-slate-300 text-sm leading-snug">${r.observacion || '—'}</p>
+                    </div>
+                `;
+            }).join('');
+
         } catch (e) {
             tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-red-400 text-sm">Error al cargar bitácora.</td></tr>`;
+            cards.innerHTML = `<p class="text-center text-red-400 text-sm py-6">Error al cargar bitácora.</p>`;
         }
     }
 
@@ -4205,7 +4517,7 @@
         doc.setFillColor(...grisClaro);
         doc.roundedRect(14, 49, 55, 18, 3, 3, 'F');
         doc.roundedRect(77, 49, 55, 18, 3, 3, 'F');
-        doc.roundedRect(140, 49, 56, 18, 3, 3, 'F');
+        doc.roundedRect(140, 49, 57, 18, 3, 3, 'F');
 
         const kpiLabel = (x, y, label, valor) => {
             doc.setFillColor(...colorMarca);
@@ -4563,7 +4875,9 @@
     // ── CARGAR HERRAMIENTAS EN EL REPORTE ──
     async function cargarHerramientasEnReporte(operacionId) {
         const tbody = document.getElementById('rep-tabla-herramientas');
+        const cards = document.getElementById('rep-cards-herramientas');
         tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-slate-300"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando...</td></tr>`;
+        cards.innerHTML = `<p class="text-center text-slate-300 py-6 text-sm"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando...</p>`;
 
         try {
             const res = await fetch(
@@ -4574,10 +4888,13 @@
 
             if (!data.length) {
                 tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-slate-400">Sin herramientas registradas.</td></tr>`;
+                cards.innerHTML = `<p class="text-center text-slate-400 py-6 text-sm">Sin herramientas registradas.</p>`;
                 return;
             }
 
             tbody.innerHTML = '';
+            cards.innerHTML = '';
+
             data.forEach((h, i) => {
                 const estadoClase = {
                     'Instalado en Pozo':   'bg-blue-100 text-blue-700',
@@ -4585,10 +4902,13 @@
                     'Dañado / Rechazado':  'bg-red-100 text-red-700',
                 }[h.estado_final] || 'bg-slate-100 text-slate-600';
 
+                const numero = `#${String(i+1).padStart(3,'0')}`;
+
+                // Fila de tabla (desktop) — igual que antes
                 const tr = document.createElement('tr');
                 tr.className = 'border-t border-white/5';
                 tr.innerHTML = `
-                    <td class="px-4 py-3 text-slate-400 font-mono">#${String(i+1).padStart(3,'0')}</td>
+                    <td class="px-4 py-3 text-slate-400 font-mono">${numero}</td>
                     <td class="px-4 py-3 font-mono text-slate-200">${h.np || '—'}</td>
                     <td class="px-4 py-3 text-slate-300">${h.descripcion || '—'}</td>
                     <td class="px-4 py-3">
@@ -4598,6 +4918,22 @@
                     </td>
                 `;
                 tbody.appendChild(tr);
+
+                // Tarjeta (móvil)
+                const card = document.createElement('div');
+                card.className = 'rounded-xl p-3';
+                card.style.cssText = 'background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);';
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-slate-400 font-mono text-xs">${numero}</span>
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold ${estadoClase}">
+                            ${h.estado_final || '—'}
+                        </span>
+                    </div>
+                    <p class="font-mono text-slate-200 text-xs mb-1">${h.np || '—'}</p>
+                    <p class="text-slate-300 text-sm">${h.descripcion || '—'}</p>
+                `;
+                cards.appendChild(card);
             });
 
             // Guardar en variable global para el PDF
@@ -4605,6 +4941,7 @@
 
         } catch(e) {
             tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-6 text-center text-red-400">Error al cargar herramientas.</td></tr>`;
+            cards.innerHTML = `<p class="text-center text-red-400 py-6 text-sm">Error al cargar herramientas.</p>`;
             console.error(e);
         }
     }
@@ -5194,6 +5531,7 @@
 
             const tbody     = document.getElementById('tabla-solicitudes');
             const filaVacia = document.getElementById('fila-vacia-solicitudes');
+            const cardsFlotante = document.getElementById('cards-solicitudes-flotante');
             tbody.querySelectorAll('tr:not(#fila-vacia-solicitudes)').forEach(r => r.remove());
 
             // Badge con cantidad de pendientes
@@ -5208,9 +5546,14 @@
 
             if (!data.length) {
                 filaVacia.classList.remove('hidden');
+                if (cardsFlotante) {
+                    cardsFlotante.innerHTML = `<p class="text-center py-10"><i class="fas fa-inbox text-slate-200 text-2xl mb-2 block"></i><span class="text-slate-400 text-sm">No hay solicitudes</span></p>`;
+                }
                 return;
             }
             filaVacia.classList.add('hidden');
+
+            const tarjetasHTML = [];
 
             data.forEach((sol, index) => {
                 const esPendiente = sol.estatus === 'pendiente';
@@ -5224,6 +5567,23 @@
                     'rechazada':  'bg-red-100 text-red-700'
                 }[sol.estatus] || 'bg-slate-100 text-slate-500';
 
+                const acciones = esPendiente ? `
+                    <button onclick="responderSolicitud('${sol.id}', '${sol.operacion_id}', 'aprobada')"
+                        class="text-green-600 hover:text-green-800 text-xs font-bold px-3 py-1.5 rounded-lg border border-green-200 hover:bg-green-50 transition-all">
+                        <i class="fas fa-check mr-1"></i> Aprobar
+                    </button>
+                    <button onclick="responderSolicitud('${sol.id}', '${sol.operacion_id}', 'rechazada')"
+                        class="text-red-400 hover:text-red-600 text-xs font-bold px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-all">
+                        <i class="fas fa-times mr-1"></i> Rechazar
+                    </button>
+                    ` : esCerrada ? `
+                    <button onclick="eliminarSolicitud('${sol.id}')"
+                        class="text-slate-400 hover:text-red-600 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 hover:border-red-200 hover:bg-red-50 transition-all">
+                        <i class="fas fa-trash mr-1"></i> Borrar
+                    </button>
+                    ` : `<span class="text-slate-300 text-xs">Sin acciones</span>`;
+
+                // Fila de tabla (fuente de datos oculta, y tabla del panel flotante en desktop) — igual que antes
                 const tr = document.createElement('tr');
                 tr.className = 'border-b border-slate-100 hover:bg-slate-50 transition-all fila-animada';
                 tr.dataset.estatus = sol.estatus;
@@ -5254,26 +5614,40 @@
                     </td>
                     <td class="px-6 py-4">
                         <div class="flex items-center justify-center gap-2">
-                            ${esPendiente ? `
-                            <button onclick="responderSolicitud('${sol.id}', '${sol.operacion_id}', 'aprobada')"
-                                class="text-green-600 hover:text-green-800 text-xs font-bold px-3 py-1.5 rounded-lg border border-green-200 hover:bg-green-50 transition-all">
-                                <i class="fas fa-check mr-1"></i> Aprobar
-                            </button>
-                            <button onclick="responderSolicitud('${sol.id}', '${sol.operacion_id}', 'rechazada')"
-                                class="text-red-400 hover:text-red-600 text-xs font-bold px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-all">
-                                <i class="fas fa-times mr-1"></i> Rechazar
-                            </button>
-                            ` : esCerrada ? `
-                            <button onclick="eliminarSolicitud('${sol.id}')"
-                                class="text-slate-400 hover:text-red-600 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 hover:border-red-200 hover:bg-red-50 transition-all">
-                                <i class="fas fa-trash mr-1"></i> Borrar
-                            </button>
-                            ` : `<span class="text-slate-300 text-xs">Sin acciones</span>`}
+                            ${acciones}
                         </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
+
+                // Tarjeta (móvil)
+                tarjetasHTML.push(`
+                    <div class="border border-slate-200 rounded-xl p-3">
+                        <div class="flex items-center justify-between mb-2 gap-2">
+                            <p class="text-sm font-semibold text-slate-700">${mapaPerfiles[sol.usuario_id] || sol.usuario_id}</p>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${badgeClase} whitespace-nowrap">
+                                ${sol.estatus.charAt(0).toUpperCase() + sol.estatus.slice(1)}
+                            </span>
+                        </div>
+                        <div class="flex items-center flex-wrap gap-2 mb-2">
+                            <span class="font-mono font-bold text-[#e31e24] text-xs bg-red-50 px-2.5 py-1 rounded-lg">${sol.job_id || '—'}</span>
+                            ${sol.tipo_cambio === 'eliminar-pdf'
+                                ? `<span class="bg-purple-100 text-purple-700 text-xs font-bold px-2.5 py-1 rounded-full"><i class="fas fa-file-circle-xmark mr-1"></i>PDF: ${nombrePdfSolicitado || '—'}</span>`
+                                : ''
+                            }
+                        </div>
+                        <p class="text-sm text-slate-500 mb-1"><span class="font-semibold text-slate-600">Motivo:</span> ${sol.motivo || '—'}</p>
+                        <p class="text-xs text-slate-400 mb-3">${formatearFecha(sol.created_at)}</p>
+                        <div class="flex items-center gap-2">
+                            ${acciones}
+                        </div>
+                    </div>
+                `);
             });
+
+            if (cardsFlotante) {
+                cardsFlotante.innerHTML = tarjetasHTML.join('');
+            }
 
         actualizarBadgeNotif();
         } catch(e) {
@@ -5904,32 +6278,65 @@
         <i class="fas fa-xmark text-lg"></i>
       </button>
     </div>
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-400">
-            <th class="px-4 py-3 text-left">Empleado</th>
-            <th class="px-4 py-3 text-left">ID</th>
-            <th class="px-4 py-3 text-left">Tipo</th>
-            <th class="px-4 py-3 text-left">Motivo</th>
-            <th class="px-4 py-3 text-left">Fecha</th>
-            <th class="px-4 py-3 text-left">Estatus</th>
-            <th class="px-4 py-3 text-center">Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="tabla-solicitudes-flotante">
-          <tr>
-            <td colspan="6" class="px-4 py-10 text-center">
-              <i class="fas fa-inbox text-slate-200 text-2xl mb-2"></i>
-              <p class="text-slate-400 text-sm">No hay solicitudes</p>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="hidden sm:block overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-400">
+                    <th class="px-4 py-3 text-left">Empleado</th>
+                    <th class="px-4 py-3 text-left">ID</th>
+                    <th class="px-4 py-3 text-left">Tipo</th>
+                    <th class="px-4 py-3 text-left">Motivo</th>
+                    <th class="px-4 py-3 text-left">Fecha</th>
+                    <th class="px-4 py-3 text-left">Estatus</th>
+                    <th class="px-4 py-3 text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-solicitudes-flotante">
+                <tr>
+                    <td colspan="6" class="px-4 py-10 text-center">
+                        <i class="fas fa-inbox text-slate-200 text-2xl mb-2"></i>
+                        <p class="text-slate-400 text-sm">No hay solicitudes</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Vista de tarjetas (solo móvil) -->
+    <div id="cards-solicitudes-flotante" class="sm:hidden p-3 space-y-3">
+        <p class="text-center py-10">
+            <i class="fas fa-inbox text-slate-200 text-2xl mb-2 block"></i>
+            <span class="text-slate-400 text-sm">No hay solicitudes</span>
+        </p>
     </div>
   </div>
 
   <script>
+    let pendientesSolicitudesPrevias = null;
+
+    function reproducirSonidoNotificacion() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (ctx.state === 'suspended') ctx.resume();
+
+        const oscilador = ctx.createOscillator();
+        const ganancia  = ctx.createGain();
+        oscilador.connect(ganancia);
+        ganancia.connect(ctx.destination);
+
+        oscilador.type = 'sine';
+        oscilador.frequency.setValueAtTime(880, ctx.currentTime);
+        ganancia.gain.setValueAtTime(0.001, ctx.currentTime);
+        ganancia.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + 0.01);
+        ganancia.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+
+        oscilador.start(ctx.currentTime);
+        oscilador.stop(ctx.currentTime + 0.5);
+      } catch (e) {
+        console.warn('No se pudo reproducir el sonido de notificación:', e);
+      }
+    }
+
     async function togglePanelSolicitudesFlotante() {
         const panel = document.getElementById('panel-solicitudes-flotante');
         panel.classList.toggle('visible');
@@ -5964,7 +6371,21 @@
       } else {
         badge.classList.add('hidden');
       }
+
+      // Suena si: 1) es la primera carga y ya hay pendientes, o 2) llegaron nuevas
+      if (pendientesSolicitudesPrevias === null) {
+        if (total > 0) reproducirSonidoNotificacion();
+      } else if (total > pendientesSolicitudesPrevias) {
+        reproducirSonidoNotificacion();
+      }
+      pendientesSolicitudesPrevias = total;
     }
+
+    setInterval(() => {
+      if (rolUsuario !== 'Empleado') {
+        cargarSolicitudes();
+      }
+    }, 30000); // revisa cada 30 segundos
 
     document.addEventListener('click', function(e) {
       const panel = document.getElementById('panel-solicitudes-flotante');
