@@ -20,6 +20,7 @@
     }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" href="data:,">
@@ -32,8 +33,20 @@
     .mobile-active { display: block !important; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-    .table-container::-webkit-scrollbar { height: 6px; }
-    .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .table-container::-webkit-scrollbar { height: 12px; }
+    .table-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+    .table-container::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; border: 2px solid #f1f5f9; }
+    .table-container::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    /* Centrado y bordes para todas las tablas de mantenimiento */
+    .table-container table {
+      border: 1px solid #e2e8f0;
+    }
+    .table-container th,
+    .table-container td {
+      border: 1px solid #e2e8f0;
+      text-align: center !important;
+      vertical-align: middle !important;
+    }
     .tab-btn.activa { background: #e31e24; color: #fff; box-shadow: 0 8px 20px -6px rgba(227,30,36,0.5); }
     .tab-btn:not(.activa) { background: #fff; color: #475569; }
     span.celda[contenteditable="true"], input.celda-editable {
@@ -65,26 +78,58 @@
       <span class="font-semibold">Mantenimiento</span>
     </div>
 
-    <!-- ── Encabezado de sección ── -->
-    <div class="mb-8">
-      <div class="flex items-center gap-3 mb-2">
-        <div class="h-10 w-10 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
-          <i class="fas fa-screwdriver-wrench text-[#e31e24]"></i>
+    <!-- ── Encabezado de sección + KPI ── -->
+    <div class="flex flex-col lg:flex-row gap-6 mb-4 items-stretch">
+      <div class="flex-1">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="h-10 w-10 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-screwdriver-wrench text-[#e31e24]"></i>
+          </div>
+          <h1 class="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
+            Control de Mantto y Calibración de Equipos y Herramientas
+          </h1>
         </div>
-        <h1 class="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
-          Control de Mantto y Calibración de Equipos y Herramientas
-        </h1>
+        <p class="text-slate-500 text-sm leading-relaxed max-w-3xl text-justify">
+          Los equipos, instrumentos y herramientas son sometidos a programas de mantenimiento, calibración,
+          verificación e inspección de acuerdo con las recomendaciones del fabricante, los requisitos normativos
+          y las necesidades operativas. El seguimiento y la trazabilidad de estas actividades permiten asegurar
+          la confiabilidad de los activos y la calidad de los servicios.
+        </p>
       </div>
-      <p class="text-slate-500 text-sm leading-relaxed max-w-3xl text-justify">
-        Los equipos, instrumentos y herramientas son sometidos a programas de mantenimiento, calibración,
-        verificación e inspección de acuerdo con las recomendaciones del fabricante, los requisitos normativos
-        y las necesidades operativas. El seguimiento y la trazabilidad de estas actividades permiten asegurar
-        la confiabilidad de los activos y la calidad de los servicios.
-      </p>
+
+      <!-- ── KPI: Cumplimiento del Programa de Mantenimiento y Calibración ── -->
+      <div class="flex-1 flex lg:justify-center">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 w-full lg:w-[560px] flex-shrink-0">
+        <h3 class="text-sm font-black text-slate-700 uppercase tracking-wide mb-5">
+          Cumplimiento del Programa de Mantenimiento y Calibración
+        </h3>
+        <div class="flex items-center gap-6">
+          <div class="relative w-36 h-36 flex-shrink-0">
+            <canvas id="grafica-kpi" width="144" height="144"></canvas>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span id="kpi-porcentaje" class="text-3xl font-black text-slate-800">--%</span>
+            </div>
+          </div>
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-slate-400 uppercase tracking-wide text-[10px]">
+                <th class="text-left font-bold pb-2">Categoría</th>
+                <th class="text-center font-bold pb-2 px-2">Vigentes</th>
+                <th class="text-center font-bold pb-2 px-2">Total</th>
+                <th class="text-center font-bold pb-2 px-2">Cumpl.</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-kpi-categorias">
+              <tr><td colspan="4" class="text-center text-slate-400 py-2">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      </div>
     </div>
 
     <!-- ── Botón Instructivo (debajo de la descripción, antes de las pestañas) ── -->
-    <div class="mb-6 relative inline-block">
+    <div class="mb-3 relative inline-block">
       <button onclick="toggleMenuInstructivo(event)"
         class="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold
                px-4 py-2.5 rounded-xl shadow-sm transition-colors">
@@ -138,10 +183,10 @@
     </div>
 
     <!-- ── Pestañas ── -->
-    <div class="flex flex-wrap gap-2 mb-6">
+    <div class="flex flex-wrap gap-2 mb-3">
       <button onclick="cambiarPestana('equipos')" id="tab-equipos"
         class="tab-btn activa px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wide border border-slate-200 transition-all">
-        <i class="fas fa-toolbox mr-2"></i>Equipos y Herramientas
+        <i class="fas fa-toolbox mr-2"></i>Equipos
       </button>
       <button onclick="cambiarPestana('izaje')" id="tab-izaje"
         class="tab-btn px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wide border border-slate-200 transition-all">
@@ -156,7 +201,7 @@
     <!-- ── Panel: Equipos y Herramientas ── -->
     <section id="panel-equipos" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6">
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-sm font-black text-slate-700 uppercase tracking-wide">Lista de Equipos y Herramientas</h2>
+        <h2 class="text-sm font-black text-slate-700 uppercase tracking-wide">Lista de Equipos</h2>
         <button id="btn-add-equipos" onclick="agregarFila('equipos')"
           class="hidden items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
           <i class="fas fa-plus"></i> Agregar
@@ -167,9 +212,9 @@
           <thead>
             <tr class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider">
               <th class="px-3 py-3 rounded-l-xl" rowspan="2">No.</th>
-              <th class="px-3 py-3" rowspan="2">Herramienta/Equipo</th>
+              <th class="px-3 py-3" rowspan="2">Equipos</th>
               <th class="px-3 py-3" rowspan="2">Marca</th>
-              <th class="px-3 py-3" rowspan="2">NS</th>
+              <th class="px-3 py-3" rowspan="2">No. Serie</th>
               <th class="px-3 py-3 text-center" colspan="2">Fecha Calibración - Mantto</th>
               <th class="px-3 py-3" rowspan="2">Días restantes</th>
               <th class="px-3 py-3" rowspan="2">Frecuencia</th>
@@ -203,18 +248,21 @@
         <table class="w-full text-xs sm:text-sm text-left border-collapse">
           <thead>
             <tr class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider">
-              <th class="px-3 py-3 rounded-l-xl">No.</th>
-              <th class="px-3 py-3">Herramienta</th>
-              <th class="px-3 py-3">Tamaño</th>
-              <th class="px-3 py-3">Serie No.:</th>
-              <th class="px-3 py-3">No. Certificado</th>
-              <th class="px-3 py-3">Fecha de fabricación</th>
-              <th class="px-3 py-3">Vigencia</th>
-              <th class="px-3 py-3">Días restantes</th>
-              <th class="px-3 py-3">Frecuencia</th>
-              <th class="px-3 py-3">Certificado</th>
-              <th class="px-3 py-3">Estado</th>
-              <th class="px-3 py-3 rounded-r-xl text-center col-acciones hidden">Acciones</th>
+              <th class="px-3 py-3 rounded-l-xl" rowspan="2">No.</th>
+              <th class="px-3 py-3" rowspan="2">Herramienta</th>
+              <th class="px-3 py-3" rowspan="2">Tamaño</th>
+              <th class="px-3 py-3" rowspan="2">Serie No.:</th>
+              <th class="px-3 py-3" rowspan="2">No. Certificado</th>
+              <th class="px-3 py-3 text-center" colspan="2">Fechas de</th>
+              <th class="px-3 py-3" rowspan="2">Días restantes</th>
+              <th class="px-3 py-3" rowspan="2">Frecuencia</th>
+              <th class="px-3 py-3" rowspan="2">Certificado</th>
+              <th class="px-3 py-3" rowspan="2">Estado</th>
+              <th class="px-3 py-3 rounded-r-xl text-center col-acciones hidden" rowspan="2">Acciones</th>
+            </tr>
+            <tr class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider">
+              <th class="px-3 py-2 text-center">Fabricación</th>
+              <th class="px-3 py-2 text-center">Vigencia</th>
             </tr>
           </thead>
           <tbody id="tbody-izaje" class="divide-y divide-slate-100">
@@ -237,24 +285,28 @@
         <table class="w-full text-xs sm:text-sm text-left border-collapse">
           <thead>
             <tr class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider">
-              <th class="px-3 py-3 rounded-l-xl">No.</th>
-              <th class="px-3 py-3">Cantidad</th>
-              <th class="px-3 py-3">Tamaño</th>
-              <th class="px-3 py-3">Peso Nom Conexión</th>
-              <th class="px-3 py-3">OD – Drift (In)</th>
-              <th class="px-3 py-3">Longitud (In) Altura</th>
-              <th class="px-3 py-3">Material</th>
-              <th class="px-3 py-3">Núm. Serie</th>
-              <th class="px-3 py-3">Fecha de fabricación</th>
-              <th class="px-3 py-3">Fecha última calibración</th>
-              <th class="px-3 py-3">Fecha próxima calibración</th>
-              <th class="px-3 py-3">Estado</th>
-              <th class="px-3 py-3">Certificado</th>
-              <th class="px-3 py-3 rounded-r-xl text-center col-acciones hidden">Acciones</th>
+              <th class="px-3 py-3 rounded-l-xl" rowspan="2">No.</th>
+              <th class="px-3 py-3" rowspan="2">Cantidad</th>
+              <th class="px-3 py-3" rowspan="2">Tamaño</th>
+              <th class="px-3 py-3" rowspan="2">Peso Nom Conexión</th>
+              <th class="px-3 py-3" rowspan="2">OD – Drift (In)</th>
+              <th class="px-3 py-3" rowspan="2">Longitud (In) Altura</th>
+              <th class="px-3 py-3" rowspan="2">Material</th>
+              <th class="px-3 py-3" rowspan="2">Núm. Serie</th>
+              <th class="px-3 py-3" rowspan="2">Fecha de fabricación</th>
+              <th class="px-3 py-3 text-center" colspan="2">Fecha Calibración</th>
+              <th class="px-3 py-3" rowspan="2">Días restantes</th>
+              <th class="px-3 py-3" rowspan="2">Estado</th>
+              <th class="px-3 py-3" rowspan="2">Certificado</th>
+              <th class="px-3 py-3 rounded-r-xl text-center col-acciones hidden" rowspan="2">Acciones</th>
+            </tr>
+            <tr class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider">
+              <th class="px-3 py-2 text-center">Última</th>
+              <th class="px-3 py-2 text-center">Próxima</th>
             </tr>
           </thead>
           <tbody id="tbody-drift" class="divide-y divide-slate-100">
-            <tr><td colspan="14" class="text-center text-slate-400 py-6">Cargando...</td></tr>
+            <tr><td colspan="15" class="text-center text-slate-400 py-6">Cargando...</td></tr>
           </tbody>
         </table>
       </div>
@@ -384,6 +436,74 @@
     // ── Config global ──
     let esQHSE = false;
     let pestanaActual = 'equipos';
+    let graficaKPI = null;
+
+    // ── KPI: Cumplimiento del Programa de Mantenimiento y Calibración ──
+    async function cargarKPI() {
+      const categorias = [
+        { nombre: 'Equipos', tabla: 'mantto_equipos_herramientas', campo: 'fecha_vencimiento' },
+        { nombre: 'Izaje',   tabla: 'mantto_izaje',                campo: 'vigencia' },
+        { nombre: 'Drift',   tabla: 'mantto_drift',                campo: 'fecha_vencimiento' }
+      ];
+
+      const resultados = [];
+      for (const cat of categorias) {
+        const { data, error } = await supabaseClient.from(cat.tabla).select(cat.campo);
+        if (error || !data) { resultados.push({ ...cat, vigentes: 0, total: 0 }); continue; }
+        const total = data.length;
+        const vigentes = data.filter(fila => calcularDiasRestantes(fila[cat.campo]) >= 0).length;
+        resultados.push({ ...cat, vigentes, total });
+      }
+
+      const totalVigentes = resultados.reduce((acc, r) => acc + r.vigentes, 0);
+      const totalGeneral  = resultados.reduce((acc, r) => acc + r.total, 0);
+      const cumplimiento  = totalGeneral > 0 ? Math.round((totalVigentes / totalGeneral) * 100) : 0;
+
+      // ── Actualiza la dona ──
+      document.getElementById('kpi-porcentaje').innerText = `${cumplimiento}%`;
+      const datosGrafica = [totalVigentes, Math.max(totalGeneral - totalVigentes, 0)];
+
+      try {
+        if (typeof Chart === 'undefined') throw new Error('Chart.js no está cargado (revisa el script en el <head>)');
+        if (graficaKPI) {
+          graficaKPI.data.datasets[0].data = datosGrafica;
+          graficaKPI.update();
+        } else {
+          const ctx = document.getElementById('grafica-kpi').getContext('2d');
+          graficaKPI = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: ['Vigentes', 'Vencidos'],
+              datasets: [{ data: datosGrafica, backgroundColor: ['#10b981', '#e31e24'], borderWidth: 0 }]
+            },
+            options: { cutout: '75%', plugins: { legend: { display: false }, tooltip: { enabled: true } } }
+          });
+        }
+      } catch (errGrafica) {
+        console.error('No se pudo dibujar la gráfica KPI:', errGrafica);
+      }
+
+      // ── Actualiza la tabla por categoría ──
+      const tbodyKPI = document.getElementById('tbody-kpi-categorias');
+      const filasCategorias = resultados.map(r => {
+        const pct = r.total > 0 ? Math.round((r.vigentes / r.total) * 100) : 0;
+        const color = pct === 100 ? 'text-emerald-600' : pct >= 80 ? 'text-amber-600' : 'text-red-600';
+        return `<tr class="border-t border-slate-100">
+                  <td class="py-2 text-slate-600">${r.nombre}</td>
+                  <td class="py-2 text-center text-slate-600">${r.vigentes}</td>
+                  <td class="py-2 text-center text-slate-600">${r.total}</td>
+                  <td class="py-2 text-center font-bold ${color}">${pct}%</td>
+                </tr>`;
+      }).join('');
+
+      tbodyKPI.innerHTML = filasCategorias + `
+        <tr class="border-t border-slate-200 font-black">
+          <td class="py-2 text-slate-800">General</td>
+          <td class="py-2 text-center text-slate-800">${totalVigentes}</td>
+          <td class="py-2 text-center text-slate-800">${totalGeneral}</td>
+          <td class="py-2 text-center text-slate-800">${cumplimiento}%</td>
+        </tr>`;
+    }
 
     // ── Toast de notificación ──
     function mostrarToast(mensaje, tipo = 'exito') {
@@ -473,9 +593,10 @@
         tabla: 'mantto_drift',
         tbody: 'tbody-drift',
         numerada: true,
-        columnas: ['cantidad', 'tamano', 'peso_nom_conexion', 'od_drift', 'longitud_altura', 'material', 'no_serie', 'fecha_fabricacion', 'fecha_calibracion', 'fecha_vencimiento', 'estado', 'certificado'],
+        columnas: ['cantidad', 'tamano', 'peso_nom_conexion', 'od_drift', 'longitud_altura', 'material', 'no_serie', 'fecha_fabricacion', 'fecha_calibracion', 'fecha_vencimiento', 'dias_restantes', 'estado', 'certificado'],
         columnasFecha: ['fecha_calibracion'],
         columnasFechaMes: ['fecha_fabricacion', 'fecha_vencimiento'],
+        columnaVencimiento: 'fecha_vencimiento',
         columnasArchivo: ['certificado']
       }
     };
@@ -492,6 +613,7 @@
 
     // ── Cargar datos de una tabla ──
     async function cargarTabla(nombre) {
+      cargarKPI();
       const cfg = CONFIG_TABLAS[nombre];
       const tbody = document.getElementById(cfg.tbody);
       const { data, error } = await supabaseClient.from(cfg.tabla).select('*').order('created_at', { ascending: true });
@@ -1034,6 +1156,7 @@
     }
 
     cargarDatos();
+    setInterval(cargarKPI, 30000);
   </script>
 
     <div id="footer-componente" class="mt-auto"></div>
