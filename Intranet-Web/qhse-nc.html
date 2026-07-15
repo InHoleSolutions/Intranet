@@ -7,29 +7,166 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    @media (min-width: 1024px) {
+      .dropdown:hover > .dropdown-menu { display: block; animation: fadeIn 0.2s ease-out; }
+      .group\/sub:hover > .submenu-content { display: block; }
+    }
+    .mobile-active { display: block !important; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+  </style>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-slate-50 min-h-screen flex flex-col">
 
-  <!-- ── HEADER (mismo patrón que dashboard.html/cementing.html) ── -->
-  <header class="bg-white border-b border-slate-100 sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-      <div>
-        <h1 class="text-xl font-bold text-slate-800">
-          <i class="fas fa-file-circle-exclamation text-[#e31e24] mr-2"></i>
-          No Conformidades (QHSE)
-        </h1>
-        <p class="text-sm text-slate-400">Seguimiento de folios NC de todos los servicios</p>
+  <!-- ── HEADER ── -->
+  <div id="header-componente"></div>
+
+  <main class="max-w-7xl mx-auto px-6 py-8 mt-14 sm:mt-16 lg:mt-28 xl:mt-32">
+    <div class="mb-6">
+      <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
+        <a href="dashboard.html" class="text-slate-400 hover:text-[#e31e24] text-sm transition-colors"><i class="fas fa-home"></i></a>
+        <i class="fas fa-chevron-right text-[10px]"></i>
+        <span class="text-slate-600 font-semibold">No Conformidades</span>
       </div>
-      <a href="dashboard.html" class="text-sm text-slate-500 hover:text-[#e31e24] transition-colors">
-        <i class="fas fa-arrow-left mr-1"></i> Volver al Dashboard
-      </a>
+      <h1 class="text-xl font-bold text-slate-800">
+    <div class="mb-6">
+      <h1 class="text-xl font-bold text-slate-800">
+        <i class="fas fa-file-circle-exclamation text-[#e31e24] mr-2"></i>
+        No Conformidades (QHSE)
+      </h1>
+      <p class="text-sm text-slate-400">Seguimiento de folios NC de todos los servicios</p>
     </div>
-  </header>
 
-  <main class="max-w-7xl mx-auto px-6 py-8">
     <div id="contenido-principal" class="hidden">
-      <!-- Aquí van la lista y el modal (Pasos 4.2 y 4.3) -->
-      <p class="text-slate-400">Cargando folios NC...</p>
+
+      <!-- ── RESUMEN / FILTROS ── -->
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div class="flex gap-3">
+          <button data-filtro="todos"
+            class="btn-filtro px-4 py-2 rounded-xl text-sm font-semibold bg-slate-800 text-white">
+            Todos <span id="count-todos">0</span>
+          </button>
+          <button data-filtro="abierto"
+            class="btn-filtro px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 text-slate-600">
+            Abiertos <span id="count-abierto">0</span>
+          </button>
+          <button data-filtro="en_seguimiento"
+            class="btn-filtro px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 text-slate-600">
+            En seguimiento <span id="count-en_seguimiento">0</span>
+          </button>
+          <button data-filtro="cerrado"
+            class="btn-filtro px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 text-slate-600">
+            Cerrados <span id="count-cerrado">0</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── TABLA ── -->
+      <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+            <tr>
+              <th class="text-left px-5 py-3">Folio</th>
+              <th class="text-left px-5 py-3">Servicio</th>
+              <th class="text-left px-5 py-3">Pozo / Cliente</th>
+              <th class="text-left px-5 py-3">Tipo de Hallazgo</th>
+              <th class="text-left px-5 py-3">Responsable</th>
+              <th class="text-left px-5 py-3">Estatus</th>
+              <th class="text-left px-5 py-3">Fecha</th>
+              <th class="text-left px-5 py-3"></th>
+            </tr>
+          </thead>
+          <tbody id="tbody-folios-nc" class="divide-y divide-slate-50">
+            <!-- filas generadas por JS -->
+          </tbody>
+        </table>
+        <p id="msg-sin-folios" class="hidden text-center text-slate-400 py-10">No hay folios NC registrados.</p>
+      </div>
+    </div>
+
+    <!-- ── MODAL DE DETALLE NC ── -->
+    <div id="modal-nc" class="hidden fixed inset-0 bg-black/50 z-[80] flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+          <h3 class="text-lg font-bold text-slate-800">Detalle del Folio NC</h3>
+          <button onclick="cerrarModalNC()" class="text-slate-400 hover:text-slate-700">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+
+        <div class="p-6 space-y-6">
+          <!-- Reporte preliminar -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold text-red-500 uppercase tracking-wider">Reporte Preliminar NC</span>
+              <span id="d-folio" class="px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600"></span>
+            </div>
+            <dl class="grid grid-cols-2 gap-y-3 text-sm">
+              <dt class="text-slate-400">Servicio</dt><dd id="d-servicio" class="font-semibold text-slate-700"></dd>
+              <dt class="text-slate-400">Pozo</dt><dd id="d-pozo" class="font-semibold text-slate-700"></dd>
+              <dt class="text-slate-400">Cliente</dt><dd id="d-cliente" class="font-semibold text-slate-700"></dd>
+              <dt class="text-slate-400">Tipo de Hallazgo</dt><dd id="d-tipo" class="font-semibold text-slate-700"></dd>
+              <dt class="text-slate-400">Responsable</dt><dd id="d-responsable" class="font-semibold text-slate-700"></dd>
+              <dt class="text-slate-400">¿Corregido en campo?</dt><dd id="d-corregido" class="font-semibold text-slate-700"></dd>
+            </dl>
+          </div>
+
+          <div>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Descripción</p>
+            <p id="d-descripcion" class="text-sm text-slate-600 leading-relaxed"></p>
+          </div>
+          <div>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Acción Inmediata</p>
+            <p id="d-accion" class="text-sm text-slate-600 leading-relaxed"></p>
+          </div>
+          <div>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Comentarios</p>
+            <p id="d-comentarios" class="text-sm text-slate-600 leading-relaxed"></p>
+          </div>
+
+          <!-- Safety Alert Cards -->
+          <div>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Safety Alert Cards</p>
+            <div id="d-safety-cards" class="flex flex-wrap gap-2 text-xs"></div>
+          </div>
+
+          <!-- Evaluación de calidad -->
+          <div>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Evaluación de Calidad</p>
+            <div id="d-evaluacion" class="text-sm space-y-1"></div>
+          </div>
+
+          <hr class="border-slate-100">
+
+          <!-- ── SEGUIMIENTO QHSE (editable) ── -->
+          <div>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Seguimiento QHSE</p>
+
+            <div class="flex items-center gap-3 mb-4">
+              <label class="text-sm text-slate-500">Estatus:</label>
+              <select id="d-select-estatus" class="border border-slate-200 rounded-xl px-3 py-1.5 text-sm">
+                <option value="abierto">Abierto</option>
+                <option value="en_seguimiento">En seguimiento</option>
+                <option value="cerrado">Cerrado</option>
+              </select>
+            </div>
+
+            <div id="d-historial" class="space-y-2 mb-4 max-h-40 overflow-y-auto"></div>
+
+            <textarea id="d-nuevo-comentario" rows="2" placeholder="Agregar nota de seguimiento..."
+              class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 mb-3"></textarea>
+
+            <div class="flex justify-end gap-3">
+              <button onclick="guardarSeguimiento()"
+                class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-slate-800 text-white hover:bg-slate-700">
+                Guardar seguimiento
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -43,12 +180,46 @@
     };
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // ── Variables globales ──
+    let foliosNC = [];       // cache en memoria de todos los folios
+    let filtroActual = 'todos';
+    let folioActual = null;  // folio_nc que está abierto en el modal ahora mismo
+
+    fetch('header.html')
+      .then(r => r.text())
+      .then(html => { document.getElementById('header-componente').innerHTML = html; });
+
+    fetch('footer.html')
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById('footer-componente').innerHTML = html;
+        document.getElementById('footer-year').textContent = new Date().getFullYear();
+      });
+
+    function obtenerSaludo() {
+      const hora = new Date().getHours();
+      if (hora >= 6 && hora < 12) return "Buenos días";
+      if (hora >= 12 && hora < 19) return "Buenas tardes";
+      return "Buenas noches";
+    }
+
+    // El header.html trae estos onclick, así que esta página también los necesita:
+    function toggleMenu(id) { document.getElementById(id).classList.toggle('hidden'); }
+    function toggleSubmenu(btn) {
+      if (window.innerWidth < 1024) {
+        const submenu = btn.nextElementSibling;
+        if (submenu) submenu.classList.toggle('mobile-active');
+      }
+    }
+    function mostrarInicio() { window.location.href = "dashboard.html"; }
+    async function cerrarSesion() { await supabaseClient.auth.signOut(); window.location.href = "../index.html"; }
+
     async function verificarAcceso() {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) { window.location.href = "intranet-login.html"; return; }
 
       const { data: perfil } = await supabaseClient
-        .from('perfiles').select('rol').eq('id', session.user.id).single();
+        .from('perfiles').select('rol, nombre_completo').eq('id', session.user.id).single();
 
       const rolesPermitidos = ['QHSE', 'qhse', 'admin', 'administrador', 'Administrador'];
       if (!perfil || !rolesPermitidos.includes(perfil.rol)) {
@@ -57,17 +228,219 @@
         return;
       }
 
+      document.getElementById('user-welcome').innerText = `${obtenerSaludo()}, ${perfil.nombre_completo}`;
+      const rolLabel = document.getElementById('user-rol-label');
+      if (rolLabel) rolLabel.innerText = `Miembro del Equipo · ${perfil.rol}`;
+
       // Acceso concedido: mostrar contenido y cargar datos
       document.getElementById('contenido-principal').classList.remove('hidden');
-      await cargarFoliosNC(); // la definimos en el Paso 4.2
+      await cargarFoliosNC();
     }
 
-    // Placeholder temporal hasta el Paso 4.2
     async function cargarFoliosNC() {
-      console.log('Aquí cargaremos los folios en el siguiente paso.');
+      try {
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/qhse_no_conformidades?select=*&order=created_at.desc`,
+          { headers }
+        );
+        if (!res.ok) throw new Error(await res.text());
+        foliosNC = await res.json();
+        actualizarContadores();
+        renderTabla();
+      } catch (e) {
+        console.error('Error cargando folios NC:', e);
+        document.getElementById('tbody-folios-nc').innerHTML =
+          `<tr><td colspan="8" class="text-center text-red-400 py-6">Error al cargar los folios NC.</td></tr>`;
+      }
+    }
+
+    function actualizarContadores() {
+      document.getElementById('count-todos').textContent = foliosNC.length;
+      ['abierto', 'en_seguimiento', 'cerrado'].forEach(estado => {
+        document.getElementById(`count-${estado}`).textContent =
+          foliosNC.filter(f => f.nc_estatus === estado).length;
+      });
+    }
+
+    function badgeEstatus(estatus) {
+      const map = {
+        abierto:         'bg-red-50 text-red-600',
+        en_seguimiento:  'bg-amber-50 text-amber-600',
+        cerrado:         'bg-green-50 text-green-600'
+      };
+      const label = {
+        abierto: 'Abierto', en_seguimiento: 'En seguimiento', cerrado: 'Cerrado'
+      };
+      const clase = map[estatus] || 'bg-slate-100 text-slate-500';
+      return `<span class="px-3 py-1 rounded-full text-xs font-semibold ${clase}">${label[estatus] || estatus}</span>`;
+    }
+
+    function renderTabla() {
+      const lista = filtroActual === 'todos'
+        ? foliosNC
+        : foliosNC.filter(f => f.nc_estatus === filtroActual);
+
+      const tbody = document.getElementById('tbody-folios-nc');
+      document.getElementById('msg-sin-folios').classList.toggle('hidden', lista.length > 0);
+
+      tbody.innerHTML = lista.map(f => `
+        <tr class="hover:bg-slate-50 cursor-pointer" onclick="abrirDetalleNC('${f.folio_nc}')">
+          <td class="px-5 py-3 font-bold text-[#e31e24]">${f.folio_nc}</td>
+          <td class="px-5 py-3">${f.servicio || '-'}</td>
+          <td class="px-5 py-3">
+            <div class="font-medium text-slate-700">${f.pozo || '-'}</div>
+            <div class="text-xs text-slate-400">${f.cliente || '-'}</div>
+          </td>
+          <td class="px-5 py-3">${f.tipo_hallazgo || '-'}</td>
+          <td class="px-5 py-3">${f.nc_responsable || '-'}</td>
+          <td class="px-5 py-3">${badgeEstatus(f.nc_estatus)}</td>
+          <td class="px-5 py-3 text-slate-500">${f.created_at ? new Date(f.created_at).toLocaleDateString('es-MX') : '-'}</td>
+          <td class="px-5 py-3 text-right"><i class="fas fa-chevron-right text-slate-300"></i></td>
+        </tr>
+      `).join('');
+    }
+
+    // Botones de filtro
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-filtro');
+      if (!btn) return;
+      filtroActual = btn.dataset.filtro;
+      document.querySelectorAll('.btn-filtro').forEach(b => {
+        b.classList.remove('bg-slate-800', 'text-white');
+        b.classList.add('bg-slate-100', 'text-slate-600');
+      });
+      btn.classList.remove('bg-slate-100', 'text-slate-600');
+      btn.classList.add('bg-slate-800', 'text-white');
+      renderTabla();
+    });
+
+    function abrirDetalleNC(folio) {
+      const f = foliosNC.find(x => x.folio_nc === folio);
+      if (!f) return;
+      folioActual = f;
+
+      document.getElementById('d-folio').textContent      = f.folio_nc;
+      document.getElementById('d-servicio').textContent    = f.servicio || '-';
+      document.getElementById('d-pozo').textContent        = f.pozo || '-';
+      document.getElementById('d-cliente').textContent     = f.cliente || '-';
+      document.getElementById('d-tipo').textContent        = f.tipo_hallazgo || '-';
+      document.getElementById('d-responsable').textContent = f.nc_responsable || '-';
+      document.getElementById('d-corregido').textContent   = f.nc_corregido || 'No';
+      document.getElementById('d-descripcion').textContent = f.nc_descripcion || '-';
+      document.getElementById('d-accion').textContent      = f.nc_accion || '-';
+      document.getElementById('d-comentarios').textContent = f.nc_comentarios || '-';
+
+      // Safety Alert Cards
+      const ids = Array.isArray(f.safety_cards_ids) ? f.safety_cards_ids : [];
+      document.getElementById('d-safety-cards').innerHTML = ids.length
+        ? ids.map(id => `<span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 font-mono">${id}</span>`).join('')
+        : '<span class="text-slate-400">Sin tarjetas asociadas</span>';
+
+      // Evaluación de calidad
+      const ev = f.evaluacion_calidad || {};
+      const criterios = { personal: 'Personal', equipo: 'Equipo', comunicacion: 'Comunicación', hse: 'HSE', percepcion_general: 'Percepción General' };
+      document.getElementById('d-evaluacion').innerHTML = Object.keys(criterios).length
+        ? Object.entries(criterios).map(([key, label]) => `
+            <div class="flex justify-between border-b border-slate-50 py-1">
+              <span class="text-slate-500">${label}</span>
+              <span class="font-semibold text-slate-700">${ev[key] ?? '-'}</span>
+            </div>`).join('')
+        : '<span class="text-slate-400">Sin evaluación registrada</span>';
+
+      // Seguimiento
+      document.getElementById('d-select-estatus').value = f.nc_estatus || 'abierto';
+      renderHistorial(f.nc_seguimiento || []);
+      document.getElementById('d-nuevo-comentario').value = '';
+
+      document.getElementById('modal-nc').classList.remove('hidden');
+    }
+
+    function renderHistorial(historial) {
+      const cont = document.getElementById('d-historial');
+      if (!historial.length) {
+        cont.innerHTML = '<p class="text-sm text-slate-400">Sin notas de seguimiento aún.</p>';
+        return;
+      }
+      cont.innerHTML = historial.slice().reverse().map(h => `
+        <div class="bg-slate-50 rounded-xl px-3 py-2 text-sm">
+          <div class="flex justify-between text-xs text-slate-400 mb-0.5">
+            <span>${h.usuario || 'Usuario'}</span>
+            <span>${h.fecha ? new Date(h.fecha).toLocaleString('es-MX') : ''}</span>
+          </div>
+          <p class="text-slate-600">${h.comentario}</p>
+        </div>
+      `).join('');
+    }
+
+    function cerrarModalNC() {
+      document.getElementById('modal-nc').classList.add('hidden');
+      folioActual = null;
+    }
+
+    async function guardarSeguimiento() {
+      if (!folioActual) return;
+
+      const nuevoEstatus = document.getElementById('d-select-estatus').value;
+      const comentario = document.getElementById('d-nuevo-comentario').value.trim();
+
+      // Traer nombre del usuario actual (para dejarlo en la bitácora)
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const { data: perfilActual } = await supabaseClient
+        .from('perfiles').select('nombre_completo').eq('id', session.user.id).single();
+      const nombreUsuario = perfilActual?.nombre_completo || session.user.email;
+
+      const historialActual = Array.isArray(folioActual.nc_seguimiento) ? folioActual.nc_seguimiento : [];
+      if (comentario) {
+        historialActual.push({
+          fecha: new Date().toISOString(),
+          usuario: nombreUsuario,
+          comentario
+        });
+      }
+
+      const payload = {
+        nc_estatus: nuevoEstatus,
+        nc_seguimiento: historialActual,
+        updated_at: new Date().toISOString()
+      };
+
+      // Si lo están cerrando ahora mismo, registrar cierre
+      if (nuevoEstatus === 'cerrado' && folioActual.nc_estatus !== 'cerrado') {
+        payload.nc_fecha_cierre = new Date().toISOString();
+        payload.nc_cerrado_por = nombreUsuario;
+      }
+
+      try {
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/qhse_no_conformidades?folio_nc=eq.${encodeURIComponent(folioActual.folio_nc)}`,
+          {
+            method: 'PATCH',
+            headers: { ...headers, 'Prefer': 'return=representation' },
+            body: JSON.stringify(payload)
+          }
+        );
+        if (!res.ok) throw new Error(await res.text());
+        const actualizado = (await res.json())[0];
+
+        // Reflejar el cambio en el cache local y en la tabla
+        const idx = foliosNC.findIndex(x => x.folio_nc === folioActual.folio_nc);
+        foliosNC[idx] = actualizado;
+        folioActual = actualizado;
+
+        actualizarContadores();
+        renderTabla();
+        renderHistorial(actualizado.nc_seguimiento || []);
+        document.getElementById('d-nuevo-comentario').value = '';
+      } catch (e) {
+        console.error('Error guardando seguimiento:', e);
+        alert('No se pudo guardar el seguimiento. Intenta de nuevo.');
+      }
     }
 
     verificarAcceso();
   </script>
+
+  <div id="footer-componente" class="mt-auto"></div>
+
 </body>
 </html>

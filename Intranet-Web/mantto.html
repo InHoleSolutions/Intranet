@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control de Mantto y Calibración | In Hole Solutions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          screens: {
+            '2xl': '1536px',
+            '3xl': '1920px',
+            '4xl': '2560px',
+            '5xl': '3200px',
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:,">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    @media (min-width: 1024px) {
+      .dropdown:hover > .dropdown-menu { display: block; animation: fadeIn 0.2s ease-out; }
+      .group\/sub:hover > .submenu-content { display: block; }
+    }
+    .mobile-active { display: block !important; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+    .table-container::-webkit-scrollbar { height: 6px; }
+    .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .tab-btn.activa { background: #e31e24; color: #fff; box-shadow: 0 8px 20px -6px rgba(227,30,36,0.5); }
+    .tab-btn:not(.activa) { background: #fff; color: #475569; }
+    span.celda[contenteditable="true"], input.celda-editable {
+      display: block;
+      min-height: 1.4em;
+      min-width: 50px;
+      background: #fff7f7;
+      border: 1px dashed #f5e7e7;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    #header-componente { display: block; }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+  <!-- ── HEADER (se carga desde header.html) ── -->
+  <div id="header-componente"></div>
+
+  <!-- ── MAIN ── -->
+  <main id="main-content" class="w-full max-w-[1440px] 3xl:max-w-[1800px] mx-auto px-4 sm:px-6 3xl:px-12 pb-16">
+
+    <!-- ── Breadcrumb ── -->
+    <div class="flex items-center gap-2 text-sm text-slate-400 mb-4">
+      <a href="dashboard.html" class="hover:text-[#e31e24] transition-colors">
+        <i class="fas fa-house"></i>
+      </a>
+      <span class="text-slate-300">/</span>
+      <span class="font-semibold">Mantenimiento</span>
+    </div>
+
+    <!-- ── Encabezado de sección ── -->
+    <div class="mb-8">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="h-10 w-10 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
+          <i class="fas fa-screwdriver-wrench text-[#e31e24]"></i>
+        </div>
+        <h1 class="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
+          Control de Mantto y Calibración de Equipos y Herramientas
+        </h1>
+      </div>
+      <p class="text-slate-500 text-sm leading-relaxed max-w-3xl text-justify">
+        Los equipos, instrumentos y herramientas son sometidos a programas de mantenimiento, calibración,
+        verificación e inspección de acuerdo con las recomendaciones del fabricante, los requisitos normativos
+        y las necesidades operativas. El seguimiento y la trazabilidad de estas actividades permiten asegurar
+        la confiabilidad de los activos y la calidad de los servicios.
+      </p>
+    </div>
+
+    <!-- ── Botón Instructivo (debajo de la descripción, antes de las pestañas) ── -->
+    <div class="mb-6 relative inline-block">
+      <button onclick="toggleMenuInstructivo(event)"
+        class="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold
+               px-4 py-2.5 rounded-xl shadow-sm transition-colors">
+        <i class="fas fa-file-pdf text-red-400"></i> Instructivo <i class="fas fa-chevron-down text-[10px] ml-1"></i>
+      </button>
+
+      <div id="menu-instructivo" class="hidden absolute left-0 top-12 z-30 bg-white border border-slate-200 rounded-xl shadow-lg py-1 w-72 text-left">
+        <div class="flex items-center justify-between pl-3 pr-1 py-1 hover:bg-slate-50 rounded-lg">
+          <button onclick="verInstructivo('equipos')" class="flex items-center gap-2 text-xs text-slate-600 flex-1 text-left py-1.5">
+            <i class="fas fa-toolbox text-slate-400 w-4"></i> Equipos y Herramientas
+          </button>
+          <button id="btn-editar-instructivo-equipos" onclick="document.getElementById('input-instructivo-equipos').click()"
+            class="hidden h-7 w-7 items-center justify-center text-slate-400 hover:text-slate-700" title="Reemplazar instructivo (PDF)">
+            <i class="fas fa-pen text-xs"></i>
+          </button>
+          <button id="btn-eliminar-instructivo-equipos" onclick="eliminarInstructivo('equipos')"
+            class="hidden h-7 w-7 items-center justify-center text-red-300 hover:text-red-600" title="Eliminar instructivo">
+            <i class="fas fa-trash-can text-xs"></i>
+          </button>
+          <input id="input-instructivo-equipos" type="file" accept="application/pdf" class="hidden" onchange="subirInstructivo(event, 'equipos')">
+        </div>
+        <div class="flex items-center justify-between pl-3 pr-1 py-1 hover:bg-slate-50 rounded-lg">
+          <button onclick="verInstructivo('izaje')" class="flex items-center gap-2 text-xs text-slate-600 flex-1 text-left py-1.5">
+            <i class="fas fa-link text-slate-400 w-4"></i> Accesorios de Izaje
+          </button>
+          <button id="btn-editar-instructivo-izaje" onclick="document.getElementById('input-instructivo-izaje').click()"
+            class="hidden h-7 w-7 items-center justify-center text-slate-400 hover:text-slate-700" title="Reemplazar instructivo (PDF)">
+            <i class="fas fa-pen text-xs"></i>
+          </button>
+          <button id="btn-eliminar-instructivo-izaje" onclick="eliminarInstructivo('izaje')"
+            class="hidden h-7 w-7 items-center justify-center text-red-300 hover:text-red-600" title="Eliminar instructivo">
+            <i class="fas fa-trash-can text-xs"></i>
+          </button>
+          <input id="input-instructivo-izaje" type="file" accept="application/pdf" class="hidden" onchange="subirInstructivo(event, 'izaje')">
+        </div>
+        <div class="flex items-center justify-between pl-3 pr-1 py-1 hover:bg-slate-50 rounded-lg">
+          <button onclick="verInstructivo('drift')" class="flex items-center gap-2 text-xs text-slate-600 flex-1 text-left py-1.5">
+            <i class="fas fa-ruler-horizontal text-slate-400 w-4"></i> Drift
+          </button>
+          <button id="btn-editar-instructivo-drift" onclick="document.getElementById('input-instructivo-drift').click()"
+            class="hidden h-7 w-7 items-center justify-center text-slate-400 hover:text-slate-700" title="Reemplazar instructivo (PDF)">
+            <i class="fas fa-pen text-xs"></i>
+          </button>
+          <button id="btn-eliminar-instructivo-drift" onclick="eliminarInstructivo('drift')"
+            class="hidden h-7 w-7 items-center justify-center text-red-300 hover:text-red-600" title="Eliminar instructivo">
+            <i class="fas fa-trash-can text-xs"></i>
+          </button>
+          <input id="input-instructivo-drift" type="file" accept="application/pdf" class="hidden" onchange="subirInstructivo(event, 'drift')">
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Pestañas ── -->
+    <div class="flex flex-wrap gap-2 mb-6">
+      <button onclick="cambiarPestana('equipos')" id="tab-equipos"
+        class="tab-btn activa px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wide border border-slate-200 transition-all">
+        <i class="fas fa-toolbox mr-2"></i>Equipos y Herramientas
+      </button>
+      <button onclick="cambiarPestana('izaje')" id="tab-izaje"
+        class="tab-btn px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wide border border-slate-200 transition-all">
+        <i class="fas fa-link mr-2"></i>Accesorios de Izaje
+      </button>
+      <button onclick="cambiarPestana('drift')" id="tab-drift"
+        class="tab-btn px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wide border border-slate-200 transition-all">
+        <i class="fas fa-ruler-horizontal mr-2"></i>Drift
+      </button>
+    </div>
+
+    <!-- ── Panel: Equipos y Herramientas ── -->
+    <section id="panel-equipos" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-black text-slate-700 uppercase tracking-wide">Lista de Equipos y Herramientas</h2>
+        <button id="btn-add-equipos" onclick="agregarFila('equipos')"
+          class="hidden items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
+          <i class="fas fa-plus"></i> Agregar
+        </button>
+      </div>
+      <div class="table-container overflow-x-auto">
+        <table class="w-full text-xs sm:text-sm text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider">
+              <th class="px-3 py-3 rounded-l-xl" rowspan="2">No.</th>
+              <th class="px-3 py-3" rowspan="2">Herramienta/Equipo</th>
+              <th class="px-3 py-3" rowspan="2">Marca</th>
+              <th class="px-3 py-3" rowspan="2">NS</th>
+              <th class="px-3 py-3 text-center" colspan="2">Fecha Calibración - Mantto</th>
+              <th class="px-3 py-3" rowspan="2">Días restantes</th>
+              <th class="px-3 py-3" rowspan="2">Frecuencia</th>
+              <th class="px-3 py-3" rowspan="2">Certificado</th>
+              <th class="px-3 py-3" rowspan="2">Proveedor del Servicio</th>
+              <th class="px-3 py-3" rowspan="2">Observaciones</th>
+              <th class="px-3 py-3 rounded-r-xl text-center col-acciones hidden" rowspan="2">Acciones</th>
+            </tr>
+            <tr class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider">
+              <th class="px-3 py-2 text-center">Último</th>
+              <th class="px-3 py-2 text-center">Próximo</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-equipos" class="divide-y divide-slate-100">
+            <tr><td colspan="12" class="text-center text-slate-400 py-6">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── Panel: Accesorios de Izaje ── -->
+    <section id="panel-izaje" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-black text-slate-700 uppercase tracking-wide">Accesorios de Izaje</h2>
+        <button id="btn-add-izaje" onclick="agregarFila('izaje')"
+          class="hidden items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
+          <i class="fas fa-plus"></i> Agregar
+        </button>
+      </div>
+      <div class="table-container overflow-x-auto">
+        <table class="w-full text-xs sm:text-sm text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider">
+              <th class="px-3 py-3 rounded-l-xl">No.</th>
+              <th class="px-3 py-3">Herramienta</th>
+              <th class="px-3 py-3">Tamaño</th>
+              <th class="px-3 py-3">Serie No.:</th>
+              <th class="px-3 py-3">No. Certificado</th>
+              <th class="px-3 py-3">Fecha de fabricación</th>
+              <th class="px-3 py-3">Vigencia</th>
+              <th class="px-3 py-3">Días restantes</th>
+              <th class="px-3 py-3">Frecuencia</th>
+              <th class="px-3 py-3">Certificado</th>
+              <th class="px-3 py-3">Estado</th>
+              <th class="px-3 py-3 rounded-r-xl text-center col-acciones hidden">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-izaje" class="divide-y divide-slate-100">
+            <tr><td colspan="12" class="text-center text-slate-400 py-6">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── Panel: Drift ── -->
+    <section id="panel-drift" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-black text-slate-700 uppercase tracking-wide">Drift</h2>
+        <button id="btn-add-drift" onclick="agregarFila('drift')"
+          class="hidden items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
+          <i class="fas fa-plus"></i> Agregar
+        </button>
+      </div>
+      <div class="table-container overflow-x-auto">
+        <table class="w-full text-xs sm:text-sm text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider">
+              <th class="px-3 py-3 rounded-l-xl">No.</th>
+              <th class="px-3 py-3">Cantidad</th>
+              <th class="px-3 py-3">Tamaño</th>
+              <th class="px-3 py-3">Peso Nom Conexión</th>
+              <th class="px-3 py-3">OD – Drift (In)</th>
+              <th class="px-3 py-3">Longitud (In) Altura</th>
+              <th class="px-3 py-3">Material</th>
+              <th class="px-3 py-3">Núm. Serie</th>
+              <th class="px-3 py-3">Fecha de fabricación</th>
+              <th class="px-3 py-3">Fecha última calibración</th>
+              <th class="px-3 py-3">Fecha próxima calibración</th>
+              <th class="px-3 py-3">Estado</th>
+              <th class="px-3 py-3">Certificado</th>
+              <th class="px-3 py-3 rounded-r-xl text-center col-acciones hidden">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-drift" class="divide-y divide-slate-100">
+            <tr><td colspan="14" class="text-center text-slate-400 py-6">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Modal Historial de Certificados ── -->
+  <div id="modalHistorial" class="hidden fixed inset-0 z-[250] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100">
+        <p class="font-bold text-slate-700 text-sm"><i class="fas fa-clock-rotate-left text-slate-400 mr-2"></i>Historial de certificados</p>
+        <button onclick="document.getElementById('modalHistorial').classList.add('hidden')" class="text-slate-400 hover:text-slate-700">
+          <i class="fas fa-times text-lg"></i>
+        </button>
+      </div>
+      <div id="contenidoHistorial" class="p-5 overflow-y-auto flex-1 flex flex-col gap-2 text-sm text-slate-600">
+        Cargando...
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal PDF Instructivo ── -->
+  <div id="modalPDF" class="hidden fixed inset-0 z-[200] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100">
+        <p class="font-bold text-slate-700 text-sm"><i class="fas fa-file-pdf text-red-500 mr-2"></i>Instructivo de Mantenimiento</p>
+        <button onclick="cerrarPDF()" class="text-slate-400 hover:text-slate-700"><i class="fas fa-times text-lg"></i></button>
+      </div>
+      <iframe id="iframePDF" class="flex-1 w-full" src=""></iframe>
+    </div>
+  </div>
+
+  <!-- ── Toast de notificaciones ── -->
+  <div id="toast-contenedor" class="fixed top-5 right-5 z-[300] flex flex-col gap-2"></div>
+
+  <!-- ── Modal de aviso/información ── -->
+  <div id="modalAviso" class="hidden fixed inset-0 z-[260] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl text-center">
+      <div class="h-14 w-14 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-4">
+        <i class="fas fa-file-circle-exclamation text-2xl text-[#e31e24]"></i>
+      </div>
+      <p id="mensajeAviso" class="text-sm font-semibold text-slate-700 leading-snug mb-5"></p>
+      <button id="btnCerrarAviso" class="w-full px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-slate-800 hover:bg-slate-900 transition-colors">
+        Entendido
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Modal de confirmación personalizado ── -->
+  <div id="modalConfirmar" class="hidden fixed inset-0 z-[250] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="h-10 w-10 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
+          <i class="fas fa-triangle-exclamation text-[#e31e24]"></i>
+        </div>
+        <p id="mensajeConfirmar" class="text-sm font-semibold text-slate-700 leading-snug"></p>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button id="btnCancelarConfirmar" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 transition-colors">
+          Cancelar
+        </button>
+        <button id="btnAceptarConfirmar" class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#e31e24] hover:bg-red-700 transition-colors">
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Supabase ── (mismas credenciales que dashboard.html)
+    const { createClient } = supabase;
+    const supabaseClient = createClient(
+      'https://bgqlvkvlscujikhzzazf.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJncWx2a3Zsc2N1amlraHp6YXpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NzA0OTQsImV4cCI6MjA5NDM0NjQ5NH0.RuNCaTgjTN1mTA6kkjfXwz05epUYzARqGj8L3I2v350'
+    );
+
+    // ── Cargar header / footer ──
+    fetch('header.html').then(r => r.text()).then(html => {
+      document.getElementById('header-componente').innerHTML = html;
+      ajustarEspacioHeader();
+      // Recalcula cuando terminen de cargar íconos/fuentes/imagenes
+      window.addEventListener('load', ajustarEspacioHeader);
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(ajustarEspacioHeader);
+      }
+      // Recalculo continuo por si el header cambia de tamaño dinámicamente
+      const header = document.getElementById('header-componente');
+      if (window.ResizeObserver) {
+        new ResizeObserver(ajustarEspacioHeader).observe(header);
+      }
+    });
+
+    // ── Ajusta el espacio del contenido según el alto real del header ──
+    function ajustarEspacioHeader() {
+      const header = document.getElementById('header-componente');
+      const main = document.getElementById('main-content');
+      if (!header || !main) return;
+      let alturaTotal = 0;
+      Array.from(header.children).forEach(el => {
+        // Solo sumamos los elementos que realmente se están mostrando
+        if (getComputedStyle(el).display !== 'none') {
+          alturaTotal += el.offsetHeight;
+        }
+      });
+      main.style.marginTop = (alturaTotal + 24) + 'px';
+    }
+    window.addEventListener('resize', ajustarEspacioHeader);
+    fetch('footer.html').then(r => r.text()).then(html => {
+      document.getElementById('footer-componente').innerHTML = html;
+      const y = document.getElementById('footer-year');
+      if (y) y.textContent = new Date().getFullYear();
+    });
+
+    // Funciones que usa header.html
+    function toggleMenu(id) { document.getElementById(id).classList.toggle('hidden'); }
+    function toggleSubmenu(btn) {
+      const menu = btn.nextElementSibling;
+      if (menu) menu.classList.toggle('hidden');
+      const icon = btn.querySelector('.fa-chevron-down, .fa-chevron-right');
+      if (icon) icon.classList.toggle('rotate-180');
+      if (window.event) window.event.stopPropagation();
+    }
+    function mostrarInicio() { window.location.href = 'dashboard.html'; }
+    async function cerrarSesion() { await supabaseClient.auth.signOut(); window.location.href = '../index.html'; }
+
+    // ── Config global ──
+    let esQHSE = false;
+    let pestanaActual = 'equipos';
+
+    // ── Toast de notificación ──
+    function mostrarToast(mensaje, tipo = 'exito') {
+      const contenedor = document.getElementById('toast-contenedor');
+      const colores = { exito: 'bg-emerald-500', error: 'bg-red-500', info: 'bg-slate-800' };
+      const icono = { exito: 'fa-circle-check', error: 'fa-circle-exclamation', info: 'fa-circle-info' };
+
+      const toast = document.createElement('div');
+      toast.className = `${colores[tipo] || colores.info} text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 opacity-0 translate-x-4 transition-all duration-300`;
+      toast.innerHTML = `<i class="fas ${icono[tipo] || icono.info}"></i> ${mensaje}`;
+      contenedor.appendChild(toast);
+
+      requestAnimationFrame(() => toast.classList.remove('opacity-0', 'translate-x-4'));
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-x-4');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // ── Modal de aviso (reemplaza alert()) ──
+    function mostrarAviso(mensaje) {
+      return new Promise(resolve => {
+        const modal = document.getElementById('modalAviso');
+        document.getElementById('mensajeAviso').textContent = mensaje;
+        modal.classList.remove('hidden');
+
+        const btnCerrar = document.getElementById('btnCerrarAviso');
+        function cerrar() {
+          modal.classList.add('hidden');
+          btnCerrar.removeEventListener('click', cerrar);
+          resolve();
+        }
+        btnCerrar.addEventListener('click', cerrar);
+      });
+    }
+
+    // ── Modal de confirmación (reemplaza confirm()) ──
+    function confirmarAccion(mensaje) {
+      return new Promise(resolve => {
+        const modal = document.getElementById('modalConfirmar');
+        document.getElementById('mensajeConfirmar').textContent = mensaje;
+        modal.classList.remove('hidden');
+
+        const btnAceptar = document.getElementById('btnAceptarConfirmar');
+        const btnCancelar = document.getElementById('btnCancelarConfirmar');
+
+        function cerrar(resultado) {
+          modal.classList.add('hidden');
+          btnAceptar.removeEventListener('click', onAceptar);
+          btnCancelar.removeEventListener('click', onCancelar);
+          resolve(resultado);
+        }
+        function onAceptar() { cerrar(true); }
+        function onCancelar() { cerrar(false); }
+
+        btnAceptar.addEventListener('click', onAceptar);
+        btnCancelar.addEventListener('click', onCancelar);
+      });
+    }
+
+    const CONFIG_TABLAS = {
+      equipos: {
+        tabla: 'mantto_equipos_herramientas',
+        tbody: 'tbody-equipos',
+        numerada: true,
+        columnas: ['equipo', 'marca', 'no_serie', 'fecha_calibracion', 'fecha_vencimiento', 'dias_restantes', 'frecuencia', 'certificado', 'proveedor_servicio', 'observaciones'],
+        columnasFecha: ['fecha_calibracion', 'fecha_vencimiento'],
+        columnaVencimiento: 'fecha_vencimiento',
+        campoFechaBase: 'fecha_calibracion',
+        campoVencimiento: 'fecha_vencimiento',
+        columnasArchivo: ['certificado']
+      },
+      izaje: {
+        tabla: 'mantto_izaje',
+        tbody: 'tbody-izaje',
+        numerada: true,
+        columnas: ['herramienta', 'tamano', 'no_serie', 'no_certificado', 'fecha_fabricacion', 'vigencia', 'dias_restantes', 'frecuencia', 'certificado', 'estado'],
+        columnasFecha: ['fecha_fabricacion', 'vigencia'],
+        columnaVencimiento: 'vigencia',
+        campoFechaBase: 'fecha_fabricacion',
+        campoVencimiento: 'vigencia',
+        columnasArchivo: ['certificado'],
+        columnasEstado: ['estado']
+      },
+      drift: {
+        tabla: 'mantto_drift',
+        tbody: 'tbody-drift',
+        numerada: true,
+        columnas: ['cantidad', 'tamano', 'peso_nom_conexion', 'od_drift', 'longitud_altura', 'material', 'no_serie', 'fecha_fabricacion', 'fecha_calibracion', 'fecha_vencimiento', 'estado', 'certificado'],
+        columnasFecha: ['fecha_calibracion'],
+        columnasFechaMes: ['fecha_fabricacion', 'fecha_vencimiento'],
+        columnasArchivo: ['certificado']
+      }
+    };
+
+    // ── Pestañas ──
+    function cambiarPestana(nombre) {
+      pestanaActual = nombre;
+      ['equipos', 'izaje', 'drift'].forEach(n => {
+        document.getElementById(`panel-${n}`).classList.toggle('hidden', n !== nombre);
+        document.getElementById(`tab-${n}`).classList.toggle('activa', n === nombre);
+      });
+      cargarTabla(nombre);
+    }
+
+    // ── Cargar datos de una tabla ──
+    async function cargarTabla(nombre) {
+      const cfg = CONFIG_TABLAS[nombre];
+      const tbody = document.getElementById(cfg.tbody);
+      const { data, error } = await supabaseClient.from(cfg.tabla).select('*').order('created_at', { ascending: true });
+
+      if (error) {
+        tbody.innerHTML = `<tr><td colspan="${cfg.columnas.length + 1}" class="text-center text-red-400 py-6">
+          No se pudo cargar la tabla "${cfg.tabla}". Verifica que exista en Supabase.</td></tr>`;
+        return;
+      }
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${cfg.columnas.length + 1}" class="text-center text-slate-400 py-6">Sin registros aún.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.map((fila, indice) => filaHTML(nombre, fila, indice)).join('');
+    }
+
+    function formatearFecha(valor) {
+      if (!valor) return '';
+      const [anio, mes, dia] = valor.split('-');
+      return `${dia}/${mes}/${anio}`;
+    }
+
+    function formatearFechaMes(valor) {
+      if (!valor) return '';
+      const [anio, mes] = valor.split('-');
+      return `${mes}/${anio}`;
+    }
+
+    function calcularDiasRestantes(fechaVencimiento) {
+      if (!fechaVencimiento) return '';
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      const vencimiento = new Date(fechaVencimiento + 'T00:00:00');
+      const diferenciaMs = vencimiento - hoy;
+      return Math.round(diferenciaMs / (1000 * 60 * 60 * 24));
+    }
+
+    function calcularUmbralAlerta(frecuenciaTexto) {
+      if (!frecuenciaTexto) return 30;
+      const texto = frecuenciaTexto.toLowerCase();
+      const match = texto.match(/(\d+)/);
+      const numero = match ? parseInt(match[1], 10) : 12;
+      const esAnios = texto.includes('año') || texto.includes('anio');
+      const meses = esAnios ? numero * 12 : numero;
+
+      if (meses <= 1) return 5;
+      if (meses <= 3) return 10;
+      if (meses <= 6) return 15;
+      return 30;
+    }
+
+    function calcularFechaProxima(fechaUltimoStr, frecuenciaTexto) {
+      if (!fechaUltimoStr || !frecuenciaTexto) return '';
+      const texto = frecuenciaTexto.toLowerCase();
+      const match = texto.match(/(\d+)/);
+      if (!match) return '';
+      const numero = parseInt(match[1], 10);
+      const esAnios = texto.includes('año') || texto.includes('anio');
+      const meses = esAnios ? numero * 12 : numero;
+
+      const [anio, mes, dia] = fechaUltimoStr.split('-').map(Number);
+      if (!anio || !mes || !dia) return '';
+
+      const fecha = new Date(anio, mes - 1, dia);
+      fecha.setMonth(fecha.getMonth() + meses);
+
+      const anioFinal = fecha.getFullYear();
+      const mesFinal = String(fecha.getMonth() + 1).padStart(2, '0');
+      const diaFinal = String(fecha.getDate()).padStart(2, '0');
+      return `${anioFinal}-${mesFinal}-${diaFinal}`;
+    }
+
+    function obtenerValorColumna(filaEl, col) {
+      const el = filaEl.querySelector(`[data-col="${col}"]`);
+      if (!el) return '';
+      return (el.tagName === 'INPUT' ? el.value : el.textContent).trim();
+    }
+
+    function filaHTML(nombre, fila, indice) {
+      const cfg = CONFIG_TABLAS[nombre];
+      const numero = cfg.numerada
+        ? `<td class="px-3 py-2 text-slate-500 text-center">${indice + 1}</td>`
+        : '';
+      const celdas = cfg.columnas.map(col => {
+        if (col === 'dias_restantes') {
+          const dias = calcularDiasRestantes(fila[cfg.columnaVencimiento]);
+          if (dias === '') {
+            return `<td class="px-3 py-2 text-center"></td>`;
+          }
+          const umbral = calcularUmbralAlerta(fila.frecuencia);
+          let colorClase = 'bg-emerald-50 text-emerald-700';
+          if (dias <= 0) colorClase = 'bg-red-50 text-red-600 font-bold';
+          else if (dias <= umbral) colorClase = 'bg-amber-50 text-amber-700 font-bold';
+          return `<td class="px-3 py-2 text-center whitespace-nowrap">
+                    <span class="px-2 py-1 rounded-lg text-xs whitespace-nowrap ${colorClase}">${dias} días</span>
+                  </td>`;
+        }
+
+        const valor = fila[col] ?? '';
+        const esFecha = (cfg.columnasFecha || []).includes(col);
+        const esFechaMes = (cfg.columnasFechaMes || []).includes(col);
+        const esArchivo = (cfg.columnasArchivo || []).includes(col);
+        const esEstado = (cfg.columnasEstado || []).includes(col);
+
+        if (esFechaMes) {
+          const valorMes = valor ? valor.slice(0, 7) : '';
+          return esQHSE
+            ? `<td class="px-3 py-2"><input type="month" class="celda-editable px-2 py-1 rounded text-xs"
+                  data-col="${col}" value="${valorMes}"
+                  onchange="guardarCelda('${nombre}', '${fila.id}', this)"></td>`
+            : `<td class="px-3 py-2 text-slate-600">${formatearFechaMes(valor)}</td>`;
+        }
+
+        if (esEstado) {
+          const valorEstado = valor || 'Disponible';
+          const esBaja = valorEstado === 'Baja';
+
+          if (esQHSE) {
+            return `<td class="px-3 py-2">
+                      <select data-col="${col}" onchange="actualizarColorEstado(this); guardarCelda('${nombre}', '${fila.id}', this)"
+                        class="celda-editable px-2 py-1 rounded text-xs font-bold border-none cursor-pointer
+                               ${esBaja ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-700'}">
+                        <option value="Disponible" ${!esBaja ? 'selected' : ''}>Disponible</option>
+                        <option value="Baja" ${esBaja ? 'selected' : ''}>Baja</option>
+                      </select>
+                    </td>`;
+          }
+          return `<td class="px-3 py-2 whitespace-nowrap">
+                    <span class="px-2 py-1 rounded-lg text-xs font-bold ${esBaja ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-700'}">${valorEstado}</span>
+                  </td>`;
+        }
+
+        if (esArchivo) {
+          const link = valor
+            ? `<a href="${valor}" target="_blank" rel="noopener" class="text-red-500 hover:text-red-700" title="Ver / descargar certificado">
+                 <i class="fas fa-file-pdf text-lg"></i>
+               </a>`
+            : '<span class="text-slate-300 text-xs">Sin archivo</span>';
+
+          const botonSubir = esQHSE
+            ? `<button onclick="document.getElementById('input-cert-${fila.id}').click()"
+                 class="ml-2 text-slate-400 hover:text-slate-700" title="Subir / reemplazar certificado (PDF)">
+                 <i class="fas fa-upload text-xs"></i>
+               </button>
+               <input id="input-cert-${fila.id}" type="file" accept="application/pdf" class="hidden"
+                 onchange="subirCertificado('${nombre}', '${fila.id}', this)">`
+            : '';
+
+          const botonEliminar = (esQHSE && valor)
+            ? `<button onclick="eliminarCertificado('${nombre}', '${fila.id}', '${valor}')"
+                 class="ml-2 text-red-300 hover:text-red-600" title="Eliminar certificado">
+                 <i class="fas fa-trash-can text-xs"></i>
+               </button>`
+            : '';
+
+          return `<td class="px-3 py-2 text-center whitespace-nowrap">${link}${botonSubir}${botonEliminar}</td>`;
+        }
+
+        if (esFecha) {
+          return esQHSE
+            ? `<td class="px-3 py-2"><input type="date" class="celda-editable px-2 py-1 rounded text-xs"
+                  data-col="${col}" value="${valor || ''}"
+                  onchange="guardarCelda('${nombre}', '${fila.id}', this)"></td>`
+            : `<td class="px-3 py-2 text-slate-600">${formatearFecha(valor)}</td>`;
+        }
+
+        return esQHSE
+          ? `<td class="px-3 py-2"><span contenteditable="true" class="celda block outline-none px-2 py-1 rounded"
+                data-col="${col}" onblur="guardarCelda('${nombre}', '${fila.id}', this)">${valor}</span></td>`
+          : `<td class="px-3 py-2 text-slate-600">${valor}</td>`;
+      }).join('');
+
+      const accion = esQHSE
+        ? `<td class="px-3 py-2 text-center col-acciones relative">
+             <button onclick="toggleMenuAcciones(event, '${fila.id}')" class="text-slate-400 hover:text-slate-700 px-2 py-1">
+               <i class="fas fa-ellipsis"></i>
+             </button>
+             <div id="menu-acciones-${fila.id}" class="hidden absolute right-2 top-9 z-20 bg-white border border-slate-200 rounded-xl shadow-lg py-1 w-40 text-left">
+               <button onclick="verHistorial('${nombre}', '${fila.id}')" class="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-600 hover:bg-slate-50">
+                 <i class="fas fa-clock-rotate-left text-slate-400"></i> Ver historial
+               </button>
+               <button onclick="eliminarFila('${nombre}', '${fila.id}')" class="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-500 hover:bg-red-50">
+                 <i class="fas fa-trash-can"></i> Eliminar fila
+               </button>
+             </div>
+           </td>`
+        : '';
+
+      return `<tr id="fila-${fila.id}">${numero}${celdas}${accion}</tr>`;
+    }
+
+    // ── Menú de 3 puntitos (Acciones) ──
+    function toggleMenuAcciones(evento, id) {
+      evento.stopPropagation();
+      document.querySelectorAll('[id^="menu-acciones-"]').forEach(menu => {
+        if (menu.id !== `menu-acciones-${id}`) menu.classList.add('hidden');
+      });
+      document.getElementById(`menu-acciones-${id}`).classList.toggle('hidden');
+    }
+    document.addEventListener('click', () => {
+      document.querySelectorAll('[id^="menu-acciones-"]').forEach(menu => menu.classList.add('hidden'));
+    });
+
+    // ── Cambia el color del select de Estado al instante, sin esperar recarga ──
+    function actualizarColorEstado(select) {
+      const esBaja = select.value === 'Baja';
+      select.classList.remove('bg-emerald-50', 'text-emerald-700', 'bg-red-50', 'text-red-600');
+      if (esBaja) {
+        select.classList.add('bg-red-50', 'text-red-600');
+      } else {
+        select.classList.add('bg-emerald-50', 'text-emerald-700');
+      }
+    }
+
+    // ── Guardar edición de una celda (solo QHSE) ──
+    async function guardarCelda(nombre, id, el) {
+      const cfg = CONFIG_TABLAS[nombre];
+      const col = el.dataset.col;
+      let valor = (el.tagName === 'INPUT' || el.tagName === 'SELECT') ? el.value : el.textContent.trim();
+      if (el.type === 'month' && valor) valor = `${valor}-01`;
+      const { error } = await supabaseClient.from(cfg.tabla).update({ [col]: valor === '' ? null : valor }).eq('id', id);
+      if (error) { console.error('Error guardando:', error); return; }
+
+      if (cfg.campoFechaBase && cfg.campoVencimiento && (col === cfg.campoFechaBase || col === 'frecuencia')) {
+        const filaEl = document.getElementById(`fila-${id}`);
+        const fechaUltimo = obtenerValorColumna(filaEl, cfg.campoFechaBase);
+        const frecuenciaTexto = obtenerValorColumna(filaEl, 'frecuencia');
+        const fechaProxima = calcularFechaProxima(fechaUltimo, frecuenciaTexto);
+
+        if (fechaProxima) {
+          await supabaseClient.from(cfg.tabla).update({ [cfg.campoVencimiento]: fechaProxima }).eq('id', id);
+          mostrarToast('Fecha próxima calculada automáticamente 📅', 'info');
+          cargarTabla(nombre);
+        }
+      }
+    }
+
+    // ── Agregar fila nueva (solo QHSE) ──
+    async function agregarFila(nombre) {
+      const cfg = CONFIG_TABLAS[nombre];
+      const nuevaFila = {};
+      cfg.columnas.forEach(col => nuevaFila[col] = null);
+      const { data, error } = await supabaseClient.from(cfg.tabla).insert(nuevaFila).select().single();
+      if (error) { await mostrarAviso('No se pudo agregar el registro.'); console.error(error); return; }
+      const tbody = document.getElementById(cfg.tbody);
+      const vacio = tbody.querySelector('td[colspan]');
+      if (vacio) tbody.innerHTML = '';
+      const indice = tbody.querySelectorAll('tr').length;
+      tbody.insertAdjacentHTML('beforeend', filaHTML(nombre, data, indice));
+    }
+
+    // ── Eliminar fila (solo QHSE) ──
+    async function eliminarFila(nombre, id) {
+      const confirmado = await confirmarAccion('¿Seguro que quieres eliminar este registro? Esta acción no se puede deshacer.');
+      if (!confirmado) return;
+
+      const cfg = CONFIG_TABLAS[nombre];
+      const { error } = await supabaseClient.from(cfg.tabla).delete().eq('id', id);
+      if (error) { await mostrarAviso('No se pudo eliminar el registro.'); return; }
+
+      document.getElementById(`fila-${id}`)?.remove();
+      mostrarToast('Registro eliminado correctamente', 'info');
+    }
+
+    // ── Instructivos PDF (uno por pestaña) ──
+    const urlsInstructivo = { equipos: '', izaje: '', drift: '' };
+
+    async function cargarInstructivo() {
+      const claves = ['instructivo_equipos', 'instructivo_izaje', 'instructivo_drift'];
+      const { data } = await supabaseClient.from('config_documentos').select('*').in('clave', claves);
+      if (data) {
+        data.forEach(fila => {
+          const tipo = fila.clave.replace('instructivo_', '');
+          if (urlsInstructivo.hasOwnProperty(tipo)) urlsInstructivo[tipo] = fila.url;
+        });
+      }
+      actualizarBotonesInstructivo();
+    }
+
+    // ── Muestra/oculta el botón de eliminar según si hay PDF cargado (solo QHSE) ──
+    function actualizarBotonesInstructivo() {
+      ['equipos', 'izaje', 'drift'].forEach(tipo => {
+        const btnEliminar = document.getElementById(`btn-eliminar-instructivo-${tipo}`);
+        if (!btnEliminar) return;
+        const debeVerse = esQHSE && !!urlsInstructivo[tipo];
+        btnEliminar.classList.toggle('hidden', !debeVerse);
+        btnEliminar.classList.toggle('flex', debeVerse);
+      });
+    }
+
+    function toggleMenuInstructivo(evento) {
+      evento.stopPropagation();
+      document.getElementById('menu-instructivo').classList.toggle('hidden');
+    }
+    document.addEventListener('click', () => {
+      document.getElementById('menu-instructivo')?.classList.add('hidden');
+    });
+
+    function verInstructivo(tipo) {
+      document.getElementById('menu-instructivo').classList.add('hidden');
+      if (!urlsInstructivo[tipo]) { mostrarAviso('Aún no se ha cargado el instructivo para esta sección.'); return; }
+      document.getElementById('iframePDF').src = urlsInstructivo[tipo];
+      document.getElementById('modalPDF').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarPDF() {
+      document.getElementById('modalPDF').classList.add('hidden');
+      document.getElementById('iframePDF').src = '';
+      document.body.style.overflow = 'auto';
+    }
+
+    // Reemplazar instructivo de una pestaña específica (solo QHSE)
+    async function subirInstructivo(evento, tipo) {
+      const archivo = evento.target.files[0];
+      if (!archivo) return;
+
+      const nombreArchivo = `instructivo-${tipo}-${Date.now()}.pdf`;
+      const { error: errorSubida } = await supabaseClient.storage
+        .from('documentos').upload(nombreArchivo, archivo, { upsert: true });
+
+      if (errorSubida) { await mostrarAviso('Error al subir el instructivo.'); console.error(errorSubida); return; }
+
+      const { data: urlPublica } = supabaseClient.storage.from('documentos').getPublicUrl(nombreArchivo);
+      urlsInstructivo[tipo] = urlPublica.publicUrl;
+
+      await supabaseClient.from('config_documentos')
+        .upsert({ clave: `instructivo_${tipo}`, url: urlsInstructivo[tipo] }, { onConflict: 'clave' });
+
+      mostrarToast('Instructivo actualizado correctamente ✅', 'exito');
+    }
+
+    // Eliminar instructivo de una pestaña específica (solo QHSE)
+    async function eliminarInstructivo(tipo) {
+      document.getElementById('menu-instructivo').classList.add('hidden');
+      const confirmado = await confirmarAccion('¿Seguro que quieres eliminar este instructivo? Esta acción no se puede deshacer.');
+      if (!confirmado) return;
+
+      const url = urlsInstructivo[tipo];
+      const partes = url.split('/documentos/');
+      const rutaArchivo = partes[1];
+
+      if (rutaArchivo) {
+        const { error: errorStorage } = await supabaseClient.storage.from('documentos').remove([rutaArchivo]);
+        if (errorStorage) console.error('Error eliminando del storage:', errorStorage);
+      }
+
+      const { error: errorGuardado } = await supabaseClient.from('config_documentos')
+        .update({ url: null }).eq('clave', `instructivo_${tipo}`);
+
+      if (errorGuardado) { await mostrarAviso('No se pudo eliminar el instructivo.'); console.error(errorGuardado); return; }
+
+      urlsInstructivo[tipo] = '';
+      actualizarBotonesInstructivo();
+      mostrarToast('Instructivo eliminado correctamente', 'info');
+    }
+
+    // ── Subir certificado PDF de una fila (solo QHSE) ──
+    async function subirCertificado(nombre, id, inputEl) {
+      const archivo = inputEl.files[0];
+      if (!archivo) return;
+
+      const cfg = CONFIG_TABLAS[nombre];
+      const nombreArchivo = `certificados/${nombre}-${id}-${Date.now()}.pdf`;
+
+      const { error: errorSubida } = await supabaseClient.storage
+        .from('documentos').upload(nombreArchivo, archivo, { upsert: true });
+
+      if (errorSubida) { await mostrarAviso('Error al subir el certificado.'); console.error(errorSubida); return; }
+
+      const { data: urlPublica } = supabaseClient.storage.from('documentos').getPublicUrl(nombreArchivo);
+
+      const { error: errorGuardado } = await supabaseClient.from(cfg.tabla)
+        .update({ certificado: urlPublica.publicUrl }).eq('id', id);
+
+      if (errorGuardado) { await mostrarAviso('No se pudo guardar el certificado.'); console.error(errorGuardado); return; }
+
+      await supabaseClient.from('certificados_historial').insert({
+        tabla_origen: nombre,
+        fila_id: id,
+        url: urlPublica.publicUrl,
+        nombre_archivo: archivo.name
+      });
+
+      mostrarToast('Certificado subido correctamente ✅', 'exito');
+      cargarTabla(nombre);
+    }
+
+    // ── Eliminar certificado PDF de una fila (solo QHSE) ──
+    async function eliminarCertificado(nombre, id, url) {
+      const confirmado = await confirmarAccion('¿Seguro que quieres eliminar este certificado? Esta acción no se puede deshacer.');
+      if (!confirmado) return;
+
+      const cfg = CONFIG_TABLAS[nombre];
+      const partes = url.split('/documentos/');
+      const rutaArchivo = partes[1];
+
+      if (rutaArchivo) {
+        const { data: dataStorage, error: errorStorage } = await supabaseClient.storage.from('documentos').remove([rutaArchivo]);
+        if (errorStorage) {
+          await mostrarAviso('Error eliminando el archivo del storage: ' + errorStorage.message);
+          console.error('Error eliminando del storage:', errorStorage);
+        } else {
+          console.log('Resultado de eliminar del storage:', dataStorage);
+        }
+      }
+      const { error: errorGuardado } = await supabaseClient.from(cfg.tabla)
+        .update({ certificado: null }).eq('id', id);
+
+      if (errorGuardado) { await mostrarAviso('No se pudo eliminar el certificado de la base de datos.'); console.error(errorGuardado); return; }
+
+      const { error: errorHistorial } = await supabaseClient.from('certificados_historial')
+        .delete()
+        .eq('tabla_origen', nombre)
+        .eq('fila_id', id)
+        .eq('url', url);
+
+      if (errorHistorial) console.error('Error eliminando del historial:', errorHistorial);
+
+      mostrarToast('Certificado eliminado correctamente', 'info');
+      cargarTabla(nombre);
+    }
+
+    // ── Eliminar un certificado puntual del historial ──
+    async function eliminarDelHistorial(nombre, filaId, historialId, url) {
+      const confirmado = await confirmarAccion('¿Seguro que quieres eliminar este certificado del historial? Esta acción no se puede deshacer.');
+      if (!confirmado) return;
+
+      const cfg = CONFIG_TABLAS[nombre];
+      const partes = url.split('/documentos/');
+      const rutaArchivo = partes[1];
+
+      if (rutaArchivo) {
+        const { error: errorStorage } = await supabaseClient.storage.from('documentos').remove([rutaArchivo]);
+        if (errorStorage) console.error('Error eliminando del storage:', errorStorage);
+      }
+
+      const { error: errorHistorial } = await supabaseClient.from('certificados_historial').delete().eq('id', historialId);
+      if (errorHistorial) { await mostrarAviso('No se pudo eliminar del historial.'); console.error(errorHistorial); return; }
+
+      // Si el certificado eliminado era el que estaba activo en la fila, lo quitamos también de ahí
+      const { data: filaActual } = await supabaseClient.from(cfg.tabla).select('certificado').eq('id', filaId).single();
+      if (filaActual && filaActual.certificado === url) {
+        await supabaseClient.from(cfg.tabla).update({ certificado: null }).eq('id', filaId);
+        cargarTabla(nombre);
+      }
+
+      mostrarToast('Certificado eliminado del historial', 'info');
+      verHistorial(nombre, filaId); // Recarga el modal con la lista actualizada
+    }
+
+    // ── Ver historial de certificados de una fila ──
+    async function verHistorial(nombre, id) {
+      document.querySelectorAll('[id^="menu-acciones-"]').forEach(menu => menu.classList.add('hidden'));
+
+      const modal = document.getElementById('modalHistorial');
+      const contenido = document.getElementById('contenidoHistorial');
+      contenido.innerHTML = 'Cargando...';
+      modal.classList.remove('hidden');
+
+      const { data, error } = await supabaseClient.from('certificados_historial')
+        .select('*').eq('tabla_origen', nombre).eq('fila_id', id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        contenido.innerHTML = '<p class="text-red-500 text-xs">No se pudo cargar el historial.</p>';
+        return;
+      }
+      if (!data || data.length === 0) {
+        contenido.innerHTML = '<p class="text-slate-400 text-xs">Aún no hay certificados registrados para esta fila.</p>';
+        return;
+      }
+
+      contenido.innerHTML = data.map(registro => {
+        const fecha = new Date(registro.created_at);
+        const fechaTexto = fecha.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const horaTexto = fecha.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+        const botonEliminar = esQHSE
+          ? `<button onclick="eliminarDelHistorial('${nombre}', '${id}', '${registro.id}', '${registro.url}')"
+               class="text-red-300 hover:text-red-600 flex-shrink-0 px-2" title="Eliminar del historial">
+               <i class="fas fa-trash-can text-xs"></i>
+             </button>`
+          : '';
+        return `<div class="flex items-center gap-3 px-3 py-2 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
+                  <a href="${registro.url}" target="_blank" rel="noopener" class="flex items-center gap-3 flex-1 min-w-0">
+                    <i class="fas fa-file-pdf text-red-500"></i>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-xs font-semibold text-slate-700 truncate">${registro.nombre_archivo || 'Certificado.pdf'}</p>
+                      <p class="text-[10px] text-slate-400">${fechaTexto} · ${horaTexto}</p>
+                    </div>
+                    <i class="fas fa-arrow-up-right-from-square text-slate-300 text-xs"></i>
+                  </a>
+                  ${botonEliminar}
+                </div>`;
+      }).join('');
+    }
+
+    // ── Saludo según la hora del día ──
+    function saludoSegunHora() {
+      const hora = new Date().getHours();
+      if (hora >= 5 && hora < 12) return 'Buenos días';
+      if (hora >= 12 && hora < 19) return 'Buenas tardes';
+      return 'Buenas noches';
+    }
+
+    // ── Sesión y rol ──
+    async function cargarDatos() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) { window.location.href = 'intranet-login.html'; return; }
+
+      const { data: perfil } = await supabaseClient.from('perfiles').select('*').eq('id', session.user.id).single();
+
+      const welcome = document.getElementById('user-welcome');
+      const rolLabel = document.getElementById('user-rol-label');
+      if (perfil) {
+        if (welcome) welcome.innerText = `${saludoSegunHora()}, ${perfil.nombre_completo || 'Usuario'}`;
+        if (rolLabel) rolLabel.innerText = `Miembro del Equipo · ${perfil.rol}`;
+
+        const rolesQHSE = ['QHSE', 'qhse'];
+        esQHSE = rolesQHSE.includes(perfil.rol);
+
+        if (esQHSE) {
+          ['equipos', 'izaje', 'drift'].forEach(t => {
+            const btn = document.getElementById(`btn-editar-instructivo-${t}`);
+            btn.classList.remove('hidden');
+            btn.classList.add('flex');
+          });
+          actualizarBotonesInstructivo();
+          ['equipos', 'izaje', 'drift'].forEach(n => {
+            document.getElementById(`btn-add-${n}`).classList.remove('hidden');
+            document.getElementById(`btn-add-${n}`).classList.add('flex');
+          });
+          document.querySelectorAll('.col-acciones').forEach(el => el.classList.remove('hidden'));
+        }
+      }
+
+      await cargarInstructivo();
+      await cargarTabla('equipos');
+    }
+
+    cargarDatos();
+  </script>
+
+    <div id="footer-componente" class="mt-auto"></div>
+
+</body>
+</html>
