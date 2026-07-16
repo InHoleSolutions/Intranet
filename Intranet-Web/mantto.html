@@ -47,14 +47,20 @@
       text-align: center !important;
       vertical-align: middle !important;
     }
+    /* Alinear a la izquierda las columnas Equipos y Proveedor del Servicio */
+    #panel-equipos thead tr:first-child th:nth-child(2),
+    #panel-equipos tbody td:nth-child(2),
+    #panel-equipos thead tr:first-child th:nth-child(10),
+    #panel-equipos tbody td:nth-child(10) {
+      text-align: left !important;
+    }
     .tab-btn.activa { background: #e31e24; color: #fff; box-shadow: 0 8px 20px -6px rgba(227,30,36,0.5); }
     .tab-btn:not(.activa) { background: #fff; color: #475569; }
     span.celda[contenteditable="true"], input.celda-editable {
       display: block;
       min-height: 1.4em;
       min-width: 50px;
-      background: #fff7f7;
-      border: 1px dashed #f5e7e7;
+      background: #eef8fc;
       border-radius: 6px;
       white-space: nowrap;
     }
@@ -239,34 +245,41 @@
     <section id="panel-izaje" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-sm font-black text-slate-700 uppercase tracking-wide">Accesorios de Izaje</h2>
+        <div class="flex items-center gap-2">
         <button id="btn-add-izaje" onclick="agregarFila('izaje')"
           class="hidden items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
           <i class="fas fa-plus"></i> Agregar
         </button>
+        <button id="btn-historial-izaje" onclick="verHistorialBajas('izaje')"
+          class="hidden items-center gap-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
+          <i class="fas fa-box-archive"></i> Historial
+        </button>
+        </div>
       </div>
       <div class="table-container overflow-x-auto">
         <table class="w-full text-xs sm:text-sm text-left border-collapse">
           <thead>
             <tr class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider">
-              <th class="px-3 py-3 rounded-l-xl" rowspan="2">No.</th>
-              <th class="px-3 py-3" rowspan="2">Herramienta</th>
-              <th class="px-3 py-3" rowspan="2">Tamaño</th>
-              <th class="px-3 py-3" rowspan="2">Serie No.:</th>
-              <th class="px-3 py-3" rowspan="2">No. Certificado</th>
-              <th class="px-3 py-3 text-center" colspan="2">Fechas de</th>
-              <th class="px-3 py-3" rowspan="2">Días restantes</th>
-              <th class="px-3 py-3" rowspan="2">Frecuencia</th>
-              <th class="px-3 py-3" rowspan="2">Certificado</th>
-              <th class="px-3 py-3" rowspan="2">Estado</th>
-              <th class="px-3 py-3 rounded-r-xl text-center col-acciones hidden" rowspan="2">Acciones</th>
-            </tr>
-            <tr class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider">
-              <th class="px-3 py-2 text-center">Fabricación</th>
-              <th class="px-3 py-2 text-center">Vigencia</th>
+              <th class="px-3 py-3 rounded-l-xl">No.</th>
+              <th class="px-3 py-3">Tipo de Accesorio</th>
+              <th class="px-3 py-3">Capacidad (WLL)</th>
+              <th class="px-3 py-3">Longitud</th>
+              <th class="px-3 py-3">N.° Serie</th>
+              <th class="px-3 py-3">Fabricante</th>
+              <th class="px-3 py-3">Fecha de Fabricación</th>
+              <th class="px-3 py-3">Fecha de Puesta en Servicio</th>
+              <th class="px-3 py-3">Último Servicio</th>
+              <th class="px-3 py-3">Próximo Servicio</th>
+              <th class="px-3 py-3">Tipo de Servicio</th>
+              <th class="px-3 py-3">Estado</th>
+              <th class="px-3 py-3">Certificado</th>
+              <th class="px-3 py-3">Observaciones</th>
+              <th class="px-3 py-3">Trazabilidad</th>
+              <th class="px-3 py-3 rounded-r-xl text-center col-acciones hidden">Acciones</th>
             </tr>
           </thead>
           <tbody id="tbody-izaje" class="divide-y divide-slate-100">
-            <tr><td colspan="12" class="text-center text-slate-400 py-6">Cargando...</td></tr>
+            <tr><td colspan="16" class="text-center text-slate-400 py-6">Cargando...</td></tr>
           </tbody>
         </table>
       </div>
@@ -276,10 +289,16 @@
     <section id="panel-drift" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-sm font-black text-slate-700 uppercase tracking-wide">Drift</h2>
+        <div class="flex items-center gap-2">
         <button id="btn-add-drift" onclick="agregarFila('drift')"
           class="hidden items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
           <i class="fas fa-plus"></i> Agregar
         </button>
+        <button id="btn-historial-drift" onclick="verHistorialBajas('drift')"
+          class="hidden items-center gap-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
+          <i class="fas fa-box-archive"></i> Historial
+        </button>
+        </div>
       </div>
       <div class="table-container overflow-x-auto">
         <table class="w-full text-xs sm:text-sm text-left border-collapse">
@@ -357,7 +376,7 @@
   </div>
 
   <!-- ── Modal de confirmación personalizado ── -->
-  <div id="modalConfirmar" class="hidden fixed inset-0 z-[250] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="modalConfirmar" class="hidden fixed inset-0 z-[280] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
       <div class="flex items-center gap-3 mb-4">
         <div class="h-10 w-10 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
@@ -372,6 +391,39 @@
         <button id="btnAceptarConfirmar" class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#e31e24] hover:bg-red-700 transition-colors">
           Eliminar
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal Historial de Bajas ── -->
+  <div id="modalHistorialBajas" class="hidden fixed inset-0 z-[250] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[80vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100">
+        <p class="font-bold text-slate-700 text-sm"><i class="fas fa-box-archive text-slate-400 mr-2"></i>Historial de Bajas</p>
+        <button onclick="document.getElementById('modalHistorialBajas').classList.add('hidden')" class="text-slate-400 hover:text-slate-700">
+          <i class="fas fa-times text-lg"></i>
+        </button>
+      </div>
+      <div id="contenidoHistorialBajas" class="p-5 overflow-y-auto flex-1 text-sm text-slate-600">
+        Cargando...
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal Trazabilidad del Accesorio ── -->
+  <div id="modalTrazabilidad" class="hidden fixed inset-0 z-[250] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-5xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100">
+        <div>
+          <p class="font-bold text-slate-700 text-sm"><i class="fas fa-folder-open text-slate-400 mr-2"></i>Trazabilidad del accesorio</p>
+          <p id="trazabilidadTipo" class="text-xs text-slate-400 mt-1"></p>
+        </div>
+        <button onclick="document.getElementById('modalTrazabilidad').classList.add('hidden')" class="text-slate-400 hover:text-slate-700">
+          <i class="fas fa-times text-lg"></i>
+        </button>
+      </div>
+      <div id="contenidoTrazabilidad" class="p-5 overflow-y-auto flex-1 text-sm text-slate-600">
+        Cargando...
       </div>
     </div>
   </div>
@@ -442,7 +494,7 @@
     async function cargarKPI() {
       const categorias = [
         { nombre: 'Equipos', tabla: 'mantto_equipos_herramientas', campo: 'fecha_vencimiento' },
-        { nombre: 'Izaje',   tabla: 'mantto_izaje',                campo: 'vigencia' },
+        { nombre: 'Izaje',   tabla: 'mantto_izaje',                campo: 'proximo_servicio' },
         { nombre: 'Drift',   tabla: 'mantto_drift',                campo: 'fecha_vencimiento' }
       ];
 
@@ -581,13 +633,14 @@
         tabla: 'mantto_izaje',
         tbody: 'tbody-izaje',
         numerada: true,
-        columnas: ['herramienta', 'tamano', 'no_serie', 'no_certificado', 'fecha_fabricacion', 'vigencia', 'dias_restantes', 'frecuencia', 'certificado', 'estado'],
-        columnasFecha: ['fecha_fabricacion', 'vigencia'],
-        columnaVencimiento: 'vigencia',
-        campoFechaBase: 'fecha_fabricacion',
-        campoVencimiento: 'vigencia',
+        columnas: ['tipo_accesorio', 'capacidad_wll', 'longitud', 'no_serie', 'fabricante', 'fecha_fabricacion', 'fecha_puesta_servicio', 'ultimo_servicio', 'proximo_servicio', 'tipo_servicio', 'estado', 'certificado', 'observaciones', 'trazabilidad'],
+        columnasFecha: ['fecha_fabricacion', 'fecha_puesta_servicio', 'ultimo_servicio', 'proximo_servicio'],
+        columnaVencimiento: 'proximo_servicio',
+        campoFechaBase: 'ultimo_servicio',
+        campoVencimiento: 'proximo_servicio',
         columnasArchivo: ['certificado'],
-        columnasEstado: ['estado']
+        columnasEstado: ['estado'],
+        columnasLista: { tipo_servicio: ['Nuevo', 'Recertificación', 'Mantenimiento'] }
       },
       drift: {
         tabla: 'mantto_drift',
@@ -718,6 +771,7 @@
         const esFechaMes = (cfg.columnasFechaMes || []).includes(col);
         const esArchivo = (cfg.columnasArchivo || []).includes(col);
         const esEstado = (cfg.columnasEstado || []).includes(col);
+        const opcionesLista = (cfg.columnasLista || {})[col];
 
         if (esFechaMes) {
           const valorMes = valor ? valor.slice(0, 7) : '';
@@ -730,20 +784,50 @@
 
         if (esEstado) {
           const valorEstado = valor || 'Disponible';
-          const esBaja = valorEstado === 'Baja';
+          const clasesColor = clasesColorEstado(valorEstado);
 
           if (esQHSE) {
             return `<td class="px-3 py-2">
-                      <select data-col="${col}" onchange="actualizarColorEstado(this); guardarCelda('${nombre}', '${fila.id}', this)"
-                        class="celda-editable px-2 py-1 rounded text-xs font-bold border-none cursor-pointer
-                               ${esBaja ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-700'}">
-                        <option value="Disponible" ${!esBaja ? 'selected' : ''}>Disponible</option>
-                        <option value="Baja" ${esBaja ? 'selected' : ''}>Baja</option>
+                      <select data-col="${col}" data-valor-anterior="${valorEstado}" onchange="onCambioEstado('${nombre}', '${fila.id}', this)"
+                        class="celda-editable px-2 py-1 rounded text-xs font-bold border-none cursor-pointer ${clasesColor}">
+                        <option value="Disponible" ${valorEstado === 'Disponible' ? 'selected' : ''}>Disponible</option>
+                        <option value="Mantto." ${valorEstado === 'Mantto.' ? 'selected' : ''}>Mantto.</option>
+                        <option value="Baja" ${valorEstado === 'Baja' ? 'selected' : ''}>Baja</option>
                       </select>
                     </td>`;
           }
           return `<td class="px-3 py-2 whitespace-nowrap">
-                    <span class="px-2 py-1 rounded-lg text-xs font-bold ${esBaja ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-700'}">${valorEstado}</span>
+                    <span class="px-2 py-1 rounded-lg text-xs font-bold ${clasesColor}">${valorEstado}</span>
+                  </td>`;
+        }
+
+        if (opcionesLista) {
+          const opcionesHTML = opcionesLista.map(op =>
+            `<option value="${op}" ${valor === op ? 'selected' : ''}>${op}</option>`
+          ).join('');
+
+          if (esQHSE) {
+            return `<td class="px-3 py-2">
+                      <select data-col="${col}" onchange="guardarCelda('${nombre}', '${fila.id}', this)"
+                        class="celda-editable px-2 py-1 rounded text-xs cursor-pointer">
+                        <option value="" ${!valor ? 'selected' : ''}>Seleccionar...</option>
+                        ${opcionesHTML}
+                      </select>
+                    </td>`;
+          }
+          return `<td class="px-3 py-2 text-slate-600">${valor}</td>`;
+        }
+
+        if (col === 'trazabilidad') {
+          const tipoAccesorio = (fila.tipo_accesorio || '').replace(/'/g, "\\'");
+          const capacidadWll = (fila.capacidad_wll || '').replace(/'/g, "\\'");
+          const longitudAcc = (fila.longitud || '').replace(/'/g, "\\'");
+          const noSerieAcc = (fila.no_serie || '').replace(/'/g, "\\'");
+          return `<td class="px-3 py-2 text-center">
+                    <button onclick="verTrazabilidad('${fila.id}', '${tipoAccesorio}', '${capacidadWll}', '${longitudAcc}', '${noSerieAcc}')"
+                      class="text-slate-400 hover:text-[#e31e24] transition-colors" title="Ver trazabilidad">
+                      <i class="fas fa-folder-open text-lg"></i>
+                    </button>
                   </td>`;
         }
 
@@ -771,6 +855,23 @@
             : '';
 
           return `<td class="px-3 py-2 text-center whitespace-nowrap">${link}${botonSubir}${botonEliminar}</td>`;
+        }
+
+        if (col === 'observaciones') {
+          if (!valor) {
+            return `<td class="px-3 py-2 text-center"><span class="text-slate-300 text-xs">—</span></td>`;
+          }
+          const contenidoInterno = esQHSE
+            ? `<span contenteditable="true" class="celda block outline-none px-2 py-1 rounded text-left"
+                 data-col="${col}" onblur="guardarCelda('${nombre}', '${fila.id}', this)">${valor}</span>`
+            : `<span class="block text-slate-600 text-xs text-left px-2 py-1">${valor}</span>`;
+
+          return `<td class="px-3 py-2 text-center">
+                    <button onclick="toggleObservacion(this)" class="text-slate-400 hover:text-[#e31e24] transition-colors" title="Ver observación">
+                      <i class="fas fa-comment-dots"></i>
+                    </button>
+                    <div class="hidden mt-1">${contenidoInterno}</div>
+                  </td>`;
         }
 
         if (esFecha) {
@@ -806,6 +907,12 @@
       return `<tr id="fila-${fila.id}">${numero}${celdas}${accion}</tr>`;
     }
 
+    // ── Mostrar/ocultar el texto de una observación ──
+    function toggleObservacion(btn) {
+      const contenedor = btn.nextElementSibling;
+      if (contenedor) contenedor.classList.toggle('hidden');
+    }
+
     // ── Menú de 3 puntitos (Acciones) ──
     function toggleMenuAcciones(evento, id) {
       evento.stopPropagation();
@@ -818,15 +925,121 @@
       document.querySelectorAll('[id^="menu-acciones-"]').forEach(menu => menu.classList.add('hidden'));
     });
 
+    // ── Determina las clases de color según el valor de Estado ──
+    function clasesColorEstado(valorEstado) {
+      if (valorEstado === 'Baja') return 'bg-red-50 text-red-600';
+      if (valorEstado === 'Mantto.') return 'bg-amber-50 text-amber-700';
+      return 'bg-emerald-50 text-emerald-700'; // Disponible
+    }
+
     // ── Cambia el color del select de Estado al instante, sin esperar recarga ──
     function actualizarColorEstado(select) {
-      const esBaja = select.value === 'Baja';
-      select.classList.remove('bg-emerald-50', 'text-emerald-700', 'bg-red-50', 'text-red-600');
-      if (esBaja) {
-        select.classList.add('bg-red-50', 'text-red-600');
-      } else {
-        select.classList.add('bg-emerald-50', 'text-emerald-700');
+      select.classList.remove('bg-emerald-50', 'text-emerald-700', 'bg-red-50', 'text-red-600', 'bg-amber-50', 'text-amber-700');
+      clasesColorEstado(select.value).split(' ').forEach(clase => select.classList.add(clase));
+    }
+
+    // ── Lee todos los valores actuales de una fila (para guardarla en el historial) ──
+    function obtenerDatosFila(filaEl, cfg) {
+      const datos = {};
+      cfg.columnas.forEach(col => {
+        const el = filaEl.querySelector(`[data-col="${col}"]`);
+        if (!el) { datos[col] = null; return; }
+        let valor = (el.tagName === 'INPUT' || el.tagName === 'SELECT') ? el.value : el.textContent.trim();
+        if (el.type === 'month' && valor) valor = `${valor}-01`;
+        datos[col] = valor === '' ? null : valor;
+      });
+      return datos;
+    }
+
+    // ── Maneja el cambio de Estado: si es "Baja", confirma, guarda en historial y elimina la fila ──
+    async function onCambioEstado(nombre, id, select) {
+      const nuevoValor = select.value;
+      const valorAnterior = select.dataset.valorAnterior;
+
+      if (nuevoValor === 'Baja') {
+        const confirmado = await confirmarAccion('¿Seguro que quieres darlo de baja? Esto eliminará la fila de la tabla y se guardará en el Historial.');
+        if (!confirmado) {
+          select.value = valorAnterior;
+          actualizarColorEstado(select);
+          return;
+        }
+
+        const cfg = CONFIG_TABLAS[nombre];
+        const filaEl = document.getElementById(`fila-${id}`);
+        const datosFila = obtenerDatosFila(filaEl, cfg);
+        datosFila.estado = 'Baja';
+
+        const { error: errorHistorial } = await supabaseClient.from('mantto_historial_bajas').insert({
+          tabla_origen: nombre,
+          datos: datosFila
+        });
+        if (errorHistorial) {
+          console.error('Error guardando en historial:', errorHistorial);
+          await mostrarAviso('No se pudo guardar el registro en el historial.');
+          select.value = valorAnterior;
+          actualizarColorEstado(select);
+          return;
+        }
+
+        const { error: errorEliminar } = await supabaseClient.from(cfg.tabla).delete().eq('id', id);
+        if (errorEliminar) {
+          await mostrarAviso('Se guardó en el historial, pero no se pudo eliminar de la tabla. Contacta soporte.');
+          return;
+        }
+
+        filaEl.remove();
+        mostrarToast('Registro dado de baja y guardado en el Historial', 'info');
+        return;
       }
+
+      actualizarColorEstado(select);
+      select.dataset.valorAnterior = nuevoValor;
+      guardarCelda(nombre, id, select);
+    }
+
+    // ── Ver historial de bajas de una tabla ──
+    async function verHistorialBajas(nombre) {
+      const modal = document.getElementById('modalHistorialBajas');
+      const contenido = document.getElementById('contenidoHistorialBajas');
+      contenido.innerHTML = 'Cargando...';
+      modal.classList.remove('hidden');
+
+      const { data, error } = await supabaseClient.from('mantto_historial_bajas')
+        .select('*').eq('tabla_origen', nombre)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        contenido.innerHTML = '<p class="text-red-500 text-xs">No se pudo cargar el historial.</p>';
+        return;
+      }
+      if (!data || data.length === 0) {
+        contenido.innerHTML = '<p class="text-slate-400 text-xs">Aún no hay registros dados de baja.</p>';
+        return;
+      }
+
+      const cfg = CONFIG_TABLAS[nombre];
+      contenido.innerHTML = `
+        <div class="overflow-x-auto">
+        <table class="w-full text-xs border-collapse">
+          <thead>
+            <tr class="bg-slate-50 text-slate-500 uppercase text-[10px]">
+              ${cfg.columnas.map(col => `<th class="px-2 py-2 border border-slate-200 text-left whitespace-nowrap">${col.replace(/_/g, ' ')}</th>`).join('')}
+              <th class="px-2 py-2 border border-slate-200 whitespace-nowrap">Fecha de baja</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map(registro => {
+              const fecha = new Date(registro.created_at);
+              const fechaTexto = fecha.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
+              return `<tr>
+                ${cfg.columnas.map(col => `<td class="px-2 py-1 border border-slate-100 whitespace-nowrap">${registro.datos?.[col] ?? ''}</td>`).join('')}
+                <td class="px-2 py-1 border border-slate-100 whitespace-nowrap">${fechaTexto}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+        </div>
+      `;
     }
 
     // ── Guardar edición de una celda (solo QHSE) ──
@@ -1003,6 +1216,188 @@
       cargarTabla(nombre);
     }
 
+    // ── Ver trazabilidad de un accesorio (izaje) ──
+    async function verTrazabilidad(filaId, tipoAccesorio, capacidadWll, longitudAcc, noSerieAcc) {
+      const modal = document.getElementById('modalTrazabilidad');
+      const contenido = document.getElementById('contenidoTrazabilidad');
+
+      const detalles = [];
+      if (capacidadWll) detalles.push(`WLL: ${capacidadWll}`);
+      if (longitudAcc) detalles.push(`Longitud: ${longitudAcc}`);
+      if (noSerieAcc) detalles.push(`N° Serie: ${noSerieAcc}`);
+
+      let textoTipo = tipoAccesorio ? `Tipo: ${tipoAccesorio}` : '';
+      if (detalles.length) textoTipo += (textoTipo ? ' | ' : '') + detalles.join(' | ');
+
+      document.getElementById('trazabilidadTipo').textContent = textoTipo;
+      contenido.innerHTML = 'Cargando...';
+      modal.classList.remove('hidden');
+      modal.dataset.filaId = filaId;
+
+      await cargarTrazabilidad(filaId);
+    }
+
+    async function cargarTrazabilidad(filaId) {
+      const contenido = document.getElementById('contenidoTrazabilidad');
+      const { data, error } = await supabaseClient.from('mantto_trazabilidad_izaje')
+        .select('*').eq('fila_id', filaId)
+        .order('fecha', { ascending: true });
+
+      if (error) {
+        contenido.innerHTML = '<p class="text-red-500 text-xs">No se pudo cargar la trazabilidad.</p>';
+        console.error(error);
+        return;
+      }
+
+      const filaTabla = (registro) => {
+        const esImagen = registro.documento_url && /\.(jpe?g|png|gif|webp)(\?.*)?$/i.test(registro.documento_url);
+        const doc = registro.documento_url
+          ? (esImagen
+              ? `<a href="${registro.documento_url}" target="_blank" rel="noopener" title="${registro.documento_nombre || 'Ver imagen'}">
+                   <img src="${registro.documento_url}" class="h-8 w-8 object-cover rounded border border-slate-200 inline-block" alt="Documento">
+                 </a>`
+              : `<a href="${registro.documento_url}" target="_blank" rel="noopener" class="text-red-500 hover:text-red-700" title="${registro.documento_nombre || 'Ver documento'}">
+                   <i class="fas fa-file-pdf"></i> PDF
+                 </a>`)
+          : '<span class="text-slate-300 text-xs">—</span>';
+
+        if (!esQHSE) {
+          return `<tr>
+            <td class="px-3 py-2 text-slate-600 whitespace-nowrap">${formatearFecha(registro.fecha)}</td>
+            <td class="px-3 py-2 text-slate-600">${registro.evento || ''}</td>
+            <td class="px-3 py-2 text-slate-600">${registro.descripcion || ''}</td>
+            <td class="px-3 py-2 text-slate-600">${registro.responsable_proveedor || ''}</td>
+            <td class="px-3 py-2 text-center">${doc}</td>
+          </tr>`;
+        }
+
+        return `<tr>
+          <td class="px-2 py-1"><input type="date" value="${registro.fecha || ''}" class="celda-editable px-2 py-1 rounded text-xs w-full"
+              onchange="guardarEventoTrazabilidad('${registro.id}', 'fecha', this.value)"></td>
+          <td class="px-2 py-1">
+            <select class="celda-editable px-2 py-1 rounded text-xs w-full"
+                onchange="guardarEventoTrazabilidad('${registro.id}', 'evento', this.value)">
+              <option value="" ${!registro.evento ? 'selected' : ''}>Seleccionar...</option>
+              ${['Alta accesorio', 'Inspección periódica', 'Recertificación', 'Mantenimiento', 'Baja'].map(op =>
+                `<option value="${op}" ${registro.evento === op ? 'selected' : ''}>${op}</option>`
+              ).join('')}
+            </select>
+          </td>
+          <td class="px-2 py-1"><input type="text" value="${registro.descripcion || ''}" class="celda-editable px-2 py-1 rounded text-xs w-full"
+              onchange="guardarEventoTrazabilidad('${registro.id}', 'descripcion', this.value)"></td>
+          <td class="px-2 py-1">
+            <select class="celda-editable px-2 py-1 rounded text-xs w-full"
+                onchange="guardarEventoTrazabilidad('${registro.id}', 'responsable_proveedor', this.value)">
+              <option value="" ${!registro.responsable_proveedor ? 'selected' : ''}>Seleccionar...</option>
+              ${['HSE', 'Proveedor autorizado'].map(op =>
+                `<option value="${op}" ${registro.responsable_proveedor === op ? 'selected' : ''}>${op}</option>`
+              ).join('')}
+            </select>
+          </td>
+          <td class="px-2 py-1 text-center whitespace-nowrap">
+            ${doc}
+            <button onclick="document.getElementById('input-doc-${registro.id}').click()" class="ml-2 text-slate-400 hover:text-slate-700" title="Subir / reemplazar documento">
+              <i class="fas fa-upload text-xs"></i>
+            </button>
+            <input id="input-doc-${registro.id}" type="file" accept="application/pdf,image/*" class="hidden" onchange="subirDocumentoTrazabilidad('${registro.id}', this)">
+            <button onclick="eliminarEventoTrazabilidad('${registro.id}')" class="ml-2 text-red-300 hover:text-red-600" title="Eliminar evento">
+              <i class="fas fa-trash-can text-xs"></i>
+            </button>
+          </td>
+        </tr>`;
+      };
+
+      const filasHTML = (data || []).map(filaTabla).join('');
+      const botonAgregar = esQHSE
+        ? `<button onclick="agregarEventoTrazabilidad('${filaId}')"
+             class="mt-3 flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
+             <i class="fas fa-plus"></i> Agregar evento
+           </button>`
+        : '';
+
+      contenido.innerHTML = `
+        <div class="overflow-x-auto">
+        <table class="w-full text-xs border-collapse">
+          <thead>
+            <tr class="bg-slate-50 text-slate-500 uppercase text-[10px]">
+              <th class="px-3 py-2 border border-slate-200 text-left">Fecha</th>
+              <th class="px-3 py-2 border border-slate-200 text-left">Evento</th>
+              <th class="px-3 py-2 border border-slate-200 text-left">Descripción</th>
+              <th class="px-3 py-2 border border-slate-200 text-left">Responsable / Proveedor</th>
+              <th class="px-3 py-2 border border-slate-200 text-left">Documento</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filasHTML || `<tr><td colspan="5" class="text-center text-slate-400 py-4">Aún no hay eventos registrados.</td></tr>`}
+          </tbody>
+        </table>
+        </div>
+        ${botonAgregar}
+      `;
+    }
+
+    // ── Agregar un evento de trazabilidad, con la fecha de puesta en servicio precargada (solo QHSE) ──
+    async function agregarEventoTrazabilidad(filaId) {
+      const { data: filaIzaje, error: errorFila } = await supabaseClient
+        .from('mantto_izaje')
+        .select('fecha_puesta_servicio')
+        .eq('id', filaId)
+        .single();
+
+      if (errorFila) console.error('No se pudo obtener la fecha de puesta en servicio:', errorFila);
+
+      const fechaInicial = filaIzaje ? filaIzaje.fecha_puesta_servicio : null;
+
+      const { error } = await supabaseClient.from('mantto_trazabilidad_izaje')
+        .insert({ fila_id: filaId, fecha: fechaInicial });
+      if (error) { await mostrarAviso('No se pudo agregar el evento.'); console.error(error); return; }
+      await cargarTrazabilidad(filaId);
+    }
+
+    // ── Guardar edición de un campo de un evento (solo QHSE) ──
+    async function guardarEventoTrazabilidad(idEvento, campo, valor) {
+      const { error } = await supabaseClient.from('mantto_trazabilidad_izaje')
+        .update({ [campo]: valor === '' ? null : valor }).eq('id', idEvento);
+      if (error) { console.error('Error guardando evento de trazabilidad:', error); }
+    }
+
+    // ── Subir / reemplazar documento (PDF o foto) de un evento (solo QHSE) ──
+    async function subirDocumentoTrazabilidad(idEvento, inputEl) {
+      const archivo = inputEl.files[0];
+      if (!archivo) return;
+
+      const extension = archivo.name.split('.').pop().toLowerCase();
+      const nombreArchivo = `trazabilidad/${idEvento}-${Date.now()}.${extension}`;
+      const { error: errorSubida } = await supabaseClient.storage
+        .from('documentos').upload(nombreArchivo, archivo, { upsert: true });
+
+      if (errorSubida) { await mostrarAviso('Error al subir el documento.'); console.error(errorSubida); return; }
+
+      const { data: urlPublica } = supabaseClient.storage.from('documentos').getPublicUrl(nombreArchivo);
+
+      const { error: errorGuardado } = await supabaseClient.from('mantto_trazabilidad_izaje')
+        .update({ documento_url: urlPublica.publicUrl, documento_nombre: archivo.name }).eq('id', idEvento);
+
+      if (errorGuardado) { await mostrarAviso('No se pudo guardar el documento.'); console.error(errorGuardado); return; }
+
+      mostrarToast('Documento subido correctamente ✅', 'exito');
+      const filaId = document.getElementById('modalTrazabilidad').dataset.filaId;
+      await cargarTrazabilidad(filaId);
+    }
+
+    // ── Eliminar un evento de trazabilidad (solo QHSE) ──
+    async function eliminarEventoTrazabilidad(idEvento) {
+      const confirmado = await confirmarAccion('¿Seguro que quieres eliminar este evento de trazabilidad? Esta acción no se puede deshacer.');
+      if (!confirmado) return;
+
+      const { error } = await supabaseClient.from('mantto_trazabilidad_izaje').delete().eq('id', idEvento);
+      if (error) { await mostrarAviso('No se pudo eliminar el evento.'); console.error(error); return; }
+
+      mostrarToast('Evento eliminado correctamente', 'info');
+      const filaId = document.getElementById('modalTrazabilidad').dataset.filaId;
+      await cargarTrazabilidad(filaId);
+    }
+
     // ── Eliminar certificado PDF de una fila (solo QHSE) ──
     async function eliminarCertificado(nombre, id, url) {
       const confirmado = await confirmarAccion('¿Seguro que quieres eliminar este certificado? Esta acción no se puede deshacer.');
@@ -1146,6 +1541,10 @@
           ['equipos', 'izaje', 'drift'].forEach(n => {
             document.getElementById(`btn-add-${n}`).classList.remove('hidden');
             document.getElementById(`btn-add-${n}`).classList.add('flex');
+          });
+          ['izaje', 'drift'].forEach(n => {
+            const btnHist = document.getElementById(`btn-historial-${n}`);
+            if (btnHist) { btnHist.classList.remove('hidden'); btnHist.classList.add('flex'); }
           });
           document.querySelectorAll('.col-acciones').forEach(el => el.classList.remove('hidden'));
         }

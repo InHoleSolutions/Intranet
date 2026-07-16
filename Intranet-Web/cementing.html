@@ -622,23 +622,23 @@
 
             <!-- Pestañas de pasos -->
             <div class="hidden sm:flex flex-nowrap border-b border-slate-100 px-8 gap-1">
-                <button onclick="irPaso(1)" id="tab-1" class="tab-btn active px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
-                    1. Logística y Tiempos
+                <button onclick="irPaso(4)" id="tab-4" class="tab-btn active px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
+                    1. Datos de Pozo
                 </button>
-                <button onclick="irPaso(2)" id="tab-2" class="tab-btn px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
-                    2. Inventario
+                <button onclick="irPaso(1)" id="tab-1" class="tab-btn px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
+                    2. Logística y Tiempos
                 </button>
                 <button onclick="irPaso(3)" id="tab-3" class="tab-btn px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
                     3. Datos Técnicos
                 </button>
-                <button onclick="irPaso(4)" id="tab-4" class="tab-btn px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
-                    4. Datos de Pozo
+                <button onclick="irPaso(2)" id="tab-2" class="tab-btn px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
+                    4. Inventario
                 </button>
                 <button onclick="irPaso(5)" id="tab-5" class="tab-btn px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
                     5. Gestión QHSE
                 </button>
                 <button onclick="irPaso(6)" id="tab-6" class="tab-btn px-3 py-2 text-xs text-slate-500 whitespace-nowrap transition-all">
-                    6. Formatos
+                    6. Soporte Documental/Operación
                 </button>
             </div>
 
@@ -646,12 +646,12 @@
             <div class="sm:hidden px-8 py-2 border-b border-slate-100">
                 <select id="tab-select-mobile" onchange="irPaso(parseInt(this.value))"
                     class="w-full px-3 py-2 text-sm font-semibold border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-200">
-                    <option value="1">1. Logística y Tiempos</option>
-                    <option value="2">2. Inventario</option>
+                    <option value="4">1. Datos de Pozo</option>
+                    <option value="1">2. Logística y Tiempos</option>
                     <option value="3">3. Datos Técnicos</option>
-                    <option value="4">4. Datos de Pozo</option>
+                    <option value="2">4. Inventario</option>
                     <option value="5">5. Gestión QHSE</option>
-                    <option value="6">6. Formatos</option>
+                    <option value="6">6. Soporte Documental/Operación</option>
                 </select>
             </div>
 
@@ -779,16 +779,7 @@
                     <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Catálogo de Herramientas</p>
                     <input id="buscador-catalogo" type="text" placeholder="Buscar herramienta..." onkeyup="filtrarCatalogo()" class="px-3 py-1.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200 w-full sm:w-52">
                 </div>
-                <div class="flex items-center gap-2 mb-4">
-                    <button id="btn-tab-cementing" onclick="cambiarCatalogo('cementing')"
-                        class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all bg-[#e31e24] text-white">
-                        Cementing
-                    </button>
-                    <button id="btn-tab-cased-hole" onclick="cambiarCatalogo('cased_hole')"
-                        class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-500 hover:bg-slate-200">
-                        Cased Hole Completions
-                    </button>
-                </div>
+
                 <div class="hidden sm:block overflow-x-auto rounded-xl border border-slate-200 mb-6" style="max-height:280px; overflow-y:auto;">
                     <table class="w-full text-xs">
                         <thead class="sticky top-0 z-10">
@@ -1047,13 +1038,13 @@
                     </div>
                     <div>
                         <div class="flex items-center justify-between mb-1.5">
-                            <label class="block text-xs font-semibold text-slate-500">Nose/Crown Material (Drill Bit)</label>
+                            <label class="block text-xs font-semibold text-slate-500">Nose/Crown Material (Drill Bit/Reamer)</label>
                             <label class="flex items-center gap-2 cursor-pointer select-none">
                                 <input type="checkbox" id="f-nose-crown-material-na" class="w-4 h-4 accent-slate-400" onchange="toggleCampoNA(this.checked, 'f-nose-crown-material')">
                                 <span class="text-xs font-semibold text-slate-400">No aplica</span>
                             </label>
                         </div>
-                        <input id="f-nose-crown-material" type="text" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
+                        <input id="f-nose-crown-material" type="text" placeholder="Nota: Material de la Corona" class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-200">
                     </div>
 
                     <div class="sm:col-start-2">
@@ -3056,7 +3047,7 @@
         herramientasSeleccionadas = [];
         limpiarFormulario();
         renderEvaluacionCalidad();
-        irPaso(1);
+        irPaso(4);
         renderizarSeleccionadas();
 
         if (id) {
@@ -3398,7 +3389,7 @@
     // ── INVENTARIO DE HERRAMIENTAS ──
     let catalogoHerramientas = [];
     let herramientasSeleccionadas = [];
-    let catalogoTablaActiva = 'cementing'; // 'cementing' o 'cased_hole'
+    let catalogoTablaActiva = 'unificado';
 
     // ── HERRAMIENTAS DE POZO (dinámicas, paso 4) ──
     let herramientasPozo = [''];   // arranca con 1 campo vacío
@@ -3444,43 +3435,15 @@
     }
 
     const TABLAS_CATALOGO = {
-        cementing:  'cementing_catalogo_herramientas',
-        cased_hole: 'cased_hole_catalogo_herramientas'
+        unificado: 'catalogo_herramientas'
     };
 
-    // Relaciona el valor guardado en "línea de producto" con la tabla de catálogo correspondiente
-    const LINEA_A_CATALOGO = {
-        'Cementing': 'cementing',
-        'Cased Hole Completions': 'cased_hole'
-        // 'Flow Control & Gas Lift' y 'Servicios' aún no tienen catálogo propio,
-        // por eso caen en "cementing" por defecto (ver función de abajo).
-    };
-
-    function pintarBotonesCatalogo(tipo, mostrarAmbas = true) {
-        const btnCem = document.getElementById('btn-tab-cementing');
-        const btnCH  = document.getElementById('btn-tab-cased-hole');
-        const activo   = 'px-4 py-1.5 rounded-xl text-xs font-bold transition-all bg-[#e31e24] text-white';
-        const inactivo = 'px-4 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-500 hover:bg-slate-200';
-        btnCem.className = (tipo === 'cementing')  ? activo : inactivo;
-        btnCH.className  = (tipo === 'cased_hole') ? activo : inactivo;
-
-        // Si la línea tiene catálogo propio (Cementing / Cased Hole), solo se ve ese botón.
-        // Si no tiene catálogo propio (Flow Control & Gas Lift, Servicios, etc.),
-        // se muestran ambos botones para poder elegir de cuál integrar herramientas.
-        if (mostrarAmbas) {
-            btnCem.classList.remove('hidden');
-            btnCH.classList.remove('hidden');
-        } else {
-            btnCem.classList.toggle('hidden', tipo !== 'cementing');
-            btnCH.classList.toggle('hidden', tipo !== 'cased_hole');
-        }
+    function pintarBotonesCatalogo() {
+        // Ya no hay pestañas por categoría: el catálogo es único.
     }
 
     function sincronizarCatalogoConLinea(linea) {
-        const tipo = LINEA_A_CATALOGO[linea] || 'cementing';
-        const tieneCatalogoPropio = LINEA_A_CATALOGO.hasOwnProperty(linea);
-        catalogoTablaActiva = tipo;
-        pintarBotonesCatalogo(tipo, !tieneCatalogoPropio);
+        // El catálogo ya no depende de la línea de producto: siempre es el mismo.
         cargarCatalogo();
     }
 
@@ -3489,10 +3452,22 @@
             const tabla = TABLAS_CATALOGO[catalogoTablaActiva];
             const res = await fetch(`${SUPABASE_URL}/rest/v1/${tabla}?order=numero.asc`, { headers });
             catalogoHerramientas = await res.json();
-            renderizarCatalogo(catalogoHerramientas);
+            mostrarPlaceholderCatalogo();
         } catch(e) {
             console.error('Error cargando catálogo:', e);
         }
+    }
+
+    function mostrarPlaceholderCatalogo() {
+        const tbody = document.getElementById('tabla-catalogo');
+        const cards = document.getElementById('cards-catalogo');
+        if (!tbody || !cards) return;
+        const mensaje = `
+            <i class="fas fa-magnifying-glass text-2xl mb-2 block text-slate-300"></i>
+            Escribe para buscar una herramienta en el catálogo.
+        `;
+        tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-10 text-center text-slate-400">${mensaje}</td></tr>`;
+        cards.innerHTML = `<p class="text-center text-slate-400 py-6 text-sm">${mensaje}</p>`;
     }
 
     let tipoCatalogoPendiente = null;
@@ -3584,7 +3559,13 @@
     }
 
     function filtrarCatalogo() {
-        const q = document.getElementById('buscador-catalogo').value.toLowerCase();
+        const q = document.getElementById('buscador-catalogo').value.trim().toLowerCase();
+
+        if (!q) {
+            mostrarPlaceholderCatalogo();
+            return;
+        }
+
         const filtradas = catalogoHerramientas.filter(h =>
             h.np.toLowerCase().includes(q) || h.descripcion.toLowerCase().includes(q)
         );
@@ -3960,6 +3941,67 @@
         }
     }
 
+    // ── QHSE: DETECTAR CRITERIOS BAJOS EN LA EVALUACIÓN DE CALIDAD ──
+    const NIVELES_ALERTA_CALIDAD = [1, 2, 3]; // Deficiente, Regular, Satisfactorio
+    const NIVEL_TEXTO_CALIDAD = ['Deficiente', 'Regular', 'Satisfactorio', 'Bueno', 'Excelente'];
+
+    function detectarCriteriosBajos(evaluacionCalidad) {
+        if (!evaluacionCalidad) return [];
+        const bajos = [];
+        CRITERIOS_CALIDAD.forEach(c => {
+            const nivel = evaluacionCalidad[c.id];
+            if (nivel && NIVELES_ALERTA_CALIDAD.includes(nivel)) {
+                bajos.push({
+                    criterio: c.id,
+                    nombre: c.nombre,
+                    nivel: nivel,
+                    nivel_texto: NIVEL_TEXTO_CALIDAD[nivel - 1]
+                });
+            }
+        });
+        return bajos;
+    }
+
+    // ── QHSE: SINCRONIZAR ALERTA DE CALIDAD PARA SEGUIMIENTO ──
+    async function sincronizarAlertaCalidad(op) {
+        const criteriosBajos = detectarCriteriosBajos(op.evaluacion_calidad);
+        if (criteriosBajos.length === 0) return; // nada bajo, no se genera alerta
+
+        try {
+            // ¿Ya existe una alerta pendiente para esta operación?
+            const resExistente = await fetch(
+                `${SUPABASE_URL}/rest/v1/qhse_alertas_calidad?operacion_id=eq.${op.id}&estatus=eq.pendiente&select=id`,
+                { headers }
+            );
+            const existentes = await resExistente.json();
+
+            if (Array.isArray(existentes) && existentes.length > 0) {
+                // Ya hay una alerta abierta para esta operación: solo refrescamos el detalle
+                await fetch(`${SUPABASE_URL}/rest/v1/qhse_alertas_calidad?id=eq.${existentes[0].id}`, {
+                    method: 'PATCH',
+                    headers: { ...headers, 'Prefer': 'return=minimal' },
+                    body: JSON.stringify({ criterios_bajos: criteriosBajos })
+                });
+            } else {
+                // No hay alerta abierta: creamos una nueva (esto disparará el webhook de correo en el Paso 3)
+                await fetch(`${SUPABASE_URL}/rest/v1/qhse_alertas_calidad`, {
+                    method: 'POST',
+                    headers: { ...headers, 'Prefer': 'return=minimal' },
+                    body: JSON.stringify({
+                        operacion_id:     op.id,
+                        job_id:           op.job_id || null,
+                        nombre_pozo:      op.nombre_pozo || null,
+                        criterios_bajos:  criteriosBajos,
+                        estatus:          'pendiente',
+                        creado_por:       usuarioId
+                    })
+                });
+            }
+        } catch (e) {
+            console.error('Error al sincronizar alerta de calidad:', e);
+        }
+    }
+
     // ── GUARDAR EN SUPABASE ──
     async function guardarOperacion(finalizar = false) {
         const btnGuardar = document.getElementById('btn-guardar');
@@ -4113,6 +4155,9 @@
 
                 // ── QHSE: sincronizar folio NC si aplica ──
                 if (data[0]) await sincronizarNoConformidad(data[0]);
+
+                // ── QHSE: sincronizar alerta de calidad si hay criterios bajos ──
+                if (data[0]) await sincronizarAlertaCalidad(data[0]);
 
                 // Guardar herramientas y bitácora ligadas al ID de la operación
                 await guardarHerramientas(opId);
@@ -5201,14 +5246,8 @@
             );
             const data = await res.json();
 
-            // La pestaña del catálogo debe quedarse en el mismo origen
-            // (Cementing / Cased Hole) en el que se guardaron las herramientas,
-            // sin importar el texto libre de "Línea de Producto" del paso 3.
-            if (data.length && data[0].catalogo_origen && data[0].catalogo_origen !== catalogoTablaActiva) {
-                catalogoTablaActiva = data[0].catalogo_origen;
-                pintarBotonesCatalogo(catalogoTablaActiva, true);
-                await cargarCatalogo();
-            }
+            // El catálogo ya es único: no hace falta cambiar de tabla
+            // según el origen histórico de la herramienta.
 
             // Resetea el estado
             herramientasSeleccionadas = [];
@@ -5224,8 +5263,8 @@
             });
 
             renderizarSeleccionadas();
-            // Refresca el catálogo para que muestre botones "Agregada" correctamente
-            renderizarCatalogo(catalogoHerramientas);
+            // Refresca el catálogo (oculto por defecto, aparece al buscar)
+            mostrarPlaceholderCatalogo();
 
         } catch(e) {
             console.error('Error cargando herramientas en formulario:', e);
