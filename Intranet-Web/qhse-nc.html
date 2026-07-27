@@ -126,6 +126,12 @@
             <p id="d-comentarios" class="text-sm text-slate-600 leading-relaxed"></p>
           </div>
 
+          <!-- Evidencia -->
+          <div>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Evidencia (Fotos o Documentos)</p>
+            <div id="d-evidencia" class="flex flex-col gap-2 text-sm"></div>
+          </div>
+
           <!-- Safety Alert Cards -->
           <div>
             <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Safety Alert Cards</p>
@@ -172,7 +178,7 @@
 
   <script>
     const SUPABASE_URL = 'https://bgqlvkvlscujikhzzazf.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJncWx2a3Zsc2N1amlraHp6YXpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NzA0OTQsImV4cCI6MjA5NDM0NjQ5NH0.RuNCaTgjTN1mTA6kkjfXwz05epUYzARqGj8L3I2v350';
+    const SUPABASE_KEY = 'sb_publishable_S5G17esnd47Gw9hO3rTfbA_cTxVtG-P';
     const headers = {
       'Content-Type': 'application/json',
       'apikey': SUPABASE_KEY,
@@ -214,9 +220,30 @@
     function mostrarInicio() { window.location.href = "dashboard.html"; }
     async function cerrarSesion() { await supabaseClient.auth.signOut(); window.location.href = "../index.html"; }
 
+    let intervaloLatido = null;
+
+    function iniciarLatido(userId) {
+      if (intervaloLatido) return;
+
+      const enviarLatido = () => {
+        if (document.visibilityState === 'visible') {
+          supabaseClient
+            .from('perfiles')
+            .update({ ultima_actividad: new Date().toISOString() })
+            .eq('id', userId)
+            .then(() => {})
+            .catch(() => {}); // Si falla un latido por red, no pasa nada — se reintenta en 30s
+        }
+      };
+
+      enviarLatido();
+      intervaloLatido = setInterval(enviarLatido, 30000);
+    }
+
     async function verificarAcceso() {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) { window.location.href = "intranet-login.html"; return; }
+      iniciarLatido(session.user.id);
 
       const { data: perfil } = await supabaseClient
         .from('perfiles').select('rol, nombre_completo').eq('id', session.user.id).single();
@@ -329,6 +356,15 @@
       document.getElementById('d-descripcion').textContent = f.nc_descripcion || '-';
       document.getElementById('d-accion').textContent      = f.nc_accion || '-';
       document.getElementById('d-comentarios').textContent = f.nc_comentarios || '-';
+
+      // Evidencia
+      const evidencia = Array.isArray(f.nc_evidencia) ? f.nc_evidencia : [];
+      document.getElementById('d-evidencia').innerHTML = evidencia.length
+        ? evidencia.map(doc => `
+            <a href="${doc.url}" target="_blank" class="flex items-center gap-2 text-blue-600 hover:underline">
+              <i class="fas fa-paperclip"></i>${doc.nombre}
+            </a>`).join('')
+        : '<span class="text-slate-400">Sin evidencia cargada</span>';
 
       // Safety Alert Cards
       const ids = Array.isArray(f.safety_cards_ids) ? f.safety_cards_ids : [];

@@ -139,40 +139,44 @@
     <div class="absolute inset-0 pointer-events-none" style="background-image:repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(255,255,255,.03) 60px),repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(255,255,255,.03) 60px);"></div>
     <!-- Acento radial -->
     <div class="absolute -top-20 -right-16 w-[400px] h-[400px] pointer-events-none" style="background:radial-gradient(circle,rgba(200,24,30,.3) 0%,transparent 70%);"></div>
-    <div class="max-w-[1440px] mx-auto relative z-10 flex flex-col gap-4">
-        <!-- Badge -->
-        <div class="inline-flex items-center gap-2 w-fit px-[0.85rem] py-[0.3rem] rounded-full border" style="background:rgba(200,24,30,.25);border-color:rgba(200,24,30,.5);">
-        <i class="fas fa-certificate text-[9px] text-red-300"></i>
-        <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-red-300" style="font-family:'Barlow Condensed',sans-serif;">Certificados de Conformidad</span>
+    <div class="max-w-[1440px] mx-auto relative z-10 flex items-center justify-between gap-10 flex-wrap">
+        <!-- Columna izquierda: texto -->
+        <div class="flex flex-col gap-4 max-w-[560px]">
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-2 w-fit px-[0.85rem] py-[0.3rem] rounded-full border" style="background:rgba(200,24,30,.25);border-color:rgba(200,24,30,.5);">
+            <i class="fas fa-certificate text-[9px] text-red-300"></i>
+            <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-red-300" style="font-family:'Barlow Condensed',sans-serif;">Certificados de Conformidad</span>
+            </div>
+            <!-- Título -->
+            <h1 class="text-white leading-none" style="font-family:'Rajdhani',sans-serif;font-size:clamp(2.4rem,5vw,4.2rem);font-weight:700;">
+            Gestión de<br><span class="text-[#c8181e]">Certificados COC</span>
+            </h1>
+            <!-- Subtítulo -->
+            <p class="text-sm font-light max-w-[520px] leading-[1.65]" style="color:rgba(255,255,255,.55);">
+            Captura, registra y administra los Certificados de Conformidad (COC) de manera centralizada.
+            </p>
         </div>
-        <!-- Título -->
-        <h1 class="text-white leading-none" style="font-family:'Rajdhani',sans-serif;font-size:clamp(2.4rem,5vw,4.2rem);font-weight:700;">
-        Gestión de<br><span class="text-[#c8181e]">Certificados COC</span>
-        </h1>
-        <!-- Subtítulo -->
-        <p class="text-sm font-light max-w-[520px] leading-[1.65]" style="color:rgba(255,255,255,.55);">
-        Captura, registra y administra los Certificados de Conformidad (COC) de manera centralizada.
-        </p>
-        <!-- Stats -->
-        <div class="flex gap-8 mt-2 flex-wrap">
-        <div class="flex flex-col gap-[2px]">
-            <span class="text-white leading-none text-[1.8rem] font-bold" style="font-family:'Rajdhani',sans-serif;" id="stat-total">—</span>
-            <span class="text-[10px] font-semibold tracking-[0.15em] uppercase" style="color:rgba(255,255,255,.4);">Registros Totales</span>
-        </div>
-        <div class="w-px self-stretch" style="background:rgba(255,255,255,.1);"></div>
-        <div class="flex flex-col gap-[2px]">
-            <span class="text-white leading-none text-[1.8rem] font-bold" style="font-family:'Rajdhani',sans-serif;" id="stat-today">—</span>
-            <span class="text-[10px] font-semibold tracking-[0.15em] uppercase" style="color:rgba(255,255,255,.4);">Registrados Hoy</span>
-        </div>
-        <div class="w-px self-stretch" style="background:rgba(255,255,255,.1);"></div>
-        <div class="flex flex-col gap-[2px]">
-            <span class="text-white leading-none text-[1.8rem] font-bold" style="font-family:'Rajdhani',sans-serif;">
-                <span id="stat-completos" style="color:#16a34a;">—</span>
-                <span style="color:rgba(255,255,255,.3);font-weight:400;">·</span>
-                <span id="stat-incompletos" style="color:#ca8a04;">—</span>
-            </span>
-            <span class="text-[10px] font-semibold tracking-[0.15em] uppercase" style="color:rgba(255,255,255,.4);">Completos · Incompletos</span>
-        </div>
+        <!-- Columna derecha: panel de vidrio con estadísticas -->
+        <div class="flex items-stretch rounded-[18px] border" style="background:rgba(255,255,255,.045);border-color:rgba(255,255,255,.1);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 8px 30px rgba(0,0,0,.25);">
+            <div class="flex flex-col items-center justify-center gap-2 px-7 py-6">
+                <i class="fas fa-layer-group text-[13px]" style="color:rgba(255,255,255,.35);"></i>
+                <span class="text-white leading-none text-[1.9rem] font-bold" style="font-family:'Rajdhani',sans-serif;" id="stat-total">—</span>
+                <span class="text-[10px] font-semibold tracking-[0.15em] uppercase text-center" style="color:rgba(255,255,255,.4);">Registros<br>Totales</span>
+            </div>
+            <div class="w-px my-6" style="background:rgba(255,255,255,.1);"></div>
+            <div class="flex flex-col items-center justify-center gap-2 px-7 py-6">
+                <i class="fas fa-calendar-day text-[13px]" style="color:rgba(255,255,255,.35);"></i>
+                <span class="text-white leading-none text-[1.9rem] font-bold" style="font-family:'Rajdhani',sans-serif;" id="stat-today">—</span>
+                <span class="text-[10px] font-semibold tracking-[0.15em] uppercase text-center" style="color:rgba(255,255,255,.4);">Registrados<br>Hoy</span>
+            </div>
+            <div class="w-px my-6" style="background:rgba(255,255,255,.1);"></div>
+            <div class="flex flex-col items-center justify-center gap-2 px-7 py-6">
+                <i class="fas fa-chart-pie text-[13px]" style="color:rgba(255,255,255,.35);"></i>
+                <span class="text-[1.9rem] font-bold leading-none" style="font-family:'Rajdhani',sans-serif;">
+                    <span id="stat-completos" style="color:#16a34a;">—</span><span style="color:rgba(255,255,255,.3);font-weight:400;"> · </span><span id="stat-incompletos" style="color:#ca8a04;">—</span>
+                </span>
+                <span class="text-[10px] font-semibold tracking-[0.15em] uppercase text-center" style="color:rgba(255,255,255,.4);">Completos ·<br>Incompletos</span>
+            </div>
         </div>
     </div>
   </section>
@@ -308,7 +312,7 @@
     const { createClient } = supabase;
     const sb = createClient(
       'https://bgqlvkvlscujikhzzazf.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJncWx2a3Zsc2N1amlraHp6YXpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NzA0OTQsImV4cCI6MjA5NDM0NjQ5NH0.RuNCaTgjTN1mTA6kkjfXwz05epUYzARqGj8L3I2v350'
+      'sb_publishable_S5G17esnd47Gw9hO3rTfbA_cTxVtG-P'
     );
     const TABLE = 'coc_registros';
     let rowCount = 0;
@@ -379,6 +383,7 @@
         window.location.href = 'intranet-login.html'; 
         return; 
       }
+      iniciarLatido(session.user.id);
 
       const { data: perfil } = await sb.from('perfiles').select('*').eq('id', session.user.id).single();
       if (perfil) {
@@ -407,7 +412,7 @@
           ${Array(13).fill('').map(() => `<td><div class="skeleton-cell" style="width:${60+Math.random()*40}%"></div></td>`).join('')}
         </tr>`).join('');
 
-      const { data, error } = await sb.from(TABLE).select('*').order('created_at', { ascending: true });
+      const { data, error } = await sb.from(TABLE).select('*').order('created_at', { ascending: false });
       tbody.innerHTML = ''; // limpiar skeleton
       if (error) {
         document.getElementById('info-conexion').textContent = 'Error de conexión';
@@ -419,9 +424,9 @@
       const hoyStr = new Date().toISOString().slice(0, 10);
       let todayCount = 0;
 
-      data.forEach(row => {
+      data.forEach((row, idx) => {
         const subfilasDelRegistro = todasSubfilas?.filter(sf => sf.registro_id === row.id) || [];
-        crearFila(row, subfilasDelRegistro);
+        crearFila(row, subfilasDelRegistro, data.length - idx);
         if (row.created_at && row.created_at.slice(0, 10) === hoyStr) todayCount++;
       });
 
@@ -434,8 +439,9 @@
     }
     function escAttr(s) { return String(s || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 
-    function crearFila(data = {}, subfilas = []) {
+    function crearFila(data = {}, subfilas = [], numeroManual = null) {
       rowCount++;
+      const numeroFila = numeroManual !== null ? numeroManual : rowCount;
       const tbody = document.getElementById('coc-tbody');
       const tr = document.createElement('tr');
       tr.dataset.id = data.id || '';
@@ -458,7 +464,7 @@
       const badgeSub = numSubfilas > 0
         ? `<span style="display:inline-block;margin-left:4px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:20px;padding:1px 7px;font-size:10px;color:#64748b;">+${numSubfilas}</span>`
         : '';
-      let html = `<td style="padding-left:1.5rem;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--muted);">${rowCount}${badgeSub}</td>`;
+      let html = `<td style="padding-left:1.5rem;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--muted);">${numeroFila}${badgeSub}</td>`;
       cols.forEach(col => {
         const val = escAttr(data[col.key] || col.default || '');
         if (col.addBtn) {
@@ -554,9 +560,14 @@
 
     function agregarFila() {
       crearFila();
-      const filas = document.querySelectorAll('#coc-tbody tr');
-      const ultima = filas[filas.length - 1];
-      if (ultima) { const inp = ultima.querySelector('input'); if (inp) inp.focus(); }
+      const tbody = document.getElementById('coc-tbody');
+      const filas = tbody.querySelectorAll('tr');
+      const nueva = filas[filas.length - 1]; // la fila recién creada (siempre se crea al final)
+      if (nueva) {
+        tbody.insertBefore(nueva, tbody.firstChild); // la movemos hasta arriba
+        const inp = nueva.querySelector('input');
+        if (inp) inp.focus();
+      }
     }
 
     function agregarSubfila(btn) {
@@ -789,6 +800,11 @@
     async function generarPDF(btn) {
       const { jsPDF } = window.jspdf;
       const tr = btn.closest('tr');
+
+      if (tr.classList.contains('fila-incompleta')) {
+        showToast('Completa todos los campos antes de generar el PDF', 'error');
+        return;
+      }
 
       // Leer datos de la fila
       const get = (key) => tr.querySelector(`input[data-key="${key}"]`)?.value?.trim() || '';
@@ -1209,6 +1225,25 @@
         await sb.from('coc_subfilas').insert(subfilasData);
       }
       showToast('Subfila eliminada');
+    }
+
+    let intervaloLatido = null;
+
+    function iniciarLatido(userId) {
+      if (intervaloLatido) return;
+
+      const enviarLatido = () => {
+        if (document.visibilityState === 'visible') {
+          sb.from('perfiles')
+            .update({ ultima_actividad: new Date().toISOString() })
+            .eq('id', userId)
+            .then(() => {})
+            .catch(() => {}); // Si falla un latido por red, no pasa nada — se reintenta en 30s
+        }
+      };
+
+      enviarLatido();
+      intervaloLatido = setInterval(enviarLatido, 30000);
     }
 
     async function cerrarSesion() {

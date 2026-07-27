@@ -449,7 +449,7 @@
 const { createClient } = supabase;
 const supabaseClient = createClient(
   'https://bgqlvkvlscujikhzzazf.supabase.co',
-  'sb_publishable_mzHMY11jZ7OaMES008LTzA_d7Ya1A2g'
+  'sb_publishable_S5G17esnd47Gw9hO3rTfbA_cTxVtG-P'
 );
 let _urlsActuales = [];
 let _datosReportesActuales = [];
@@ -473,6 +473,26 @@ const MESES = [
 // Estado de navegación
 let estadoActual = { mes: null, anio: null };
 
+let intervaloLatido = null;
+
+function iniciarLatido(userId) {
+  if (intervaloLatido) return;
+
+  const enviarLatido = () => {
+        if (document.visibilityState === 'visible') {
+          supabaseClient
+            .from('perfiles')
+            .update({ ultima_actividad: new Date().toISOString() })
+            .eq('id', userId)
+            .then(() => {})
+            .catch(() => {}); // Si falla un latido por red, no pasa nada — se reintenta en 30s
+        }
+      };
+
+  enviarLatido();
+  intervaloLatido = setInterval(enviarLatido, 30000);
+}
+
 /* ─── INICIO ─── */
 async function init() {
   const res = await fetch('header.html');
@@ -480,6 +500,7 @@ async function init() {
   document.getElementById('site-header').innerHTML = html;
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) { window.location.href = 'intranet-login.html'; return; }
+  iniciarLatido(session.user.id);
 
   // Cargar footer
   const footerRes = await fetch('footer.html');

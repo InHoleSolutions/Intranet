@@ -21,6 +21,7 @@
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:,">
   <style>
     body { font-family: 'Inter', sans-serif; }
     @media (min-width: 1024px) {
@@ -219,7 +220,7 @@
     const { createClient } = supabase;
     const supabaseClient = createClient(
       'https://bgqlvkvlscujikhzzazf.supabase.co',
-      'sb_publishable_mzHMY11jZ7OaMES008LTzA_d7Ya1A2g'
+      'sb_publishable_S5G17esnd47Gw9hO3rTfbA_cTxVtG-P'
     );
 
     fetch('header.html')
@@ -282,6 +283,7 @@
       document.getElementById('site-header').innerHTML = html;
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) { window.location.href = 'intranet-login.html'; return; }
+      iniciarLatido(session.user.id);
 
       const { data: perfil } = await supabaseClient.from('perfiles').select('*').eq('id', session.user.id).single();
       if (perfil) {
@@ -311,6 +313,26 @@
     }
 
     async function cerrarSesion() { await supabaseClient.auth.signOut(); window.location.href = '../index.html'; }
+
+    let intervaloLatido = null;
+
+    function iniciarLatido(userId) {
+      if (intervaloLatido) return;
+
+      const enviarLatido = () => {
+        if (document.visibilityState === 'visible') {
+          supabaseClient
+            .from('perfiles')
+            .update({ ultima_actividad: new Date().toISOString() })
+            .eq('id', userId)
+            .then(() => {})
+            .catch(() => {}); // Si falla un latido por red, no pasa nada — se reintenta en 30s
+        }
+      };
+
+      enviarLatido();
+      intervaloLatido = setInterval(enviarLatido, 30000);
+    }
 
     async function cargarPoliticas() {
       const grid = document.getElementById('grid-politicas');

@@ -478,6 +478,8 @@
             <span id="punto-0" class="h-2 w-2 rounded-full bg-green-600 transition-all"></span>
             <span id="punto-1" class="h-2 w-2 rounded-full bg-slate-200 transition-all"></span>
             <span id="punto-2" class="h-2 w-2 rounded-full bg-slate-200 transition-all"></span>
+            <span id="punto-3" class="h-2 w-2 rounded-full bg-slate-200 transition-all"></span>
+            <span id="punto-4" class="h-2 w-2 rounded-full bg-slate-200 transition-all"></span>
           </div>
           <button onclick="carruselSiguiente()" class="h-7 w-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
             <i class="fas fa-chevron-right text-slate-500 text-xs"></i>
@@ -489,6 +491,8 @@
       <div class="hidden"><div id="noticias-estatal-2"></div></div>
       <div class="hidden"><div id="noticias-nacional-2"></div></div>
       <div class="hidden"><div id="noticias-internacional-2"></div></div>
+      <div class="hidden"><div id="noticias-global-2"></div></div>
+      <div class="hidden"><div id="noticias-linkedin-2"></div></div>
 
       <!-- Botón actualizar -->
       <button onclick="actualizarBoletin()" id="btn-actualizar-boletin"
@@ -581,12 +585,9 @@
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    const { createClient } = supabase;
-    const supabaseClient = createClient(
-      'https://bgqlvkvlscujikhzzazf.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJncWx2a3Zsc2N1amlraHp6YXpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NzA0OTQsImV4cCI6MjA5NDM0NjQ5NH0.RuNCaTgjTN1mTA6kkjfXwz05epUYzARqGj8L3I2v350'
-    );
+  <script type="module">
+    import { supabaseClient } from './Js/supabase-config.js';
+    window.supabaseClient = supabaseClient;
   </script>
 
   <script>
@@ -964,11 +965,23 @@
         const rolLabel = document.getElementById('user-rol-label');
         if (rolLabel) rolLabel.innerText = `Miembro del Equipo · ${perfil.rol}`;
 
+        // ── Latido: marcar que este usuario está activo ──
+        iniciarLatido(perfil.id);
+        if (perfil.password_temporal) {
+          document.getElementById('modal-password-obligatorio').classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+          return; // No seguir cargando el resto del dashboard hasta que la cambie
+        }
+
+        // ── Verificar vigencia de contraseña (solo si no es temporal) ──
+        verificarVigenciaPassword(perfil.fecha_ultimo_cambio_password);
+
         // ── Control de visibilidad: Safety Alerts solo para admins ──
         const rolesAdmin = ['admin', 'administrador', 'Administrador'];
         if (rolesAdmin.includes(perfil.rol)) {
           document.getElementById('panel-visitas').classList.remove('hidden');
           document.getElementById('card-accesos').classList.remove('hidden');
+          document.getElementById('card-coc')?.classList.remove('hidden');
           cargarVisitas();
           escucharVisitasEnVivo();
         }
@@ -1004,6 +1017,55 @@
     }
 
     async function cerrarSesion() { await supabaseClient.auth.signOut(); window.location.href = "../index.html"; }
+
+    function verificarVigenciaPassword(fechaUltimoCambio) {
+      if (!fechaUltimoCambio) return;
+
+      const DIAS_LIMITE = 180; // 6 meses
+      const DIAS_AVISO  = 7;   // avisar 7 días antes (una semana)
+
+      const fechaCambio = new Date(fechaUltimoCambio);
+      const hoy = new Date();
+      const diasTranscurridos = Math.floor((hoy - fechaCambio) / (1000 * 60 * 60 * 24));
+      const diasRestantes = DIAS_LIMITE - diasTranscurridos;
+
+      if (diasRestantes <= DIAS_AVISO) {
+        const texto = diasRestantes <= 0
+          ? 'Tu contraseña ya venció, actualízala lo antes posible.'
+          : `Te quedan ${diasRestantes} día${diasRestantes === 1 ? '' : 's'} para actualizarla.`;
+        document.getElementById('modal-password-dias').innerText = texto;
+        document.getElementById('modal-password').classList.remove('hidden');
+      }
+    }
+
+    let intervaloLatido = null;
+
+    function iniciarLatido(userId) {
+      // Evitar duplicar el intervalo si la función se llama más de una vez
+      if (intervaloLatido) return;
+
+      const enviarLatido = () => {
+        if (document.visibilityState === 'visible') {
+          supabaseClient
+            .from('perfiles')
+            .update({ ultima_actividad: new Date().toISOString() })
+            .eq('id', userId)
+            .then(() => {})
+            .catch(() => {}); // Si falla un latido por red, no pasa nada — se reintenta en 30s
+        }
+      };
+
+      enviarLatido(); // el primero, inmediato
+      intervaloLatido = setInterval(enviarLatido, 30000); // luego cada 30 segundos
+    }
+
+    function cerrarModalPassword() {
+      document.getElementById('modal-password').classList.add('hidden');
+    }
+
+    function irACambiarPassword() {
+      window.location.href = 'cambiar-password.html';
+    }
 
     function mostrarSeccionApriete() {
       document.getElementById('panel-bienvenida').classList.add('hidden');
@@ -1061,7 +1123,7 @@
       }
     }
 
-    cargarDatos();
+    document.addEventListener('DOMContentLoaded', cargarDatos);
   </script>
 
   <!-- ── CHATBOT FLOTANTE ── -->
@@ -1578,7 +1640,7 @@
       }
 
       // Noticias por categoría
-      for (const cat of ['estatal','nacional','internacional']) {
+      for (const cat of ['estatal','nacional','internacional','global','linkedin']) {
         const { data: noticias } = await supabaseClient
           .from('boletin_noticias').select('*').eq('categoria', cat).order('fecha_publicacion', { ascending: false }).limit(3);
         renderNoticias(cat + '-2', noticias || []);
@@ -1725,6 +1787,8 @@
       { titulo: 'Tabasco',       icono: 'fas fa-map-marker-alt', color: 'from-green-700 to-green-600',  puntoColor: 'bg-green-600',  id: 'noticias-estatal-2' },
       { titulo: 'Nacional',      icono: null,                    color: 'from-red-700 to-red-600',      puntoColor: 'bg-red-600',    id: 'noticias-nacional-2', emoji: '🇲🇽' },
       { titulo: 'Internacional', icono: 'fas fa-globe',          color: 'from-slate-800 to-slate-700',  puntoColor: 'bg-slate-600',  id: 'noticias-internacional-2' },
+      { titulo: 'Global',        icono: 'fas fa-earth-americas', color: 'from-indigo-700 to-indigo-600', puntoColor: 'bg-indigo-600', id: 'noticias-global-2' },
+      { titulo: 'LinkedIn',      icono: 'fab fa-linkedin',       color: 'from-sky-700 to-sky-600',      puntoColor: 'bg-sky-600',    id: 'noticias-linkedin-2' },
     ];
     let carruselActual = 0;
 
@@ -1773,7 +1837,50 @@
   </script>
   <!-- Overlay cierre boletín móvil -->
   <div id="boletin-overlay" onclick="cerrarBoletines()"
-    class="hidden fixed inset-0 z-[98] bg-black/40 backdrop-blur-sm xl:hidden"></div>
+    class="hidden fixed inset-0 z-[98] bg-black/40 backdrop-blur-sm xl:hidden">
+  </div>
+
+  <!-- Modal: Aviso de cambio de contraseña -->
+  <div id="modal-password" class="hidden fixed inset-0 z-[300] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-7 text-center">
+      <div class="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
+        <i class="fas fa-key text-amber-500 text-xl"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-800 mb-2">Actualiza tu contraseña</h3>
+      <p class="text-sm text-slate-500 leading-relaxed mb-6">
+        Por seguridad, debes cambiar tu contraseña cada 6 meses.
+        <span id="modal-password-dias" class="font-semibold text-slate-700"></span>
+      </p>
+      <div class="flex flex-col gap-2">
+        <button onclick="irACambiarPassword()"
+          class="w-full bg-[#e31e24] hover:bg-[#b3161b] text-white font-bold py-2.5 rounded-xl transition">
+          Cambiar ahora
+        </button>
+        <button onclick="cerrarModalPassword()"
+          class="w-full text-slate-400 text-sm font-semibold py-2 hover:text-slate-600 transition">
+          Recordar más tarde
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Contraseña temporal, cambio obligatorio -->
+  <div id="modal-password-obligatorio" class="hidden fixed inset-0 z-[400] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-7 text-center">
+      <div class="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+        <i class="fas fa-triangle-exclamation text-red-500 text-xl"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-800 mb-2">Cambia tu contraseña</h3>
+      <p class="text-sm text-slate-500 leading-relaxed mb-6">
+        Tu cuenta tiene una contraseña temporal asignada por un administrador.
+        Por seguridad, debes crear una contraseña propia antes de continuar.
+      </p>
+      <button onclick="irACambiarPassword()"
+        class="w-full bg-[#e31e24] hover:bg-[#b3161b] text-white font-bold py-2.5 rounded-xl transition">
+        Cambiar contraseña ahora
+      </button>
+    </div>
+  </div>
 
   <div id="footer-componente"></div>
 </body>

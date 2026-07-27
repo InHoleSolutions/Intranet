@@ -1018,7 +1018,7 @@
   const { createClient } = supabase;
   const sb = createClient(
     'https://bgqlvkvlscujikhzzazf.supabase.co',
-    'sb_publishable_mzHMY11jZ7OaMES008LTzA_d7Ya1A2g'
+    'sb_publishable_S5G17esnd47Gw9hO3rTfbA_cTxVtG-P'
   );
 
   let currentUser = null;
@@ -1049,11 +1049,32 @@
     }
 
     currentUser = perfil;
+    iniciarLatido(perfil.id);
     document.getElementById('sidebar-user').textContent = perfil.nombre_completo;
     showDashboard();
   }
 
   async function cerrarSesion() { await sb.auth.signOut(); window.location.href = '../index.html'; }
+
+  let intervaloLatido = null;
+
+  function iniciarLatido(userId) {
+    if (intervaloLatido) return;
+
+    const enviarLatido = () => {
+        if (document.visibilityState === 'visible') {
+          supabaseClient
+            .from('perfiles')
+            .update({ ultima_actividad: new Date().toISOString() })
+            .eq('id', userId)
+            .then(() => {})
+            .catch(() => {}); // Si falla un latido por red, no pasa nada — se reintenta en 30s
+        }
+      };
+
+    enviarLatido();
+    intervaloLatido = setInterval(enviarLatido, 30000);
+  }
 
   // ── VIEWS ──
   function showDashboard() {

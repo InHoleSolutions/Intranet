@@ -21,6 +21,8 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" href="data:,">
@@ -46,6 +48,11 @@
       border: 1px solid #e2e8f0;
       text-align: center !important;
       vertical-align: middle !important;
+    }
+    #panel-drift thead {
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
     /* Alinear a la izquierda las columnas Equipos y Proveedor del Servicio */
     #panel-equipos thead tr:first-child th:nth-child(2),
@@ -96,10 +103,7 @@
           </h1>
         </div>
         <p class="text-slate-500 text-sm leading-relaxed max-w-3xl text-justify">
-          Los equipos, instrumentos y herramientas son sometidos a programas de mantenimiento, calibración,
-          verificación e inspección de acuerdo con las recomendaciones del fabricante, los requisitos normativos
-          y las necesidades operativas. El seguimiento y la trazabilidad de estas actividades permiten asegurar
-          la confiabilidad de los activos y la calidad de los servicios.
+          Los equipos y herramientas utilizados en las operaciones son sometidos a programas de mantenimiento, calibración, verificación e inspección, de acuerdo con las recomendaciones del fabricante, los requisitos aplicables y las necesidades operativas. El seguimiento y la trazabilidad de estas actividades contribuyen a asegurar su confiabilidad y la calidad de los servicios.
         </p>
       </div>
 
@@ -208,10 +212,20 @@
     <section id="panel-equipos" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-sm font-black text-slate-700 uppercase tracking-wide">Lista de Equipos</h2>
+        <div class="flex items-center gap-2">
+        <button id="btn-ocultos-equipos" onclick="verFilasOcultas('equipos')"
+          class="hidden items-center justify-center w-8 h-8 text-white hover:text-slate-900 transition-colors">
+          <i class="fas fa-eye-slash text-base"></i>
+        </button>
         <button id="btn-add-equipos" onclick="agregarFila('equipos')"
           class="hidden items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
           <i class="fas fa-plus"></i> Agregar
         </button>
+        <button id="btn-pdf-equipos" onclick="generarPDFEquipos()"
+          class="hidden items-center gap-2 bg-[#e31e24] hover:bg-red-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
+          <i class="fas fa-file-pdf"></i> Generar PDF
+        </button>
+        </div>
       </div>
       <div class="table-container overflow-x-auto">
         <table class="w-full text-xs sm:text-sm text-left border-collapse">
@@ -227,6 +241,7 @@
               <th class="px-3 py-3" rowspan="2">Certificado</th>
               <th class="px-3 py-3" rowspan="2">Proveedor del Servicio</th>
               <th class="px-3 py-3" rowspan="2">Observaciones</th>
+              <th class="px-3 py-3" rowspan="2">Trazabilidad</th>
               <th class="px-3 py-3 rounded-r-xl text-center col-acciones hidden" rowspan="2">Acciones</th>
             </tr>
             <tr class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider">
@@ -235,7 +250,7 @@
             </tr>
           </thead>
           <tbody id="tbody-equipos" class="divide-y divide-slate-100">
-            <tr><td colspan="12" class="text-center text-slate-400 py-6">Cargando...</td></tr>
+            <tr><td colspan="13" class="text-center text-slate-400 py-6">Cargando...</td></tr>
           </tbody>
         </table>
       </div>
@@ -244,8 +259,12 @@
     <!-- ── Panel: Accesorios de Izaje ── -->
     <section id="panel-izaje" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6">
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-sm font-black text-slate-700 uppercase tracking-wide">Accesorios de Izaje</h2>
+        <h2 class="text-sm font-black text-slate-700 uppercase tracking-wide">Eslingas de Poliéster</h2>
         <div class="flex items-center gap-2">
+          <button id="btn-ocultos-izaje" onclick="verFilasOcultas('izaje')"
+          class="hidden items-center justify-center w-8 h-8 text-white hover:text-slate-900 transition-colors">
+          <i class="fas fa-eye-slash text-base"></i>
+        </button>
         <button id="btn-add-izaje" onclick="agregarFila('izaje')"
           class="hidden items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
           <i class="fas fa-plus"></i> Agregar
@@ -260,26 +279,82 @@
         <table class="w-full text-xs sm:text-sm text-left border-collapse">
           <thead>
             <tr class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider">
-              <th class="px-3 py-3 rounded-l-xl">No.</th>
-              <th class="px-3 py-3">Tipo de Accesorio</th>
-              <th class="px-3 py-3">Capacidad (WLL)</th>
-              <th class="px-3 py-3">Longitud</th>
-              <th class="px-3 py-3">N.° Serie</th>
-              <th class="px-3 py-3">Fabricante</th>
-              <th class="px-3 py-3">Fecha de Fabricación</th>
-              <th class="px-3 py-3">Fecha de Puesta en Servicio</th>
-              <th class="px-3 py-3">Último Servicio</th>
-              <th class="px-3 py-3">Próximo Servicio</th>
-              <th class="px-3 py-3">Tipo de Servicio</th>
-              <th class="px-3 py-3">Estado</th>
-              <th class="px-3 py-3">Certificado</th>
-              <th class="px-3 py-3">Observaciones</th>
-              <th class="px-3 py-3">Trazabilidad</th>
-              <th class="px-3 py-3 rounded-r-xl text-center col-acciones hidden">Acciones</th>
+              <th class="px-3 py-3 rounded-l-xl" rowspan="2">No.</th>
+              <th class="px-3 py-3" rowspan="2">Tipo de Eslinga</th>
+              <th class="px-3 py-3" rowspan="2">Medidas</th>
+              <th class="px-3 py-3" rowspan="2">Capacidad (WLL)</th>
+              <th class="px-3 py-3 text-center" colspan="3">Carga Límite de Trabajo (Kg)</th>
+              <th class="px-3 py-3" rowspan="2">N.° Serie</th>
+              <th class="px-3 py-3 col-fecha-restringida hidden" rowspan="2">Fecha de Fabricación</th>
+              <th class="px-3 py-3 col-fecha-restringida hidden" rowspan="2">Fecha de Puesta en Servicio</th>
+              <th class="px-3 py-3" rowspan="2">Último Servicio</th>
+              <th class="px-3 py-3" rowspan="2">Próximo Servicio</th>
+              <th class="px-3 py-3" rowspan="2">Tipo de Servicio</th>
+              <th class="px-3 py-3" rowspan="2">Estado</th>
+              <th class="px-3 py-3" rowspan="2">Certificado</th>
+              <th class="px-3 py-3 hidden" rowspan="2" id="th-obs-izaje">Observaciones</th>
+              <th class="px-3 py-3" rowspan="2">Trazabilidad</th>
+              <th class="px-3 py-3 rounded-r-xl text-center col-acciones hidden" rowspan="2">Acciones</th>
+            </tr>
+            <tr class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider">
+              <th class="px-3 py-2 text-center">Vertical</th>
+              <th class="px-3 py-2 text-center">Enlazada</th>
+              <th class="px-3 py-2 text-center">En "U"</th>
             </tr>
           </thead>
           <tbody id="tbody-izaje" class="divide-y divide-slate-100">
-            <tr><td colspan="16" class="text-center text-slate-400 py-6">Cargando...</td></tr>
+            <tr><td colspan="18" class="text-center text-slate-400 py-6">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── Tabla: Eslingas de cable de acero / Estrobos ── -->
+      <div class="flex items-center justify-between mb-4 mt-8">
+        <h2 class="text-sm font-black text-slate-700 uppercase tracking-wide">Eslingas de Cable de Acero / Estrobos</h2>
+        <div class="flex items-center gap-2">
+          <button id="btn-ocultos-izajeCable" onclick="verFilasOcultas('izajeCable')"
+          class="hidden items-center justify-center w-8 h-8 text-white hover:text-slate-900 transition-colors">
+          <i class="fas fa-eye-slash text-base"></i>
+        </button>
+        <button id="btn-add-izajeCable" onclick="agregarFila('izajeCable')"
+          class="hidden items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
+          <i class="fas fa-plus"></i> Agregar
+        </button>
+        <button id="btn-historial-izajeCable" onclick="verHistorialBajas('izajeCable')"
+          class="hidden items-center gap-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
+          <i class="fas fa-box-archive"></i> Historial
+        </button>
+        </div>
+      </div>
+      <div class="table-container overflow-x-auto">
+        <table class="w-full text-xs sm:text-sm text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider">
+              <th class="px-3 py-3 rounded-l-xl" rowspan="2">No.</th>
+              <th class="px-3 py-3" rowspan="2">Tipo de Eslinga</th>
+              <th class="px-3 py-3" rowspan="2">Medidas</th>
+              <th class="px-3 py-3" rowspan="2">Capacidad (WLL)</th>
+              <th class="px-3 py-3 text-center" colspan="3">Carga Límite de Trabajo (Kg)</th>
+              <th class="px-3 py-3" rowspan="2">N.° Serie</th>
+              <th class="px-3 py-3 col-fecha-restringida hidden" rowspan="2">Fecha de Fabricación</th>
+              <th class="px-3 py-3 col-fecha-restringida hidden" rowspan="2">Fecha de Puesta en Servicio</th>
+              <th class="px-3 py-3" rowspan="2">Último Servicio</th>
+              <th class="px-3 py-3" rowspan="2">Próximo Servicio</th>
+              <th class="px-3 py-3" rowspan="2">Tipo de Servicio</th>
+              <th class="px-3 py-3" rowspan="2">Estado</th>
+              <th class="px-3 py-3" rowspan="2">Certificado</th>
+              <th class="px-3 py-3 hidden" rowspan="2" id="th-obs-izajeCable">Observaciones</th>
+              <th class="px-3 py-3" rowspan="2">Trazabilidad</th>
+              <th class="px-3 py-3 rounded-r-xl text-center col-acciones hidden" rowspan="2">Acciones</th>
+            </tr>
+            <tr class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider">
+              <th class="px-3 py-2 text-center">Vertical</th>
+              <th class="px-3 py-2 text-center">Enlazada</th>
+              <th class="px-3 py-2 text-center">En "U"</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-izajeCable" class="divide-y divide-slate-100">
+            <tr><td colspan="17" class="text-center text-slate-400 py-6">Cargando...</td></tr>
           </tbody>
         </table>
       </div>
@@ -290,6 +365,10 @@
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-sm font-black text-slate-700 uppercase tracking-wide">Drift</h2>
         <div class="flex items-center gap-2">
+          <button id="btn-ocultos-drift" onclick="verFilasOcultas('drift')"
+          class="hidden items-center justify-center w-8 h-8 text-white hover:text-slate-900 transition-colors">
+          <i class="fas fa-eye-slash text-base"></i>
+        </button>
         <button id="btn-add-drift" onclick="agregarFila('drift')"
           class="hidden items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
           <i class="fas fa-plus"></i> Agregar
@@ -300,7 +379,7 @@
         </button>
         </div>
       </div>
-      <div class="table-container overflow-x-auto">
+      <div class="table-container overflow-x-auto overflow-y-auto" style="max-height: 480px;">
         <table class="w-full text-xs sm:text-sm text-left border-collapse">
           <thead>
             <tr class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider">
@@ -317,6 +396,7 @@
               <th class="px-3 py-3" rowspan="2">Días restantes</th>
               <th class="px-3 py-3" rowspan="2">Estado</th>
               <th class="px-3 py-3" rowspan="2">Certificado</th>
+              <th class="px-3 py-3" rowspan="2">Trazabilidad</th>
               <th class="px-3 py-3 rounded-r-xl text-center col-acciones hidden" rowspan="2">Acciones</th>
             </tr>
             <tr class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider">
@@ -325,7 +405,7 @@
             </tr>
           </thead>
           <tbody id="tbody-drift" class="divide-y divide-slate-100">
-            <tr><td colspan="15" class="text-center text-slate-400 py-6">Cargando...</td></tr>
+            <tr><td colspan="16" class="text-center text-slate-400 py-6">Cargando...</td></tr>
           </tbody>
         </table>
       </div>
@@ -428,13 +508,73 @@
     </div>
   </div>
 
+  <!-- ── Modal Trazabilidad del Equipo ── -->
+  <div id="modalTrazabilidadEquipo" class="hidden fixed inset-0 z-[250] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-5xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100">
+        <div>
+          <p class="font-bold text-slate-700 text-sm"><i class="fas fa-folder-open text-slate-400 mr-2"></i>Trazabilidad del equipo</p>
+          <p id="trazabilidadEquipoTipo" class="text-xs text-slate-400 mt-1"></p>
+        </div>
+        <button onclick="document.getElementById('modalTrazabilidadEquipo').classList.add('hidden')" class="text-slate-400 hover:text-slate-700">
+          <i class="fas fa-times text-lg"></i>
+        </button>
+      </div>
+      <div id="contenidoTrazabilidadEquipo" class="p-5 overflow-y-auto flex-1 text-sm text-slate-600">
+        Cargando...
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal Trazabilidad del Drift ── -->
+  <div id="modalTrazabilidadDrift" class="hidden fixed inset-0 z-[250] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-5xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100">
+        <div>
+          <p class="font-bold text-slate-700 text-sm"><i class="fas fa-folder-open text-slate-400 mr-2"></i>Trazabilidad del drift</p>
+          <p id="trazabilidadDriftTipo" class="text-xs text-slate-400 mt-1"></p>
+        </div>
+        <button onclick="document.getElementById('modalTrazabilidadDrift').classList.add('hidden')" class="text-slate-400 hover:text-slate-700">
+          <i class="fas fa-times text-lg"></i>
+        </button>
+      </div>
+      <div id="contenidoTrazabilidadDrift" class="p-5 overflow-y-auto flex-1 text-sm text-slate-600">
+        Cargando...
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal Filas Ocultas ── -->
+  <div id="modalFilasOcultas" class="hidden fixed inset-0 z-[250] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-lg max-h-[80vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100">
+        <p class="font-bold text-slate-700 text-sm"><i class="fas fa-eye-slash text-slate-400 mr-2"></i>Filas ocultas</p>
+        <button onclick="document.getElementById('modalFilasOcultas').classList.add('hidden')" class="text-slate-400 hover:text-slate-700">
+          <i class="fas fa-times text-lg"></i>
+        </button>
+      </div>
+      <div id="contenidoFilasOcultas" class="p-5 overflow-y-auto flex-1 text-sm text-slate-600">
+        Cargando...
+      </div>
+    </div>
+  </div>
+
   <script>
     // ── Supabase ── (mismas credenciales que dashboard.html)
     const { createClient } = supabase;
     const supabaseClient = createClient(
       'https://bgqlvkvlscujikhzzazf.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJncWx2a3Zsc2N1amlraHp6YXpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NzA0OTQsImV4cCI6MjA5NDM0NjQ5NH0.RuNCaTgjTN1mTA6kkjfXwz05epUYzARqGj8L3I2v350'
+      'sb_publishable_S5G17esnd47Gw9hO3rTfbA_cTxVtG-P'
     );
+
+    // ── Escapa un valor para poder meterlo de forma segura dentro de un onclick="..." ──
+    function escAttr(valor) {
+      return String(valor ?? '')
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '&quot;')
+        .replace(/\r?\n/g, ' ');
+    }
 
     // ── Cargar header / footer ──
     fetch('header.html').then(r => r.text()).then(html => {
@@ -485,25 +625,48 @@
     function mostrarInicio() { window.location.href = 'dashboard.html'; }
     async function cerrarSesion() { await supabaseClient.auth.signOut(); window.location.href = '../index.html'; }
 
+    let intervaloLatido = null;
+
+    function iniciarLatido(userId) {
+      if (intervaloLatido) return;
+
+      const enviarLatido = () => {
+        if (document.visibilityState === 'visible') {
+          supabaseClient
+            .from('perfiles')
+            .update({ ultima_actividad: new Date().toISOString() })
+            .eq('id', userId)
+            .then(() => {})
+            .catch(() => {}); // Si falla un latido por red, no pasa nada — se reintenta en 30s
+        }
+      };
+
+      enviarLatido();
+      intervaloLatido = setInterval(enviarLatido, 30000);
+    }
+
     // ── Config global ──
     let esQHSE = false;
+    const estadoObservaciones = {};
     let pestanaActual = 'equipos';
     let graficaKPI = null;
 
     // ── KPI: Cumplimiento del Programa de Mantenimiento y Calibración ──
     async function cargarKPI() {
       const categorias = [
-        { nombre: 'Equipos', tabla: 'mantto_equipos_herramientas', campo: 'fecha_vencimiento' },
-        { nombre: 'Izaje',   tabla: 'mantto_izaje',                campo: 'proximo_servicio' },
-        { nombre: 'Drift',   tabla: 'mantto_drift',                campo: 'fecha_vencimiento' }
+        { nombre: 'Equipos',       tabla: 'mantto_equipos_herramientas', campo: 'fecha_vencimiento' },
+        { nombre: 'Izaje',         tabla: 'mantto_izaje',                campo: 'proximo_servicio' },
+        { nombre: 'Izaje (Cable)', tabla: 'mantto_izaje_cable',          campo: 'proximo_servicio' },
+        { nombre: 'Drift',         tabla: 'mantto_drift',                campo: 'fecha_vencimiento' }
       ];
 
       const resultados = [];
       for (const cat of categorias) {
-        const { data, error } = await supabaseClient.from(cat.tabla).select(cat.campo);
+        const { data, error } = await supabaseClient.from(cat.tabla).select(`${cat.campo}, oculto`);
         if (error || !data) { resultados.push({ ...cat, vigentes: 0, total: 0 }); continue; }
-        const total = data.length;
-        const vigentes = data.filter(fila => calcularDiasRestantes(fila[cat.campo]) >= 0).length;
+        const datosVisibles = data.filter(fila => fila.oculto !== true);
+        const total = datosVisibles.length;
+        const vigentes = datosVisibles.filter(fila => calcularDiasRestantes(fila[cat.campo]) >= 0).length;
         resultados.push({ ...cat, vigentes, total });
       }
 
@@ -622,7 +785,7 @@
         tabla: 'mantto_equipos_herramientas',
         tbody: 'tbody-equipos',
         numerada: true,
-        columnas: ['equipo', 'marca', 'no_serie', 'fecha_calibracion', 'fecha_vencimiento', 'dias_restantes', 'frecuencia', 'certificado', 'proveedor_servicio', 'observaciones'],
+        columnas: ['equipo', 'marca', 'no_serie', 'fecha_calibracion', 'fecha_vencimiento', 'dias_restantes', 'frecuencia', 'certificado', 'proveedor_servicio', 'observaciones', 'trazabilidad'],
         columnasFecha: ['fecha_calibracion', 'fecha_vencimiento'],
         columnaVencimiento: 'fecha_vencimiento',
         campoFechaBase: 'fecha_calibracion',
@@ -633,7 +796,25 @@
         tabla: 'mantto_izaje',
         tbody: 'tbody-izaje',
         numerada: true,
-        columnas: ['tipo_accesorio', 'capacidad_wll', 'longitud', 'no_serie', 'fabricante', 'fecha_fabricacion', 'fecha_puesta_servicio', 'ultimo_servicio', 'proximo_servicio', 'tipo_servicio', 'estado', 'certificado', 'observaciones', 'trazabilidad'],
+        columnas: ['tipo_accesorio', 'capacidad_wll', 'longitud', 'vertical', 'enlazada', 'en_u', 'no_serie', 'fecha_fabricacion', 'fecha_puesta_servicio', 'ultimo_servicio', 'proximo_servicio', 'tipo_servicio', 'estado', 'certificado', 'observaciones', 'trazabilidad'],
+        columnasFecha: ['fecha_fabricacion', 'fecha_puesta_servicio', 'ultimo_servicio', 'proximo_servicio'],
+        columnasRestringidas: ['fecha_fabricacion', 'fecha_puesta_servicio'],
+        columnaObservacionesCondicional: true,
+        columnasFecha: ['fecha_fabricacion', 'fecha_puesta_servicio', 'ultimo_servicio', 'proximo_servicio'],
+        columnaVencimiento: 'proximo_servicio',
+        campoFechaBase: 'ultimo_servicio',
+        campoVencimiento: 'proximo_servicio',
+        columnasArchivo: ['certificado'],
+        columnasEstado: ['estado'],
+        columnasLista: { tipo_servicio: ['Nuevo', 'Recertificación', 'Mantenimiento'] }
+      },
+      izajeCable: {
+        tabla: 'mantto_izaje_cable',
+        tbody: 'tbody-izajeCable',
+        numerada: true,
+        columnas: ['tipo_accesorio', 'longitud', 'capacidad_wll', 'vertical', 'enlazada', 'en_u', 'no_serie', 'fecha_fabricacion', 'fecha_puesta_servicio', 'ultimo_servicio', 'proximo_servicio', 'tipo_servicio', 'estado', 'certificado', 'observaciones', 'trazabilidad'],
+        columnasRestringidas: ['fecha_fabricacion', 'fecha_puesta_servicio'],
+        columnaObservacionesCondicional: true,
         columnasFecha: ['fecha_fabricacion', 'fecha_puesta_servicio', 'ultimo_servicio', 'proximo_servicio'],
         columnaVencimiento: 'proximo_servicio',
         campoFechaBase: 'ultimo_servicio',
@@ -646,7 +827,7 @@
         tabla: 'mantto_drift',
         tbody: 'tbody-drift',
         numerada: true,
-        columnas: ['cantidad', 'tamano', 'peso_nom_conexion', 'od_drift', 'longitud_altura', 'material', 'no_serie', 'fecha_fabricacion', 'fecha_calibracion', 'fecha_vencimiento', 'dias_restantes', 'estado', 'certificado'],
+        columnas: ['cantidad', 'tamano', 'peso_nom_conexion', 'od_drift', 'longitud_altura', 'material', 'no_serie', 'fecha_fabricacion', 'fecha_calibracion', 'fecha_vencimiento', 'dias_restantes', 'estado', 'certificado', 'trazabilidad'],
         columnasFecha: ['fecha_calibracion'],
         columnasFechaMes: ['fecha_fabricacion', 'fecha_vencimiento'],
         columnaVencimiento: 'fecha_vencimiento',
@@ -662,6 +843,33 @@
         document.getElementById(`tab-${n}`).classList.toggle('activa', n === nombre);
       });
       cargarTabla(nombre);
+      if (nombre === 'izaje') cargarTabla('izajeCable');
+    }
+
+    // ── Realtime: refresca las tablas de Izaje cuando hay cambios en Supabase ──
+    function suscribirRealtimeIzaje() {
+      supabaseClient
+        .channel('realtime-izaje')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'mantto_izaje' }, () => {
+          cargarTabla('izaje');
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'mantto_izaje_cable' }, () => {
+          cargarTabla('izajeCable');
+        })
+        .subscribe();
+    }
+
+    // ── Realtime: refresca las tablas de Equipos y Drift cuando hay cambios en Supabase ──
+    function suscribirRealtimeEquiposDrift() {
+      supabaseClient
+        .channel('realtime-equipos-drift')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'mantto_equipos_herramientas' }, () => {
+          cargarTabla('equipos');
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'mantto_drift' }, () => {
+          cargarTabla('drift');
+        })
+        .subscribe();
     }
 
     // ── Cargar datos de una tabla ──
@@ -676,12 +884,25 @@
           No se pudo cargar la tabla "${cfg.tabla}". Verifica que exista en Supabase.</td></tr>`;
         return;
       }
-      if (!data || data.length === 0) {
+      const datosVisibles = (data || []).filter(fila => fila.oculto !== true);
+
+      if (cfg.columnaObservacionesCondicional) {
+        estadoObservaciones[nombre] = (data || []).some(fila => (fila.observaciones || '').trim() !== '');
+        const thObs = document.getElementById(`th-obs-${nombre}`);
+        if (thObs) {
+          if (esQHSE || estadoObservaciones[nombre]) thObs.classList.remove('hidden');
+          else thObs.classList.add('hidden');
+        }
+      }
+
+      if (datosVisibles.length === 0) {
         tbody.innerHTML = `<tr><td colspan="${cfg.columnas.length + 1}" class="text-center text-slate-400 py-6">Sin registros aún.</td></tr>`;
+        actualizarBotonOcultos(nombre, data ? data.length - datosVisibles.length : 0);
         return;
       }
 
-      tbody.innerHTML = data.map((fila, indice) => filaHTML(nombre, fila, indice)).join('');
+      tbody.innerHTML = datosVisibles.map((fila, indice) => filaHTML(nombre, fila, indice)).join('');
+      actualizarBotonOcultos(nombre, data.length - datosVisibles.length);
     }
 
     function formatearFecha(valor) {
@@ -744,6 +965,302 @@
       const el = filaEl.querySelector(`[data-col="${col}"]`);
       if (!el) return '';
       return (el.tagName === 'INPUT' ? el.value : el.textContent).trim();
+    }
+
+    // ── Generar PDF de "Lista de Equipos" (Fuente Calibri sin Paginación) ──
+    async function generarPDFEquipos() {
+      const boton = document.getElementById('btn-pdf-equipos');
+      if (boton) {
+        boton.disabled = true;
+        boton.classList.add('opacity-50');
+      }
+
+      try {
+        const { jsPDF } = window.jspdf;
+        
+        const doc = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        const pageWidth = doc.internal.pageSize.getWidth(); // ~210mm
+        const pageHeight = doc.internal.pageSize.getHeight(); // ~297mm
+        const margenIzq = 14;
+        const anchoUtil = pageWidth - (margenIzq * 2); // 182mm
+        let y = 14;
+
+        // ── Paleta de Colores Corporativos ──
+        const COLOR_AZUL_MARINO = [15, 23, 42];    // #0F172A (Slate 900)
+        const COLOR_AZUL_ACCENT = [30, 58, 138];   // #1E3A8A (Navy Blue)
+        const COLOR_GRIS_TEXTO  = [100, 116, 139]; // #64748B (Slate 500)
+        const COLOR_GRIS_LINEA  = [226, 232, 240]; // #E2E8F0 (Slate 200)
+        const COLOR_GRIS_BG     = [248, 250, 252]; // #F8FAFC (Slate 50)
+        const COLOR_VERDE_EXITO = [16, 185, 129];  // Emerald Green
+
+        // ── 1. Barra superior decorativa ──
+        doc.setFillColor(...COLOR_AZUL_MARINO);
+        doc.rect(0, 0, pageWidth, 2, 'F');
+
+        // ── 2. Encabezado Executive ──
+        doc.setFillColor(...COLOR_AZUL_ACCENT);
+        doc.rect(margenIzq, y, 3, 12, 'F');
+
+        doc.setFont('calibri', 'bold');
+        doc.setFontSize(15);
+        doc.setTextColor(...COLOR_AZUL_MARINO);
+        doc.text('IN HOLE SOLUTIONS', margenIzq + 6, y + 5);
+
+        doc.setFont('calibri', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(...COLOR_GRIS_TEXTO);
+        doc.text('Control de Mantenimiento y Calibración', margenIzq + 6, y + 10);
+
+        // Línea divisora
+        y += 16;
+        doc.setDrawColor(...COLOR_GRIS_LINEA);
+        doc.setLineWidth(0.4);
+        doc.line(margenIzq, y, pageWidth - margenIzq, y);
+        y += 8;
+
+        // ── 3. Título y Descripción ──
+        doc.setFont('calibri', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(...COLOR_AZUL_MARINO);
+        doc.text('Control de Mantto y Calibración de Equipos y Herramientas', margenIzq, y);
+        y += 5;
+
+        const descripcion = 'Los equipos y herramientas utilizados en las operaciones son sometidos a programas de mantenimiento, calibración, verificación e inspección, de acuerdo con las recomendaciones del fabricante, los requisitos aplicables y las necesidades operativas.';
+        doc.setFont('calibri', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(...COLOR_GRIS_TEXTO);
+        const lineasDescripcion = doc.splitTextToSize(descripcion, anchoUtil);
+        doc.text(lineasDescripcion, margenIzq, y);
+        y += (lineasDescripcion.length * 3.5) + 6;
+
+        // ── 4. TÍTULO DE SECCIÓN KPI (CENTRADO) ──
+        doc.setFont('calibri', 'bold');
+        doc.setFontSize(9.5);
+        doc.setTextColor(...COLOR_AZUL_MARINO);
+        doc.text('Cumplimiento del Programa de Mantenimiento y Calibración', pageWidth / 2, y, { align: 'center' });
+        y += 5;
+
+        // ── 5. SECCIÓN DE KPIs CENTRADOS ──
+        const kpiTexto = document.getElementById('kpi-porcentaje')?.innerText || '0%';
+        const pctNum = Math.min(100, Math.max(0, parseFloat(kpiTexto.replace('%', '')) || 0));
+
+        const card1W = 75;  // Tarjeta Cumplimiento Global
+        const card2W = 99;  // Tarjeta Tabla Categorías
+        const gapCards = 6;
+        const cardH = 32;
+        
+        const anchoTotalBloque = card1W + gapCards + card2W;
+        const startXBloque = (pageWidth - anchoTotalBloque) / 2;
+        const cardY = y;
+
+        // -- Tarjeta 1: Cumplimiento Global --
+        doc.setFillColor(...COLOR_GRIS_BG);
+        doc.setDrawColor(...COLOR_GRIS_LINEA);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(startXBloque, cardY, card1W, cardH, 2, 2, 'FD');
+
+        doc.setFont('calibri', 'bold');
+        doc.setFontSize(7);
+        doc.setTextColor(...COLOR_GRIS_TEXTO);
+        doc.text('CUMPLIMIENTO GLOBAL', startXBloque + 8, cardY + 8);
+
+        doc.setFont('calibri', 'bold');
+        doc.setFontSize(22);
+        doc.setTextColor(...COLOR_AZUL_ACCENT);
+        doc.text(`${Math.round(pctNum)}%`, startXBloque + 8, cardY + 20);
+
+        const barX = startXBloque + 8;
+        const barY = cardY + 24;
+        const barW = card1W - 16;
+        doc.setFillColor(226, 232, 240);
+        doc.roundedRect(barX, barY, barW, 2.5, 1, 1, 'F');
+        
+        if (pctNum > 0) {
+          doc.setFillColor(...COLOR_AZUL_ACCENT);
+          doc.roundedRect(barX, barY, barW * (pctNum / 100), 2.5, 1, 1, 'F');
+        }
+
+        // -- Tarjeta 2: Tabla de Desglose de Categorías --
+        const card2X = startXBloque + card1W + gapCards;
+        doc.setFillColor(...COLOR_GRIS_BG);
+        doc.setDrawColor(...COLOR_GRIS_LINEA);
+        doc.roundedRect(card2X, cardY, card2W, cardH, 2, 2, 'FD');
+
+        const filasKPI = Array.from(document.querySelectorAll('#tbody-kpi-categorias tr'))
+          .map(tr => Array.from(tr.children).map(td => td.innerText.trim()))
+          .filter(celdas => celdas.length === 4);
+
+        const paddingInterno = 3;
+        const anchoTabla = card2W - (paddingInterno * 2);
+
+        doc.autoTable({
+          startY: cardY + 2,
+          margin: { left: card2X + paddingInterno },
+          tableWidth: anchoTabla,
+          head: [['Categoría', 'Vig.', 'Total', '% Cumpl.']],
+          body: filasKPI,
+          theme: 'plain',
+          styles: { 
+            fontSize: 6.2, 
+            halign: 'center', 
+            cellPadding: 0.9, 
+            textColor: [51, 65, 85],
+            font: 'calibri'
+          },
+          headStyles: { 
+            fillColor: COLOR_AZUL_MARINO, 
+            textColor: 255, 
+            fontStyle: 'bold', 
+            fontSize: 6,
+            halign: 'center',
+            font: 'calibri'
+          },
+          columnStyles: { 
+            0: { halign: 'left', fontStyle: 'bold', cellWidth: anchoTabla * 0.42 },
+            1: { halign: 'center', cellWidth: anchoTabla * 0.18 },
+            2: { halign: 'center', cellWidth: anchoTabla * 0.18 },
+            3: { halign: 'center', fontStyle: 'bold', textColor: COLOR_AZUL_ACCENT, cellWidth: anchoTabla * 0.22 }
+          }
+        });
+
+        y = cardY + cardH + 10;
+
+        // ── 6. TABLA "LISTA DE EQUIPOS" ──
+        const { data, error } = await supabaseClient
+          .from('mantto_equipos_herramientas')
+          .select('*')
+          .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        const filas = (data || []).filter(f => f.oculto !== true);
+        const hayObservaciones = filas.some(f => (f.observaciones || '').trim() !== '');
+
+        const encabezados = ['No.', 'Equipo', 'Marca', 'No. Serie', 'Último', 'Próximo', 'Días', 'Frec.'];
+        if (hayObservaciones) encabezados.push('Observaciones');
+
+        const cuerpo = filas.map((f, i) => {
+          const dias = calcularDiasRestantes(f.fecha_vencimiento);
+          const umbral = calcularUmbralAlerta(f.frecuencia);
+
+          let color = COLOR_VERDE_EXITO;
+          if (dias !== '' && dias <= 0) color = [225, 29, 72]; 
+          else if (dias !== '' && dias <= umbral) color = [217, 119, 6];
+
+          const fila = [
+            i + 1,
+            f.equipo || '-',
+            f.marca || '-',
+            f.no_serie || '-',
+            formatearFecha(f.fecha_calibracion) || '-',
+            formatearFecha(f.fecha_vencimiento) || '-',
+            { content: dias === '' ? '-' : `${dias} d`, styles: { textColor: color, fontStyle: 'bold', halign: 'center' } },
+            f.frecuencia || '-'
+          ];
+
+          if (hayObservaciones) fila.push(f.observaciones || '-');
+
+          return fila;
+        });
+
+        let configColumnas = {};
+        if (hayObservaciones) {
+          configColumnas = {
+            0: { halign: 'center', cellWidth: 8 },
+            1: { halign: 'left',   cellWidth: 35 },
+            2: { halign: 'left',   cellWidth: 20 },
+            3: { halign: 'left',   cellWidth: 22 },
+            4: { halign: 'center', cellWidth: 18 },
+            5: { halign: 'center', cellWidth: 18 },
+            6: { halign: 'center', cellWidth: 14 },
+            7: { halign: 'center', cellWidth: 15 },
+            8: { halign: 'left',   cellWidth: 32 }
+          };
+        } else {
+          configColumnas = {
+            0: { halign: 'center', cellWidth: 10 },
+            1: { halign: 'left',   cellWidth: 48 },
+            2: { halign: 'left',   cellWidth: 26 },
+            3: { halign: 'left',   cellWidth: 28 },
+            4: { halign: 'center', cellWidth: 20 },
+            5: { halign: 'center', cellWidth: 20 },
+            6: { halign: 'center', cellWidth: 14 },
+            7: { halign: 'center', cellWidth: 16 }
+          };
+        }
+
+        doc.autoTable({
+          startY: y,
+          head: [encabezados],
+          body: cuerpo,
+          theme: 'striped',
+          styles: { 
+            fontSize: 7, 
+            textColor: [51, 65, 85], 
+            cellPadding: 2,
+            overflow: 'linebreak',
+            font: 'calibri'
+          },
+          headStyles: { 
+            fillColor: COLOR_AZUL_ACCENT, 
+            textColor: 255, 
+            fontStyle: 'bold', 
+            fontSize: 7.2,
+            halign: 'center',
+            valign: 'middle',
+            font: 'calibri'
+          },
+          alternateRowStyles: {
+            fillColor: [248, 250, 252]
+          },
+          columnStyles: configColumnas,
+          margin: { left: margenIzq, right: margenIzq, bottom: 22 }
+        });
+
+        // ── 7. PIE DE PÁGINA LEGAL (SIN PAGINACIÓN) ──
+        const totalPaginas = doc.internal.getNumberOfPages();
+        const anioActual = new Date().getFullYear();
+        const folioTexto = typeof folio !== 'undefined' && folio ? `${folio} ` : '';
+
+        const footerText = `${folioTexto}©${anioActual} IN HOLE SOLUTIONS - Todos los derechos reservados. Este documento contiene información confidencial y propiedad de In Hole Solutions, los usuarios de este documento declaran que la información contenida en él no será reproducida, utilizada o divulgada en su totalidad o en parte para ningún fin excepto el especificado y autorizado por In Hole Solutions.`;
+
+        for (let p = 1; p <= totalPaginas; p++) {
+          doc.setPage(p);
+
+          doc.setFont('calibri', 'normal');
+          doc.setFontSize(5.5);
+          doc.setTextColor(...COLOR_GRIS_TEXTO);
+
+          // Dividir el texto para encajar perfectamente en el ancho útil
+          const lineasFooter = doc.splitTextToSize(footerText, anchoUtil);
+          const altoFooter = lineasFooter.length * 2.2;
+          const yFooterText = pageHeight - 6 - altoFooter;
+
+          // Línea divisora superior del footer
+          doc.setDrawColor(...COLOR_GRIS_LINEA);
+          doc.setLineWidth(0.3);
+          doc.line(margenIzq, yFooterText - 2, pageWidth - margenIzq, yFooterText - 2);
+
+          // Dibujar texto legal
+          doc.text(lineasFooter, margenIzq, yFooterText);
+        }
+
+        doc.save(`Lista_de_Equipos_${new Date().toISOString().slice(0, 10)}.pdf`);
+
+      } catch (err) {
+        console.error(err);
+        mostrarToast('No se pudo generar el PDF. Intenta de nuevo.', 'error');
+      } finally {
+        if (boton) {
+          boton.disabled = false;
+          boton.classList.remove('opacity-50');
+        }
+      }
     }
 
     function filaHTML(nombre, fila, indice) {
@@ -819,10 +1336,32 @@
         }
 
         if (col === 'trazabilidad') {
-          const tipoAccesorio = (fila.tipo_accesorio || '').replace(/'/g, "\\'");
-          const capacidadWll = (fila.capacidad_wll || '').replace(/'/g, "\\'");
-          const longitudAcc = (fila.longitud || '').replace(/'/g, "\\'");
-          const noSerieAcc = (fila.no_serie || '').replace(/'/g, "\\'");
+          if (nombre === 'drift') {
+            const tamanoDrift = escAttr(fila.tamano);
+            const materialDrift = escAttr(fila.material);
+            const noSerieDrift = escAttr(fila.no_serie);
+            return `<td class="px-3 py-2 text-center">
+                      <button onclick="verTrazabilidadDrift('${fila.id}', '${tamanoDrift}', '${materialDrift}', '${noSerieDrift}')"
+                        class="text-slate-400 hover:text-[#e31e24] transition-colors" title="Ver trazabilidad">
+                        <i class="fas fa-folder-open text-lg"></i>
+                      </button>
+                    </td>`;
+          }
+          if (nombre === 'equipos') {
+            const nombreEquipo = escAttr(fila.equipo);
+            const marcaEquipo = escAttr(fila.marca);
+            const noSerieEquipo = escAttr(fila.no_serie);
+            return `<td class="px-3 py-2 text-center">
+                      <button onclick="verTrazabilidadEquipo('${fila.id}', '${nombreEquipo}', '${marcaEquipo}', '${noSerieEquipo}')"
+                        class="text-slate-400 hover:text-[#e31e24] transition-colors" title="Ver trazabilidad">
+                        <i class="fas fa-folder-open text-lg"></i>
+                      </button>
+                    </td>`;
+          }
+          const tipoAccesorio = escAttr(fila.tipo_accesorio);
+          const capacidadWll = escAttr(fila.capacidad_wll);
+          const longitudAcc = escAttr(fila.longitud);
+          const noSerieAcc = escAttr(fila.no_serie);
           return `<td class="px-3 py-2 text-center">
                     <button onclick="verTrazabilidad('${fila.id}', '${tipoAccesorio}', '${capacidadWll}', '${longitudAcc}', '${noSerieAcc}')"
                       class="text-slate-400 hover:text-[#e31e24] transition-colors" title="Ver trazabilidad">
@@ -847,8 +1386,9 @@
                  onchange="subirCertificado('${nombre}', '${fila.id}', this)">`
             : '';
 
+          const valorEscapado = escAttr(valor);
           const botonEliminar = (esQHSE && valor)
-            ? `<button onclick="eliminarCertificado('${nombre}', '${fila.id}', '${valor}')"
+            ? `<button onclick="eliminarCertificado('${nombre}', '${fila.id}', '${valorEscapado}')"
                  class="ml-2 text-red-300 hover:text-red-600" title="Eliminar certificado">
                  <i class="fas fa-trash-can text-xs"></i>
                </button>`
@@ -858,15 +1398,18 @@
         }
 
         if (col === 'observaciones') {
+          const ocultaColumna = cfg.columnaObservacionesCondicional && !esQHSE && !estadoObservaciones[nombre];
+          const claseOculta = ocultaColumna ? ' hidden' : '';
+
           if (!valor) {
-            return `<td class="px-3 py-2 text-center"><span class="text-slate-300 text-xs">—</span></td>`;
+            return `<td class="px-3 py-2 text-center${claseOculta}"><span class="text-slate-300 text-xs">—</span></td>`;
           }
           const contenidoInterno = esQHSE
             ? `<span contenteditable="true" class="celda block outline-none px-2 py-1 rounded text-left"
                  data-col="${col}" onblur="guardarCelda('${nombre}', '${fila.id}', this)">${valor}</span>`
             : `<span class="block text-slate-600 text-xs text-left px-2 py-1">${valor}</span>`;
 
-          return `<td class="px-3 py-2 text-center">
+          return `<td class="px-3 py-2 text-center${claseOculta}">
                     <button onclick="toggleObservacion(this)" class="text-slate-400 hover:text-[#e31e24] transition-colors" title="Ver observación">
                       <i class="fas fa-comment-dots"></i>
                     </button>
@@ -875,11 +1418,13 @@
         }
 
         if (esFecha) {
+          const esRestringida = (cfg.columnasRestringidas || []).includes(col);
+          const claseOculta = (esRestringida && !esQHSE) ? ' col-fecha-restringida hidden' : '';
           return esQHSE
-            ? `<td class="px-3 py-2"><input type="date" class="celda-editable px-2 py-1 rounded text-xs"
+            ? `<td class="px-3 py-2${claseOculta}"><input type="date" class="celda-editable px-2 py-1 rounded text-xs"
                   data-col="${col}" value="${valor || ''}"
                   onchange="guardarCelda('${nombre}', '${fila.id}', this)"></td>`
-            : `<td class="px-3 py-2 text-slate-600">${formatearFecha(valor)}</td>`;
+            : `<td class="px-3 py-2 text-slate-600${claseOculta}">${formatearFecha(valor)}</td>`;
         }
 
         return esQHSE
@@ -894,6 +1439,9 @@
                <i class="fas fa-ellipsis"></i>
              </button>
              <div id="menu-acciones-${fila.id}" class="hidden absolute right-2 top-9 z-20 bg-white border border-slate-200 rounded-xl shadow-lg py-1 w-40 text-left">
+               <button onclick="toggleOcultarFila('${nombre}', '${fila.id}')" class="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-600 hover:bg-slate-50">
+                 <i class="fas fa-eye-slash text-slate-400"></i> Ocultar fila
+               </button>
                <button onclick="verHistorial('${nombre}', '${fila.id}')" class="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-600 hover:bg-slate-50">
                  <i class="fas fa-clock-rotate-left text-slate-400"></i> Ver historial
                </button>
@@ -904,6 +1452,7 @@
            </td>`
         : '';
 
+      const claseOculta = (fila.oculto === true || fila.oculto === 'true') ? 'opacity-40 grayscale' : '';
       return `<tr id="fila-${fila.id}">${numero}${celdas}${accion}</tr>`;
     }
 
@@ -1065,11 +1614,71 @@
       }
     }
 
+    // ── Actualiza el contador de filas ocultas en el botón ──
+    function actualizarBotonOcultos(nombre, cantidad) {
+      const contador = document.getElementById(`contador-ocultos-${nombre}`);
+      if (contador) contador.textContent = cantidad;
+    }
+
+    // ── Oculta una fila (desde el menú de Acciones): desaparece de la tabla y recalcula el KPI ──
+    async function toggleOcultarFila(nombre, id) {
+      const cfg = CONFIG_TABLAS[nombre];
+      const { error } = await supabaseClient.from(cfg.tabla).update({ oculto: true }).eq('id', id);
+      if (error) { console.error('Error ocultando fila:', error); return; }
+
+      mostrarToast('Fila ocultada', 'info');
+      cargarTabla(nombre);
+    }
+
+    // ── Ver filas ocultas y permitir volver a mostrarlas ──
+    async function verFilasOcultas(nombre) {
+      const cfg = CONFIG_TABLAS[nombre];
+      const modal = document.getElementById('modalFilasOcultas');
+      const contenido = document.getElementById('contenidoFilasOcultas');
+      contenido.innerHTML = 'Cargando...';
+      modal.classList.remove('hidden');
+
+      const { data, error } = await supabaseClient.from(cfg.tabla).select('*').eq('oculto', true).order('created_at', { ascending: true });
+
+      if (error) {
+        contenido.innerHTML = '<p class="text-red-500 text-xs">No se pudo cargar las filas ocultas.</p>';
+        return;
+      }
+      if (!data || data.length === 0) {
+        contenido.innerHTML = '<p class="text-slate-400 text-xs">No hay filas ocultas.</p>';
+        return;
+      }
+
+      const campoNombre = cfg.columnas[0];
+      contenido.innerHTML = data.map(fila => `
+        <div class="flex items-center justify-between gap-3 px-3 py-2 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors mb-2">
+          <span class="text-xs font-semibold text-slate-700 truncate">${fila[campoNombre] || 'Sin nombre'}</span>
+          <button onclick="mostrarFilaOculta('${nombre}', '${fila.id}')"
+            class="flex items-center gap-1 text-xs font-bold text-emerald-600 hover:text-emerald-800 flex-shrink-0">
+            <i class="fas fa-eye"></i> Mostrar
+          </button>
+        </div>`).join('');
+    }
+
+    // ── Vuelve a mostrar una fila oculta ──
+    async function mostrarFilaOculta(nombre, id) {
+      const cfg = CONFIG_TABLAS[nombre];
+      const { error } = await supabaseClient.from(cfg.tabla).update({ oculto: false }).eq('id', id);
+      if (error) { console.error('Error mostrando fila:', error); return; }
+
+      mostrarToast('Fila visible de nuevo', 'exito');
+      verFilasOcultas(nombre); // refresca el modal
+      cargarTabla(nombre);     // refresca la tabla principal y el KPI
+    }
+
     // ── Agregar fila nueva (solo QHSE) ──
     async function agregarFila(nombre) {
       const cfg = CONFIG_TABLAS[nombre];
       const nuevaFila = {};
-      cfg.columnas.forEach(col => nuevaFila[col] = null);
+      cfg.columnas.forEach(col => {
+        if (col === 'trazabilidad') return; // columna virtual, no existe en la tabla
+        nuevaFila[col] = null;
+      });
       const { data, error } = await supabaseClient.from(cfg.tabla).insert(nuevaFila).select().single();
       if (error) { await mostrarAviso('No se pudo agregar el registro.'); console.error(error); return; }
       const tbody = document.getElementById(cfg.tbody);
@@ -1320,11 +1929,11 @@
         <table class="w-full text-xs border-collapse">
           <thead>
             <tr class="bg-slate-50 text-slate-500 uppercase text-[10px]">
-              <th class="px-3 py-2 border border-slate-200 text-left">Fecha</th>
-              <th class="px-3 py-2 border border-slate-200 text-left">Evento</th>
-              <th class="px-3 py-2 border border-slate-200 text-left">Descripción</th>
-              <th class="px-3 py-2 border border-slate-200 text-left">Responsable / Proveedor</th>
-              <th class="px-3 py-2 border border-slate-200 text-left">Documento</th>
+              <th class="px-3 py-2 border border-slate-200 text-center">Fecha</th>
+              <th class="px-3 py-2 border border-slate-200 text-center">Evento</th>
+              <th class="px-3 py-2 border border-slate-200 text-center">Descripción</th>
+              <th class="px-3 py-2 border border-slate-200 text-center">Responsable / Proveedor</th>
+              <th class="px-3 py-2 border border-slate-200 text-center">Documento</th>
             </tr>
           </thead>
           <tbody>
@@ -1338,15 +1947,24 @@
 
     // ── Agregar un evento de trazabilidad, con la fecha de puesta en servicio precargada (solo QHSE) ──
     async function agregarEventoTrazabilidad(filaId) {
-      const { data: filaIzaje, error: errorFila } = await supabaseClient
+      let fechaInicial = null;
+
+      const { data: filaIzaje } = await supabaseClient
         .from('mantto_izaje')
         .select('fecha_puesta_servicio')
         .eq('id', filaId)
-        .single();
+        .maybeSingle();
 
-      if (errorFila) console.error('No se pudo obtener la fecha de puesta en servicio:', errorFila);
-
-      const fechaInicial = filaIzaje ? filaIzaje.fecha_puesta_servicio : null;
+      if (filaIzaje) {
+        fechaInicial = filaIzaje.fecha_puesta_servicio;
+      } else {
+        const { data: filaCable } = await supabaseClient
+          .from('mantto_izaje_cable')
+          .select('fecha_puesta_servicio')
+          .eq('id', filaId)
+          .maybeSingle();
+        fechaInicial = filaCable ? filaCable.fecha_puesta_servicio : null;
+      }
 
       const { error } = await supabaseClient.from('mantto_trazabilidad_izaje')
         .insert({ fila_id: filaId, fecha: fechaInicial });
@@ -1396,6 +2014,368 @@
       mostrarToast('Evento eliminado correctamente', 'info');
       const filaId = document.getElementById('modalTrazabilidad').dataset.filaId;
       await cargarTrazabilidad(filaId);
+    }
+
+    // ── Ver trazabilidad de un equipo ──
+    async function verTrazabilidadEquipo(filaId, nombreEquipo, marcaEquipo, noSerieEquipo) {
+      const modal = document.getElementById('modalTrazabilidadEquipo');
+      const contenido = document.getElementById('contenidoTrazabilidadEquipo');
+
+      const detalles = [];
+      if (marcaEquipo) detalles.push(`Marca: ${marcaEquipo}`);
+      if (noSerieEquipo) detalles.push(`N° Serie: ${noSerieEquipo}`);
+
+      let textoTipo = nombreEquipo ? `Equipo: ${nombreEquipo}` : '';
+      if (detalles.length) textoTipo += (textoTipo ? ' | ' : '') + detalles.join(' | ');
+
+      document.getElementById('trazabilidadEquipoTipo').textContent = textoTipo;
+      contenido.innerHTML = 'Cargando...';
+      modal.classList.remove('hidden');
+      modal.dataset.filaId = filaId;
+
+      await cargarTrazabilidadEquipo(filaId);
+    }
+
+    async function cargarTrazabilidadEquipo(filaId) {
+      const contenido = document.getElementById('contenidoTrazabilidadEquipo');
+      const { data, error } = await supabaseClient.from('mantto_trazabilidad_equipos')
+        .select('*').eq('fila_id', filaId)
+        .order('fecha', { ascending: true });
+
+      if (error) {
+        contenido.innerHTML = '<p class="text-red-500 text-xs">No se pudo cargar la trazabilidad.</p>';
+        console.error(error);
+        return;
+      }
+
+      const filaTabla = (registro) => {
+        const esImagen = registro.documento_url && /\.(jpe?g|png|gif|webp)(\?.*)?$/i.test(registro.documento_url);
+        const doc = registro.documento_url
+          ? (esImagen
+              ? `<a href="${registro.documento_url}" target="_blank" rel="noopener" title="${registro.documento_nombre || 'Ver imagen'}">
+                   <img src="${registro.documento_url}" class="h-8 w-8 object-cover rounded border border-slate-200 inline-block" alt="Documento">
+                 </a>`
+              : `<a href="${registro.documento_url}" target="_blank" rel="noopener" class="text-red-500 hover:text-red-700" title="${registro.documento_nombre || 'Ver documento'}">
+                   <i class="fas fa-file-pdf"></i> PDF
+                 </a>`)
+          : '<span class="text-slate-300 text-xs">—</span>';
+
+        if (!esQHSE) {
+          return `<tr>
+            <td class="px-3 py-2 text-slate-600 whitespace-nowrap">${formatearFecha(registro.fecha)}</td>
+            <td class="px-3 py-2 text-slate-600">${registro.evento || ''}</td>
+            <td class="px-3 py-2 text-slate-600">${registro.descripcion || ''}</td>
+            <td class="px-3 py-2 text-slate-600">${registro.responsable_proveedor || ''}</td>
+            <td class="px-3 py-2 text-center">${doc}</td>
+          </tr>`;
+        }
+
+        return `<tr>
+          <td class="px-2 py-1"><input type="date" value="${registro.fecha || ''}" class="celda-editable px-2 py-1 rounded text-xs w-full"
+              onchange="guardarEventoTrazabilidadEquipo('${registro.id}', 'fecha', this.value)"></td>
+          <td class="px-2 py-1">
+            <select class="celda-editable px-2 py-1 rounded text-xs w-full"
+                onchange="guardarEventoTrazabilidadEquipo('${registro.id}', 'evento', this.value)">
+              <option value="" ${!registro.evento ? 'selected' : ''}>Seleccionar...</option>
+              ${['Ingreso de equipo', 'Inspección periódica', 'Recertificación', 'Mantenimiento', 'Baja'].map(op =>
+                `<option value="${op}" ${registro.evento === op ? 'selected' : ''}>${op}</option>`
+              ).join('')}
+            </select>
+          </td>
+          <td class="px-2 py-1"><input type="text" value="${registro.descripcion || ''}" class="celda-editable px-2 py-1 rounded text-xs w-full"
+              onchange="guardarEventoTrazabilidadEquipo('${registro.id}', 'descripcion', this.value)"></td>
+          <td class="px-2 py-1">
+            <select class="celda-editable px-2 py-1 rounded text-xs w-full"
+                onchange="guardarEventoTrazabilidadEquipo('${registro.id}', 'responsable_proveedor', this.value)">
+              <option value="" ${!registro.responsable_proveedor ? 'selected' : ''}>Seleccionar...</option>
+              ${['Personal de Taller', 'Proveedor autorizado'].map(op =>
+                `<option value="${op}" ${registro.responsable_proveedor === op ? 'selected' : ''}>${op}</option>`
+              ).join('')}
+            </select>
+          </td>
+          <td class="px-2 py-1 text-center whitespace-nowrap">
+            ${doc}
+            <button onclick="document.getElementById('input-doc-equipo-${registro.id}').click()" class="ml-2 text-slate-400 hover:text-slate-700" title="Subir / reemplazar documento">
+              <i class="fas fa-upload text-xs"></i>
+            </button>
+            <input id="input-doc-equipo-${registro.id}" type="file" accept="application/pdf,image/*" class="hidden" onchange="subirDocumentoTrazabilidadEquipo('${registro.id}', this)">
+            <button onclick="eliminarEventoTrazabilidadEquipo('${registro.id}')" class="ml-2 text-red-300 hover:text-red-600" title="Eliminar evento">
+              <i class="fas fa-trash-can text-xs"></i>
+            </button>
+          </td>
+        </tr>`;
+      };
+
+      const filasHTML = (data || []).map(filaTabla).join('');
+      const botonAgregar = esQHSE
+        ? `<button onclick="agregarEventoTrazabilidadEquipo('${filaId}')"
+             class="mt-3 flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
+             <i class="fas fa-plus"></i> Agregar evento
+           </button>`
+        : '';
+
+      contenido.innerHTML = `
+        <div class="overflow-x-auto">
+        <table class="w-full text-xs border-collapse">
+          <thead>
+            <tr class="bg-slate-50 text-slate-500 uppercase text-[10px]">
+              <th class="px-3 py-2 border border-slate-200 text-center">Fecha</th>
+              <th class="px-3 py-2 border border-slate-200 text-center">Tipo de evento</th>
+              <th class="px-3 py-2 border border-slate-200 text-center">Descripción</th>
+              <th class="px-3 py-2 border border-slate-200 text-center">Responsable / Proveedor</th>
+              <th class="px-3 py-2 border border-slate-200 text-center">Documento</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filasHTML || `<tr><td colspan="5" class="text-center text-slate-400 py-4">Aún no hay eventos registrados.</td></tr>`}
+          </tbody>
+        </table>
+        </div>
+        ${botonAgregar}
+      `;
+    }
+
+    // ── Agregar un evento de trazabilidad, con la fecha de calibración precargada (solo QHSE) ──
+    async function agregarEventoTrazabilidadEquipo(filaId) {
+      const { data: filaEquipo, error: errorFila } = await supabaseClient
+        .from('mantto_equipos_herramientas')
+        .select('fecha_calibracion')
+        .eq('id', filaId)
+        .single();
+
+      if (errorFila) console.error('No se pudo obtener la fecha de calibración:', errorFila);
+
+      const fechaInicial = filaEquipo ? filaEquipo.fecha_calibracion : null;
+
+      const { error } = await supabaseClient.from('mantto_trazabilidad_equipos')
+        .insert({ fila_id: filaId, fecha: fechaInicial });
+      if (error) { await mostrarAviso('No se pudo agregar el evento.'); console.error(error); return; }
+      await cargarTrazabilidadEquipo(filaId);
+    }
+
+    // ── Guardar edición de un campo de un evento (solo QHSE) ──
+    async function guardarEventoTrazabilidadEquipo(idEvento, campo, valor) {
+      const { error } = await supabaseClient.from('mantto_trazabilidad_equipos')
+        .update({ [campo]: valor === '' ? null : valor }).eq('id', idEvento);
+      if (error) { console.error('Error guardando evento de trazabilidad:', error); }
+    }
+
+    // ── Subir / reemplazar documento (PDF o foto) de un evento (solo QHSE) ──
+    async function subirDocumentoTrazabilidadEquipo(idEvento, inputEl) {
+      const archivo = inputEl.files[0];
+      if (!archivo) return;
+
+      const extension = archivo.name.split('.').pop().toLowerCase();
+      const nombreArchivo = `trazabilidad-equipos/${idEvento}-${Date.now()}.${extension}`;
+      const { error: errorSubida } = await supabaseClient.storage
+        .from('documentos').upload(nombreArchivo, archivo, { upsert: true });
+
+      if (errorSubida) { await mostrarAviso('Error al subir el documento.'); console.error(errorSubida); return; }
+
+      const { data: urlPublica } = supabaseClient.storage.from('documentos').getPublicUrl(nombreArchivo);
+
+      const { error: errorGuardado } = await supabaseClient.from('mantto_trazabilidad_equipos')
+        .update({ documento_url: urlPublica.publicUrl, documento_nombre: archivo.name }).eq('id', idEvento);
+
+      if (errorGuardado) { await mostrarAviso('No se pudo guardar el documento.'); console.error(errorGuardado); return; }
+
+      mostrarToast('Documento subido correctamente ✅', 'exito');
+      const filaId = document.getElementById('modalTrazabilidadEquipo').dataset.filaId;
+      await cargarTrazabilidadEquipo(filaId);
+    }
+
+    // ── Eliminar un evento de trazabilidad (solo QHSE) ──
+    async function eliminarEventoTrazabilidadEquipo(idEvento) {
+      const confirmado = await confirmarAccion('¿Seguro que quieres eliminar este evento de trazabilidad? Esta acción no se puede deshacer.');
+      if (!confirmado) return;
+
+      const { error } = await supabaseClient.from('mantto_trazabilidad_equipos').delete().eq('id', idEvento);
+      if (error) { await mostrarAviso('No se pudo eliminar el evento.'); console.error(error); return; }
+
+      mostrarToast('Evento eliminado correctamente', 'info');
+      const filaId = document.getElementById('modalTrazabilidadEquipo').dataset.filaId;
+      await cargarTrazabilidadEquipo(filaId);
+    }
+
+    // ── Ver trazabilidad de un drift ──
+    async function verTrazabilidadDrift(filaId, tamanoDrift, materialDrift, noSerieDrift) {
+      const modal = document.getElementById('modalTrazabilidadDrift');
+      const contenido = document.getElementById('contenidoTrazabilidadDrift');
+
+      const detalles = [];
+      if (materialDrift) detalles.push(`Material: ${materialDrift}`);
+      if (noSerieDrift) detalles.push(`N° Serie: ${noSerieDrift}`);
+
+      let textoTipo = tamanoDrift ? `Tamaño: ${tamanoDrift}` : '';
+      if (detalles.length) textoTipo += (textoTipo ? ' | ' : '') + detalles.join(' | ');
+
+      document.getElementById('trazabilidadDriftTipo').textContent = textoTipo;
+      contenido.innerHTML = 'Cargando...';
+      modal.classList.remove('hidden');
+      modal.dataset.filaId = filaId;
+
+      await cargarTrazabilidadDrift(filaId);
+    }
+
+    async function cargarTrazabilidadDrift(filaId) {
+      const contenido = document.getElementById('contenidoTrazabilidadDrift');
+      const { data, error } = await supabaseClient.from('mantto_trazabilidad_drift')
+        .select('*').eq('fila_id', filaId)
+        .order('fecha', { ascending: true });
+
+      if (error) {
+        contenido.innerHTML = '<p class="text-red-500 text-xs">No se pudo cargar la trazabilidad.</p>';
+        console.error(error);
+        return;
+      }
+
+      const filaTabla = (registro) => {
+        const esImagen = registro.documento_url && /\.(jpe?g|png|gif|webp)(\?.*)?$/i.test(registro.documento_url);
+        const doc = registro.documento_url
+          ? (esImagen
+              ? `<a href="${registro.documento_url}" target="_blank" rel="noopener" title="${registro.documento_nombre || 'Ver imagen'}">
+                   <img src="${registro.documento_url}" class="h-8 w-8 object-cover rounded border border-slate-200 inline-block" alt="Documento">
+                 </a>`
+              : `<a href="${registro.documento_url}" target="_blank" rel="noopener" class="text-red-500 hover:text-red-700" title="${registro.documento_nombre || 'Ver documento'}">
+                   <i class="fas fa-file-pdf"></i> PDF
+                 </a>`)
+          : '<span class="text-slate-300 text-xs">—</span>';
+
+        if (!esQHSE) {
+          return `<tr>
+            <td class="px-3 py-2 text-slate-600 whitespace-nowrap">${formatearFecha(registro.fecha)}</td>
+            <td class="px-3 py-2 text-slate-600">${registro.evento || ''}</td>
+            <td class="px-3 py-2 text-slate-600">${registro.descripcion || ''}</td>
+            <td class="px-3 py-2 text-slate-600">${registro.responsable_proveedor || ''}</td>
+            <td class="px-3 py-2 text-center">${doc}</td>
+          </tr>`;
+        }
+
+        return `<tr>
+          <td class="px-2 py-1"><input type="date" value="${registro.fecha || ''}" class="celda-editable px-2 py-1 rounded text-xs w-full"
+              onchange="guardarEventoTrazabilidadDrift('${registro.id}', 'fecha', this.value)"></td>
+          <td class="px-2 py-1">
+            <select class="celda-editable px-2 py-1 rounded text-xs w-full"
+                onchange="guardarEventoTrazabilidadDrift('${registro.id}', 'evento', this.value)">
+              <option value="" ${!registro.evento ? 'selected' : ''}>Seleccionar...</option>
+              ${['Ingreso de equipo', 'Mantenimiento', 'Baja'].map(op =>
+                `<option value="${op}" ${registro.evento === op ? 'selected' : ''}>${op}</option>`
+              ).join('')}
+            </select>
+          </td>
+          <td class="px-2 py-1"><input type="text" value="${registro.descripcion || ''}" class="celda-editable px-2 py-1 rounded text-xs w-full"
+              onchange="guardarEventoTrazabilidadDrift('${registro.id}', 'descripcion', this.value)"></td>
+          <td class="px-2 py-1">
+            <select class="celda-editable px-2 py-1 rounded text-xs w-full"
+                onchange="guardarEventoTrazabilidadDrift('${registro.id}', 'responsable_proveedor', this.value)">
+              <option value="" ${!registro.responsable_proveedor ? 'selected' : ''}>Seleccionar...</option>
+              ${['Personal de Taller', 'Proveedor autorizado'].map(op =>
+                `<option value="${op}" ${registro.responsable_proveedor === op ? 'selected' : ''}>${op}</option>`
+              ).join('')}
+            </select>
+          </td>
+          <td class="px-2 py-1 text-center whitespace-nowrap">
+            ${doc}
+            <button onclick="document.getElementById('input-doc-drift-${registro.id}').click()" class="ml-2 text-slate-400 hover:text-slate-700" title="Subir / reemplazar documento">
+              <i class="fas fa-upload text-xs"></i>
+            </button>
+            <input id="input-doc-drift-${registro.id}" type="file" accept="application/pdf,image/*" class="hidden" onchange="subirDocumentoTrazabilidadDrift('${registro.id}', this)">
+            <button onclick="eliminarEventoTrazabilidadDrift('${registro.id}')" class="ml-2 text-red-300 hover:text-red-600" title="Eliminar evento">
+              <i class="fas fa-trash-can text-xs"></i>
+            </button>
+          </td>
+        </tr>`;
+      };
+
+      const filasHTML = (data || []).map(filaTabla).join('');
+      const botonAgregar = esQHSE
+        ? `<button onclick="agregarEventoTrazabilidadDrift('${filaId}')"
+             class="mt-3 flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
+             <i class="fas fa-plus"></i> Agregar evento
+           </button>`
+        : '';
+
+      contenido.innerHTML = `
+        <div class="overflow-x-auto">
+        <table class="w-full text-xs border-collapse">
+          <thead>
+            <tr class="bg-slate-50 text-slate-500 uppercase text-[10px]">
+              <th class="px-3 py-2 border border-slate-200 text-center">Fecha</th>
+              <th class="px-3 py-2 border border-slate-200 text-center">Tipo de evento</th>
+              <th class="px-3 py-2 border border-slate-200 text-center">Descripción</th>
+              <th class="px-3 py-2 border border-slate-200 text-center">Responsable / Proveedor</th>
+              <th class="px-3 py-2 border border-slate-200 text-center">Documento</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filasHTML || `<tr><td colspan="5" class="text-center text-slate-400 py-4">Aún no hay eventos registrados.</td></tr>`}
+          </tbody>
+        </table>
+        </div>
+        ${botonAgregar}
+      `;
+    }
+
+    // ── Agregar un evento de trazabilidad, con la fecha de calibración precargada (solo QHSE) ──
+    async function agregarEventoTrazabilidadDrift(filaId) {
+      const { data: filaDrift, error: errorFila } = await supabaseClient
+        .from('mantto_drift')
+        .select('fecha_calibracion')
+        .eq('id', filaId)
+        .single();
+
+      if (errorFila) console.error('No se pudo obtener la fecha de calibración:', errorFila);
+
+      const fechaInicial = filaDrift ? filaDrift.fecha_calibracion : null;
+
+      const { error } = await supabaseClient.from('mantto_trazabilidad_drift')
+        .insert({ fila_id: filaId, fecha: fechaInicial });
+      if (error) { await mostrarAviso('No se pudo agregar el evento.'); console.error(error); return; }
+      await cargarTrazabilidadDrift(filaId);
+    }
+
+    // ── Guardar edición de un campo de un evento (solo QHSE) ──
+    async function guardarEventoTrazabilidadDrift(idEvento, campo, valor) {
+      const { error } = await supabaseClient.from('mantto_trazabilidad_drift')
+        .update({ [campo]: valor === '' ? null : valor }).eq('id', idEvento);
+      if (error) { console.error('Error guardando evento de trazabilidad:', error); }
+    }
+
+    // ── Subir / reemplazar documento (PDF o foto) de un evento (solo QHSE) ──
+    async function subirDocumentoTrazabilidadDrift(idEvento, inputEl) {
+      const archivo = inputEl.files[0];
+      if (!archivo) return;
+
+      const extension = archivo.name.split('.').pop().toLowerCase();
+      const nombreArchivo = `trazabilidad-drift/${idEvento}-${Date.now()}.${extension}`;
+      const { error: errorSubida } = await supabaseClient.storage
+        .from('documentos').upload(nombreArchivo, archivo, { upsert: true });
+
+      if (errorSubida) { await mostrarAviso('Error al subir el documento.'); console.error(errorSubida); return; }
+
+      const { data: urlPublica } = supabaseClient.storage.from('documentos').getPublicUrl(nombreArchivo);
+
+      const { error: errorGuardado } = await supabaseClient.from('mantto_trazabilidad_drift')
+        .update({ documento_url: urlPublica.publicUrl, documento_nombre: archivo.name }).eq('id', idEvento);
+
+      if (errorGuardado) { await mostrarAviso('No se pudo guardar el documento.'); console.error(errorGuardado); return; }
+
+      mostrarToast('Documento subido correctamente ✅', 'exito');
+      const filaId = document.getElementById('modalTrazabilidadDrift').dataset.filaId;
+      await cargarTrazabilidadDrift(filaId);
+    }
+
+    // ── Eliminar un evento de trazabilidad (solo QHSE) ──
+    async function eliminarEventoTrazabilidadDrift(idEvento) {
+      const confirmado = await confirmarAccion('¿Seguro que quieres eliminar este evento de trazabilidad? Esta acción no se puede deshacer.');
+      if (!confirmado) return;
+
+      const { error } = await supabaseClient.from('mantto_trazabilidad_drift').delete().eq('id', idEvento);
+      if (error) { await mostrarAviso('No se pudo eliminar el evento.'); console.error(error); return; }
+
+      mostrarToast('Evento eliminado correctamente', 'info');
+      const filaId = document.getElementById('modalTrazabilidadDrift').dataset.filaId;
+      await cargarTrazabilidadDrift(filaId);
     }
 
     // ── Eliminar certificado PDF de una fila (solo QHSE) ──
@@ -1519,6 +2499,7 @@
     async function cargarDatos() {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) { window.location.href = 'intranet-login.html'; return; }
+      iniciarLatido(session.user.id);
 
       const { data: perfil } = await supabaseClient.from('perfiles').select('*').eq('id', session.user.id).single();
 
@@ -1538,15 +2519,22 @@
             btn.classList.add('flex');
           });
           actualizarBotonesInstructivo();
-          ['equipos', 'izaje', 'drift'].forEach(n => {
+          ['equipos', 'izaje', 'izajeCable', 'drift'].forEach(n => {
             document.getElementById(`btn-add-${n}`).classList.remove('hidden');
             document.getElementById(`btn-add-${n}`).classList.add('flex');
           });
-          ['izaje', 'drift'].forEach(n => {
+          document.getElementById('btn-pdf-equipos').classList.remove('hidden');
+          document.getElementById('btn-pdf-equipos').classList.add('flex');
+          ['izaje', 'izajeCable', 'drift'].forEach(n => {
             const btnHist = document.getElementById(`btn-historial-${n}`);
             if (btnHist) { btnHist.classList.remove('hidden'); btnHist.classList.add('flex'); }
           });
+          ['equipos', 'izaje', 'izajeCable', 'drift'].forEach(n => {
+            const btnOcultos = document.getElementById(`btn-ocultos-${n}`);
+            if (btnOcultos) { btnOcultos.classList.remove('hidden'); btnOcultos.classList.add('flex'); }
+          });
           document.querySelectorAll('.col-acciones').forEach(el => el.classList.remove('hidden'));
+          document.querySelectorAll('.col-fecha-restringida').forEach(el => el.classList.remove('hidden'));
         }
       }
 
@@ -1555,6 +2543,8 @@
     }
 
     cargarDatos();
+    suscribirRealtimeIzaje();
+    suscribirRealtimeEquiposDrift();
     setInterval(cargarKPI, 30000);
   </script>
 

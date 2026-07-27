@@ -824,7 +824,7 @@
     const { createClient } = supabase;
     const supabaseClient = createClient(
       'https://bgqlvkvlscujikhzzazf.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJncWx2a3Zsc2N1amlraHp6YXpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NzA0OTQsImV4cCI6MjA5NDM0NjQ5NH0.RuNCaTgjTN1mTA6kkjfXwz05epUYzARqGj8L3I2v350'
+      'sb_publishable_S5G17esnd47Gw9hO3rTfbA_cTxVtG-P'
     );
 
     // ── ESTADO GLOBAL ──
@@ -2624,6 +2624,26 @@
       ];
     }
 
+    let intervaloLatido = null;
+
+    function iniciarLatido(userId) {
+      if (intervaloLatido) return;
+
+      const enviarLatido = () => {
+        if (document.visibilityState === 'visible') {
+          supabaseClient
+            .from('perfiles')
+            .update({ ultima_actividad: new Date().toISOString() })
+            .eq('id', userId)
+            .then(() => {})
+            .catch(() => {}); // Si falla un latido por red, no pasa nada — se reintenta en 30s
+        }
+      };
+
+      enviarLatido();
+      intervaloLatido = setInterval(enviarLatido, 30000);
+    }
+
     // ────────────────────────────────────────────
     // INIT
     // ────────────────────────────────────────────
@@ -2657,6 +2677,7 @@
       // Verificar sesión
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) { window.location.href = 'intranet-login.html'; return; }
+      iniciarLatido(session.user.id);
 
       // Verificar rol para botón añadir empleado
       const { data: perfil } = await supabaseClient
