@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evaluaciones de Calidad | In Hole Solutions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" href="data:,">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    body { font-family: 'Calibri', 'Carlito', 'Segoe UI', sans-serif; }
+    .kpi-card {
+      background: white; border-radius: 1rem; border: 1px solid #e2e8f0;
+      padding: 1.25rem 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .tab-btn { color: #64748b; transition: all 0.15s; }
+    .tab-btn.active { background: white; color: #e31e24; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+
+    .kpi-card, .kpi-card-mini { transition: box-shadow 0.2s, transform 0.2s; }
+    .kpi-card:hover, .kpi-card-mini:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+
+    .fila-hover { transition: background 0.15s, cursor 0.15s; cursor: pointer; }
+    .fila-hover:hover { background: #f1f5f9 !important; }
+
+    .skeleton-card {
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background-size: 200% 100%;
+      animation: skeleton-pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes skeleton-pulse {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .kpi-card-mini {
+      background: white; border-radius: 0.75rem; border: 1px solid #e2e8f0;
+      padding: 1rem; box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      height: 110px;
+      display: flex; flex-direction: column; justify-content: center;
+      text-align: center;
+    }
+
+    /* ── Necesario para header.html ── */
+    .glass-nav { background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(16px); }
+    @media (min-width: 1024px) {
+      .dropdown:hover > .dropdown-menu { display: block; animation: fadeIn 0.2s ease-out; }
+      .group\/sub:hover > .submenu-content { display: block; }
+    }
+    .mobile-active { display: block !important; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-[#f8fafc] min-h-screen flex flex-col">
+
+  <!-- ── HEADER ── -->
+  <div id="header-componente"></div>
+
+  <main class="w-full max-w-7xl mx-auto px-4 py-8 flex-1 pt-24 lg:pt-36 3xl:pt-40">
+    <!-- ── Breadcrumb ── -->
+    <div class="flex items-center gap-2 text-sm text-slate-400 mb-4">
+      <a href="dashboard.html" class="hover:text-[#e31e24] transition-colors">
+        <i class="fas fa-house"></i>
+      </a>
+      <span class="text-slate-300">/</span>
+      <span class="font-semibold">Evaluaciones de Calidad</span>
+    </div>
+
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-bold text-slate-800">Evaluaciones de Calidad</h2>
+        <p class="text-slate-500 mt-1">Resultados de evaluación de servicio generados en Completions.</p>
+      </div>
+    </div>
+
+    <div id="banner-alertas" class="hidden mb-6"></div>
+
+    <!-- Aquí irán KPIs, gráficas y tabla (siguientes pasos) -->
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2">
+        <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Periodo a Mostrar</p>
+        <span id="fecha-hoy" class="text-[11px] text-slate-400">· </span>
+      </div>
+      <div class="flex gap-1 bg-slate-100 rounded-lg p-1">
+        <button id="btn-global-mes" onclick="cambiarVistaGlobal('mes')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Mes</button>
+        <button id="btn-global-general" onclick="cambiarVistaGlobal('general')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">General</button>
+      </div>
+    </div>
+    <div id="contenedor-kpis" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div class="kpi-card-mini skeleton-card"></div>
+      <div class="kpi-card-mini skeleton-card"></div>
+      <div class="kpi-card-mini skeleton-card"></div>
+      <div class="kpi-card-mini skeleton-card"></div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div class="kpi-card">
+        <p class="text-sm font-bold text-slate-700 mb-4">Promedio por Criterio</p>
+        <canvas id="grafica-criterios"></canvas>
+      </div>
+      <div class="kpi-card">
+        <p id="titulo-tendencia" class="text-sm font-bold text-slate-700 mb-4">Evolución del Promedio</p>
+        <canvas id="grafica-tendencia"></canvas>
+      </div>
+    </div>
+    <!-- Modal Detalle de Evaluación -->
+    <div id="modal-detalle-evaluacion" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onclick="cerrarModalDetalle(event)">
+      <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between mb-1">
+          <h3 id="modal-detalle-titulo" class="text-lg font-bold text-slate-800">Detalle de Evaluación</h3>
+          <button onclick="cerrarModalDetalle()" class="text-slate-400 hover:text-slate-600">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <p id="modal-detalle-subtitulo" class="text-xs text-slate-400 mb-5"></p>
+        <div id="modal-detalle-criterios" class="space-y-3"></div>
+        <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
+          <span class="text-sm font-bold text-slate-700">Promedio General</span>
+          <span id="modal-detalle-promedio" class="text-lg font-black text-[#e31e24]"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-card overflow-x-auto">
+      <button onclick="toggleDetalleOperacion()" class="w-full flex items-center justify-between mb-4">
+        <p class="text-sm font-bold text-slate-700">Detalle por Operación</p>
+        <i id="icono-detalle-operacion" class="fas fa-chevron-up text-slate-400 text-xs transition-transform"></i>
+      </button>
+      <div id="contenido-detalle-operacion">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-xs font-bold uppercase text-slate-400 border-b border-slate-100">
+            <th class="py-2 pr-4">Job ID</th>
+            <th class="py-2 pr-4">Cliente</th>
+            <th class="py-2 pr-4">Pozo</th>
+            <th class="py-2 pr-4">Fecha</th>
+            <th class="py-2 pr-4">Resultado</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-evaluaciones-body"></tbody>
+      </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- ── FOOTER ── -->
+  <div id="footer-componente"></div>
+
+  <script>
+    const SUPABASE_URL = 'https://bgqlvkvlscujikhzzazf.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_S5G17esnd47Gw9hO3rTfbA_cTxVtG-P';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  </script>
+
+  <script>
+    // ── Cargar header y footer ──
+    fetch('header.html')
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById('header-componente').innerHTML = html;
+      });
+
+    fetch('footer.html')
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById('footer-componente').innerHTML = html;
+        document.getElementById('footer-year').textContent = new Date().getFullYear();
+      });
+
+    // ── Funciones que el header necesita ──
+    async function cerrarSesion() {
+      await supabaseClient.auth.signOut();
+      window.location.href = '../index.html';
+    }
+
+    function mostrarInicio() {
+      window.location.href = 'dashboard.html';
+    }
+
+    function obtenerSaludo() {
+      const hora = new Date().getHours();
+      if (hora >= 6 && hora < 12) return "Buenos días";
+      if (hora >= 12 && hora < 19) return "Buenas tardes";
+      return "Buenas noches";
+    }
+
+    function toggleMenu(id) {
+      const el = document.getElementById(id);
+      el.classList.toggle('hidden');
+      el.classList.toggle('block');
+    }
+
+    function toggleSubmenu(btn) {
+      const menu = btn.nextElementSibling;
+      menu.classList.toggle('hidden');
+      const icon = btn.querySelector('.fa-chevron-down, .fa-chevron-right');
+      if (icon) icon.classList.toggle('rotate-180');
+      event.stopPropagation();
+    }
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1024) {
+        document.getElementById('mobile-nav').classList.remove('hidden');
+        document.getElementById('mobile-nav').classList.add('block');
+      }
+    });
+  </script>
+
+  <script>
+    const CRITERIOS_CALIDAD = [
+      { id: 'personal',             nombre: 'Personal' },
+      { id: 'equipo',               nombre: 'Equipo' },
+      { id: 'comunicacion',         nombre: 'Comunicación' },
+      { id: 'hse',                  nombre: 'HSE' },
+      { id: 'percepcion_general',   nombre: 'Percepción General' }
+    ];
+
+    const NIVEL_TEXTO = ['Deficiente', 'Regular', 'Satisfactorio', 'Bueno', 'Excelente'];
+    const NIVEL_COLOR = ['#ef4444', '#f97316', '#eab308', '#84cc16', '#22c55e'];
+  </script>
+
+  <script>
+    let operacionesEvaluadas = [];
+    let operacionesDelMesGlobal = [];
+    let vistaCriterios = 'mes';
+    let vistaTendencia = 'mes';
+    let vistaKPIs = 'mes';
+    let vistaTabla = 'mes';
+
+    // ── Latido: marcar que este usuario está activo ──
+    let intervaloLatido = null;
+
+    function iniciarLatido(userId) {
+      if (intervaloLatido) return; // evitar duplicar el intervalo
+
+      const enviarLatido = () => {
+        if (document.visibilityState === 'visible') {
+          supabaseClient
+            .from('perfiles')
+            .update({ ultima_actividad: new Date().toISOString() })
+            .eq('id', userId)
+            .then(() => {})
+            .catch(() => {}); // si falla por red, no pasa nada — se reintenta en 30s
+        }
+      };
+
+      enviarLatido(); // el primero, inmediato
+      intervaloLatido = setInterval(enviarLatido, 30000); // luego cada 30 segundos
+    }
+
+    async function cargarEvaluaciones() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) { window.location.href = 'intranet-login.html'; return; }
+
+      // ── Mostrar nombre del usuario en el header ──
+      const { data: perfil } = await supabaseClient
+        .from('perfiles').select('id, nombre_completo').eq('id', session.user.id).single();
+      const welcomeEl = document.getElementById('user-welcome');
+      if (perfil && welcomeEl) {
+        welcomeEl.innerHTML = `${obtenerSaludo()}, <span class="text-[#e31e24]">${perfil.nombre_completo}</span>`;
+      }
+
+      // ── Latido: marcar que este usuario está activo ──
+      if (perfil) iniciarLatido(perfil.id);
+
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/cementing_operaciones?select=id,job_id,cliente,nombre_pozo,rig,created_at,finalizada,evaluacion_calidad&evaluacion_calidad=not.is.null&order=created_at.desc`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`
+          }
+        }
+      );
+      const data = await res.json();
+
+      // Solo dejamos operaciones que tengan al menos un criterio calificado
+      operacionesEvaluadas = data.filter(op =>
+        op.evaluacion_calidad && Object.values(op.evaluacion_calidad).some(v => v !== null)
+      );
+
+      renderKPIs();
+      renderGraficas();
+      renderTablaEvaluaciones();
+      renderAlertas();
+    }
+
+    function renderAlertas() {
+      const cont = document.getElementById('banner-alertas');
+
+      // Ordenamos cronológicamente y tomamos las últimas 5 operaciones para el análisis
+      const ordenCronologico = [...operacionesEvaluadas].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+      const ultimas = ordenCronologico.slice(-5);
+
+      const criteriosEnAlerta = [];
+
+      CRITERIOS_CALIDAD.forEach(c => {
+        let racha = 0;
+        for (let i = ultimas.length - 1; i >= 0; i--) {
+          const val = ultimas[i].evaluacion_calidad[c.id];
+          if (val !== null && val !== undefined && val <= 3) {
+            racha++;
+          } else {
+            break;
+          }
+        }
+        if (racha >= 2) criteriosEnAlerta.push({ nombre: c.nombre, racha });
+      });
+
+      if (criteriosEnAlerta.length === 0) {
+        cont.classList.add('hidden');
+        return;
+      }
+
+      const mensaje = criteriosEnAlerta
+        .map(c => `<strong>${c.nombre}</strong> ha estado bajo (≤3) en las últimas ${c.racha} evaluaciones`)
+        .join(' · ');
+
+      cont.innerHTML = `
+        <div class="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+          <i class="fas fa-triangle-exclamation text-amber-500 mt-0.5"></i>
+          <p class="text-sm text-amber-800">${mensaje}</p>
+        </div>
+      `;
+      cont.classList.remove('hidden');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const hoy = new Date();
+      const fechaTexto = hoy.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+      const fechaEl = document.getElementById('fecha-hoy');
+      if (fechaEl) fechaEl.textContent = `· Hoy es ${fechaTexto}`;
+
+      cargarEvaluaciones();
+    });
+  </script>
+
+  <script>
+    function animarConteo(elementId, valorFinal, decimales = 0, sufijo = '') {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      const duracion = 600;
+      const inicio = performance.now();
+
+      function tick(ahora) {
+        const progreso = Math.min((ahora - inicio) / duracion, 1);
+        const valorActual = valorFinal * progreso;
+        el.textContent = valorActual.toFixed(decimales) + sufijo;
+        if (progreso < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function obtenerMesAnioActual() {
+      const hoy = new Date();
+      const texto = hoy.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+      return texto.charAt(0).toUpperCase() + texto.slice(1); // "Julio 2026"
+    }
+
+    function promedioOperacion(op) {
+      const valores = Object.values(op.evaluacion_calidad).filter(v => v !== null && v !== undefined);
+      if (!valores.length) return null;
+      return valores.reduce((a, b) => a + b, 0) / valores.length;
+    }
+
+    function renderKPIs() {
+      const cont = document.getElementById('contenedor-kpis');
+      const total = operacionesEvaluadas.length;
+
+      // ── Filtrar operaciones del mes actual ──
+      const fechaActual = new Date();
+      const mesActual = fechaActual.getMonth();
+      const anioActual = fechaActual.getFullYear();
+
+      const operacionesDelMes = operacionesEvaluadas.filter(op => {
+        if (!op.created_at) return false;
+        const fechaOp = new Date(op.created_at);
+        return fechaOp.getMonth() === mesActual && fechaOp.getFullYear() === anioActual;
+      });
+      operacionesDelMesGlobal = operacionesDelMes;
+
+      const evaluacionesDelMes = operacionesDelMes.length;
+
+      // ── Cálculos GENERALES ──
+      const promedios = operacionesEvaluadas.map(promedioOperacion).filter(v => v !== null);
+      const promedioGeneral = promedios.length ? (promedios.reduce((a,b)=>a+b,0) / promedios.length) : 0;
+      const criteriosBajos = operacionesEvaluadas.reduce((acc, op) => {
+        CRITERIOS_CALIDAD.forEach(c => {
+          const val = op.evaluacion_calidad[c.id];
+          if (val && val <= 3) acc++;
+        });
+        return acc;
+      }, 0);
+
+      // ── Cálculos MENSUALES ──
+      const promediosMes = operacionesDelMes.map(promedioOperacion).filter(v => v !== null);
+      const promedioMensual = promediosMes.length ? (promediosMes.reduce((a,b)=>a+b,0) / promediosMes.length) : 0;
+      const criteriosBajosMensual = operacionesDelMes.reduce((acc, op) => {
+        CRITERIOS_CALIDAD.forEach(c => {
+          const val = op.evaluacion_calidad[c.id];
+          if (val && val <= 3) acc++;
+        });
+        return acc;
+      }, 0);
+
+      // ── Promedio del periodo anterior (para la tendencia) ──
+      const mesAnteriorFecha = new Date(anioActual, mesActual - 1, 1);
+      const operacionesMesAnterior = operacionesEvaluadas.filter(op => {
+        if (!op.created_at) return false;
+        const fechaOp = new Date(op.created_at);
+        return fechaOp.getMonth() === mesAnteriorFecha.getMonth() && fechaOp.getFullYear() === mesAnteriorFecha.getFullYear();
+      });
+      const promediosMesAnterior = operacionesMesAnterior.map(promedioOperacion).filter(v => v !== null);
+      const promedioMesAnterior = promediosMesAnterior.length
+        ? (promediosMesAnterior.reduce((a,b)=>a+b,0) / promediosMesAnterior.length)
+        : null;
+
+      // ── Elegir qué mostrar según la vista activa ──
+      const esMes = vistaKPIs === 'mes';
+      const cantidad = esMes ? evaluacionesDelMes : total;
+      const cantidadLabel = esMes ? 'Evaluaciones del Mes' : 'Evaluaciones Totales';
+      const cantidadSub = esMes ? obtenerMesAnioActual() : 'Histórico general';
+      const promedio = esMes ? promedioMensual : promedioGeneral;
+      const promedioLabel = esMes ? 'Promedio Mensual' : 'Promedio General';
+      const bajos = esMes ? criteriosBajosMensual : criteriosBajos;
+      const nivelLabel = esMes ? 'Nivel Mensual' : 'Nivel';
+
+      // ── Tendencia (solo tiene sentido en vista Mes, comparando contra mes anterior) ──
+      let tendenciaHtml = '';
+      if (esMes && promedioMesAnterior !== null) {
+        const diferencia = promedio - promedioMesAnterior;
+        const subioBajo = diferencia >= 0 ? 'up' : 'down';
+        const colorTendencia = diferencia >= 0 ? 'text-green-600' : 'text-red-600';
+        const icono = diferencia >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+        tendenciaHtml = `<p class="text-[10px] font-bold ${colorTendencia} mt-0.5"><i class="fas ${icono}"></i> ${diferencia >= 0 ? '+' : ''}${diferencia.toFixed(2)} vs mes anterior</p>`;
+      }
+
+      cont.innerHTML = `
+        <div class="kpi-card-mini">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">${cantidadLabel}</p>
+          <p class="text-lg font-bold text-slate-800" id="valor-cantidad">0</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">${cantidadSub}</p>
+        </div>
+
+        <div class="kpi-card-mini">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">${promedioLabel}</p>
+          <p class="text-lg font-bold text-[#e31e24]" id="valor-promedio">0.00 / 5</p>
+          ${tendenciaHtml}
+        </div>
+
+        <div class="kpi-card-mini">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Criterios Bajos (≤3)</p>
+          ${bajos === 0
+            ? `<p class="text-lg font-bold text-green-600"><i class="fas fa-check-circle text-base"></i> 0</p>`
+            : `<p class="text-lg font-bold text-amber-600">${bajos}</p>`
+          }
+        </div>
+
+        <div class="kpi-card-mini">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">${nivelLabel}</p>
+          <p class="text-lg font-bold text-slate-800">${NIVEL_TEXTO[Math.round(promedio) - 1] || '—'}</p>
+        </div>
+      `;
+
+      // ── Animar los números después de insertar el HTML ──
+      animarConteo('valor-cantidad', cantidad, 0);
+      requestAnimationFrame(() => {
+        const elProm = document.getElementById('valor-promedio');
+        const duracion = 600;
+        const inicio = performance.now();
+        function tick(ahora) {
+          const progreso = Math.min((ahora - inicio) / duracion, 1);
+          elProm.textContent = (promedio * progreso).toFixed(2) + ' / 5';
+          if (progreso < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      });
+    }
+
+    function cambiarVistaGlobal(vista) {
+      vistaKPIs = vista;
+      vistaCriterios = vista;
+      vistaTendencia = vista;
+      vistaTabla = vista;
+      renderKPIs();
+      renderGraficaCriterios();
+      renderGraficaTendencia();
+      renderTablaEvaluaciones();
+      actualizarBotonesTabs();
+    }
+
+  </script>
+
+  <script>
+    let chartCriterios = null;
+    let chartTendencia = null;
+
+    function renderGraficas() {
+      renderGraficaCriterios();
+      renderGraficaTendencia();
+      actualizarBotonesTabs();
+    }
+
+    function renderGraficaCriterios() {
+      const dataset = vistaCriterios === 'mes' ? operacionesDelMesGlobal : operacionesEvaluadas;
+
+      const promediosPorCriterio = CRITERIOS_CALIDAD.map(c => {
+        const valores = dataset
+          .map(op => op.evaluacion_calidad[c.id])
+          .filter(v => v !== null && v !== undefined);
+        return valores.length ? valores.reduce((a,b)=>a+b,0) / valores.length : 0;
+      });
+
+      const ctx1 = document.getElementById('grafica-criterios').getContext('2d');
+      if (chartCriterios) chartCriterios.destroy();
+      chartCriterios = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: CRITERIOS_CALIDAD.map(c => c.nombre),
+          datasets: [{
+            label: 'Promedio',
+            data: promediosPorCriterio,
+            backgroundColor: '#e31e24'
+          }]
+        },
+        options: { scales: { y: { min: 0, max: 5 } }, plugins: { legend: { display: false } } }
+      });
+    }
+
+    function renderGraficaTendencia() {
+      const dataset = vistaTendencia === 'mes' ? operacionesDelMesGlobal : operacionesEvaluadas;
+
+      const tituloEl = document.getElementById('titulo-tendencia');
+      if (tituloEl) {
+        tituloEl.textContent = vistaTendencia === 'mes'
+          ? 'Evolución del Promedio — Mes en Curso'
+          : 'Evolución del Promedio — Histórico General';
+      }
+      const ordenCronologico = [...dataset].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+      const etiquetasFecha = ordenCronologico.map(op => new Date(op.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }));
+      const promediosOperacion = ordenCronologico.map(promedioOperacion);
+
+      const ctx2 = document.getElementById('grafica-tendencia').getContext('2d');
+      if (chartTendencia) chartTendencia.destroy();
+      chartTendencia = new Chart(ctx2, {
+        type: 'line',
+        data: {
+          labels: etiquetasFecha,
+          datasets: [{
+            label: 'Promedio por operación',
+            data: promediosOperacion,
+            borderColor: '#e31e24',
+            backgroundColor: 'rgba(227,30,36,0.1)',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: { scales: { y: { min: 0, max: 5 } } }
+      });
+    }
+
+    function actualizarBotonesTabs() {
+      document.getElementById('btn-global-mes').classList.toggle('active', vistaKPIs === 'mes');
+      document.getElementById('btn-global-general').classList.toggle('active', vistaKPIs === 'general');
+    }
+
+    function abrirModalDetalle(opId) {
+      const op = operacionesEvaluadas.find(o => String(o.id) === String(opId));
+      if (!op) return;
+
+      document.getElementById('modal-detalle-titulo').textContent = op.job_id || 'Evaluación';
+      document.getElementById('modal-detalle-subtitulo').textContent =
+        `${op.cliente || '—'} · ${op.nombre_pozo || '—'} · ${new Date(op.created_at).toLocaleDateString('es-MX')}`;
+
+      const cont = document.getElementById('modal-detalle-criterios');
+      cont.innerHTML = CRITERIOS_CALIDAD.map(c => {
+        const val = op.evaluacion_calidad[c.id];
+        const tieneValor = val !== null && val !== undefined;
+        const nivelIdx = tieneValor ? Math.round(val) : 0;
+        const color = tieneValor ? NIVEL_COLOR[nivelIdx - 1] : '#cbd5e1';
+        const pct = tieneValor ? (val / 5) * 100 : 0;
+        return `
+          <div>
+            <div class="flex items-center justify-between text-xs mb-1">
+              <span class="font-semibold text-slate-600">${c.nombre}</span>
+              <span class="font-bold" style="color:${color};">${tieneValor ? val.toFixed(1) + ' / 5' : '—'}</span>
+            </div>
+            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div class="h-full rounded-full" style="width:${pct}%; background:${color};"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const prom = promedioOperacion(op);
+      document.getElementById('modal-detalle-promedio').textContent = prom ? `${prom.toFixed(2)} / 5` : '—';
+
+      document.getElementById('modal-detalle-evaluacion').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarModalDetalle(event) {
+      if (event && event.target.id !== 'modal-detalle-evaluacion') return;
+      document.getElementById('modal-detalle-evaluacion').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+  </script>
+
+  <script>
+    function renderTablaEvaluaciones() {
+      const dataset = vistaTabla === 'mes' ? operacionesDelMesGlobal : operacionesEvaluadas;
+      const tbody = document.getElementById('tabla-evaluaciones-body');
+      tbody.innerHTML = dataset.map(op => {
+        const prom = promedioOperacion(op);
+        const nivel = prom ? Math.round(prom) : 0;
+        const color = NIVEL_COLOR[nivel - 1] || '#94a3b8';
+        const bgFila = nivel > 0 ? `${color}0d` : 'transparent'; // 0d = ~5% opacidad en hex
+        return `
+          <tr class="border-b border-slate-50 fila-hover" style="background:${bgFila};" onclick="abrirModalDetalle('${op.id}')">
+            <td class="py-2 pr-4 font-mono text-xs">${op.job_id || '—'}</td>
+            <td class="py-2 pr-4">${op.cliente || '—'}</td>
+            <td class="py-2 pr-4">${op.nombre_pozo || '—'}</td>
+            <td class="py-2 pr-4">${new Date(op.created_at).toLocaleDateString('es-MX')}</td>
+            <td class="py-2 pr-4">
+              <span class="px-2 py-1 rounded-full text-xs font-bold" style="background:${color}20; color:${color};">
+                ${prom ? prom.toFixed(2) : '—'} / 5
+              </span>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function toggleDetalleOperacion() {
+      const cont = document.getElementById('contenido-detalle-operacion');
+      const icono = document.getElementById('icono-detalle-operacion');
+      cont.classList.toggle('hidden');
+      icono.classList.toggle('fa-chevron-up');
+      icono.classList.toggle('fa-chevron-down');
+    }
+
+  </script>
+
+</body>
+</html>

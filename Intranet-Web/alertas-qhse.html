@@ -183,7 +183,7 @@
 
     const enviarLatido = () => {
         if (document.visibilityState === 'visible') {
-          supabaseClient
+          sb
             .from('perfiles')
             .update({ ultima_actividad: new Date().toISOString() })
             .eq('id', userId)
@@ -431,7 +431,7 @@
     if (icon) icon.classList.toggle('rotate-180');
   }
   function cerrarSesion() { 
-    supabaseClient.auth.signOut().then(() => { 
+    sb.auth.signOut().then(() => {
       window.location.href = '../index.html'; 
     }); 
   }

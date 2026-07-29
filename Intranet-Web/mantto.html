@@ -1006,13 +1006,13 @@
         doc.setFillColor(...COLOR_AZUL_ACCENT);
         doc.rect(margenIzq, y, 3, 12, 'F');
 
-        doc.setFont('calibri', 'bold');
-        doc.setFontSize(15);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
         doc.setTextColor(...COLOR_AZUL_MARINO);
         doc.text('IN HOLE SOLUTIONS', margenIzq + 6, y + 5);
 
-        doc.setFont('calibri', 'normal');
-        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
         doc.setTextColor(...COLOR_GRIS_TEXTO);
         doc.text('Control de Mantenimiento y Calibración', margenIzq + 6, y + 10);
 
@@ -1024,14 +1024,14 @@
         y += 8;
 
         // ── 3. Título y Descripción ──
-        doc.setFont('calibri', 'bold');
-        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
         doc.setTextColor(...COLOR_AZUL_MARINO);
         doc.text('Control de Mantto y Calibración de Equipos y Herramientas', margenIzq, y);
         y += 5;
 
         const descripcion = 'Los equipos y herramientas utilizados en las operaciones son sometidos a programas de mantenimiento, calibración, verificación e inspección, de acuerdo con las recomendaciones del fabricante, los requisitos aplicables y las necesidades operativas.';
-        doc.setFont('calibri', 'normal');
+        doc.setFont('helvetica', 'bold');
         doc.setFontSize(8);
         doc.setTextColor(...COLOR_GRIS_TEXTO);
         const lineasDescripcion = doc.splitTextToSize(descripcion, anchoUtil);
@@ -1039,7 +1039,7 @@
         y += (lineasDescripcion.length * 3.5) + 6;
 
         // ── 4. TÍTULO DE SECCIÓN KPI (CENTRADO) ──
-        doc.setFont('calibri', 'bold');
+        doc.setFont('helvetica', 'bold');
         doc.setFontSize(9.5);
         doc.setTextColor(...COLOR_AZUL_MARINO);
         doc.text('Cumplimiento del Programa de Mantenimiento y Calibración', pageWidth / 2, y, { align: 'center' });
@@ -1064,12 +1064,12 @@
         doc.setLineWidth(0.3);
         doc.roundedRect(startXBloque, cardY, card1W, cardH, 2, 2, 'FD');
 
-        doc.setFont('calibri', 'bold');
+        doc.setFont('helvetica', 'bold');
         doc.setFontSize(7);
         doc.setTextColor(...COLOR_GRIS_TEXTO);
         doc.text('CUMPLIMIENTO GLOBAL', startXBloque + 8, cardY + 8);
 
-        doc.setFont('calibri', 'bold');
+        doc.setFont('helvetica', 'bold');
         doc.setFontSize(22);
         doc.setTextColor(...COLOR_AZUL_ACCENT);
         doc.text(`${Math.round(pctNum)}%`, startXBloque + 8, cardY + 20);
@@ -1110,7 +1110,7 @@
             halign: 'center', 
             cellPadding: 0.9, 
             textColor: [51, 65, 85],
-            font: 'calibri'
+            font: 'helvetica'
           },
           headStyles: { 
             fillColor: COLOR_AZUL_MARINO, 
@@ -1118,7 +1118,7 @@
             fontStyle: 'bold', 
             fontSize: 6,
             halign: 'center',
-            font: 'calibri'
+            font: 'helvetica'
           },
           columnStyles: { 
             0: { halign: 'left', fontStyle: 'bold', cellWidth: anchoTabla * 0.42 },
@@ -1204,7 +1204,7 @@
             textColor: [51, 65, 85], 
             cellPadding: 2,
             overflow: 'linebreak',
-            font: 'calibri'
+            font: 'helvetica'
           },
           headStyles: { 
             fillColor: COLOR_AZUL_ACCENT, 
@@ -1213,7 +1213,7 @@
             fontSize: 7.2,
             halign: 'center',
             valign: 'middle',
-            font: 'calibri'
+            font: 'helvetica'
           },
           alternateRowStyles: {
             fillColor: [248, 250, 252]
@@ -1227,13 +1227,13 @@
         const anioActual = new Date().getFullYear();
         const folioTexto = typeof folio !== 'undefined' && folio ? `${folio} ` : '';
 
-        const footerText = `${folioTexto}©${anioActual} IN HOLE SOLUTIONS - Todos los derechos reservados. Este documento contiene información confidencial y propiedad de In Hole Solutions, los usuarios de este documento declaran que la información contenida en él no será reproducida, utilizada o divulgada en su totalidad o en parte para ningún fin excepto el especificado y autorizado por In Hole Solutions.`;
+        const footerText = `${folioTexto}©${anioActual} IN HOLE SOLUTIONS - Todos los derechos reservados. Documento generado desde IHS CONNECT, plataforma integral de IN HOLE SOLUTIONS. Una vez descargada o impreso, este documento se considera una copia no controlada. La versión vigente es la disponible en IHS CONNECT. La información contenida en este documento es confidencial y de uso exclusivo para fines autorizados por IN HOLE SOLUTIONS. Queda restringida su reproducción, distribución, divulgación o modificación total o parcial sin la autorización correspondiente.`;
 
         for (let p = 1; p <= totalPaginas; p++) {
           doc.setPage(p);
 
-          doc.setFont('calibri', 'normal');
-          doc.setFontSize(5.5);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(5);
           doc.setTextColor(...COLOR_GRIS_TEXTO);
 
           // Dividir el texto para encajar perfectamente en el ancho útil

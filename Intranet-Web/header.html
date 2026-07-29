@@ -1,5 +1,5 @@
 <!-- ── HEADER ── -->
-<header class="bg-white border-b border-slate-200 fixed top-0 left-0 right-0 z-[60] glass-nav">
+<header class="bg-white border-b border-slate-200 fixed top-0 left-0 right-0 z-[80] glass-nav">
   <!--
     Alturas por breakpoint:
     móvil  (< sm  / < 640px)  : h-14  = 56px
@@ -30,9 +30,9 @@
     <div class="flex items-center gap-3 sm:gap-4 lg:gap-6">
 
       <!-- Bienvenida: visible sm+ -->
-      <div class="text-right hidden sm:block">
-        <p id="user-welcome" class="text-slate-800 font-semibold text-xs md:text-sm">Cargando...</p>
-        <p id="user-rol-label" class="text-slate-400 text-[10px] font-medium uppercase tracking-tighter">Miembro del Equipo</p>
+      <div class="text-right hidden sm:block cursor-pointer group" onclick="abrirMiPerfil()">
+        <p id="user-welcome" class="text-slate-800 font-semibold text-xs md:text-sm tracking-tight group-hover:text-[#e31e24] transition-colors">Cargando...</p>
+        <p id="user-rol-label" class="text-slate-400 text-[10px] font-medium uppercase tracking-widest mt-0.5">Miembro del Equipo</p>
       </div>
 
       <!-- Botón hamburguesa (solo < lg) -->
@@ -44,6 +44,29 @@
                      transition-colors hover:bg-slate-100">
         <i class="fas fa-bars text-sm"></i>
       </button>
+
+      <!-- Notificaciones -->
+      <div class="relative">
+        <button onclick="toggleNotificaciones()" id="btn-notificaciones"
+                class="bg-slate-50 hover:bg-red-50
+                       text-slate-400 hover:text-[#e31e24]
+                       h-9 w-9 sm:h-10 sm:w-10
+                       rounded-xl border border-slate-200
+                       transition-all flex items-center justify-center shadow-sm relative">
+          <i class="fas fa-bell text-sm"></i>
+          <span id="badge-notificaciones" class="hidden absolute -top-1.5 -right-1.5 bg-[#e31e24] text-white text-[9px] font-bold w-[18px] h-[18px] min-w-[18px] rounded-full flex items-center justify-center border-2 border-white">0</span>
+        </button>
+
+        <div id="panel-notificaciones" class="hidden absolute right-0 top-12 w-80 max-h-96 overflow-y-auto bg-white rounded-2xl shadow-2xl border border-slate-100 z-[200]">
+          <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100 sticky top-0 bg-white">
+            <p class="font-bold text-sm text-slate-800">Notificaciones</p>
+            <button onclick="marcarNotificacionesLeidas()" class="text-[11px] font-semibold text-[#e31e24] hover:underline">Marcar leídas</button>
+          </div>
+          <div id="lista-notificaciones" class="divide-y divide-slate-50">
+            <p class="text-center text-xs text-slate-400 py-8">Sin notificaciones nuevas</p>
+          </div>
+        </div>
+      </div>
 
       <!-- Botón cerrar sesión -->
       <button onclick="cerrarSesion()"
@@ -81,8 +104,8 @@
                 space-y-0 lg:space-y-0 lg:space-x-2 xl:space-x-6
                 py-2 lg:py-0">
 
-      <a href="politicas.html"
-         class="px-4 sm:px-5 py-3 lg:py-0 lg:h-full
+      <a href="politicas.html" id="nav-politicas"
+         class="relative px-4 sm:px-5 py-3 lg:py-0 lg:h-full
                 text-[11px] md:text-xs font-bold
                 text-white/90 hover:text-white
                 lg:hover:bg-white/10
@@ -91,10 +114,11 @@
                 border-b border-red-600 lg:border-none
                 transition-colors">
         Políticas
+        <span class="nav-indicator hidden absolute left-4 right-4 lg:left-1/2 lg:right-auto lg:-translate-x-1/2 -bottom-[1px] lg:bottom-0 h-[2px] lg:h-[3px] bg-white rounded-full"></span>
       </a>
 
-      <a href="alertas-qhse.html"
-         class="px-4 sm:px-5 py-3 lg:py-0 lg:h-full
+      <a href="alertas-qhse.html" id="nav-alertas"
+         class="relative px-4 sm:px-5 py-3 lg:py-0 lg:h-full
                 text-[11px] md:text-xs font-bold
                 text-white/90 hover:text-white
                 lg:hover:bg-white/10
@@ -103,10 +127,11 @@
                 border-b border-red-600 lg:border-none
                 transition-colors">
         Alertas QHSE
+        <span class="nav-indicator hidden absolute left-4 right-4 lg:left-1/2 lg:right-auto lg:-translate-x-1/2 -bottom-[1px] lg:bottom-0 h-[2px] lg:h-[3px] bg-white rounded-full"></span>
       </a>
 
-      <a href="mantto.html"
-         class="px-4 sm:px-5 py-3 lg:py-0 lg:h-full
+      <a href="mantto.html" id="nav-mantto"
+         class="relative px-4 sm:px-5 py-3 lg:py-0 lg:h-full
                 text-[11px] md:text-xs font-bold
                 text-white/90 hover:text-white
                 lg:hover:bg-white/10
@@ -115,6 +140,7 @@
                 border-b border-red-600 lg:border-none
                 transition-colors">
         Mantenimiento
+        <span class="nav-indicator hidden absolute left-4 right-4 lg:left-1/2 lg:right-auto lg:-translate-x-1/2 -bottom-[1px] lg:bottom-0 h-[2px] lg:h-[3px] bg-white rounded-full"></span>
       </a>
 
       <!-- Dropdown Completions -->
@@ -184,6 +210,126 @@
     </div>
   </div>
 </nav>
+
+<script>
+  // Resalta el link de la sección activa en el nav
+  (function marcarPaginaActiva() {
+    const pagina = window.location.pathname.split('/').pop();
+    const mapa = {
+      'politicas.html': 'nav-politicas',
+      'alertas-qhse.html': 'nav-alertas',
+      'mantto.html': 'nav-mantto'
+    };
+    const idActivo = mapa[pagina];
+    if (idActivo) {
+      const link = document.getElementById(idActivo);
+      if (link) {
+        link.classList.add('text-white');
+        link.querySelector('.nav-indicator')?.classList.remove('hidden');
+      }
+    }
+  })();
+</script>
+
+<!-- ── MODAL MI PERFIL ── -->
+<div id="modal-mi-perfil" class="hidden fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+    <div class="flex items-center justify-between px-6 py-5 bg-gradient-to-r from-slate-800 to-[#e31e24]">
+      <h3 class="font-bold text-white text-lg flex items-center gap-2">
+        <i class="fas fa-user-circle"></i> Mi Perfil
+      </h3>
+      <button onclick="cerrarMiPerfil()" class="h-9 w-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="p-6 space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Nombre</label>
+        <input id="perfil-nombre" type="text" disabled
+          class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm text-slate-500">
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+          <i class="fas fa-cake-candles text-pink-400 mr-1"></i> Fecha de nacimiento
+        </label>
+        <input id="perfil-fecha-nacimiento" type="date"
+          class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#e31e24] transition">
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+          <i class="fas fa-briefcase text-blue-400 mr-1"></i> Fecha de ingreso a la empresa
+        </label>
+        <input id="perfil-fecha-ingreso" type="date"
+          class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#e31e24] transition">
+      </div>
+
+      <p class="text-[11px] text-slate-400 leading-relaxed">
+        <i class="fas fa-circle-info mr-1"></i> Estos datos se usan solo para mostrar felicitaciones de cumpleaños y aniversario laboral en la intranet.
+      </p>
+    </div>
+
+    <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50">
+      <button onclick="cerrarMiPerfil()" class="px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold text-sm hover:bg-slate-100 transition">Cancelar</button>
+      <button onclick="guardarMiPerfil()" id="btn-guardar-perfil"
+        class="px-5 py-2.5 rounded-xl bg-[#e31e24] hover:bg-[#b3161b] text-white font-semibold text-sm shadow-lg shadow-red-200 transition disabled:opacity-50">
+        <i class="fas fa-check mr-1.5"></i>Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function abrirMiPerfil() {
+    const modal = document.getElementById('modal-mi-perfil');
+    modal.classList.remove('hidden');
+
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) return;
+
+    const { data: perfil } = await supabaseClient
+      .from('perfiles')
+      .select('nombre_completo, fecha_nacimiento, fecha_ingreso')
+      .eq('id', session.user.id)
+      .single();
+
+    if (perfil) {
+      document.getElementById('perfil-nombre').value = perfil.nombre_completo || '';
+      document.getElementById('perfil-fecha-nacimiento').value = perfil.fecha_nacimiento || '';
+      document.getElementById('perfil-fecha-ingreso').value = perfil.fecha_ingreso || '';
+    }
+  }
+
+  function cerrarMiPerfil() {
+    document.getElementById('modal-mi-perfil').classList.add('hidden');
+  }
+
+  async function guardarMiPerfil() {
+    const btn = document.getElementById('btn-guardar-perfil');
+    btn.disabled = true;
+
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) { btn.disabled = false; return; }
+
+    const fechaNacimiento = document.getElementById('perfil-fecha-nacimiento').value || null;
+    const fechaIngreso = document.getElementById('perfil-fecha-ingreso').value || null;
+
+    const { error } = await supabaseClient
+      .from('perfiles')
+      .update({ fecha_nacimiento: fechaNacimiento, fecha_ingreso: fechaIngreso })
+      .eq('id', session.user.id);
+
+    btn.disabled = false;
+
+    if (error) {
+      alert('No se pudo guardar: ' + error.message);
+    } else {
+      cerrarMiPerfil();
+    }
+  }
+</script>
 
 <!--
   ╔══════════════════════════════════════════════════════╗

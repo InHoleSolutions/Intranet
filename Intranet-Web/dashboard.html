@@ -21,10 +21,10 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&display=swap" rel="stylesheet">
   <link rel="icon" href="data:,">
   <style>
-    body { font-family: 'Inter', sans-serif; }
+    body { font-family: 'Calibri', 'Carlito', Arial, sans-serif; }
     @media (min-width: 1024px) {
       .dropdown:hover > .dropdown-menu { display: block; animation: fadeIn 0.2s ease-out; }
       .group\/sub:hover > .submenu-content { display: block; }
@@ -115,10 +115,13 @@
       .magazine-page { width:340px !important; }
     }
     #header-componente { display: block; }
+    #grid-accesos > a { cursor: grab; }
+    #grid-accesos > a.arrastrando { opacity: 0.4; cursor: grabbing; }
+    #grid-accesos > a.drag-over-target { outline: 2px dashed #e31e24; outline-offset: 3px; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
-<body class="bg-[#f8fafc] min-h-screen">
+<body class="min-h-screen" id="app-body" style="background: #f8fafc; transition: background 1.5s ease;">
   <!-- ── HEADER ── -->
   <div id="header-componente"></div>
   <!-- ── MAIN ── -->
@@ -233,6 +236,43 @@
       <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Panel de Control</h2>
       <p class="text-slate-500 mt-1">Gestión interna y monitoreo operativo de In Hole Solutions.</p>
     </div>
+
+    <!-- Widget: Resumen Diario IA -->
+    <div id="widget-resumen-ia" class="bg-gradient-to-br from-slate-800 via-slate-800 to-[#7a1216] rounded-2xl p-6 mb-8 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-16 translate-x-16"></div>
+      <div class="relative flex items-start gap-4">
+        <div class="w-11 h-11 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center justify-center flex-shrink-0">
+          <i class="fas fa-robot text-white text-lg"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[10px] font-black uppercase tracking-widest text-white/50 mb-1.5">Resumen de IHS CONNECT</p>
+          <p id="texto-resumen-ia" class="text-white text-sm leading-relaxed text-justify">
+            <i class="fas fa-spinner fa-spin mr-2"></i>Preparando tu resumen del día...
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Widget: Salud del Sistema (QHSE) -->
+    <div id="widget-salud" class="rounded-2xl border p-5 mb-8 flex items-center gap-4 transition-colors">
+      <div id="salud-semaforo" class="w-4 h-4 rounded-full flex-shrink-0"></div>
+      <div class="flex-1 min-w-0">
+        <p id="salud-titulo" class="font-bold text-sm">Cargando estado de seguridad...</p>
+        <p id="salud-detalle" class="text-xs opacity-70 mt-0.5">—</p>
+      </div>
+      <a href="alertas-qhse.html" class="text-xs font-bold uppercase tracking-widest opacity-70 hover:opacity-100 transition flex-shrink-0">
+        Ver detalle <i class="fas fa-arrow-right ml-1"></i>
+      </a>
+    </div>
+
+    <!-- Widget: Cumpleaños y Aniversarios -->
+    <div id="widget-fechas" class="hidden bg-gradient-to-r from-pink-50 to-amber-50 border border-pink-100 rounded-2xl p-5 mb-8">
+      <p class="text-xs font-black uppercase tracking-widest text-pink-500 mb-3 flex items-center gap-2">
+        <i class="fas fa-gift"></i> Celebraciones de la semana
+      </p>
+      <div id="lista-fechas" class="flex flex-col gap-2"></div>
+    </div>
+
     <!-- Panel bienvenida -->
     <div id="panel-bienvenida" class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 mb-10">
       <div class="flex items-center justify-between mb-8 border-b border-slate-100 pb-6">
@@ -240,7 +280,7 @@
           <i class="fas fa-layer-group text-slate-400"></i> Acceso Directo
         </h3>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div id="grid-accesos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <a id="card-politicas" href="politicas.html" class="group relative p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl transition-all cursor-pointer">
           <i class="fas fa-shield-halved text-[#e31e24] text-4xl mb-6"></i>
           <h4 class="text-lg font-bold text-slate-800 mb-2">Políticas Corporativas</h4>
@@ -296,6 +336,12 @@
           <h4 class="text-lg font-bold text-slate-800 mb-2 relative z-10">No Conformidades (NC)</h4>
           <p class="text-slate-500 text-sm leading-relaxed relative z-10">Da seguimiento a los folios de servicio no conforme.</p>
         </a>
+        <a id="card-eval-calidad" href="evaluaciones-calidad.html"
+          class="hidden group relative p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl transition-all cursor-pointer overflow-hidden">
+          <i class="fas fa-chart-pie text-[#e31e24] text-4xl mb-6 relative z-10"></i>
+          <h4 class="text-lg font-bold text-slate-800 mb-2 relative z-10">Evaluaciones de Calidad</h4>
+          <p class="text-slate-500 text-sm leading-relaxed relative z-10">Consulta y grafica los resultados de las evaluaciones de calidad en servicio.</p>
+        </a>
       </div>
     </div>
 
@@ -310,9 +356,16 @@
           </h3>
           <p class="text-xs text-slate-400 mt-1 uppercase tracking-widest font-semibold" id="visitas-mes-label"></p>
         </div>
-        <div class="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-2xl px-4 py-2">
-          <span class="h-2 w-2 bg-emerald-400 rounded-full animate-pulse"></span>
-          <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">En vivo</span>
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-2xl px-4 py-2">
+            <span class="h-2 w-2 bg-emerald-400 rounded-full animate-pulse"></span>
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">En vivo</span>
+          </div>
+          <button onclick="toggleModoVista()" id="btn-modo-vista"
+            class="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold uppercase tracking-widest px-4 py-2.5 rounded-2xl transition-all">
+            <i class="fas fa-layer-group" id="icono-modo-vista"></i>
+            <span id="texto-modo-vista">Resumen ejecutivo</span>
+          </button>
         </div>
       </div>
 
@@ -363,7 +416,7 @@
       </div>
 
       <!-- Desglose: dispositivos / navegadores / países -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-10">
+      <div class="seccion-detallada grid grid-cols-1 sm:grid-cols-3 gap-6 mt-10">
 
         <!-- Dispositivos -->
         <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
@@ -392,7 +445,7 @@
       </div>
 
       <!-- Tabla últimas visitas -->
-      <div class="mt-10">
+      <div class="seccion-detallada mt-10">
         <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">
           <i class="fas fa-list-ul mr-2"></i>Últimas visitas
         </p>
@@ -417,8 +470,18 @@
         </div>
       </div>
 
+      <!-- Mapa de calor de horarios -->
+      <div class="seccion-detallada mt-10">
+        <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">
+          <i class="fas fa-fire mr-2"></i>Horarios de mayor actividad (últimos 7 días)
+        </p>
+        <div class="bg-slate-50 rounded-2xl border border-slate-100 p-5 overflow-x-auto flex justify-center">
+          <div id="heatmap-visitas" class="inline-block"></div>
+        </div>
+      </div>
+
       <!-- Gráfica de países -->
-      <div class="mt-10">
+      <div class="seccion-detallada mt-10">
         <div class="flex items-center justify-between mb-4">
           <p class="text-xs font-black uppercase tracking-widest text-slate-400">
             <i class="fas fa-earth-americas mr-2"></i>Visitas por país
@@ -591,10 +654,26 @@
   </script>
 
   <script>
+    function insertarHTMLConScripts(contenedorId, html) {
+      const contenedor = document.getElementById(contenedorId);
+      contenedor.innerHTML = html;
+      // Los <script> insertados por innerHTML no se ejecutan automáticamente:
+      // los recreamos manualmente para que sí corran.
+      contenedor.querySelectorAll('script').forEach(scriptViejo => {
+        const scriptNuevo = document.createElement('script');
+        if (scriptViejo.src) {
+          scriptNuevo.src = scriptViejo.src;
+        } else {
+          scriptNuevo.textContent = scriptViejo.textContent;
+        }
+        scriptViejo.replaceWith(scriptNuevo);
+      });
+    }
+
     fetch('header.html')
       .then(r => r.text())
       .then(html => {
-        document.getElementById('header-componente').innerHTML = html;
+        insertarHTMLConScripts('header-componente', html);
       });
     fetch('footer.html')
       .then(r => r.text())
@@ -638,6 +717,8 @@
       const finHoy     = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), 23, 59, 59).toISOString();
       const inicioAyer = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() - 1).toISOString();
       const finAyer    = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() - 1, 23, 59, 59).toISOString();
+      const inicioMesAnterior = new Date(ahora.getFullYear(), ahora.getMonth() - 1, 1).toISOString();
+      const finMesAnterior    = new Date(ahora.getFullYear(), ahora.getMonth(), 0, 23, 59, 59).toISOString();
 
       // Etiqueta del mes
       document.getElementById('visitas-mes-label').textContent =
@@ -649,6 +730,7 @@
         { count: countHoy },
         { count: countTotal },
         { count: countAyer },
+        { count: countMesAnterior },
         { data: ultimaVisita },
         { data: visitas7dias },
         { data: todasVisitas },
@@ -658,6 +740,7 @@
         supabaseClient.from('visitas_index').select('*', { count: 'exact', head: true }).gte('created_at', inicioHoy).lte('created_at', finHoy),
         supabaseClient.from('visitas_index').select('*', { count: 'exact', head: true }),
         supabaseClient.from('visitas_index').select('*', { count: 'exact', head: true }).gte('created_at', inicioAyer).lte('created_at', finAyer),
+        supabaseClient.from('visitas_index').select('*', { count: 'exact', head: true }).gte('created_at', inicioMesAnterior).lte('created_at', finMesAnterior),
         supabaseClient.from('visitas_index').select('created_at').order('created_at', { ascending: false }).limit(1),
         supabaseClient.from('visitas_index').select('created_at').gte('created_at', new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() - 6).toISOString()),
         supabaseClient.from('visitas_index').select('created_at, ip, ciudad, pais, dispositivo, navegador, sistema_os, referrer').order('created_at', { ascending: false }).limit(5),
@@ -681,18 +764,34 @@
       animarConteo('visitas-total-hoy', countHoy ?? 0);
       animarConteo('visitas-total-general', countTotal ?? 0);
 
-      // ── Tendencia vs ayer ──
+      // ── Tendencia: este mes vs mes anterior (tarjeta roja "Este mes") ──
+      const mesActualNum = countMes ?? 0;
+      const mesAnteriorNum = countMesAnterior ?? 0;
+      const tendenciaEl = document.getElementById('tendencia-mes');
+      if (mesAnteriorNum === 0) {
+        tendenciaEl.textContent = '— sin datos del mes anterior';
+      } else {
+        const cambioPct = Math.round(((mesActualNum - mesAnteriorNum) / mesAnteriorNum) * 100);
+        if (cambioPct > 0) {
+          tendenciaEl.innerHTML = `<i class="fas fa-arrow-trend-up mr-1"></i> +${cambioPct}% vs mes anterior`;
+        } else if (cambioPct < 0) {
+          tendenciaEl.innerHTML = `<i class="fas fa-arrow-trend-down mr-1"></i> ${cambioPct}% vs mes anterior`;
+        } else {
+          tendenciaEl.textContent = '= igual que el mes anterior';
+        }
+      }
+
+      // ── Tendencia vs ayer (tarjeta oscura "Hoy") ──
       const hoy = countHoy ?? 0;
       const ayer = countAyer ?? 0;
-      const tendenciaEl = document.getElementById('tendencia-mes');
-      if (ayer === 0) {
-        tendenciaEl.textContent = '— sin datos de ayer';
-      } else if (hoy > ayer) {
-        tendenciaEl.innerHTML = `<i class="fas fa-arrow-trend-up mr-1"></i> +${hoy - ayer} más que ayer`;
-      } else if (hoy < ayer) {
-        tendenciaEl.innerHTML = `<i class="fas fa-arrow-trend-down mr-1"></i> ${hoy - ayer} menos que ayer`;
-      } else {
-        tendenciaEl.textContent = '= igual que ayer';
+      if (ayer > 0) {
+        const diff = hoy - ayer;
+        const textoVsAyer = diff > 0
+          ? `<i class="fas fa-arrow-trend-up mr-1 text-emerald-400"></i> +${diff} vs ayer`
+          : diff < 0
+            ? `<i class="fas fa-arrow-trend-down mr-1 text-red-400"></i> ${diff} vs ayer`
+            : '= igual que ayer';
+        document.getElementById('ultima-visita').insertAdjacentHTML('beforebegin', `<div id="tendencia-hoy" class="text-xs font-semibold opacity-90 mb-1">${textoVsAyer}</div>`);
       }
 
       // ── Última visita ──
@@ -708,6 +807,9 @@
       // ── Promedio diario ──
       const promedio = ((countMes ?? 0) / ahora.getDate()).toFixed(1);
       document.getElementById('promedio-diario').textContent = `Promedio: ${promedio} visitas/día`;
+
+      // ── Mapa de calor de horarios ──
+      dibujarHeatmap(visitas7dias);
 
       // ── Gráfica 7 días ──
       const dias = [];
@@ -867,6 +969,43 @@
       toastTimeout = setTimeout(cerrarToast, 6000);
     }
 
+    function dibujarHeatmap(visitas) {
+      const cont = document.getElementById('heatmap-visitas');
+      if (!cont) return;
+
+      const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+      // matriz[diaSemana][hora] = conteo
+      const matriz = Array.from({ length: 7 }, () => Array(24).fill(0));
+
+      (visitas || []).forEach(v => {
+        const f = new Date(v.created_at);
+        matriz[f.getDay()][f.getHours()]++;
+      });
+
+      const maxVal = Math.max(...matriz.flat(), 1);
+
+      let html = '<div class="flex gap-1 mb-1 pl-10">';
+      for (let h = 0; h < 24; h += 2) {
+        html += `<div style="width:20px" class="text-[8px] text-slate-400 text-center">${h}h</div><div style="width:20px"></div>`;
+      }
+      html += '</div>';
+
+      dias.forEach((nombreDia, diaIdx) => {
+        html += `<div class="flex items-center gap-1 mb-1">
+          <div class="w-8 text-[9px] font-bold text-slate-400">${nombreDia}</div>`;
+        for (let h = 0; h < 24; h++) {
+          const val = matriz[diaIdx][h];
+          const intensidad = val === 0 ? 0 : Math.max(0.15, val / maxVal);
+          const color = val === 0 ? '#e2e8f0' : `rgba(227, 30, 36, ${intensidad})`;
+          html += `<div title="${nombreDia} ${h}:00 — ${val} visita${val !== 1 ? 's' : ''}"
+            style="width:20px; height:16px; background:${color}; border-radius:3px; cursor:default;"></div>`;
+        }
+        html += '</div>';
+      });
+
+      cont.innerHTML = html;
+    }
+
     async function escucharVisitasEnVivo() {
       const { data } = await supabaseClient
         .from('visitas_index')
@@ -896,7 +1035,185 @@
         .subscribe();
     }
 
+    let notificaciones = [];
+
+    function toggleNotificaciones() {
+      document.getElementById('panel-notificaciones').classList.toggle('hidden');
+    }
+
+    function agregarNotificacion(icono, color, titulo, detalle) {
+      notificaciones.unshift({ icono, color, titulo, detalle, hora: new Date() });
+      if (notificaciones.length > 15) notificaciones = notificaciones.slice(0, 15);
+      renderizarNotificaciones();
+    }
+
+    function renderizarNotificaciones() {
+      const badge = document.getElementById('badge-notificaciones');
+      const lista = document.getElementById('lista-notificaciones');
+
+      if (notificaciones.length === 0) {
+        badge.classList.add('hidden');
+        lista.innerHTML = '<p class="text-center text-xs text-slate-400 py-8">Sin notificaciones nuevas</p>';
+        return;
+      }
+
+      badge.classList.remove('hidden');
+      badge.textContent = notificaciones.length > 9 ? '9+' : notificaciones.length;
+
+      lista.innerHTML = notificaciones.map(n => `
+        <div class="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition">
+          <div class="w-8 h-8 rounded-lg ${n.color} flex items-center justify-center flex-shrink-0">
+            <i class="fas ${n.icono} text-xs"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-bold text-slate-700">${n.titulo}</p>
+            <p class="text-[11px] text-slate-500 mt-0.5">${n.detalle}</p>
+          </div>
+        </div>`).join('');
+    }
+
+    function marcarNotificacionesLeidas() {
+      notificaciones = [];
+      renderizarNotificaciones();
+      document.getElementById('panel-notificaciones').classList.add('hidden');
+    }
+
+    async function escucharNotificacionesGlobales() {
+      const canalPoliticas = supabaseClient.getChannels().find(c => c.topic === 'realtime:notif-politicas');
+      if (canalPoliticas) await supabaseClient.removeChannel(canalPoliticas);
+      const canalAlertas = supabaseClient.getChannels().find(c => c.topic === 'realtime:notif-alertas');
+      if (canalAlertas) await supabaseClient.removeChannel(canalAlertas);
+
+      supabaseClient
+        .channel('notif-politicas')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'politicas'
+        }, (payload) => {
+          console.log('📩 Notificación recibida de politicas:', payload);
+          agregarNotificacion('fa-scale-balanced', 'bg-purple-50 text-purple-600', 'Nueva política publicada', payload.new.nombre);
+        })
+        .subscribe((status) => console.log('Estado canal politicas:', status));
+
+      supabaseClient
+        .channel('notif-alertas')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'safety_alerts'
+        }, (payload) => {
+          agregarNotificacion('fa-solid fa-shield', 'bg-red-50 text-red-600', 'Nueva Safety Alerts', payload.new.tipo_evento || 'Nuevo reporte de seguridad');
+        })
+        .subscribe();
+    }
+
+    function activarDragDrop() {
+      const grid = document.getElementById('grid-accesos');
+      if (!grid) return;
+
+      let elementoArrastrado = null;
+
+      grid.querySelectorAll('a').forEach(card => {
+        if (card.classList.contains('hidden')) return;
+        card.setAttribute('draggable', 'true');
+
+        card.addEventListener('dragstart', () => {
+          elementoArrastrado = card;
+          setTimeout(() => card.classList.add('arrastrando'), 0);
+        });
+
+        card.addEventListener('dragend', () => {
+          card.classList.remove('arrastrando');
+          grid.querySelectorAll('a').forEach(c => {
+            c.classList.remove('drag-over-target');
+            c.style.order = ''; // El orden personalizado del usuario reemplaza al de rol
+          });
+          guardarOrdenWidgets();
+        });
+
+        card.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          if (card !== elementoArrastrado) card.classList.add('drag-over-target');
+        });
+
+        card.addEventListener('dragleave', () => card.classList.remove('drag-over-target'));
+
+        card.addEventListener('drop', (e) => {
+          e.preventDefault();
+          card.classList.remove('drag-over-target');
+          if (!elementoArrastrado || card === elementoArrastrado) return;
+
+          const cards = [...grid.querySelectorAll('a')];
+          const posArrastrado = cards.indexOf(elementoArrastrado);
+          const posDestino = cards.indexOf(card);
+
+          if (posArrastrado < posDestino) {
+            card.after(elementoArrastrado);
+          } else {
+            card.before(elementoArrastrado);
+          }
+        });
+      });
+    }
+
+    async function guardarOrdenWidgets() {
+      const grid = document.getElementById('grid-accesos');
+      const orden = [...grid.querySelectorAll('a')].map(c => c.id);
+
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) return;
+
+      await supabaseClient
+        .from('perfiles')
+        .update({ orden_widgets: orden })
+        .eq('id', session.user.id);
+    }
+
+    async function aplicarOrdenGuardado() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) return;
+
+      const { data: perfil } = await supabaseClient
+        .from('perfiles')
+        .select('orden_widgets')
+        .eq('id', session.user.id)
+        .single();
+
+      if (!perfil?.orden_widgets || !Array.isArray(perfil.orden_widgets)) return;
+
+      const grid = document.getElementById('grid-accesos');
+      grid.querySelectorAll('a').forEach(c => c.style.order = ''); // Quita el orden por rol
+      perfil.orden_widgets.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) grid.appendChild(el);
+      });
+    }
+
     let graficaPaisesInstance = null;
+    let modoResumen = localStorage.getItem('modoVistaDashboard') === 'resumen';
+
+    function aplicarModoVista() {
+      const secciones = document.querySelectorAll('.seccion-detallada');
+      const btnIcono = document.getElementById('icono-modo-vista');
+      const btnTexto = document.getElementById('texto-modo-vista');
+
+      secciones.forEach(sec => sec.classList.toggle('hidden', modoResumen));
+
+      if (modoResumen) {
+        btnIcono.className = 'fas fa-list';
+        btnTexto.textContent = 'Ver detallado';
+      } else {
+        btnIcono.className = 'fas fa-layer-group';
+        btnTexto.textContent = 'Resumen ejecutivo';
+      }
+    }
+
+    function toggleModoVista() {
+      modoResumen = !modoResumen;
+      localStorage.setItem('modoVistaDashboard', modoResumen ? 'resumen' : 'detallado');
+      aplicarModoVista();
+    }
 
     function toggleGraficaPaises() {
       const contenedor = document.getElementById('grafica-paises');
@@ -930,8 +1247,8 @@
             label: 'Visitas',
             data,
             backgroundColor: [
-              '#e31e24', '#2563eb', '#16a34a', '#d97706', '#7c3aed',
-              '#0891b2', '#db2777', '#65a30d', '#ea580c', '#6366f1'
+              '#e31e24', '#1e293b', '#0f766e', '#b45309', '#64748b',
+              '#7c2d12', '#155e75', '#7f1d1d', '#334155', '#a16207'
             ].slice(0, labels.length),
             borderRadius: 8,
             borderSkipped: false
@@ -959,11 +1276,11 @@
 
       if (perfil) {
         // Saludo con nombre
-        document.getElementById('user-welcome').innerText =
-          `${obtenerSaludo()}, ${perfil.nombre_completo}`;
+        document.getElementById('user-welcome').innerHTML =
+          `${obtenerSaludo()}, <span class="text-[#e31e24]">${perfil.nombre_completo}</span>`;
         
         const rolLabel = document.getElementById('user-rol-label');
-        if (rolLabel) rolLabel.innerText = `Miembro del Equipo · ${perfil.rol}`;
+        if (rolLabel) rolLabel.innerText = `Miembro del Equipo`;
 
         // ── Latido: marcar que este usuario está activo ──
         iniciarLatido(perfil.id);
@@ -992,18 +1309,20 @@
           document.getElementById('card-coc')?.classList.remove('hidden');
           document.getElementById('card-extintores')?.classList.remove('hidden');
           document.getElementById('card-qhse-nc')?.classList.remove('hidden'); 
+          document.getElementById('card-eval-calidad')?.classList.remove('hidden');
 
           // ── Reordenar tarjetas: prioridad QHSE arriba ──
           const ordenQHSE = {
             'card-safety-alerts': 1,
-            'card-coc': 2,
-            'card-qhse-nc': 3,
-            'card-capacitacion': 4,
-            'card-extintores': 5,
-            'card-politicas': 6,
-            'card-formatos': 7,
-            'card-directorio': 8,
-            'card-accesos': 9
+            'card-eval-calidad': 2,
+            'card-coc': 3,
+            'card-qhse-nc': 4,
+            'card-capacitacion': 5,
+            'card-extintores': 6,
+            'card-politicas': 7,
+            'card-formatos': 8,
+            'card-directorio': 9,
+            'card-accesos': 10
           };
           Object.entries(ordenQHSE).forEach(([id, orden]) => {
             const el = document.getElementById(id);
@@ -1012,8 +1331,234 @@
         }
         // Si el rol NO está en la lista, la tarjeta permanece oculta (hidden por defecto)
       }
+      
       await cargarBoletin();
       await cargarGraficaHistorica();
+      await cargarSaludSistema();
+      await cargarCelebraciones();
+      escucharNotificacionesGlobales();
+      await aplicarOrdenGuardado();
+      activarDragDrop();
+      generarResumenDiario();
+    }
+
+    async function cargarSaludSistema() {
+      const cont = document.getElementById('widget-salud');
+      const semaforo = document.getElementById('salud-semaforo');
+      const titulo = document.getElementById('salud-titulo');
+      const detalle = document.getElementById('salud-detalle');
+
+      try {
+        const { data: ultimoAccidenteArr } = await supabaseClient
+          .from('safety_alerts')
+          .select('fecha_evento')
+          .eq('tipo_evento', 'Accidente')
+          .order('fecha_evento', { ascending: false })
+          .limit(1);
+
+        const ultimoAccidente = ultimoAccidenteArr?.[0] ?? null;
+        let diasSinAccidente = null;
+
+        if (ultimoAccidente?.fecha_evento) {
+          const hoy = new Date();
+          const fechaAcc = new Date(ultimoAccidente.fecha_evento);
+          diasSinAccidente = Math.floor((hoy - fechaAcc) / (1000 * 60 * 60 * 24));
+        }
+
+        let estilo, colorPunto, mensaje;
+
+        if (diasSinAccidente === null) {
+          estilo = 'bg-emerald-50 border-emerald-200 text-emerald-800';
+          colorPunto = 'bg-emerald-500';
+          mensaje = 'Sin accidentes registrados';
+        } else if (diasSinAccidente > 30) {
+          estilo = 'bg-emerald-50 border-emerald-200 text-emerald-800';
+          colorPunto = 'bg-emerald-500';
+          mensaje = `${diasSinAccidente} días sin accidentes`;
+        } else if (diasSinAccidente >= 15) {
+          estilo = 'bg-amber-50 border-amber-200 text-amber-800';
+          colorPunto = 'bg-amber-500';
+          mensaje = `${diasSinAccidente} días sin accidentes — en observación`;
+        } else {
+          estilo = 'bg-red-50 border-red-200 text-red-800';
+          colorPunto = 'bg-red-500 animate-pulse';
+          mensaje = `Solo ${diasSinAccidente} día${diasSinAccidente === 1 ? '' : 's'} sin accidentes — atención requerida`;
+        }
+
+        cont.className = `rounded-2xl border p-5 mb-8 flex items-center gap-4 transition-colors ${estilo}`;
+        semaforo.className = `w-4 h-4 rounded-full flex-shrink-0 ${colorPunto}`;
+        titulo.textContent = 'Estado de Seguridad QHSE';
+        detalle.textContent = mensaje;
+
+      } catch (err) {
+        cont.className = 'rounded-2xl border p-5 mb-8 flex items-center gap-4 transition-colors bg-slate-50 border-slate-200 text-slate-500';
+        semaforo.className = 'w-4 h-4 rounded-full flex-shrink-0 bg-slate-300';
+        titulo.textContent = 'Estado de Seguridad QHSE';
+        detalle.textContent = 'No se pudo cargar la información';
+      }
+    }
+
+    async function generarResumenDiario() {
+      const elTexto = document.getElementById('texto-resumen-ia');
+      elTexto.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Preparando tu resumen del día...';
+
+      try {
+        // 1. Días sin accidente
+        const { data: ultimoAccidenteArr } = await supabaseClient
+          .from('safety_alerts').select('fecha_evento')
+          .eq('tipo_evento', 'Accidente')
+          .order('fecha_evento', { ascending: false }).limit(1);
+        let diasSinAccidente = null;
+        if (ultimoAccidenteArr?.[0]?.fecha_evento) {
+          diasSinAccidente = Math.floor((new Date() - new Date(ultimoAccidenteArr[0].fecha_evento)) / 86400000);
+        }
+
+        // 2. Alertas/incidentes de este mes
+        const ahora = new Date();
+        const { count: incidentesMes } = await supabaseClient
+          .from('safety_alerts').select('id', { count: 'exact', head: true })
+          .eq('mes_registro', ahora.getMonth() + 1)
+          .eq('anio_registro', ahora.getFullYear());
+
+        // 3. Precios (último y penúltimo registro)
+        const { data: precios } = await supabaseClient
+          .from('precios_historicos').select('wti, brent, usd_mxn, fecha')
+          .order('fecha', { ascending: false }).limit(2);
+        const preciosTexto = precios && precios.length > 0
+          ? `WTI: $${precios[0].wti}, Brent: $${precios[0].brent}, USD/MXN: $${precios[0].usd_mxn}` +
+            (precios.length > 1 ? ` (WTI ayer: $${precios[1].wti})` : '')
+          : 'sin datos de precios disponibles';
+
+        // 4. Políticas nuevas en los últimos 7 días
+        const hace7dias = new Date(Date.now() - 7 * 86400000).toISOString();
+        const { count: politicasNuevas } = await supabaseClient
+          .from('politicas').select('id', { count: 'exact', head: true })
+          .gte('created_at', hace7dias);
+
+        // 5. Últimas noticias del boletín
+        const { data: noticias } = await supabaseClient
+          .from('boletin_noticias').select('titulo, categoria')
+          .order('fecha_publicacion', { ascending: false }).limit(3);
+        const noticiasTexto = noticias && noticias.length > 0
+          ? noticias.map(n => `"${n.titulo}"`).join(', ')
+          : 'sin noticias recientes en el boletín';
+
+        // 6. Capacitación: cursos pendientes/vencidos del personal
+        const hoyISO = new Date().toISOString().split('T')[0];
+        const { data: empleadosCap } = await supabaseClient
+          .from('cap_hse_empleados').select('cursos_pendientes');
+        let cursosVencidos = 0;
+        (empleadosCap ?? []).forEach(e => {
+          (e.cursos_pendientes || []).forEach(c => {
+            if (c.fecha_vencimiento && c.fecha_vencimiento < hoyISO) cursosVencidos++;
+          });
+        });
+
+        // 7. Extintores con recarga vencida
+        const { data: extintoresData } = await supabaseClient
+          .from('extintores').select('proxima_fecha');
+        const extintoresVencidos = (extintoresData ?? []).filter(e => e.proxima_fecha && e.proxima_fecha < hoyISO).length;
+
+        // 8. Equipos de mantenimiento con certificado vencido
+        const [{ data: equiposMantto }, { data: driftMantto }] = await Promise.all([
+          supabaseClient.from('mantto_equipos_herramientas').select('fecha_vencimiento'),
+          supabaseClient.from('mantto_drift').select('fecha_vencimiento')
+        ]);
+        const certificadosVencidos =
+          (equiposMantto ?? []).filter(e => e.fecha_vencimiento && e.fecha_vencimiento < hoyISO).length +
+          (driftMantto ?? []).filter(e => e.fecha_vencimiento && e.fecha_vencimiento < hoyISO).length;
+
+        // 9. Certificados COC nuevos esta semana
+        const { count: cocNuevos } = await supabaseClient
+          .from('coc_registros').select('id', { count: 'exact', head: true })
+          .gte('created_at', hace7dias);
+
+        // Armar el mensaje para la IA
+        const datosResumen = [
+          diasSinAccidente !== null ? `${diasSinAccidente} días sin accidentes registrados` : 'sin accidentes en el historial',
+          `${incidentesMes ?? 0} reportes de seguridad este mes`,
+          preciosTexto,
+          `${politicasNuevas ?? 0} política(s) nueva(s) o actualizada(s) en los últimos 7 días`,
+          `noticias recientes del boletín: ${noticiasTexto}`,
+          `${cursosVencidos} curso(s) de capacitación HSE vencido(s) en el personal`,
+          `${extintoresVencidos} extintor(es) con recarga vencida`,
+          `${certificadosVencidos} certificado(s) de equipos/drift de mantenimiento vencido(s)`,
+          `${cocNuevos ?? 0} certificado(s) COC nuevo(s) esta semana`
+        ].join('. ');
+
+        const mensajeIA = `[RESUMEN_DIARIO] Genera un saludo breve (máximo 4 líneas, en español) para el panel de control de la intranet, usando naturalmente estos datos reales: ${datosResumen}. El tono debe ser cálido, ameno y motivador — como si le dieras al lector una buena razón para sonreír al empezar su día, sin sonar exagerado ni artificial. Destaca lo positivo de los datos (días sin accidentes, estabilidad de precios, etc.) con genuino entusiasmo. El mensaje debe ser UN SOLO PÁRRAFO CONTINUO, sin saltos de línea ni doble espaciado en ningún punto — la frase "Buen día," debe ir seguida del resto del texto en la misma línea, no en un párrafo aparte. Incluye una mención breve y interesante de las noticias más relevantes del boletín. No uses listas ni viñetas. No agregues despedidas ni ofrezcas ayuda adicional al final, solo el resumen.`;
+
+        const res = await fetch(CHAT_FUNCTION_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY },
+          body: JSON.stringify({ message: mensajeIA, history: [] })
+        });
+        const data = await res.json();
+        const resumen = data.reply || 'No se pudo generar el resumen de hoy.';
+
+        const resumenLimpio = resumen.replace(/\n+/g, ' ').replace(/\s{2,}/g, ' ').trim();
+        elTexto.innerHTML = resumenLimpio;
+
+      } catch (err) {
+        elTexto.textContent = 'No se pudo generar el resumen del día. Intenta más tarde.';
+      }
+    }
+
+    async function cargarCelebraciones() {
+      const cont = document.getElementById('widget-fechas');
+      const lista = document.getElementById('lista-fechas');
+
+      try {
+        const { data: perfiles } = await supabaseClient
+          .from('perfiles')
+          .select('nombre_completo, fecha_nacimiento, fecha_ingreso');
+
+        if (!perfiles || perfiles.length === 0) return;
+
+        const hoy = new Date();
+        const eventos = [];
+
+        perfiles.forEach(p => {
+          [
+            { fecha: p.fecha_nacimiento, tipo: 'cumpleaños', icono: 'fa-cake-candles', color: 'text-pink-500' },
+            { fecha: p.fecha_ingreso, tipo: 'aniversario', icono: 'fa-briefcase', color: 'text-blue-500' }
+          ].forEach(({ fecha, tipo, icono, color }) => {
+            if (!fecha) return;
+            const f = new Date(fecha + 'T12:00:00');
+            // Próxima ocurrencia de esa fecha (este año o el que viene si ya pasó)
+            let proxima = new Date(hoy.getFullYear(), f.getMonth(), f.getDate());
+            if (proxima < new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())) {
+              proxima = new Date(hoy.getFullYear() + 1, f.getMonth(), f.getDate());
+            }
+            const diasFaltan = Math.round((proxima - new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())) / (1000 * 60 * 60 * 24));
+
+            if (diasFaltan <= 7) {
+              const años = tipo === 'aniversario' ? proxima.getFullYear() - f.getFullYear() : null;
+              eventos.push({ nombre: p.nombre_completo, tipo, icono, color, diasFaltan, años });
+            }
+          });
+        });
+
+        if (eventos.length === 0) return;
+
+        eventos.sort((a, b) => a.diasFaltan - b.diasFaltan);
+
+        lista.innerHTML = eventos.map(ev => {
+          const cuando = ev.diasFaltan === 0 ? '¡Hoy!' : ev.diasFaltan === 1 ? 'Mañana' : `En ${ev.diasFaltan} días`;
+          const extra = ev.tipo === 'aniversario' && ev.años > 0 ? ` — ${ev.años} año${ev.años !== 1 ? 's' : ''}` : '';
+          return `
+            <div class="flex items-center gap-3 bg-white/70 rounded-xl px-4 py-2.5">
+              <i class="fas ${ev.icono} ${ev.color}"></i>
+              <span class="text-sm font-semibold text-slate-700 flex-1">${ev.nombre}</span>
+              <span class="text-xs text-slate-500">${ev.tipo === 'cumpleaños' ? 'Cumpleaños' : 'Aniversario' + extra} · <strong>${cuando}</strong></span>
+            </div>`;
+        }).join('');
+
+        cont.classList.remove('hidden');
+
+      } catch (err) {
+        // Silencioso: si falla, simplemente no se muestra el widget
+      }
     }
 
     async function cerrarSesion() { await supabaseClient.auth.signOut(); window.location.href = "../index.html"; }
@@ -1083,22 +1628,60 @@
     async function registrarVisita() {
       try {
         const ua = navigator.userAgent;
-        const esMovil = /Mobi|Android/i.test(ua);
-        const esTablet = /Tablet|iPad/i.test(ua);
+
+        // Detectar iPads modernos que se identifican como Mac pero tienen pantalla táctil
+        const esIPad = /iPad/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 0);
+        const esMovil = /Mobi|Android/i.test(ua) && !esIPad;
+        const esTablet = /Tablet/i.test(ua) || esIPad;
         const dispositivo = esTablet ? 'Tablet' : esMovil ? 'Móvil' : 'Escritorio';
 
         let navegador = 'Desconocido';
-        if (/Edg/.test(ua)) navegador = 'Edge';
-        else if (/Chrome/.test(ua)) navegador = 'Chrome';
-        else if (/Firefox/.test(ua)) navegador = 'Firefox';
-        else if (/Safari/.test(ua)) navegador = 'Safari';
 
+        // 1. Verificación especial para Brave (requiere await)
+        let esBrave = false;
+        if (navigator.brave && typeof navigator.brave.isBrave === 'function') {
+          esBrave = await navigator.brave.isBrave();
+        }
+
+        // 2. Navegadores específicos / derivados
+        if (esBrave || /Brave/i.test(navigator.userAgentData?.brands?.map(b => b.brand).join(''))) {
+          navegador = 'Brave';
+        } 
+        else if (/Arc/i.test(ua)) navegador = 'Arc';
+        else if (/Vivaldi/i.test(ua)) navegador = 'Vivaldi';
+        else if (/OPR|Opera/i.test(ua)) navegador = 'Opera';
+        else if (/Edg/i.test(ua)) navegador = 'Edge';
+        else if (/DuckDuckGo/i.test(ua)) navegador = 'DuckDuckGo';
+        else if (/Waterfox/i.test(ua)) navegador = 'Waterfox';
+        else if (/PaleMoon/i.test(ua)) navegador = 'Pale Moon';
+        else if (/Falkon/i.test(ua)) navegador = 'Falkon';
+        else if (/Midori/i.test(ua)) navegador = 'Midori';
+        else if (/Zen/i.test(ua)) navegador = 'Zen Browser';
+
+        // 3. Navegadores base
+        else if (/Firefox|FxiOS/i.test(ua)) navegador = 'Firefox';
+        else if (/Chrome|CriOS/i.test(ua)) navegador = 'Chrome';
+        else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) navegador = 'Safari';
+
+        // Detección extendida de Sistemas Operativos
         let sistema_os = 'Desconocido';
-        if (/Windows/.test(ua)) sistema_os = 'Windows';
-        else if (/Mac/.test(ua)) sistema_os = 'macOS';
-        else if (/Android/.test(ua)) sistema_os = 'Android';
-        else if (/iPhone|iPad/.test(ua)) sistema_os = 'iOS';
-        else if (/Linux/.test(ua)) sistema_os = 'Linux';
+
+        if (/Windows Phone/i.test(ua)) sistema_os = 'Windows Phone';
+        else if (/Windows/i.test(ua)) sistema_os = 'Windows';
+        else if (esIPad || /iPhone|iPad|iPod/i.test(ua)) sistema_os = 'iOS';
+        else if (/Macintosh|Mac OS X/i.test(ua)) sistema_os = 'macOS';
+        else if (/CrOS/i.test(ua)) sistema_os = 'ChromeOS';
+        else if (/Android/i.test(ua)) sistema_os = 'Android';
+        else if (/KaiOS/i.test(ua)) sistema_os = 'KaiOS';
+        else if (/HarmonyOS/i.test(ua)) sistema_os = 'HarmonyOS';
+        else if (/webOS|HPwOS/i.test(ua)) sistema_os = 'webOS';
+        else if (/Tizen/i.test(ua)) sistema_os = 'Tizen';
+        else if (/PlayStation|Nintendo|Xbox/i.test(ua)) sistema_os = 'Consola';
+        else if (/FreeBSD/i.test(ua)) sistema_os = 'FreeBSD';
+        else if (/OpenBSD/i.test(ua)) sistema_os = 'OpenBSD';
+        else if (/NetBSD/i.test(ua)) sistema_os = 'NetBSD';
+        else if (/SunOS|Solaris/i.test(ua)) sistema_os = 'Solaris';
+        else if (/Linux/i.test(ua)) sistema_os = 'Linux';
 
         const referrer = document.referrer || 'Directo';
 
@@ -1111,19 +1694,48 @@
           ciudad = geoData.city;
           pais = geoData.country_name;
           region = geoData.region || null;
-        } catch { /* si falla la geo, se guarda sin ubicación */ }
+        } catch { 
+          /* Si falla la API de geolocalización o la bloquea un AdBlocker, guarda sin ubicación */ 
+        }
 
+        // Inserción en Supabase
         await supabaseClient.from('visitas_index').insert({
           ip, ciudad, pais, region,
           dispositivo, navegador, sistema_os,
           referrer: referrer.length > 100 ? referrer.substring(0, 100) + '...' : referrer
         });
+
       } catch(e) {
         console.error('Error registrando visita:', e);
       }
     }
 
+    function aplicarFondoSegunHora() {
+      const hora = new Date().getHours();
+      const body = document.getElementById('app-body');
+      let gradiente;
+
+      if (hora >= 5 && hora < 8) {
+        // Amanecer: tonos cálidos suaves
+        gradiente = 'linear-gradient(180deg, #fff7ed 0%, #fef3f2 40%, #f8fafc 100%)';
+      } else if (hora >= 8 && hora < 18) {
+        // Día: neutro claro (tu fondo actual)
+        gradiente = 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)';
+      } else if (hora >= 18 && hora < 20) {
+        // Atardecer: tonos ámbar/rojizos muy sutiles
+        gradiente = 'linear-gradient(180deg, #fef2f2 0%, #fff7ed 35%, #f8fafc 100%)';
+      } else {
+        // Noche: azul-gris oscuro suave (no negro puro, para no romper contraste de textos)
+        gradiente = 'linear-gradient(180deg, #e2e8f0 0%, #f1f5f9 45%, #f8fafc 100%)';
+      }
+
+      body.style.background = gradiente;
+    }
+
+    aplicarFondoSegunHora();
+
     document.addEventListener('DOMContentLoaded', cargarDatos);
+    document.addEventListener('DOMContentLoaded', aplicarModoVista);
   </script>
 
   <!-- ── CHATBOT FLOTANTE ── -->
@@ -1222,7 +1834,7 @@
 
     /* Input */
     #chat-input-row { padding: 12px 14px; border-top: 1px solid #f1f5f9; display: flex; gap: 8px; background: white; }
-    #chat-input { flex: 1; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 9px 12px; font-size: 13px; outline: none; font-family: 'Inter', sans-serif; resize: none; background: #f8fafc; transition: border-color 0.2s; }
+    #chat-input { flex: 1; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 9px 12px; font-size: 13px; outline: none; font-family: 'Calibri', 'Carlito', Arial, sans-serif; resize: none; background: #f8fafc; transition: border-color 0.2s; }
     #chat-input:focus { border-color: #e31e24; background: white; }
     #chat-send { background: linear-gradient(135deg, #c41d22, #e31e24); color: white; border: none; border-radius: 12px; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 10px rgba(227,30,36,0.4); }
     #chat-send:hover { transform: scale(1.08); box-shadow: 0 6px 16px rgba(227,30,36,0.5); }
@@ -1233,7 +1845,7 @@
       background: white; color: #e31e24;
       border: 1.5px solid #fecaca; border-radius: 20px;
       padding: 5px 12px; font-size: 11.5px; font-weight: 500;
-      cursor: pointer; font-family: 'Inter', sans-serif;
+      cursor: pointer; font-family: 'Calibri', 'Carlito', Arial, sans-serif;
       transition: all 0.2s;
     }
     .chat-chip:hover { background: #e31e24; color: white; border-color: #e31e24; transform: translateY(-1px); }
@@ -1286,10 +1898,10 @@
         </button>
       </div>
       <div style="padding: 7px 16px 10px; display:flex; align-items:center; justify-content:center; gap:6px; background:white; border-top: 1px solid #f8fafc;">
-        <span style="font-size:10px; color:#94a3b8; font-family:'Inter',sans-serif; letter-spacing:0.3px;">Powered by</span>
-        <span style="font-size:10px; font-weight:700; color:#e31e24; font-family:'Inter',sans-serif; letter-spacing:0.5px;">IN HOLE SOLUTIONS</span>
+        <span style="font-size:10px; color:#94a3b8; font-family:'Calibri','Carlito',Arial,sans-serif; letter-spacing:0.3px;">Powered by</span>
+        <span style="font-size:10px; font-weight:700; color:#e31e24; font-family:'Calibri','Carlito',Arial,sans-serif; letter-spacing:0.5px;">IN HOLE SOLUTIONS</span>
         <span style="width:5px;height:5px;background:#e31e24;border-radius:50%;opacity:0.5;"></span>
-        <span style="font-size:10px; color:#94a3b8; font-family:'Inter',sans-serif;">Intranet IA</span>
+        <span style="font-size:10px; color:#94a3b8; font-family:'Calibri','Carlito',Arial,sans-serif;">Intranet IA</span>
       </div>
     </div>
 

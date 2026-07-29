@@ -904,7 +904,7 @@
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${sesionActual.access_token}`
             },
-            body: JSON.stringify({ action: 'crearUsuario', correo, password })
+            body: JSON.stringify({ action: 'crearUsuario', correo, password, nombre, puesto })
           });
           const dataCrear = await respCrear.json();
           if (!respCrear.ok) throw new Error(dataCrear.error || 'Error al crear usuario');
