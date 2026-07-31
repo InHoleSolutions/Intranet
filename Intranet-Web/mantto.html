@@ -138,8 +138,9 @@
       </div>
     </div>
 
-    <!-- ── Botón Instructivo (debajo de la descripción, antes de las pestañas) ── -->
-    <div class="mb-3 relative inline-block">
+    <!-- ── Botones globales: Instructivo + Exportar PDF completo ── -->
+    <div class="mb-3 flex items-center gap-2">
+      <div class="relative inline-block">
       <button onclick="toggleMenuInstructivo(event)"
         class="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold
                px-4 py-2.5 rounded-xl shadow-sm transition-colors">
@@ -190,6 +191,11 @@
           <input id="input-instructivo-drift" type="file" accept="application/pdf" class="hidden" onchange="subirInstructivo(event, 'drift')">
         </div>
       </div>
+      </div>
+      <button id="btn-pdf-completo" onclick="generarPDFCompleto()"
+        class="hidden items-center gap-2 bg-[#e31e24] hover:bg-red-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition-colors">
+        <i class="fas fa-file-pdf"></i> Exportar PDF completo
+      </button>
     </div>
 
     <!-- ── Pestañas ── -->
@@ -223,7 +229,7 @@
         </button>
         <button id="btn-pdf-equipos" onclick="generarPDFEquipos()"
           class="hidden items-center gap-2 bg-[#e31e24] hover:bg-red-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
-          <i class="fas fa-file-pdf"></i> Generar PDF
+          <i class="fas fa-file-pdf"></i> Exportar tabla PDF
         </button>
         </div>
       </div>
@@ -272,6 +278,10 @@
         <button id="btn-historial-izaje" onclick="verHistorialBajas('izaje')"
           class="hidden items-center gap-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
           <i class="fas fa-box-archive"></i> Historial
+        </button>
+        <button id="btn-pdf-izaje" onclick="generarPDFIzaje()"
+          class="hidden items-center gap-2 bg-[#e31e24] hover:bg-red-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
+          <i class="fas fa-file-pdf"></i> Exportar tabla PDF
         </button>
         </div>
       </div>
@@ -323,6 +333,10 @@
         <button id="btn-historial-izajeCable" onclick="verHistorialBajas('izajeCable')"
           class="hidden items-center gap-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
           <i class="fas fa-box-archive"></i> Historial
+        </button>
+        <button id="btn-pdf-izajeCable" onclick="generarPDFIzajeCable()"
+          class="hidden items-center gap-2 bg-[#e31e24] hover:bg-red-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
+          <i class="fas fa-file-pdf"></i> Exportar tabla PDF
         </button>
         </div>
       </div>
@@ -377,6 +391,10 @@
           class="hidden items-center gap-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
           <i class="fas fa-box-archive"></i> Historial
         </button>
+        <button id="btn-pdf-drift" onclick="generarPDFDrift()"
+          class="hidden items-center gap-2 bg-[#e31e24] hover:bg-red-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
+          <i class="fas fa-file-pdf"></i> Exportar tabla PDF
+        </button>
         </div>
       </div>
       <div class="table-container overflow-x-auto overflow-y-auto" style="max-height: 480px;">
@@ -391,10 +409,8 @@
               <th class="px-3 py-3" rowspan="2">Longitud (In) Altura</th>
               <th class="px-3 py-3" rowspan="2">Material</th>
               <th class="px-3 py-3" rowspan="2">Núm. Serie</th>
-              <th class="px-3 py-3" rowspan="2">Fecha de fabricación</th>
               <th class="px-3 py-3 text-center" colspan="2">Fecha Calibración</th>
               <th class="px-3 py-3" rowspan="2">Días restantes</th>
-              <th class="px-3 py-3" rowspan="2">Estado</th>
               <th class="px-3 py-3" rowspan="2">Certificado</th>
               <th class="px-3 py-3" rowspan="2">Trazabilidad</th>
               <th class="px-3 py-3 rounded-r-xl text-center col-acciones hidden" rowspan="2">Acciones</th>
@@ -405,7 +421,7 @@
             </tr>
           </thead>
           <tbody id="tbody-drift" class="divide-y divide-slate-100">
-            <tr><td colspan="16" class="text-center text-slate-400 py-6">Cargando...</td></tr>
+            <tr><td colspan="14" class="text-center text-slate-400 py-6">Cargando...</td></tr>
           </tbody>
         </table>
       </div>
@@ -827,9 +843,9 @@
         tabla: 'mantto_drift',
         tbody: 'tbody-drift',
         numerada: true,
-        columnas: ['cantidad', 'tamano', 'peso_nom_conexion', 'od_drift', 'longitud_altura', 'material', 'no_serie', 'fecha_fabricacion', 'fecha_calibracion', 'fecha_vencimiento', 'dias_restantes', 'estado', 'certificado', 'trazabilidad'],
+        columnas: ['cantidad', 'tamano', 'peso_nom_conexion', 'od_drift', 'longitud_altura', 'material', 'no_serie', 'fecha_calibracion', 'fecha_vencimiento', 'dias_restantes', 'certificado', 'trazabilidad'],
         columnasFecha: ['fecha_calibracion'],
-        columnasFechaMes: ['fecha_fabricacion', 'fecha_vencimiento'],
+        columnasFechaMes: ['fecha_vencimiento'],
         columnaVencimiento: 'fecha_vencimiento',
         columnasArchivo: ['certificado']
       }
@@ -1233,12 +1249,12 @@
           doc.setPage(p);
 
           doc.setFont('helvetica', 'normal');
-          doc.setFontSize(5);
+          doc.setFontSize(7);
           doc.setTextColor(...COLOR_GRIS_TEXTO);
 
           // Dividir el texto para encajar perfectamente en el ancho útil
           const lineasFooter = doc.splitTextToSize(footerText, anchoUtil);
-          const altoFooter = lineasFooter.length * 2.2;
+          const altoFooter = lineasFooter.length * 3;
           const yFooterText = pageHeight - 6 - altoFooter;
 
           // Línea divisora superior del footer
@@ -1247,7 +1263,7 @@
           doc.line(margenIzq, yFooterText - 2, pageWidth - margenIzq, yFooterText - 2);
 
           // Dibujar texto legal
-          doc.text(lineasFooter, margenIzq, yFooterText);
+          doc.text(lineasFooter, margenIzq, yFooterText, { align: 'justify', maxWidth: anchoUtil });
         }
 
         doc.save(`Lista_de_Equipos_${new Date().toISOString().slice(0, 10)}.pdf`);
@@ -1255,6 +1271,1299 @@
       } catch (err) {
         console.error(err);
         mostrarToast('No se pudo generar el PDF. Intenta de nuevo.', 'error');
+      } finally {
+        if (boton) {
+          boton.disabled = false;
+          boton.classList.remove('opacity-50');
+        }
+      }
+    }
+
+    // ── Generar PDF de "Eslingas de Poliéster" (Accesorios de Izaje) ──
+    async function generarPDFIzaje() {
+      const boton = document.getElementById('btn-pdf-izaje');
+      if (boton) {
+        boton.disabled = true;
+        boton.classList.add('opacity-50');
+      }
+
+      try {
+        const { jsPDF } = window.jspdf;
+
+        const doc = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margenIzq = 14;
+        const anchoUtil = pageWidth - (margenIzq * 2);
+        let y = 14;
+
+        // ── Paleta de Colores Corporativos ──
+        const COLOR_AZUL_MARINO = [15, 23, 42];
+        const COLOR_AZUL_ACCENT = [30, 58, 138];
+        const COLOR_GRIS_TEXTO  = [100, 116, 139];
+        const COLOR_GRIS_LINEA  = [226, 232, 240];
+        const COLOR_GRIS_BG     = [248, 250, 252];
+        const COLOR_VERDE_EXITO = [16, 185, 129];
+
+        // ── 1. Barra superior decorativa ──
+        doc.setFillColor(...COLOR_AZUL_MARINO);
+        doc.rect(0, 0, pageWidth, 2, 'F');
+
+        // ── 2. Encabezado Executive ──
+        doc.setFillColor(...COLOR_AZUL_ACCENT);
+        doc.rect(margenIzq, y, 3, 12, 'F');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.setTextColor(...COLOR_AZUL_MARINO);
+        doc.text('IN HOLE SOLUTIONS', margenIzq + 6, y + 5);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(...COLOR_GRIS_TEXTO);
+        doc.text('Control de Mantenimiento y Calibración', margenIzq + 6, y + 10);
+
+        y += 16;
+        doc.setDrawColor(...COLOR_GRIS_LINEA);
+        doc.setLineWidth(0.4);
+        doc.line(margenIzq, y, pageWidth - margenIzq, y);
+        y += 8;
+
+        // ── 3. Título y Descripción ──
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(...COLOR_AZUL_MARINO);
+        doc.text('Control de Mantto y Calibración de Equipos y Herramientas', margenIzq, y);
+        y += 5;
+
+        const descripcion = 'Los equipos y herramientas utilizados en las operaciones son sometidos a programas de mantenimiento, calibración, verificación e inspección, de acuerdo con las recomendaciones del fabricante, los requisitos aplicables y las necesidades operativas.';
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(...COLOR_GRIS_TEXTO);
+        const lineasDescripcion = doc.splitTextToSize(descripcion, anchoUtil);
+        doc.text(lineasDescripcion, margenIzq, y);
+        y += (lineasDescripcion.length * 3.5) + 6;
+
+        // ── 4. TÍTULO DE SECCIÓN KPI (CENTRADO) ──
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9.5);
+        doc.setTextColor(...COLOR_AZUL_MARINO);
+        doc.text('Cumplimiento del Programa de Mantenimiento y Calibración', pageWidth / 2, y, { align: 'center' });
+        y += 5;
+
+        // ── 5. SECCIÓN DE KPIs CENTRADOS ──
+        const kpiTexto = document.getElementById('kpi-porcentaje')?.innerText || '0%';
+        const pctNum = Math.min(100, Math.max(0, parseFloat(kpiTexto.replace('%', '')) || 0));
+
+        const card1W = 75;
+        const card2W = 99;
+        const gapCards = 6;
+        const cardH = 32;
+
+        const anchoTotalBloque = card1W + gapCards + card2W;
+        const startXBloque = (pageWidth - anchoTotalBloque) / 2;
+        const cardY = y;
+
+        doc.setFillColor(...COLOR_GRIS_BG);
+        doc.setDrawColor(...COLOR_GRIS_LINEA);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(startXBloque, cardY, card1W, cardH, 2, 2, 'FD');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7);
+        doc.setTextColor(...COLOR_GRIS_TEXTO);
+        doc.text('CUMPLIMIENTO GLOBAL', startXBloque + 8, cardY + 8);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(22);
+        doc.setTextColor(...COLOR_AZUL_ACCENT);
+        doc.text(`${Math.round(pctNum)}%`, startXBloque + 8, cardY + 20);
+
+        const barX = startXBloque + 8;
+        const barY = cardY + 24;
+        const barW = card1W - 16;
+        doc.setFillColor(226, 232, 240);
+        doc.roundedRect(barX, barY, barW, 2.5, 1, 1, 'F');
+
+        if (pctNum > 0) {
+          doc.setFillColor(...COLOR_AZUL_ACCENT);
+          doc.roundedRect(barX, barY, barW * (pctNum / 100), 2.5, 1, 1, 'F');
+        }
+
+        const card2X = startXBloque + card1W + gapCards;
+        doc.setFillColor(...COLOR_GRIS_BG);
+        doc.setDrawColor(...COLOR_GRIS_LINEA);
+        doc.roundedRect(card2X, cardY, card2W, cardH, 2, 2, 'FD');
+
+        const filasKPI = Array.from(document.querySelectorAll('#tbody-kpi-categorias tr'))
+          .map(tr => Array.from(tr.children).map(td => td.innerText.trim()))
+          .filter(celdas => celdas.length === 4);
+
+        const paddingInterno = 3;
+        const anchoTabla = card2W - (paddingInterno * 2);
+
+        doc.autoTable({
+          startY: cardY + 2,
+          margin: { left: card2X + paddingInterno },
+          tableWidth: anchoTabla,
+          head: [['Categoría', 'Vig.', 'Total', '% Cumpl.']],
+          body: filasKPI,
+          theme: 'plain',
+          styles: {
+            fontSize: 6.2,
+            halign: 'center',
+            cellPadding: 0.9,
+            textColor: [51, 65, 85],
+            font: 'helvetica'
+          },
+          headStyles: {
+            fillColor: COLOR_AZUL_MARINO,
+            textColor: 255,
+            fontStyle: 'bold',
+            fontSize: 6,
+            halign: 'center',
+            font: 'helvetica'
+          },
+          columnStyles: {
+            0: { halign: 'left', fontStyle: 'bold', cellWidth: anchoTabla * 0.42 },
+            1: { halign: 'center', cellWidth: anchoTabla * 0.18 },
+            2: { halign: 'center', cellWidth: anchoTabla * 0.18 },
+            3: { halign: 'center', fontStyle: 'bold', textColor: COLOR_AZUL_ACCENT, cellWidth: anchoTabla * 0.22 }
+          }
+        });
+
+        y = cardY + cardH + 10;
+
+        // ── 6. TÍTULO DE LA TABLA ──
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(...COLOR_AZUL_MARINO);
+        doc.text('Eslingas de Poliéster', margenIzq, y);
+        y += 5;
+
+        // ── 7. TABLA "ACCESORIOS DE IZAJE" ──
+        const { data, error } = await supabaseClient
+          .from('mantto_izaje')
+          .select('*')
+          .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        const filas = (data || []).filter(f => f.oculto !== true);
+
+        const encabezados = [
+          [
+            { content: 'No.', rowSpan: 2 },
+            { content: 'Tipo de Eslinga', rowSpan: 2 },
+            { content: 'Medidas', rowSpan: 2 },
+            { content: 'Capacidad (WLL)', rowSpan: 2 },
+            { content: 'Carga Límite de Trabajo (Kg)', colSpan: 3, halign: 'center' },
+            { content: 'No. Serie', rowSpan: 2 },
+            { content: 'Próximo Servicio', rowSpan: 2 },
+            { content: 'Tipo de Servicio', rowSpan: 2 },
+            { content: 'Estado', rowSpan: 2 }
+          ],
+          ['Vertical', 'Enlazada', 'En "U"']
+        ];
+
+        const coloresEstado = {
+          'Baja': [225, 29, 72],
+          'Mantto.': [217, 119, 6]
+        };
+
+        const cuerpo = filas.map((f, i) => {
+          const estado = f.estado || 'Disponible';
+          const colorEstado = coloresEstado[estado] || COLOR_VERDE_EXITO;
+
+          return [
+            i + 1,
+            f.tipo_accesorio || '-',
+            f.longitud || '-',
+            f.capacidad_wll || '-',
+            f.vertical || '-',
+            f.enlazada || '-',
+            f.en_u || '-',
+            f.no_serie || '-',
+            formatearFecha(f.proximo_servicio) || '-',
+            f.tipo_servicio || '-',
+            { content: estado, styles: { textColor: colorEstado, fontStyle: 'bold', halign: 'center' } }
+          ];
+        });
+
+        doc.autoTable({
+          startY: y,
+          head: encabezados,
+          body: cuerpo,
+          theme: 'striped',
+          styles: {
+            fontSize: 6.8,
+            textColor: [51, 65, 85],
+            cellPadding: 1.6,
+            overflow: 'linebreak',
+            font: 'helvetica'
+          },
+          headStyles: {
+            fillColor: COLOR_AZUL_ACCENT,
+            textColor: 255,
+            fontStyle: 'bold',
+            fontSize: 6.8,
+            halign: 'center',
+            valign: 'middle',
+            font: 'helvetica'
+          },
+          alternateRowStyles: {
+            fillColor: [248, 250, 252]
+          },
+          columnStyles: {
+            0: { halign: 'center', cellWidth: 7 },
+            1: { halign: 'left',   cellWidth: 24 },
+            2: { halign: 'center', cellWidth: 15 },
+            3: { halign: 'center', cellWidth: 17 },
+            4: { halign: 'center', cellWidth: 14 },
+            5: { halign: 'center', cellWidth: 14 },
+            6: { halign: 'center', cellWidth: 12 },
+            7: { halign: 'center', cellWidth: 18 },
+            8: { halign: 'center', cellWidth: 19 },
+            9: { halign: 'center', cellWidth: 18 },
+            10: { halign: 'center', cellWidth: 24 }
+          },
+          tableWidth: anchoUtil,
+          margin: { left: margenIzq, right: margenIzq, bottom: 22 }
+        });
+
+        // ── 8. PIE DE PÁGINA LEGAL ──
+        const totalPaginas = doc.internal.getNumberOfPages();
+        const anioActual = new Date().getFullYear();
+        const folioTexto = typeof folio !== 'undefined' && folio ? `${folio} ` : '';
+
+        const footerText = `${folioTexto}©${anioActual} IN HOLE SOLUTIONS - Todos los derechos reservados. Documento generado desde IHS CONNECT, plataforma integral de IN HOLE SOLUTIONS. Una vez descargada o impreso, este documento se considera una copia no controlada. La versión vigente es la disponible en IHS CONNECT. La información contenida en este documento es confidencial y de uso exclusivo para fines autorizados por IN HOLE SOLUTIONS. Queda restringida su reproducción, distribución, divulgación o modificación total o parcial sin la autorización correspondiente.`;
+
+        for (let p = 1; p <= totalPaginas; p++) {
+          doc.setPage(p);
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(7);
+          doc.setTextColor(...COLOR_GRIS_TEXTO);
+
+          const lineasFooter = doc.splitTextToSize(footerText, anchoUtil);
+          const altoFooter = lineasFooter.length * 3;
+          const yFooterText = pageHeight - 6 - altoFooter;
+
+          doc.setDrawColor(...COLOR_GRIS_LINEA);
+          doc.setLineWidth(0.3);
+          doc.line(margenIzq, yFooterText - 2, pageWidth - margenIzq, yFooterText - 2);
+
+          doc.text(lineasFooter, margenIzq, yFooterText, { align: 'justify', maxWidth: anchoUtil });
+        }
+
+        doc.save(`Accesorios_de_Izaje_${new Date().toISOString().slice(0, 10)}.pdf`);
+
+      } catch (err) {
+        console.error(err);
+        mostrarToast('No se pudo generar el PDF. Intenta de nuevo.', 'error');
+      } finally {
+        if (boton) {
+          boton.disabled = false;
+          boton.classList.remove('opacity-50');
+        }
+      }
+    }
+
+    // ── Generar PDF de "Eslingas de Cable de Acero / Estrobos" ──
+    async function generarPDFIzajeCable() {
+      const boton = document.getElementById('btn-pdf-izajeCable');
+      if (boton) {
+        boton.disabled = true;
+        boton.classList.add('opacity-50');
+      }
+
+      try {
+        const { jsPDF } = window.jspdf;
+
+        const doc = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margenIzq = 14;
+        const anchoUtil = pageWidth - (margenIzq * 2);
+        let y = 14;
+
+        // ── Paleta de Colores Corporativos ──
+        const COLOR_AZUL_MARINO = [15, 23, 42];
+        const COLOR_AZUL_ACCENT = [30, 58, 138];
+        const COLOR_GRIS_TEXTO  = [100, 116, 139];
+        const COLOR_GRIS_LINEA  = [226, 232, 240];
+        const COLOR_GRIS_BG     = [248, 250, 252];
+        const COLOR_VERDE_EXITO = [16, 185, 129];
+
+        // ── 1. Barra superior decorativa ──
+        doc.setFillColor(...COLOR_AZUL_MARINO);
+        doc.rect(0, 0, pageWidth, 2, 'F');
+
+        // ── 2. Encabezado Executive ──
+        doc.setFillColor(...COLOR_AZUL_ACCENT);
+        doc.rect(margenIzq, y, 3, 12, 'F');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.setTextColor(...COLOR_AZUL_MARINO);
+        doc.text('IN HOLE SOLUTIONS', margenIzq + 6, y + 5);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(...COLOR_GRIS_TEXTO);
+        doc.text('Control de Mantenimiento y Calibración', margenIzq + 6, y + 10);
+
+        y += 16;
+        doc.setDrawColor(...COLOR_GRIS_LINEA);
+        doc.setLineWidth(0.4);
+        doc.line(margenIzq, y, pageWidth - margenIzq, y);
+        y += 8;
+
+        // ── 3. Título y Descripción ──
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(...COLOR_AZUL_MARINO);
+        doc.text('Control de Mantto y Calibración de Equipos y Herramientas', margenIzq, y);
+        y += 5;
+
+        const descripcion = 'Los equipos y herramientas utilizados en las operaciones son sometidos a programas de mantenimiento, calibración, verificación e inspección, de acuerdo con las recomendaciones del fabricante, los requisitos aplicables y las necesidades operativas.';
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(...COLOR_GRIS_TEXTO);
+        const lineasDescripcion = doc.splitTextToSize(descripcion, anchoUtil);
+        doc.text(lineasDescripcion, margenIzq, y);
+        y += (lineasDescripcion.length * 3.5) + 6;
+
+        // ── 4. TÍTULO DE SECCIÓN KPI (CENTRADO) ──
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9.5);
+        doc.setTextColor(...COLOR_AZUL_MARINO);
+        doc.text('Cumplimiento del Programa de Mantenimiento y Calibración', pageWidth / 2, y, { align: 'center' });
+        y += 5;
+
+        // ── 5. SECCIÓN DE KPIs CENTRADOS ──
+        const kpiTexto = document.getElementById('kpi-porcentaje')?.innerText || '0%';
+        const pctNum = Math.min(100, Math.max(0, parseFloat(kpiTexto.replace('%', '')) || 0));
+
+        const card1W = 75;
+        const card2W = 99;
+        const gapCards = 6;
+        const cardH = 32;
+
+        const anchoTotalBloque = card1W + gapCards + card2W;
+        const startXBloque = (pageWidth - anchoTotalBloque) / 2;
+        const cardY = y;
+
+        doc.setFillColor(...COLOR_GRIS_BG);
+        doc.setDrawColor(...COLOR_GRIS_LINEA);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(startXBloque, cardY, card1W, cardH, 2, 2, 'FD');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7);
+        doc.setTextColor(...COLOR_GRIS_TEXTO);
+        doc.text('CUMPLIMIENTO GLOBAL', startXBloque + 8, cardY + 8);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(22);
+        doc.setTextColor(...COLOR_AZUL_ACCENT);
+        doc.text(`${Math.round(pctNum)}%`, startXBloque + 8, cardY + 20);
+
+        const barX = startXBloque + 8;
+        const barY = cardY + 24;
+        const barW = card1W - 16;
+        doc.setFillColor(226, 232, 240);
+        doc.roundedRect(barX, barY, barW, 2.5, 1, 1, 'F');
+
+        if (pctNum > 0) {
+          doc.setFillColor(...COLOR_AZUL_ACCENT);
+          doc.roundedRect(barX, barY, barW * (pctNum / 100), 2.5, 1, 1, 'F');
+        }
+
+        const card2X = startXBloque + card1W + gapCards;
+        doc.setFillColor(...COLOR_GRIS_BG);
+        doc.setDrawColor(...COLOR_GRIS_LINEA);
+        doc.roundedRect(card2X, cardY, card2W, cardH, 2, 2, 'FD');
+
+        const filasKPI = Array.from(document.querySelectorAll('#tbody-kpi-categorias tr'))
+          .map(tr => Array.from(tr.children).map(td => td.innerText.trim()))
+          .filter(celdas => celdas.length === 4);
+
+        const paddingInterno = 3;
+        const anchoTabla = card2W - (paddingInterno * 2);
+
+        doc.autoTable({
+          startY: cardY + 2,
+          margin: { left: card2X + paddingInterno },
+          tableWidth: anchoTabla,
+          head: [['Categoría', 'Vig.', 'Total', '% Cumpl.']],
+          body: filasKPI,
+          theme: 'plain',
+          styles: {
+            fontSize: 6.2,
+            halign: 'center',
+            cellPadding: 0.9,
+            textColor: [51, 65, 85],
+            font: 'helvetica'
+          },
+          headStyles: {
+            fillColor: COLOR_AZUL_MARINO,
+            textColor: 255,
+            fontStyle: 'bold',
+            fontSize: 6,
+            halign: 'center',
+            font: 'helvetica'
+          },
+          columnStyles: {
+            0: { halign: 'left', fontStyle: 'bold', cellWidth: anchoTabla * 0.42 },
+            1: { halign: 'center', cellWidth: anchoTabla * 0.18 },
+            2: { halign: 'center', cellWidth: anchoTabla * 0.18 },
+            3: { halign: 'center', fontStyle: 'bold', textColor: COLOR_AZUL_ACCENT, cellWidth: anchoTabla * 0.22 }
+          }
+        });
+
+        y = cardY + cardH + 10;
+
+        // ── 6. TÍTULO DE LA TABLA ──
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(...COLOR_AZUL_MARINO);
+        doc.text('Eslingas de Cable de Acero / Estrobos', margenIzq, y);
+        y += 5;
+
+        // ── 7. TABLA "ESLINGAS DE CABLE DE ACERO / ESTROBOS" ──
+        const { data, error } = await supabaseClient
+          .from('mantto_izaje_cable')
+          .select('*')
+          .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        const filas = (data || []).filter(f => f.oculto !== true);
+
+        const encabezados = [
+          [
+            { content: 'No.', rowSpan: 2 },
+            { content: 'Tipo de Eslinga', rowSpan: 2 },
+            { content: 'Medidas', rowSpan: 2 },
+            { content: 'Capacidad (WLL)', rowSpan: 2 },
+            { content: 'Carga Límite de Trabajo (Kg)', colSpan: 3, halign: 'center' },
+            { content: 'No. Serie', rowSpan: 2 },
+            { content: 'Próximo Servicio', rowSpan: 2 },
+            { content: 'Tipo de Servicio', rowSpan: 2 },
+            { content: 'Estado', rowSpan: 2 }
+          ],
+          ['Vertical', 'Enlazada', 'En "U"']
+        ];
+
+        const coloresEstado = {
+          'Baja': [225, 29, 72],
+          'Mantto.': [217, 119, 6]
+        };
+
+        const cuerpo = filas.map((f, i) => {
+          const estado = f.estado || 'Disponible';
+          const colorEstado = coloresEstado[estado] || COLOR_VERDE_EXITO;
+
+          return [
+            i + 1,
+            f.tipo_accesorio || '-',
+            f.longitud || '-',
+            f.capacidad_wll || '-',
+            f.vertical || '-',
+            f.enlazada || '-',
+            f.en_u || '-',
+            f.no_serie || '-',
+            formatearFecha(f.proximo_servicio) || '-',
+            f.tipo_servicio || '-',
+            { content: estado, styles: { textColor: colorEstado, fontStyle: 'bold', halign: 'center' } }
+          ];
+        });
+
+        doc.autoTable({
+          startY: y,
+          head: encabezados,
+          body: cuerpo,
+          theme: 'striped',
+          styles: {
+            fontSize: 6.8,
+            textColor: [51, 65, 85],
+            cellPadding: 1.6,
+            overflow: 'linebreak',
+            font: 'helvetica'
+          },
+          headStyles: {
+            fillColor: COLOR_AZUL_ACCENT,
+            textColor: 255,
+            fontStyle: 'bold',
+            fontSize: 6.8,
+            halign: 'center',
+            valign: 'middle',
+            font: 'helvetica'
+          },
+          alternateRowStyles: {
+            fillColor: [248, 250, 252]
+          },
+          columnStyles: {
+            0: { halign: 'center', cellWidth: 6 },
+            1: { halign: 'left',   cellWidth: 20 },
+            2: { halign: 'center', cellWidth: 22 },
+            3: { halign: 'center', cellWidth: 14 },
+            4: { halign: 'center', cellWidth: 11 },
+            5: { halign: 'center', cellWidth: 11 },
+            6: { halign: 'center', cellWidth: 10 },
+            7: { halign: 'center', cellWidth: 24 },
+            8: { halign: 'center', cellWidth: 14 },
+            9: { halign: 'center', cellWidth: 26 },
+            10: { halign: 'center', cellWidth: 24 }
+          },
+          tableWidth: anchoUtil,
+          margin: { left: margenIzq, right: margenIzq, bottom: 22 }
+        });
+
+        // ── 8. PIE DE PÁGINA LEGAL ──
+        const totalPaginas = doc.internal.getNumberOfPages();
+        const anioActual = new Date().getFullYear();
+        const folioTexto = typeof folio !== 'undefined' && folio ? `${folio} ` : '';
+
+        const footerText = `${folioTexto}©${anioActual} IN HOLE SOLUTIONS - Todos los derechos reservados. Documento generado desde IHS CONNECT, plataforma integral de IN HOLE SOLUTIONS. Una vez descargada o impreso, este documento se considera una copia no controlada. La versión vigente es la disponible en IHS CONNECT. La información contenida en este documento es confidencial y de uso exclusivo para fines autorizados por IN HOLE SOLUTIONS. Queda restringida su reproducción, distribución, divulgación o modificación total o parcial sin la autorización correspondiente.`;
+
+        for (let p = 1; p <= totalPaginas; p++) {
+          doc.setPage(p);
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(7);
+          doc.setTextColor(...COLOR_GRIS_TEXTO);
+
+          const lineasFooter = doc.splitTextToSize(footerText, anchoUtil);
+          const altoFooter = lineasFooter.length * 3;
+          const yFooterText = pageHeight - 6 - altoFooter;
+
+          doc.setDrawColor(...COLOR_GRIS_LINEA);
+          doc.setLineWidth(0.3);
+          doc.line(margenIzq, yFooterText - 2, pageWidth - margenIzq, yFooterText - 2);
+
+          doc.text(lineasFooter, margenIzq, yFooterText, { align: 'justify', maxWidth: anchoUtil });
+        }
+
+        doc.save(`Eslingas_Cable_Acero_Estrobos_${new Date().toISOString().slice(0, 10)}.pdf`);
+
+      } catch (err) {
+        console.error(err);
+        mostrarToast('No se pudo generar el PDF. Intenta de nuevo.', 'error');
+      } finally {
+        if (boton) {
+          boton.disabled = false;
+          boton.classList.remove('opacity-50');
+        }
+      }
+    }
+
+    // ── Generar PDF de "Drift" ──
+    async function generarPDFDrift() {
+      const boton = document.getElementById('btn-pdf-drift');
+      if (boton) {
+        boton.disabled = true;
+        boton.classList.add('opacity-50');
+      }
+
+      try {
+        const { jsPDF } = window.jspdf;
+
+        const doc = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margenIzq = 14;
+        const anchoUtil = pageWidth - (margenIzq * 2);
+        let y = 14;
+
+        // ── Paleta de Colores Corporativos ──
+        const COLOR_AZUL_MARINO = [15, 23, 42];
+        const COLOR_AZUL_ACCENT = [30, 58, 138];
+        const COLOR_GRIS_TEXTO  = [100, 116, 139];
+        const COLOR_GRIS_LINEA  = [226, 232, 240];
+        const COLOR_GRIS_BG     = [248, 250, 252];
+
+        // ── 1. Barra superior decorativa ──
+        doc.setFillColor(...COLOR_AZUL_MARINO);
+        doc.rect(0, 0, pageWidth, 2, 'F');
+
+        // ── 2. Encabezado Executive ──
+        doc.setFillColor(...COLOR_AZUL_ACCENT);
+        doc.rect(margenIzq, y, 3, 12, 'F');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.setTextColor(...COLOR_AZUL_MARINO);
+        doc.text('IN HOLE SOLUTIONS', margenIzq + 6, y + 5);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(...COLOR_GRIS_TEXTO);
+        doc.text('Control de Mantenimiento y Calibración', margenIzq + 6, y + 10);
+
+        y += 16;
+        doc.setDrawColor(...COLOR_GRIS_LINEA);
+        doc.setLineWidth(0.4);
+        doc.line(margenIzq, y, pageWidth - margenIzq, y);
+        y += 8;
+
+        // ── 3. Título y Descripción ──
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(...COLOR_AZUL_MARINO);
+        doc.text('Control de Mantto y Calibración de Equipos y Herramientas', margenIzq, y);
+        y += 5;
+
+        const descripcion = 'Los equipos y herramientas utilizados en las operaciones son sometidos a programas de mantenimiento, calibración, verificación e inspección, de acuerdo con las recomendaciones del fabricante, los requisitos aplicables y las necesidades operativas.';
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(...COLOR_GRIS_TEXTO);
+        const lineasDescripcion = doc.splitTextToSize(descripcion, anchoUtil);
+        doc.text(lineasDescripcion, margenIzq, y);
+        y += (lineasDescripcion.length * 3.5) + 6;
+
+        // ── 4. TÍTULO DE SECCIÓN KPI (CENTRADO) ──
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9.5);
+        doc.setTextColor(...COLOR_AZUL_MARINO);
+        doc.text('Cumplimiento del Programa de Mantenimiento y Calibración', pageWidth / 2, y, { align: 'center' });
+        y += 5;
+
+        // ── 5. SECCIÓN DE KPIs CENTRADOS ──
+        const kpiTexto = document.getElementById('kpi-porcentaje')?.innerText || '0%';
+        const pctNum = Math.min(100, Math.max(0, parseFloat(kpiTexto.replace('%', '')) || 0));
+
+        const card1W = 75;
+        const card2W = 99;
+        const gapCards = 6;
+        const cardH = 32;
+
+        const anchoTotalBloque = card1W + gapCards + card2W;
+        const startXBloque = (pageWidth - anchoTotalBloque) / 2;
+        const cardY = y;
+
+        doc.setFillColor(...COLOR_GRIS_BG);
+        doc.setDrawColor(...COLOR_GRIS_LINEA);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(startXBloque, cardY, card1W, cardH, 2, 2, 'FD');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7);
+        doc.setTextColor(...COLOR_GRIS_TEXTO);
+        doc.text('CUMPLIMIENTO GLOBAL', startXBloque + 8, cardY + 8);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(22);
+        doc.setTextColor(...COLOR_AZUL_ACCENT);
+        doc.text(`${Math.round(pctNum)}%`, startXBloque + 8, cardY + 20);
+
+        const barX = startXBloque + 8;
+        const barY = cardY + 24;
+        const barW = card1W - 16;
+        doc.setFillColor(226, 232, 240);
+        doc.roundedRect(barX, barY, barW, 2.5, 1, 1, 'F');
+
+        if (pctNum > 0) {
+          doc.setFillColor(...COLOR_AZUL_ACCENT);
+          doc.roundedRect(barX, barY, barW * (pctNum / 100), 2.5, 1, 1, 'F');
+        }
+
+        const card2X = startXBloque + card1W + gapCards;
+        doc.setFillColor(...COLOR_GRIS_BG);
+        doc.setDrawColor(...COLOR_GRIS_LINEA);
+        doc.roundedRect(card2X, cardY, card2W, cardH, 2, 2, 'FD');
+
+        const filasKPI = Array.from(document.querySelectorAll('#tbody-kpi-categorias tr'))
+          .map(tr => Array.from(tr.children).map(td => td.innerText.trim()))
+          .filter(celdas => celdas.length === 4);
+
+        const paddingInterno = 3;
+        const anchoTabla = card2W - (paddingInterno * 2);
+
+        doc.autoTable({
+          startY: cardY + 2,
+          margin: { left: card2X + paddingInterno },
+          tableWidth: anchoTabla,
+          head: [['Categoría', 'Vig.', 'Total', '% Cumpl.']],
+          body: filasKPI,
+          theme: 'plain',
+          styles: {
+            fontSize: 6.2,
+            halign: 'center',
+            cellPadding: 0.9,
+            textColor: [51, 65, 85],
+            font: 'helvetica'
+          },
+          headStyles: {
+            fillColor: COLOR_AZUL_MARINO,
+            textColor: 255,
+            fontStyle: 'bold',
+            fontSize: 6,
+            halign: 'center',
+            font: 'helvetica'
+          },
+          columnStyles: {
+            0: { halign: 'left', fontStyle: 'bold', cellWidth: anchoTabla * 0.42 },
+            1: { halign: 'center', cellWidth: anchoTabla * 0.18 },
+            2: { halign: 'center', cellWidth: anchoTabla * 0.18 },
+            3: { halign: 'center', fontStyle: 'bold', textColor: COLOR_AZUL_ACCENT, cellWidth: anchoTabla * 0.22 }
+          }
+        });
+
+        y = cardY + cardH + 10;
+
+        // ── 6. TÍTULO DE LA TABLA ──
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(...COLOR_AZUL_MARINO);
+        doc.text('Drift', margenIzq, y);
+        y += 5;
+
+        // ── 7. TABLA "DRIFT" ──
+        const { data, error } = await supabaseClient
+          .from('mantto_drift')
+          .select('*')
+          .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        const filas = (data || []).filter(f => f.oculto !== true);
+
+        const encabezados = [
+          [
+            { content: 'No.', rowSpan: 2 },
+            { content: 'Cantidad', rowSpan: 2 },
+            { content: 'Tamaño', rowSpan: 2 },
+            { content: 'Peso Nom Conexión', rowSpan: 2 },
+            { content: 'OD-Drift (In)', rowSpan: 2 },
+            { content: 'Longitud (In) Altura', rowSpan: 2 },
+            { content: 'Material', rowSpan: 2 },
+            { content: 'No. Serie', rowSpan: 2 },
+            { content: 'Fecha de Calibración', colSpan: 2, halign: 'center' }
+          ],
+          ['Última', 'Próxima']
+        ];
+
+        const cuerpo = filas.map((f, i) => [
+          i + 1,
+          f.cantidad || '-',
+          f.tamano || '-',
+          f.peso_nom_conexion || '-',
+          f.od_drift || '-',
+          f.longitud_altura || '-',
+          f.material || '-',
+          f.no_serie || '-',
+          formatearFecha(f.fecha_calibracion) || '-',
+          formatearFechaMes(f.fecha_vencimiento) || '-'
+        ]);
+
+        doc.autoTable({
+          startY: y,
+          head: encabezados,
+          body: cuerpo,
+          theme: 'striped',
+          styles: {
+            fontSize: 6.8,
+            textColor: [51, 65, 85],
+            cellPadding: 1.6,
+            overflow: 'linebreak',
+            font: 'helvetica'
+          },
+          headStyles: {
+            fillColor: COLOR_AZUL_ACCENT,
+            textColor: 255,
+            fontStyle: 'bold',
+            fontSize: 6.8,
+            halign: 'center',
+            valign: 'middle',
+            font: 'helvetica'
+          },
+          alternateRowStyles: {
+            fillColor: [248, 250, 252]
+          },
+          columnStyles: {
+            0: { halign: 'center', cellWidth: 8 },
+            1: { halign: 'center', cellWidth: 14 },
+            2: { halign: 'center', cellWidth: 20 },
+            3: { halign: 'center', cellWidth: 20 },
+            4: { halign: 'center', cellWidth: 18 },
+            5: { halign: 'center', cellWidth: 20 },
+            6: { halign: 'center', cellWidth: 18 },
+            7: { halign: 'center', cellWidth: 24 },
+            8: { halign: 'center', cellWidth: 20 },
+            9: { halign: 'center', cellWidth: 20 }
+          },
+          tableWidth: anchoUtil,
+          margin: { left: margenIzq, right: margenIzq, bottom: 22 }
+        });
+
+        // ── 8. PIE DE PÁGINA LEGAL ──
+        const totalPaginas = doc.internal.getNumberOfPages();
+        const anioActual = new Date().getFullYear();
+        const folioTexto = typeof folio !== 'undefined' && folio ? `${folio} ` : '';
+
+        const footerText = `${folioTexto}©${anioActual} IN HOLE SOLUTIONS - Todos los derechos reservados. Documento generado desde IHS CONNECT, plataforma integral de IN HOLE SOLUTIONS. Una vez descargada o impreso, este documento se considera una copia no controlada. La versión vigente es la disponible en IHS CONNECT. La información contenida en este documento es confidencial y de uso exclusivo para fines autorizados por IN HOLE SOLUTIONS. Queda restringida su reproducción, distribución, divulgación o modificación total o parcial sin la autorización correspondiente.`;
+
+        for (let p = 1; p <= totalPaginas; p++) {
+          doc.setPage(p);
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(7);
+          doc.setTextColor(...COLOR_GRIS_TEXTO);
+
+          const lineasFooter = doc.splitTextToSize(footerText, anchoUtil);
+          const altoFooter = lineasFooter.length * 3;
+          const yFooterText = pageHeight - 6 - altoFooter;
+
+          doc.setDrawColor(...COLOR_GRIS_LINEA);
+          doc.setLineWidth(0.3);
+          doc.line(margenIzq, yFooterText - 2, pageWidth - margenIzq, yFooterText - 2);
+
+          doc.text(lineasFooter, margenIzq, yFooterText, { align: 'justify', maxWidth: anchoUtil });
+        }
+
+        doc.save(`Drift_${new Date().toISOString().slice(0, 10)}.pdf`);
+
+      } catch (err) {
+        console.error(err);
+        mostrarToast('No se pudo generar el PDF. Intenta de nuevo.', 'error');
+      } finally {
+        if (boton) {
+          boton.disabled = false;
+          boton.classList.remove('opacity-50');
+        }
+      }
+    }
+
+    // ── Generar PDF completo: Equipos + Izaje + Izaje Cable + Drift en un solo archivo ──
+    async function generarPDFCompleto() {
+      const boton = document.getElementById('btn-pdf-completo');
+      if (boton) {
+        boton.disabled = true;
+        boton.classList.add('opacity-50');
+      }
+
+      try {
+        const { jsPDF } = window.jspdf;
+
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margenIzq = 14;
+        const anchoUtil = pageWidth - (margenIzq * 2);
+
+        const COLOR_AZUL_MARINO = [15, 23, 42];
+        const COLOR_AZUL_ACCENT = [30, 58, 138];
+        const COLOR_GRIS_TEXTO  = [100, 116, 139];
+        const COLOR_GRIS_LINEA  = [226, 232, 240];
+        const COLOR_GRIS_BG     = [248, 250, 252];
+        const COLOR_VERDE_EXITO = [16, 185, 129];
+
+        // ── Encabezado compacto: se repite al inicio de cada tabla ──
+        function dibujarEncabezadoCompacto(tituloTabla) {
+          let yy = 14;
+          doc.setFillColor(...COLOR_AZUL_MARINO);
+          doc.rect(0, 0, pageWidth, 2, 'F');
+
+          doc.setFillColor(...COLOR_AZUL_ACCENT);
+          doc.rect(margenIzq, yy, 3, 12, 'F');
+
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(16);
+          doc.setTextColor(...COLOR_AZUL_MARINO);
+          doc.text('IN HOLE SOLUTIONS', margenIzq + 6, yy + 5);
+
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(14);
+          doc.setTextColor(...COLOR_GRIS_TEXTO);
+          doc.text('Control de Mantenimiento y Calibración', margenIzq + 6, yy + 10);
+
+          yy += 16;
+          doc.setDrawColor(...COLOR_GRIS_LINEA);
+          doc.setLineWidth(0.4);
+          doc.line(margenIzq, yy, pageWidth - margenIzq, yy);
+          yy += 10;
+
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(11);
+          doc.setTextColor(...COLOR_AZUL_MARINO);
+          doc.text(tituloTabla, margenIzq, yy);
+          yy += 6;
+
+          return yy;
+        }
+
+        // ── Título de sección "ligero": se usa cuando la tabla siguiente
+        //    cabe en la misma página (no repite el encabezado completo) ──
+        function dibujarTituloSeccion(tituloTabla, yy) {
+          yy += 8;
+          doc.setDrawColor(...COLOR_GRIS_LINEA);
+          doc.setLineWidth(0.3);
+          doc.line(margenIzq, yy - 4, pageWidth - margenIzq, yy - 4);
+
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(11);
+          doc.setTextColor(...COLOR_AZUL_MARINO);
+          doc.text(tituloTabla, margenIzq, yy);
+          return yy + 6;
+        }
+
+        // ── Decide si el título/tabla siguiente cabe en la página actual
+        //    o si hay que saltar de página ──
+        function posicionarSiguienteSeccion(tituloTabla, finalYManual) {
+          const finalY = finalYManual !== undefined ? finalYManual : doc.lastAutoTable.finalY;
+          if (finalY > pageHeight - 60) {
+            doc.addPage();
+            return dibujarEncabezadoCompacto(tituloTabla);
+          }
+          return dibujarTituloSeccion(tituloTabla, finalY);
+        }
+
+        // ── PÁGINA 1: Portada con título, descripción y KPIs ──
+        let y = 14;
+
+        doc.setFillColor(...COLOR_AZUL_MARINO);
+        doc.rect(0, 0, pageWidth, 2, 'F');
+
+        doc.setFillColor(...COLOR_AZUL_ACCENT);
+        doc.rect(margenIzq, y, 3, 12, 'F');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.setTextColor(...COLOR_AZUL_MARINO);
+        doc.text('IN HOLE SOLUTIONS', margenIzq + 6, y + 5);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(...COLOR_GRIS_TEXTO);
+        doc.text('Control de Mantenimiento y Calibración', margenIzq + 6, y + 10);
+
+        y += 16;
+        doc.setDrawColor(...COLOR_GRIS_LINEA);
+        doc.setLineWidth(0.4);
+        doc.line(margenIzq, y, pageWidth - margenIzq, y);
+        y += 8;
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(...COLOR_AZUL_MARINO);
+        doc.text('Control de Mantto y Calibración de Equipos y Herramientas', margenIzq, y);
+        y += 5;
+
+        const descripcion = 'Los equipos y herramientas utilizados en las operaciones son sometidos a programas de mantenimiento, calibración, verificación e inspección, de acuerdo con las recomendaciones del fabricante, los requisitos aplicables y las necesidades operativas.';
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(...COLOR_GRIS_TEXTO);
+        const lineasDescripcion = doc.splitTextToSize(descripcion, anchoUtil);
+        doc.text(lineasDescripcion, margenIzq, y);
+        y += (lineasDescripcion.length * 3.5) + 6;
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9.5);
+        doc.setTextColor(...COLOR_AZUL_MARINO);
+        doc.text('Cumplimiento del Programa de Mantenimiento y Calibración', pageWidth / 2, y, { align: 'center' });
+        y += 5;
+
+        const kpiTexto = document.getElementById('kpi-porcentaje')?.innerText || '0%';
+        const pctNum = Math.min(100, Math.max(0, parseFloat(kpiTexto.replace('%', '')) || 0));
+
+        const card1W = 75;
+        const card2W = 99;
+        const gapCards = 6;
+        const cardH = 32;
+
+        const anchoTotalBloque = card1W + gapCards + card2W;
+        const startXBloque = (pageWidth - anchoTotalBloque) / 2;
+        const cardY = y;
+
+        doc.setFillColor(...COLOR_GRIS_BG);
+        doc.setDrawColor(...COLOR_GRIS_LINEA);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(startXBloque, cardY, card1W, cardH, 2, 2, 'FD');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7);
+        doc.setTextColor(...COLOR_GRIS_TEXTO);
+        doc.text('CUMPLIMIENTO GLOBAL', startXBloque + 8, cardY + 8);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(22);
+        doc.setTextColor(...COLOR_AZUL_ACCENT);
+        doc.text(`${Math.round(pctNum)}%`, startXBloque + 8, cardY + 20);
+
+        const barX = startXBloque + 8;
+        const barY = cardY + 24;
+        const barW = card1W - 16;
+        doc.setFillColor(226, 232, 240);
+        doc.roundedRect(barX, barY, barW, 2.5, 1, 1, 'F');
+
+        if (pctNum > 0) {
+          doc.setFillColor(...COLOR_AZUL_ACCENT);
+          doc.roundedRect(barX, barY, barW * (pctNum / 100), 2.5, 1, 1, 'F');
+        }
+
+        const card2X = startXBloque + card1W + gapCards;
+        doc.setFillColor(...COLOR_GRIS_BG);
+        doc.setDrawColor(...COLOR_GRIS_LINEA);
+        doc.roundedRect(card2X, cardY, card2W, cardH, 2, 2, 'FD');
+
+        const filasKPI = Array.from(document.querySelectorAll('#tbody-kpi-categorias tr'))
+          .map(tr => Array.from(tr.children).map(td => td.innerText.trim()))
+          .filter(celdas => celdas.length === 4);
+
+        const paddingInterno = 3;
+        const anchoTabla = card2W - (paddingInterno * 2);
+
+        doc.autoTable({
+          startY: cardY + 2,
+          margin: { left: card2X + paddingInterno },
+          tableWidth: anchoTabla,
+          head: [['Categoría', 'Vig.', 'Total', '% Cumpl.']],
+          body: filasKPI,
+          theme: 'plain',
+          styles: { fontSize: 6.2, halign: 'center', cellPadding: 0.9, textColor: [51, 65, 85], font: 'helvetica' },
+          headStyles: { fillColor: COLOR_AZUL_MARINO, textColor: 255, fontStyle: 'bold', fontSize: 6, halign: 'center', font: 'helvetica' },
+          columnStyles: {
+            0: { halign: 'left', fontStyle: 'bold', cellWidth: anchoTabla * 0.42 },
+            1: { halign: 'center', cellWidth: anchoTabla * 0.18 },
+            2: { halign: 'center', cellWidth: anchoTabla * 0.18 },
+            3: { halign: 'center', fontStyle: 'bold', textColor: COLOR_AZUL_ACCENT, cellWidth: anchoTabla * 0.22 }
+          }
+        });
+
+        // ── Consultar datos de las 4 tablas en paralelo ──
+        const [{ data: dataEquipos, error: errEquipos }, { data: dataIzaje, error: errIzaje },
+               { data: dataIzajeCable, error: errIzajeCable }, { data: dataDrift, error: errDrift }] = await Promise.all([
+          supabaseClient.from('mantto_equipos_herramientas').select('*').order('created_at', { ascending: true }),
+          supabaseClient.from('mantto_izaje').select('*').order('created_at', { ascending: true }),
+          supabaseClient.from('mantto_izaje_cable').select('*').order('created_at', { ascending: true }),
+          supabaseClient.from('mantto_drift').select('*').order('created_at', { ascending: true })
+        ]);
+
+        if (errEquipos || errIzaje || errIzajeCable || errDrift) {
+          throw errEquipos || errIzaje || errIzajeCable || errDrift;
+        }
+
+        // ── SECCIÓN 1: Lista de Equipos ──
+        const finalYKPIs = Math.max(cardY + cardH, doc.lastAutoTable.finalY);
+        y = posicionarSiguienteSeccion('Lista de Equipos', finalYKPIs);
+
+        const filasEquipos = (dataEquipos || []).filter(f => f.oculto !== true);
+        const hayObservaciones = filasEquipos.some(f => (f.observaciones || '').trim() !== '');
+
+        const encabezadosEquipos = ['No.', 'Equipo', 'Marca', 'No. Serie', 'Último', 'Próximo', 'Días', 'Frec.'];
+        if (hayObservaciones) encabezadosEquipos.push('Observaciones');
+
+        const cuerpoEquipos = filasEquipos.map((f, i) => {
+          const dias = calcularDiasRestantes(f.fecha_vencimiento);
+          const umbral = calcularUmbralAlerta(f.frecuencia);
+          let color = COLOR_VERDE_EXITO;
+          if (dias !== '' && dias <= 0) color = [225, 29, 72];
+          else if (dias !== '' && dias <= umbral) color = [217, 119, 6];
+
+          const fila = [
+            i + 1, f.equipo || '-', f.marca || '-', f.no_serie || '-',
+            formatearFecha(f.fecha_calibracion) || '-', formatearFecha(f.fecha_vencimiento) || '-',
+            { content: dias === '' ? '-' : `${dias} d`, styles: { textColor: color, fontStyle: 'bold', halign: 'center' } },
+            f.frecuencia || '-'
+          ];
+          if (hayObservaciones) fila.push(f.observaciones || '-');
+          return fila;
+        });
+
+        doc.autoTable({
+          startY: y,
+          head: [encabezadosEquipos],
+          body: cuerpoEquipos,
+          theme: 'striped',
+          styles: { fontSize: 7, textColor: [51, 65, 85], cellPadding: 2, overflow: 'linebreak', font: 'helvetica' },
+          headStyles: { fillColor: COLOR_AZUL_ACCENT, textColor: 255, fontStyle: 'bold', fontSize: 7.2, halign: 'center', valign: 'middle', font: 'helvetica' },
+          alternateRowStyles: { fillColor: [248, 250, 252] },
+          columnStyles: hayObservaciones ? {
+            0: { halign: 'center', cellWidth: 8 }, 1: { halign: 'left', cellWidth: 35 }, 2: { halign: 'left', cellWidth: 20 },
+            3: { halign: 'left', cellWidth: 22 }, 4: { halign: 'center', cellWidth: 18 }, 5: { halign: 'center', cellWidth: 18 },
+            6: { halign: 'center', cellWidth: 14 }, 7: { halign: 'center', cellWidth: 15 }, 8: { halign: 'left', cellWidth: 32 }
+          } : {
+            0: { halign: 'center', cellWidth: 10 }, 1: { halign: 'left', cellWidth: 48 }, 2: { halign: 'left', cellWidth: 26 },
+            3: { halign: 'left', cellWidth: 28 }, 4: { halign: 'center', cellWidth: 20 }, 5: { halign: 'center', cellWidth: 20 },
+            6: { halign: 'center', cellWidth: 14 }, 7: { halign: 'center', cellWidth: 16 }
+          },
+          tableWidth: anchoUtil,
+          margin: { left: margenIzq, right: margenIzq, bottom: 22 }
+        });
+
+        // ── SECCIÓN 2: Eslingas de Poliéster ──
+        y = posicionarSiguienteSeccion('Eslingas de Poliéster');
+
+        const filasIzaje = (dataIzaje || []).filter(f => f.oculto !== true);
+        const coloresEstado = { 'Baja': [225, 29, 72], 'Mantto.': [217, 119, 6] };
+
+        const encabezadosIzaje = [
+          [
+            { content: 'No.', rowSpan: 2 }, { content: 'Tipo de Eslinga', rowSpan: 2 }, { content: 'Medidas', rowSpan: 2 },
+            { content: 'Capacidad (WLL)', rowSpan: 2 }, { content: 'Carga Límite de Trabajo (Kg)', colSpan: 3, halign: 'center' },
+            { content: 'No. Serie', rowSpan: 2 }, { content: 'Próximo Servicio', rowSpan: 2 },
+            { content: 'Tipo de Servicio', rowSpan: 2 }, { content: 'Estado', rowSpan: 2 }
+          ],
+          ['Vertical', 'Enlazada', 'En "U"']
+        ];
+
+        const cuerpoIzaje = filasIzaje.map((f, i) => {
+          const estado = f.estado || 'Disponible';
+          const colorEstado = coloresEstado[estado] || COLOR_VERDE_EXITO;
+          return [
+            i + 1, f.tipo_accesorio || '-', f.longitud || '-', f.capacidad_wll || '-',
+            f.vertical || '-', f.enlazada || '-', f.en_u || '-', f.no_serie || '-',
+            formatearFecha(f.proximo_servicio) || '-', f.tipo_servicio || '-',
+            { content: estado, styles: { textColor: colorEstado, fontStyle: 'bold', halign: 'center' } }
+          ];
+        });
+
+        doc.autoTable({
+          startY: y,
+          head: encabezadosIzaje,
+          body: cuerpoIzaje,
+          theme: 'striped',
+          styles: { fontSize: 6.8, textColor: [51, 65, 85], cellPadding: 1.6, overflow: 'linebreak', font: 'helvetica' },
+          headStyles: { fillColor: COLOR_AZUL_ACCENT, textColor: 255, fontStyle: 'bold', fontSize: 6.8, halign: 'center', valign: 'middle', font: 'helvetica' },
+          alternateRowStyles: { fillColor: [248, 250, 252] },
+          columnStyles: {
+            0: { halign: 'center', cellWidth: 7 }, 1: { halign: 'left', cellWidth: 24 }, 2: { halign: 'center', cellWidth: 15 },
+            3: { halign: 'center', cellWidth: 17 }, 4: { halign: 'center', cellWidth: 14 }, 5: { halign: 'center', cellWidth: 14 },
+            6: { halign: 'center', cellWidth: 12 }, 7: { halign: 'left', cellWidth: 18 }, 8: { halign: 'center', cellWidth: 19 },
+            9: { halign: 'center', cellWidth: 18 }, 10: { halign: 'center', cellWidth: 24 }
+          },
+          tableWidth: anchoUtil,
+          margin: { left: margenIzq, right: margenIzq, bottom: 22 }
+        });
+
+        // ── SECCIÓN 3: Eslingas de Cable de Acero / Estrobos ──
+        y = posicionarSiguienteSeccion('Eslingas de Cable de Acero / Estrobos');
+
+        const filasIzajeCable = (dataIzajeCable || []).filter(f => f.oculto !== true);
+
+        const encabezadosIzajeCable = [
+          [
+            { content: 'No.', rowSpan: 2 }, { content: 'Tipo de Eslinga', rowSpan: 2 }, { content: 'Medidas', rowSpan: 2 },
+            { content: 'Capacidad (WLL)', rowSpan: 2 }, { content: 'Carga Límite de Trabajo (Kg)', colSpan: 3, halign: 'center' },
+            { content: 'No. Serie', rowSpan: 2 }, { content: 'Próximo Servicio', rowSpan: 2 },
+            { content: 'Tipo de Servicio', rowSpan: 2 }, { content: 'Estado', rowSpan: 2 }
+          ],
+          ['Vertical', 'Enlazada', 'En "U"']
+        ];
+
+        const cuerpoIzajeCable = filasIzajeCable.map((f, i) => {
+          const estado = f.estado || 'Disponible';
+          const colorEstado = coloresEstado[estado] || COLOR_VERDE_EXITO;
+          return [
+            i + 1, f.tipo_accesorio || '-', f.longitud || '-', f.capacidad_wll || '-',
+            f.vertical || '-', f.enlazada || '-', f.en_u || '-', f.no_serie || '-',
+            formatearFecha(f.proximo_servicio) || '-', f.tipo_servicio || '-',
+            { content: estado, styles: { textColor: colorEstado, fontStyle: 'bold', halign: 'center' } }
+          ];
+        });
+
+        doc.autoTable({
+          startY: y,
+          head: encabezadosIzajeCable,
+          body: cuerpoIzajeCable,
+          theme: 'striped',
+          styles: { fontSize: 6.8, textColor: [51, 65, 85], cellPadding: 1.6, overflow: 'linebreak', font: 'helvetica' },
+          headStyles: { fillColor: COLOR_AZUL_ACCENT, textColor: 255, fontStyle: 'bold', fontSize: 6.8, halign: 'center', valign: 'middle', font: 'helvetica' },
+          alternateRowStyles: { fillColor: [248, 250, 252] },
+          columnStyles: {
+            0: { halign: 'center', cellWidth: 6 }, 1: { halign: 'left', cellWidth: 20 }, 2: { halign: 'center', cellWidth: 22 },
+            3: { halign: 'center', cellWidth: 14 }, 4: { halign: 'center', cellWidth: 11 }, 5: { halign: 'center', cellWidth: 11 },
+            6: { halign: 'center', cellWidth: 10 }, 7: { halign: 'left', cellWidth: 24 }, 8: { halign: 'center', cellWidth: 14 },
+            9: { halign: 'center', cellWidth: 26 }, 10: { halign: 'center', cellWidth: 24 }
+          },
+          tableWidth: anchoUtil,
+          margin: { left: margenIzq, right: margenIzq, bottom: 22 }
+        });
+
+        // ── SECCIÓN 4: Drift ──
+        y = posicionarSiguienteSeccion('Drift');
+
+        const filasDrift = (dataDrift || []).filter(f => f.oculto !== true);
+
+        const encabezadosDrift = [
+          [
+            { content: 'No.', rowSpan: 2 }, { content: 'Cantidad', rowSpan: 2 }, { content: 'Tamaño', rowSpan: 2 },
+            { content: 'Peso Nom Conexión', rowSpan: 2 }, { content: 'OD-Drift (In)', rowSpan: 2 },
+            { content: 'Longitud (In) Altura', rowSpan: 2 }, { content: 'Material', rowSpan: 2 }, { content: 'No. Serie', rowSpan: 2 },
+            { content: 'Fecha de Calibración', colSpan: 2, halign: 'center' }
+          ],
+          ['Última', 'Próxima']
+        ];
+
+        const cuerpoDrift = filasDrift.map((f, i) => [
+          i + 1, f.cantidad || '-', f.tamano || '-', f.peso_nom_conexion || '-', f.od_drift || '-',
+          f.longitud_altura || '-', f.material || '-', f.no_serie || '-',
+          formatearFecha(f.fecha_calibracion) || '-', formatearFechaMes(f.fecha_vencimiento) || '-'
+        ]);
+
+        doc.autoTable({
+          startY: y,
+          head: encabezadosDrift,
+          body: cuerpoDrift,
+          theme: 'striped',
+          styles: { fontSize: 6.8, textColor: [51, 65, 85], cellPadding: 1.6, overflow: 'linebreak', font: 'helvetica' },
+          headStyles: { fillColor: COLOR_AZUL_ACCENT, textColor: 255, fontStyle: 'bold', fontSize: 6.8, halign: 'center', valign: 'middle', font: 'helvetica' },
+          alternateRowStyles: { fillColor: [248, 250, 252] },
+          columnStyles: {
+            0: { halign: 'center', cellWidth: 8 }, 1: { halign: 'center', cellWidth: 14 }, 2: { halign: 'center', cellWidth: 20 },
+            3: { halign: 'center', cellWidth: 20 }, 4: { halign: 'center', cellWidth: 18 }, 5: { halign: 'center', cellWidth: 20 },
+            6: { halign: 'center', cellWidth: 18 }, 7: { halign: 'center', cellWidth: 24 }, 8: { halign: 'center', cellWidth: 20 },
+            9: { halign: 'center', cellWidth: 20 }
+          },
+          tableWidth: anchoUtil,
+          margin: { left: margenIzq, right: margenIzq, bottom: 22 }
+        });
+
+        // ── PIE DE PÁGINA LEGAL (en todas las páginas, con numeración) ──
+        const totalPaginas = doc.internal.getNumberOfPages();
+        const anioActual = new Date().getFullYear();
+        const folioTexto = typeof folio !== 'undefined' && folio ? `${folio} ` : '';
+        const footerText = `${folioTexto}©${anioActual} IN HOLE SOLUTIONS - Todos los derechos reservados. Documento generado desde IHS CONNECT, plataforma integral de IN HOLE SOLUTIONS. Una vez descargada o impreso, este documento se considera una copia no controlada. La versión vigente es la disponible en IHS CONNECT. La información contenida en este documento es confidencial y de uso exclusivo para fines autorizados por IN HOLE SOLUTIONS. Queda restringida su reproducción, distribución, divulgación o modificación total o parcial sin la autorización correspondiente.`;
+
+        for (let p = 1; p <= totalPaginas; p++) {
+          doc.setPage(p);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(7);
+          doc.setTextColor(...COLOR_GRIS_TEXTO);
+
+          const lineasFooter = doc.splitTextToSize(footerText, anchoUtil);
+          const altoFooter = lineasFooter.length * 3;
+          const yFooterText = pageHeight - 6 - altoFooter;
+
+          doc.setDrawColor(...COLOR_GRIS_LINEA);
+          doc.setLineWidth(0.3);
+          doc.line(margenIzq, yFooterText - 2, pageWidth - margenIzq, yFooterText - 2);
+
+          doc.text(lineasFooter, margenIzq, yFooterText, { align: 'justify', maxWidth: anchoUtil });
+        }
+
+        doc.save(`Control_Mantenimiento_Completo_${new Date().toISOString().slice(0, 10)}.pdf`);
+
+      } catch (err) {
+        console.error(err);
+        mostrarToast('No se pudo generar el PDF completo. Intenta de nuevo.', 'error');
       } finally {
         if (boton) {
           boton.disabled = false;
@@ -2525,6 +3834,14 @@
           });
           document.getElementById('btn-pdf-equipos').classList.remove('hidden');
           document.getElementById('btn-pdf-equipos').classList.add('flex');
+          document.getElementById('btn-pdf-izaje').classList.remove('hidden');
+          document.getElementById('btn-pdf-izaje').classList.add('flex');
+          document.getElementById('btn-pdf-izajeCable').classList.remove('hidden');
+          document.getElementById('btn-pdf-izajeCable').classList.add('flex');
+          document.getElementById('btn-pdf-drift').classList.remove('hidden');
+          document.getElementById('btn-pdf-drift').classList.add('flex');
+          document.getElementById('btn-pdf-completo').classList.remove('hidden');
+          document.getElementById('btn-pdf-completo').classList.add('flex');
           ['izaje', 'izajeCable', 'drift'].forEach(n => {
             const btnHist = document.getElementById(`btn-historial-${n}`);
             if (btnHist) { btnHist.classList.remove('hidden'); btnHist.classList.add('flex'); }

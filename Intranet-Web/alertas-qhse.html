@@ -1,441 +1,1244 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Alertas QHSE | In Hole Solutions</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700;1,800;1,900&family=Barlow:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700;1,800;1,900&family=Barlow:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
   <link rel="icon" href="data:,">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
   <style>
-    body { font-family: 'Barlow', sans-serif; }
-
+    body {
+      font-family: 'Barlow', sans-serif;
+    }
     /* Gradientes complejos */
-    .qhse-topbar { background: linear-gradient(135deg, #0a1628 0%, #0e2044 60%, #1a3160 100%); }
-    .cover-page  { background: linear-gradient(135deg, #0a1628 0%, #0e2044 50%, #1a3160 100%); }
-    .cover-grid-bg { position: absolute; inset: 0; background-image: linear-gradient(rgba(30,136,229,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(30,136,229,.07) 1px, transparent 1px); background-size: 40px 40px; }
-    .cover-accent-line { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: linear-gradient(180deg, #00c8ff, #1e88e5, #e31e24); }
-    .guardian-card { background: linear-gradient(135deg, #0a1628 0%, #1a3160 100%); }
-    .guardian-avatar { background: linear-gradient(135deg, #00c8ff, #1e88e5); }
-    #admin-panel { background: linear-gradient(135deg, #0a1628 0%, #1a3160 100%); border: 1px solid rgba(30,136,229,.3); }
-    .tech-divider { height: 2px; background: linear-gradient(90deg, transparent, #00c8ff, transparent); margin: 32px 0; opacity: .4; }
-
-    /* Tipografía con clamp */
-    .cover-title    { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(52px, 10vw, 110px); font-weight: 900; font-style: italic; line-height: .9; letter-spacing: -.02em; color: white; }
-    .cover-subtitle { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(18px, 4vw, 32px); font-weight: 600; font-style: italic; color: #00c8ff; letter-spacing: .08em; }
-    .section-badge  { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; padding: 4px 12px; border-radius: 100px; }
-    .nm-label       { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #e31e24; }
-    .stat-num       { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 900; line-height: 1; }
-    .page-number    { font-family: 'Barlow Condensed', sans-serif; font-size: 120px; font-weight: 900; font-style: italic; color: rgba(10,22,40,.04); position: absolute; top: -20px; right: 16px; line-height: 1; user-select: none; pointer-events: none; }
-
-    /* Componentes que usan clases CSS propias */
-    .section-card  { border-radius: 20px; overflow: hidden; box-shadow: 0 4px 24px rgba(10,22,40,.08); background: white; margin-bottom: 32px; }
-    .section-header { padding: 20px 28px; display: flex; align-items: center; gap: 14px; }
-    .qr-box { background: #0a1628; border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
-    .qr-canvas-wrap { background: white; border-radius: 10px; padding: 8px; flex-shrink: 0; }
-    .qr-info { flex: 1; min-width: 180px; }
-    .nm-card { border-left: 5px solid #e31e24; background: #fff5f5; border-radius: 0 14px 14px 0; padding: 20px 22px; margin: 16px 0; }
-    .stat-pill { background: #f0f4f8; border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; }
-    .epp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 16px; padding: 20px; }
-    .epp-item { background: #f0f4f8; border-radius: 14px; padding: 16px 10px; text-align: center; border: 2px solid transparent; transition: all .25s; cursor: default; }
-    .epp-item:hover { border-color: #1e88e5; background: #e8f4fd; transform: translateY(-3px); }
-    .epp-icon  { font-size: 32px; margin-bottom: 8px; display: block; }
-    .epp-label { font-size: 11px; font-weight: 700; color: #0e2044; text-transform: uppercase; letter-spacing: .04em; }
-    .responsive-table { overflow-x: auto; }
-    .responsive-table table { min-width: 600px; }
-
-    /* Admin */
-    .admin-tab { padding: 10px 20px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all .2s; background: rgba(255,255,255,.08); color: rgba(255,255,255,.7); border: 1px solid transparent; }
-    .admin-tab.active, .admin-tab:hover { background: #1e88e5; color: white; border-color: #00c8ff; }
-    .admin-input { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 10px; padding: 10px 14px; color: white; font-size: 14px; width: 100%; outline: none; font-family: 'Barlow', sans-serif; }
-    .admin-input:focus { border-color: #00c8ff; }
-    .admin-input option { color: #1a1a1a; }
-    .admin-btn { padding: 10px 22px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all .2s; border: none; font-family: 'Barlow', sans-serif; }
-    .admin-btn-primary { background: #1e88e5; color: white; }
-    .admin-btn-primary:hover { background: #00c8ff; color: #0a1628; }
-    .admin-btn-danger  { background: rgba(227,30,36,.2); color: #ff6b6b; border: 1px solid rgba(227,30,36,.3); }
-    .admin-btn-danger:hover { background: #e31e24; color: white; }
-    .admin-btn-success { background: rgba(16,185,129,.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,.3); }
-    .admin-btn-success:hover { background: #10b981; color: white; }
-
-    /* Toast */
-    #toast { position: fixed; bottom: 24px; right: 24px; background: #0a1628; color: white; padding: 14px 22px; border-radius: 14px; font-size: 14px; font-weight: 600; box-shadow: 0 10px 40px rgba(0,0,0,.4); border-left: 4px solid #00c8ff; transform: translateY(100px); opacity: 0; transition: all .4s cubic-bezier(.175,.885,.32,1.275); z-index: 9999; max-width: 320px; }
-    #toast.show { transform: translateY(0); opacity: 1; }
-
-    /* Modal */
-    .modal-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(10,22,40,.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 16px; }
-    .modal-box { background: #0e2044; border-radius: 20px; padding: 32px; width: 100%; max-width: 560px; color: white; border: 1px solid rgba(30,136,229,.3); max-height: 90vh; overflow-y: auto; }
-
-    /* Skeleton */
-    .skeleton { background: linear-gradient(90deg, #e2e8f0 25%, #f8fafc 50%, #e2e8f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; height: 20px; }
-    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-
+    .qhse-topbar {
+      background: linear-gradient(135deg, #0a1628 0%, #0e2044 60%, #1a3160 100%);
+    }
+    .cover-page {
+      background: linear-gradient(135deg, #0a1628 0%, #0e2044 50%, #1a3160 100%);
+    }
+    .cover-grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(30, 136, 229, .07) 1px, transparent 1px), linear-gradient(90deg, rgba(30, 136, 229, .07) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .cover-accent-line {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      background: linear-gradient(180deg, #00c8ff, #1e88e5, #e31e24);
+    }
+    .guardian-card {
+      background: linear-gradient(135deg, #0a1628 0%, #1a3160 100%);
+    }
+    .guardian-avatar {
+      background: linear-gradient(135deg, #00c8ff, #1e88e5);
+    }
+    #admin-panel {
+      background: linear-gradient(135deg, #0a1628 0%, #1a3160 100%);
+      border: 1px solid rgba(30, 136, 229, .3);
+    }
+    .tech-divider {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00c8ff, transparent);
+      margin: 32px 0;
+      opacity: .4;
+    }
+    .indice-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #0e2044;
+      color: #00c8ff;
+      border: 1px solid rgba(0,200,255,.3);
+      border-radius: 100px;
+      padding: 8px 18px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .indice-btn:hover {
+      background: #1e88e5;
+      color: white;
+    }
+    /* ── HEMEROTECA (carrusel de ediciones anteriores) ── */
+    #hemeroteca-wrap {
+      max-width: 80%;
+      margin: 0 auto 24px;
+      padding: 0 16px;
+    }
+    .hemeroteca-titulo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      color: #0e2044;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .hemeroteca-titulo-texto {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .hemeroteca-toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #0e2044;
+      color: #00c8ff;
+      border: 1px solid rgba(0,200,255,.3);
+      border-radius: 100px;
+      padding: 6px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .hemeroteca-toggle-btn:hover {
+      background: #1e88e5;
+      color: white;
+    }
+    #hemeroteca-wrap.colapsada .hemeroteca-scroller {
+      display: none;
+    }
+    .hemeroteca-scroller { position: relative; }
+    .hemeroteca-track {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      scroll-snap-type: x proximity;
+      padding: 6px 4px 14px;
+      scrollbar-width: none;
+    }
+    .hemeroteca-track::-webkit-scrollbar { display: none; }
+    .hemeroteca-card {
+      flex: 0 0 auto;
+      width: 150px;
+      height: 200px;
+      border-radius: 12px;
+      cursor: pointer;
+      scroll-snap-align: start;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0a1628 0%, #0e2044 60%, #1a3160 100%);
+      border: 2px solid transparent;
+      transition: transform .2s, border-color .2s, box-shadow .2s;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 12px 10px;
+    }
+    .hemeroteca-card:hover {
+      transform: translateY(-6px) scale(1.03);
+      box-shadow: 0 10px 26px rgba(10,22,40,.35);
+    }
+    .hemeroteca-card.seleccionada {
+      border-color: #00c8ff;
+      box-shadow: 0 0 0 3px rgba(0,200,255,.25);
+    }
+    .hemeroteca-card.is-active::after {
+      content: 'ACTUAL';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #e31e24;
+      color: white;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      padding: 3px 7px;
+      border-radius: 100px;
+    }
+    .hemeroteca-mini-edicion {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: #00c8ff;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .hemeroteca-mini-titulo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 17px;
+      font-weight: 900;
+      font-style: italic;
+      line-height: 1.05;
+      color: white;
+      margin: 4px 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .hemeroteca-mini-vol {
+      font-size: 10px;
+      color: rgba(255,255,255,.55);
+      font-weight: 600;
+    }
+    .hemeroteca-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(10,22,40,.85);
+      color: #00c8ff;
+      border: 1px solid rgba(0,200,255,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 5;
+      transition: all .2s;
+    }
+    .hemeroteca-arrow:hover { background: #1e88e5; color: white; }
+    .hemeroteca-arrow.left { left: -6px; }
+    .hemeroteca-arrow.right { right: -6px; }
     @media (max-width: 640px) {
-      body { overflow-x: hidden; }
-      main { padding-left: 12px !important; padding-right: 12px !important; }
-      .section-card { overflow-x: hidden; margin-bottom: 16px; }
-      .section-header { flex-wrap: wrap; gap: 8px; padding: 14px 16px; }
-      .section-header .ml-auto { display: none; }
-      .page-number { display: none; }
-      .cover-page { min-height: auto !important; }
-      .cover-title { font-size: clamp(44px, 15vw, 80px) !important; }
-      .epp-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 12px; }
-      .qr-box { flex-direction: column; text-align: center; }
-      .qr-info { min-width: unset; }
-      .nm-card { padding: 14px 16px; }
-      .guardian-card { padding: 20px !important; }
-      .stat-num { font-size: 28px; }
-      .stat-pill { padding: 10px 12px; }
-      #admin-panel { padding: 20px 16px; border-radius: 16px; }
-      #admin-panel .flex.flex-wrap { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
-      .admin-tab { white-space: nowrap; flex-shrink: 0; padding: 8px 14px; font-size: 12px; }
-      .qhse-topbar { flex-wrap: nowrap; overflow: hidden; padding: 10px 14px; gap: 6px; }
+      #hemeroteca-wrap { max-width: 100%; }
+      .hemeroteca-arrow { display: none; }
+      .hemeroteca-card { width: 120px; height: 168px; }
+      .hemeroteca-mini-titulo { font-size: 14px; }
+    }
+    /* Tipografía con clamp */
+    .cover-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(52px, 10vw, 110px);
+      font-weight: 900;
+      font-style: italic;
+      line-height: .9;
+      letter-spacing: -.02em;
+      color: white;
+    }
+    .cover-subtitle {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(18px, 4vw, 32px);
+      font-weight: 600;
+      font-style: italic;
+      color: #00c8ff;
+      letter-spacing: .08em;
+    }
+    .section-badge {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 100px;
+    }
+    .nm-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: #e31e24;
+    }
+    .stat-num {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 36px;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .page-number {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 120px;
+      font-weight: 900;
+      font-style: italic;
+      color: rgba(10, 22, 40, .04);
+      position: absolute;
+      top: -20px;
+      right: 16px;
+      line-height: 1;
+      user-select: none;
+      pointer-events: none;
+    }
+    /* Componentes que usan clases CSS propias */
+    .section-card {
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(10, 22, 40, .08);
+      background: white;
+      margin-bottom: 32px;
+    }
+    .section-header {
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .qr-box {
+      background: #0a1628;
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    .qr-canvas-wrap {
+      background: white;
+      border-radius: 10px;
+      padding: 8px;
+      flex-shrink: 0;
+    }
+    .qr-info {
+      flex: 1;
+      min-width: 180px;
+    }
+    .nm-card {
+      border-left: 5px solid #e31e24;
+      background: #fff5f5;
+      border-radius: 0 14px 14px 0;
+      padding: 20px 22px;
+      margin: 16px 0;
+    }
+    .stat-pill {
+      background: #f0f4f8;
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .epp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 16px;
+      padding: 20px;
+    }
+    .epp-item {
+      background: #f0f4f8;
+      border-radius: 14px;
+      padding: 16px 10px;
+      text-align: center;
+      border: 2px solid transparent;
+      transition: all .25s;
+      cursor: default;
+    }
+    .epp-item:hover {
+      border-color: #1e88e5;
+      background: #e8f4fd;
+      transform: translateY(-3px);
+    }
+    .epp-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .epp-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #0e2044;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .responsive-table {
+      overflow-x: auto;
+    }
+    .responsive-table table {
+      min-width: 600px;
+    }
+    /* Admin */
+    .admin-tab {
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .2s;
+      background: rgba(255, 255, 255, .08);
+      color: rgba(255, 255, 255, .7);
+      border: 1px solid transparent;
+    }
+    .admin-tab.active,
+    .admin-tab:hover {
+      background: #1e88e5;
+      color: white;
+      border-color: #00c8ff;
+    }
+    .admin-input {
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .15);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: white;
+      font-size: 14px;
+      width: 100%;
+      outline: none;
+      font-family: 'Barlow', sans-serif;
+    }
+    .admin-input:focus {
+      border-color: #00c8ff;
+    }
+    .admin-input option {
+      color: #1a1a1a;
+    }
+    .admin-btn {
+      padding: 10px 22px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .2s;
+      border: none;
+      font-family: 'Barlow', sans-serif;
+    }
+    .admin-btn-primary {
+      background: #1e88e5;
+      color: white;
+    }
+    .admin-btn-primary:hover {
+      background: #00c8ff;
+      color: #0a1628;
+    }
+    .admin-btn-danger {
+      background: rgba(227, 30, 36, .2);
+      color: #ff6b6b;
+      border: 1px solid rgba(227, 30, 36, .3);
+    }
+    .admin-btn-danger:hover {
+      background: #e31e24;
+      color: white;
+    }
+    .admin-btn-success {
+      background: rgba(16, 185, 129, .2);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, .3);
+    }
+    .admin-btn-success:hover {
+      background: #10b981;
+      color: white;
+    }
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0a1628;
+      color: white;
+      padding: 14px 22px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, .4);
+      border-left: 4px solid #00c8ff;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all .4s cubic-bezier(.175, .885, .32, 1.275);
+      z-index: 9999;
+      max-width: 320px;
+    }
+    #toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(10, 22, 40, .85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-box {
+      background: #0e2044;
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%;
+      max-width: 560px;
+      color: white;
+      border: 1px solid rgba(30, 136, 229, .3);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    /* Skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f8fafc 50%, #e2e8f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+      height: 20px;
+    }
+    @keyframes shimmer {
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
+    }
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+    @media (max-width: 640px) {
+      body {
+        overflow-x: hidden;
+      }
+      main {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+      }
+      .section-card {
+        overflow-x: hidden;
+        margin-bottom: 16px;
+      }
+      .section-header {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 14px 16px;
+      }
+      .section-header .ml-auto {
+        display: none;
+      }
+      .page-number {
+        display: none;
+      }
+      .cover-page {
+        min-height: auto !important;
+      }
+      .cover-title {
+        font-size: clamp(44px, 15vw, 80px) !important;
+      }
+      .epp-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        padding: 12px;
+      }
+      .qr-box {
+        flex-direction: column;
+        text-align: center;
+      }
+      .qr-info {
+        min-width: unset;
+      }
+      .nm-card {
+        padding: 14px 16px;
+      }
+      .guardian-card {
+        padding: 20px !important;
+      }
+      .stat-num {
+        font-size: 28px;
+      }
+      .stat-pill {
+        padding: 10px 12px;
+      }
+      #admin-panel {
+        padding: 20px 16px;
+        border-radius: 16px;
+      }
+      #admin-panel .flex.flex-wrap {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 8px;
+        -webkit-overflow-scrolling: touch;
+      }
+      .admin-tab {
+        white-space: nowrap;
+        flex-shrink: 0;
+        padding: 8px 14px;
+        font-size: 12px;
+      }
+      .qhse-topbar {
+        flex-wrap: nowrap;
+        overflow: hidden;
+        padding: 10px 14px;
+        gap: 6px;
+      }
     }
     @media (max-width: 480px) {
-      .cover-title { font-size: clamp(38px, 13vw, 60px) !important; }
+      .cover-title {
+        font-size: clamp(38px, 13vw, 60px) !important;
+      }
     }
     #site-header { display: block; }
     .mobile-active { display: block !important; }
+
+    /* ── MODO LECTURA / PANTALLA COMPLETA ── */
+    body.modo-lectura #site-header,
+    body.modo-lectura #topbar,
+    body.modo-lectura #footer-componente { display: none !important; }
+    body.modo-lectura main {
+      margin-top: 0 !important;
+      padding: 0 !important;
+      max-width: 100% !important;
+    }
+    body.modo-lectura #revista-container {
+      min-height: 100vh !important;
+      padding: 24px !important;
+    }
+    #btn-salir-lectura {
+      position: fixed; top: 16px; right: 16px; z-index: 9999;
+      background: rgba(10,22,40,.85); color: #00c8ff; border: 1px solid rgba(0,200,255,.4);
+      padding: 10px 18px; border-radius: 100px; font-size: 13px; font-weight: 700;
+      cursor: pointer; backdrop-filter: blur(6px); transition: all .2s;
+    }
+    #btn-salir-lectura:hover { background: #1e88e5; color: white; }
+    body.cursor-oculto,
+    body.cursor-oculto * { cursor: none !important; }
+
+    #indicador-auto {
+      position: fixed; bottom: 20px; left: 20px; z-index: 9999;
+      background: rgba(10,22,40,.75); color: rgba(255,255,255,.85);
+      padding: 8px 16px; border-radius: 100px; font-size: 12px; font-weight: 600;
+      letter-spacing: .04em; display: flex; align-items: center; gap: 8px;
+      backdrop-filter: blur(6px); transition: opacity .3s;
+    }
+    .indicador-auto-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #00c8ff;
+      animation: pulso-indicador 1.6s ease-in-out infinite;
+    }
+    @keyframes pulso-indicador {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,200,255,.5); }
+      50%      { opacity: .6; box-shadow: 0 0 0 6px rgba(0,200,255,0); }
+    }
+    /* ── ODÓMETRO: contador animado de "días sin accidente" ── */
+    @keyframes odometroDestello {
+      0%   { text-shadow: 0 0 0 rgba(52,211,153,0); }
+      40%  { text-shadow: 0 0 16px rgba(52,211,153,.9); }
+      100% { text-shadow: 0 0 0 rgba(52,211,153,0); }
+    }
+    .odometro-final {
+      animation: odometroDestello .6s ease-out;
+    }
+    body.cursor-oculto #indicador-auto { opacity: .5; }
   </style>
   <script src="revista-render.js"></script>
   <script src="revista-mobile.js"></script>
 </head>
+
 <body>
-
-<!-- ── HEADER ── -->
-<div id="site-header"></div>
-
-<!-- ── TOPBAR ── -->
-<div class="qhse-topbar fixed top-[56px] sm:top-[64px] lg:top-[112px] xl:top-[118px] 3xl:top-[134px] w-full z-50" id="topbar">
-  <div class="max-w-[1440px] mx-auto px-4 md:px-8 flex items-center justify-between" style="flex-wrap:nowrap;overflow:hidden;">
-    <div class="flex items-center gap-4">
-      <div class="flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-[#00c8ff] animate-pulse"></span>
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.9)">SENTINEL IHS</span>
+  <!-- ── HEADER ── -->
+  <div id="site-header"></div>
+  <!-- ── TOPBAR ── -->
+  <div class="qhse-topbar fixed top-[56px] sm:top-[64px] lg:top-[112px] xl:top-[118px] 3xl:top-[134px] w-full z-50"
+    id="topbar">
+    <div class="max-w-[1440px] mx-auto px-4 md:px-8 flex items-center justify-between"
+      style="flex-wrap:nowrap;overflow:hidden;">
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-[#00c8ff] animate-pulse"></span>
+          <span
+            style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.9)">SENTINEL
+            IHS</span>
+        </div>
+        <div class="h-4 w-px bg-white/20"></div>
+        <span id="edition-tag" style="font-size:12px;color:rgba(255,255,255,.6);font-weight:500">Cargando
+          edición...</span>
       </div>
-      <div class="h-4 w-px bg-white/20"></div>
-      <span id="edition-tag" style="font-size:12px;color:rgba(255,255,255,.6);font-weight:500">Cargando edición...</span>
-    </div>
-    <div class="flex items-center gap-3">
-      <span id="issue-counter" style="font-family:'DM Mono',monospace;font-size:12px;color:rgba(0,200,255,.8)">— — —</span>
-      <a href="admin-qhse.html" id="btn-admin-toggle"
+      <div class="flex items-center gap-3">
+        <span id="issue-counter" style="font-family:'DM Mono',monospace;font-size:12px;color:rgba(0,200,255,.8)">— —
+          —</span>
+        <a href="admin-qhse.html" id="btn-admin-toggle"
           class="hidden px-4 py-2 rounded-lg text-[12px] font-bold uppercase tracking-wider border border-[#1e88e5]/40 text-[#00c8ff] hover:bg-[#1e88e5]/20 transition-all inline-block no-underline">
           <i class="fas fa-sliders mr-1.5"></i>Panel Admin
       </a>
-    </div>
-  </div>
-</div>
-
-<!-- ── MAIN ── -->
-<main class="mx-auto px-0 py-4 mt-[96px] sm:mt-[104px] lg:mt-[152px] xl:mt-[158px] 3xl:mt-[174px]" 
-      style="max-width:100%;">
-  <div class="flex items-center gap-3 mb-1 px-4 md:px-56">
-          <a href="dashboard.html" class="text-slate-400 hover:text-[#e31e24] text-sm transition-colors"><i class="fas fa-home"></i></a>
-          <span class="text-slate-300">/</span>
-          <span class="text-sm text-slate-500 font-medium">Alertas QHSE</span>
-        </div>
-  <div id="revista-container" style="padding: 8px 16px; background: #e8edf4; min-height: 100vh; overflow-x: auto;"></div>
-</main>
-
-<!-- ── TOAST ── -->
-<div id="toast">✓ <span id="toast-msg">Guardado correctamente</span></div>
-
-<!-- ── MODAL EDICIÓN NEAR MISS (historial) ── -->
-<div id="modal-nm-view" class="modal-overlay hidden">
-  <div class="modal-box">
-    <div class="flex items-center justify-between mb-5">
-      <h3 class="text-white font-black text-xl" style="font-family:'Barlow Condensed',sans-serif;font-style:italic">Detalle Near Miss</h3>
-      <button onclick="closeModal('modal-nm-view')" class="h-9 w-9 rounded-xl flex items-center justify-center text-white/50 hover:text-white transition-all" style="background:rgba(255,255,255,.06)">
-        <i class="fas fa-times"></i>
+      <button onclick="toggleModoLectura()" title="Modo lectura / Pantalla completa"
+          class="px-4 py-2 rounded-lg text-[12px] font-bold uppercase tracking-wider border border-[#1e88e5]/40 text-[#00c8ff] hover:bg-[#1e88e5]/20 transition-all">
+          <i class="fas fa-expand mr-1.5"></i>Pantalla Completa
       </button>
+      </div>
     </div>
-    <div id="modal-nm-content" class="text-white/80 text-sm leading-relaxed"></div>
-    <button onclick="closeModal('modal-nm-view')" class="admin-btn admin-btn-primary w-full mt-5">Cerrar</button>
   </div>
-</div>
+  <!-- ── MAIN ── -->
+  <main class="mx-auto px-0 py-4 mt-[96px] sm:mt-[104px] lg:mt-[152px] xl:mt-[158px] 3xl:mt-[174px]"
+    style="max-width:100%;">
+    <div class="flex items-center gap-3 mb-1 px-4 md:px-56">
+      <a href="dashboard.html" class="text-slate-400 hover:text-[#e31e24] text-sm transition-colors"><i
+          class="fas fa-home"></i></a>
+      <span class="text-slate-300">/</span>
+      <span class="text-sm text-slate-500 font-medium">Alertas QHSE</span>
+    </div>
+    <div class="indice-revista" style="max-width:80%;margin:0 auto 14px;display:flex;flex-wrap:wrap;gap:10px;padding:0 16px;">
+      <button onclick="irAIndice('safety')" class="indice-btn"><i class="fas fa-hard-hat"></i> Safety</button>
+      <button onclick="irAIndice('quality')" class="indice-btn"><i class="fas fa-check-double"></i> Quality</button>
+      <button onclick="irAIndice('health')" class="indice-btn"><i class="fas fa-heartbeat"></i> Health</button>
+      <button onclick="irAIndice('environment')" class="indice-btn"><i class="fas fa-leaf"></i> Environment</button>
+      <button onclick="irAIndice('guardian')" class="indice-btn"><i class="fas fa-star"></i> Guardián del Mes</button>
+    </div>
 
-<!-- ── SCRIPTS ── -->
-<script>
-  const { createClient } = supabase;
-  const sb = createClient(
-    'https://bgqlvkvlscujikhzzazf.supabase.co',
-    'sb_publishable_S5G17esnd47Gw9hO3rTfbA_cTxVtG-P'
-  );
+    <div id="hemeroteca-wrap">
+      <div class="hemeroteca-titulo">
+        <span class="hemeroteca-titulo-texto"><i class="fas fa-book-open"></i> Hemeroteca — Ediciones Anteriores</span>
+        <button id="btn-toggle-hemeroteca" class="hemeroteca-toggle-btn" onclick="toggleHemeroteca()">
+          <i class="fas fa-chevron-up"></i> Ocultar
+        </button>
+      </div>
+      <div class="hemeroteca-scroller">
+        <button class="hemeroteca-arrow left" onclick="moverHemeroteca(-1)"><i class="fas fa-chevron-left"></i></button>
+        <div id="hemeroteca-track" class="hemeroteca-track">
+          <div class="skeleton" style="width:150px;height:200px;flex:0 0 auto;"></div>
+          <div class="skeleton" style="width:150px;height:200px;flex:0 0 auto;"></div>
+          <div class="skeleton" style="width:150px;height:200px;flex:0 0 auto;"></div>
+        </div>
+        <button class="hemeroteca-arrow right" onclick="moverHemeroteca(1)"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
 
-  let currentUser = null;
-  let isAdmin = false;
+    <div id="revista-container" style="padding: 8px 16px; background: #e8edf4; min-height: 100vh; overflow-x: auto;"></div>
+  </main>
 
-  async function cerrarSesion() { await sb.auth.signOut(); window.location.href = '../index.html'; }
+  <button id="btn-salir-lectura" onclick="toggleModoLectura()" class="hidden">
+    <i class="fas fa-compress mr-1.5"></i>Salir del modo lectura
+  </button>
 
-  let intervaloLatido = null;
+  <div id="indicador-auto" class="hidden">
+    <span class="indicador-auto-dot"></span>
+    Reproducción automática
+  </div>
+  <!-- ── TOAST ── -->
+  <div id="toast">✓ <span id="toast-msg">Guardado correctamente</span></div>
+  <!-- ── MODAL EDICIÓN NEAR MISS (historial) ── -->
+  <div id="modal-nm-view" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-white font-black text-xl" style="font-family:'Barlow Condensed',sans-serif;font-style:italic">
+          Detalle Near Miss</h3>
+        <button onclick="closeModal('modal-nm-view')"
+          class="h-9 w-9 rounded-xl flex items-center justify-center text-white/50 hover:text-white transition-all"
+          style="background:rgba(255,255,255,.06)">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="modal-nm-content" class="text-white/80 text-sm leading-relaxed"></div>
+      <button onclick="closeModal('modal-nm-view')" class="admin-btn admin-btn-primary w-full mt-5">Cerrar</button>
+    </div>
+  </div>
+  <!-- ── SCRIPTS ── -->
+  <script>
+    const { createClient } = supabase;
+    const sb = createClient(
+      'https://bgqlvkvlscujikhzzazf.supabase.co',
+      'sb_publishable_S5G17esnd47Gw9hO3rTfbA_cTxVtG-P'
+    );
 
-  function iniciarLatido(userId) {
-    if (intervaloLatido) return;
+    let currentUser = null;
+    let isAdmin = false;
 
-    const enviarLatido = () => {
+    async function cerrarSesion() { await sb.auth.signOut(); window.location.href = '../index.html'; }
+
+    let intervaloLatido = null;
+
+    function iniciarLatido(userId) {
+      if (intervaloLatido) return;
+
+      const enviarLatido = () => {
         if (document.visibilityState === 'visible') {
           sb
             .from('perfiles')
             .update({ ultima_actividad: new Date().toISOString() })
             .eq('id', userId)
-            .then(() => {})
-            .catch(() => {}); // Si falla un latido por red, no pasa nada — se reintenta en 30s
+            .then(() => { })
+            .catch(() => { }); // Si falla un latido por red, no pasa nada — se reintenta en 30s
         }
       };
 
-    enviarLatido();
-    intervaloLatido = setInterval(enviarLatido, 30000);
-  }
+      enviarLatido();
+      intervaloLatido = setInterval(enviarLatido, 30000);
+    }
 
-  // ── INIT ──
-  async function init() {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) { window.location.href = 'intranet-login.html'; return; }
-    currentUser = session.user;
-    iniciarLatido(session.user.id);
+    // ── INIT ──
+    async function init() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'intranet-login.html'; return; }
+      currentUser = session.user;
+      iniciarLatido(session.user.id);
 
-    const { data: perfil } = await sb.from('perfiles').select('*').eq('id', session.user.id).single();
-    if (perfil) {
-      const saludo = getGreeting();
-      document.getElementById('user-welcome').innerText = `${saludo}, ${perfil.nombre_completo}`;
-      isAdmin = perfil.rol === 'admin' ||  perfil.rol === 'Administrador' || perfil.rol === 'administrador';
-      const rolLabel = document.getElementById('user-rol-label');
-      if (rolLabel) rolLabel.innerText = `Miembro del Equipo · ${perfil.rol}`;
-      if (isAdmin) {
-        document.getElementById('btn-admin-toggle').classList.remove('hidden');
+      const { data: perfil } = await sb.from('perfiles').select('*').eq('id', session.user.id).single();
+      if (perfil) {
+        const saludo = getGreeting();
+        document.getElementById('user-welcome').innerText = `${saludo}, ${perfil.nombre_completo}`;
+        isAdmin = perfil.rol === 'admin' || perfil.rol === 'Administrador' || perfil.rol === 'administrador';
+        const rolLabel = document.getElementById('user-rol-label');
+        if (rolLabel) rolLabel.innerText = `Miembro del Equipo · ${perfil.rol}`;
+        if (isAdmin) {
+          document.getElementById('btn-admin-toggle').classList.remove('hidden');
+        }
+      }
+
+      await cargarRevista();
+    }
+
+    function getGreeting() {
+      const h = new Date().getHours();
+      if (h >= 6 && h < 12) return 'Buenos días';
+      if (h >= 12 && h < 19) return 'Buenas tardes';
+      return 'Buenas noches';
+    }
+
+    // ── ADMIN: LOAD EDITIONS ──
+    async function cargarRevista() {
+      const { data, error } = await sb
+        .from('qhse_editions')
+        .select('*')
+        .eq('publicada', true)
+        .eq('activa', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error || !data) {
+        document.getElementById('revista-container').innerHTML =
+          '<p style="text-align:center;padding:60px;color:#64748b;font-size:14px;">No hay edición publicada actualmente.</p>';
+        return;
+      }
+
+      await pintarEdicionEnRevista(data);
+      cargarHemeroteca();
+    }
+
+    // ── PINTA cualquier edición (activa o del historial) en el contenedor de la revista ──
+    async function pintarEdicionEnRevista(data) {
+      montarRevista('revista-container');
+      aplicarEdicionARevista(data);
+
+      // Actualizar topbar
+      const setEl = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.textContent = val; };
+      setEl('edition-tag', data.edicion ? `Edición ${data.edicion} — ${data.volumen || 'Vol.1'}` : 'Edición —');
+      setEl('issue-counter', data.id ? `ED-${String(data.id).padStart(3, '0')}` : '— — —');
+
+      // Cargar Near Miss de esta edición
+      const { data: nm } = await sb
+        .from('qhse_near_miss')
+        .select('*')
+        .eq('edition_id', data.id)
+        .eq('visible_revista', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (nm) {
+        const pv = id => document.getElementById(id);
+        const set = (id, val) => { const el = pv(id); if (el && val != null) el.textContent = val; };
+        set('pv-nm-area', (nm.area || '').toUpperCase());
+        set('pv-nm-titulo', nm.titulo || '—');
+        set('pv-nm-desc', nm.descripcion || '');
+        set('pv-nm-causa', nm.causa_raiz || '—');
+        set('pv-nm-accion', nm.accion_correctiva || '—');
+      }
+      // Actualizar también la portada estática superior
+      const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.textContent = val; };
+      if (data.titulo) { const ct = document.getElementById('cover-title'); if (ct) ct.textContent = data.titulo; }
+      set('cover-edition-badge', data.edicion ? `Edición ${data.edicion}` : '');
+      set('edition-tag', data.edicion ? `Edición ${data.edicion} — ${data.volumen || 'Vol.1'}` : '');
+      set('issue-counter', data.id ? `ED-${String(data.id).padStart(3, '0')}` : '');
+      set('director-message', data.mensaje_director);
+      set('director-name', data.nombre_director ? `Ing. ${data.nombre_director}` : '');
+      set('stat-dias', data.stat_dias ?? 0);
+      set('stat-obs', data.stat_obs ?? 0);
+      set('stat-acc', data.stat_acc ?? 0);
+
+      // Extraer mes y año del campo "edicion" (ej: "Mayo 2026")
+      const mesesES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+      const partes = (data.edicion || '').toLowerCase().split(' ');
+      const mesEdicion = mesesES.indexOf(partes[0]) + 1 || null;
+      const anioEdicion = parseInt(partes[1]) || null;
+      setTimeout(() => {
+        cargarStatsAutomaticos(mesEdicion, anioEdicion);
+        iniciarLibro();
+      }, 600);
+
+      // Marcar en el carrusel cuál edición se está viendo ahora mismo
+      document.querySelectorAll('.hemeroteca-card').forEach(c => {
+        c.classList.toggle('seleccionada', Number(c.dataset.id) === Number(data.id));
+      });
+    }
+
+    // ── HEMEROTECA: carga las miniaturas de todas las ediciones publicadas ──
+    async function cargarHemeroteca() {
+      const track = document.getElementById('hemeroteca-track');
+      if (!track) return;
+
+      const { data: ediciones, error } = await sb
+        .from('qhse_editions')
+        .select('id, titulo, edicion, volumen, activa')
+        .eq('publicada', true)
+        .order('created_at', { ascending: false });
+
+      if (error || !ediciones || ediciones.length === 0) {
+        document.getElementById('hemeroteca-wrap')?.classList.add('hidden');
+        return;
+      }
+
+      track.innerHTML = ediciones.map(ed => `
+        <div class="hemeroteca-card ${ed.activa ? 'is-active' : ''}" data-id="${ed.id}" onclick="verEdicionHemeroteca(${ed.id})">
+          <span class="hemeroteca-mini-edicion">${ed.edicion || ''}</span>
+          <span class="hemeroteca-mini-titulo">${(ed.titulo || 'SEGURIDAD SIN EXCUSAS').toUpperCase()}</span>
+          <span class="hemeroteca-mini-vol">${ed.volumen || 'Vol. 1'}</span>
+        </div>
+      `).join('');
+
+      aplicarPreferenciaHemeroteca();
+    }
+
+    // ── HEMEROTECA: al hacer clic en una miniatura, pinta esa edición en la revista ──
+    async function verEdicionHemeroteca(id) {
+      const { data, error } = await sb
+        .from('qhse_editions')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error || !data) { showToast('❌ No se pudo cargar esa edición', 'error'); return; }
+
+      document.getElementById('revista-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      await pintarEdicionEnRevista(data);
+    }
+
+    // ── HEMEROTECA: mover el carrusel con las flechas ──
+    function moverHemeroteca(dir) {
+      const track = document.getElementById('hemeroteca-track');
+      if (track) track.scrollBy({ left: dir * 320, behavior: 'smooth' });
+    }
+
+    // ── HEMEROTECA: ocultar/mostrar el carrusel ──
+    function toggleHemeroteca() {
+      const wrap = document.getElementById('hemeroteca-wrap');
+      const btn = document.getElementById('btn-toggle-hemeroteca');
+      const oculta = wrap.classList.toggle('colapsada');
+      btn.innerHTML = oculta
+        ? '<i class="fas fa-chevron-down"></i> Mostrar'
+        : '<i class="fas fa-chevron-up"></i> Ocultar';
+      localStorage.setItem('hemeroteca_oculta', oculta ? '1' : '0');
+    }
+
+    // ── HEMEROTECA: aplicar la preferencia guardada al cargar la página ──
+    function aplicarPreferenciaHemeroteca() {
+      const wrap = document.getElementById('hemeroteca-wrap');
+      const btn = document.getElementById('btn-toggle-hemeroteca');
+      if (!wrap || !btn) return;
+      const oculta = localStorage.getItem('hemeroteca_oculta') === '1';
+      wrap.classList.toggle('colapsada', oculta);
+      btn.innerHTML = oculta
+        ? '<i class="fas fa-chevron-down"></i> Mostrar'
+        : '<i class="fas fa-chevron-up"></i> Ocultar';
+    }
+
+    // ── ODÓMETRO: anima un número de 0 hasta valorFinal ──
+    function animarContador(elId, valorFinal, duracionMs = 1400) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      const destino = Number(valorFinal) || 0;
+
+      if (destino <= 0) { el.textContent = 0; return; }
+
+      const inicio = performance.now();
+      // easeOutExpo: arranca rápido y "asienta" al final, como un odómetro real
+      const easeOutExpo = t => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t));
+
+      function frame(ahora) {
+        const t = Math.min((ahora - inicio) / duracionMs, 1);
+        const valorActual = Math.round(easeOutExpo(t) * destino);
+        el.textContent = valorActual;
+
+        if (t < 1) {
+          requestAnimationFrame(frame);
+        } else {
+          el.textContent = destino;
+          el.classList.remove('odometro-final');
+          void el.offsetWidth; // reinicia la animación CSS si se repite
+          el.classList.add('odometro-final');
+        }
+      }
+      requestAnimationFrame(frame);
+    }
+
+    async function cargarStatsAutomaticos(mesRevista, anioRevista) {
+      const mes = mesRevista ?? new Date().getMonth() + 1;
+      const anio = anioRevista ?? new Date().getFullYear();
+
+      // 1. REPORTES DE RIESGO — todos los registros del mes/año
+      const { count: totalReportes } = await sb
+        .from('safety_alerts')
+        .select('id', { count: 'exact', head: true })
+        .eq('mes_registro', mes)
+        .eq('anio_registro', anio);
+
+      // 2. NEAR MISS RESUELTOS — solo los de tipo "Incidente" del mes/año
+      const { count: totalNearMiss } = await sb
+        .from('safety_alerts')
+        .select('id', { count: 'exact', head: true })
+        .eq('mes_registro', mes)
+        .eq('anio_registro', anio)
+        .eq('tipo_evento', 'Incidente');
+
+      // 3. DÍAS SIN ACCIDENTE — días desde el último accidente registrado
+      const { data: ultimoAccidenteArr } = await sb
+        .from('safety_alerts')
+        .select('fecha_evento')
+        .eq('tipo_evento', 'Accidente')
+        .order('fecha_evento', { ascending: false })
+        .limit(1);
+      const ultimoAccidente = ultimoAccidenteArr?.[0] ?? null;
+
+      let diasSinAccidente = 0;
+      if (ultimoAccidente?.fecha_evento) {
+        const hoy = new Date();
+        const fechaAcc = new Date(ultimoAccidente.fecha_evento);
+        const diffMs = hoy - fechaAcc;
+        diasSinAccidente = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      } else {
+        // Sin accidentes registrados, contar desde inicio del año
+        diasSinAccidente = Math.floor((new Date() - new Date(anio, 0, 1)) / (1000 * 60 * 60 * 24));
+      }
+
+      // 4. Pintar en la revista
+      const setEl = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val ?? 0;
+      };
+      setTimeout(() => animarContador('pv-stat-dias', diasSinAccidente), 0);
+      setTimeout(() => animarContador('pv-stat-obs', totalReportes ?? 0), 150);
+      setTimeout(() => animarContador('pv-stat-acc', totalNearMiss ?? 0), 300);
+    }
+
+    async function deleteEdition(id) {
+      if (!isAdmin) return;
+      if (!confirm('¿Eliminar esta edición? Esta acción no se puede deshacer.')) return;
+      const { error } = await sb.from('qhse_editions').delete().eq('id', id);
+      if (error) { showToast('❌ Error al eliminar', 'error'); return; }
+      showToast('🗑️ Edición eliminada');
+      cargarRevista();
+    }
+
+    // ── ADMIN: LOAD STATS ──
+    async function loadStats() {
+      const [edCount, nmCount, gCount] = await Promise.all([
+        sb.from('qhse_editions').select('id', { count: 'exact', head: true }),
+        sb.from('qhse_near_miss').select('id', { count: 'exact', head: true }),
+        sb.from('qhse_editions').select('guardian_nombre').not('guardian_nombre', 'is', null)
+      ]);
+      document.getElementById('stat-ediciones').textContent = edCount.count ?? '—';
+      document.getElementById('stat-nm-total').textContent = nmCount.count ?? '—';
+      document.getElementById('stat-guardianes').textContent = gCount.data?.filter(g => g.guardian_nombre).length ?? '—';
+      document.getElementById('stat-last-update').textContent = new Date().toLocaleDateString('es-MX');
+    }
+
+    // ── UI HELPERS ──
+    function toggleAdminPanel() {
+      if (!isAdmin) { showToast('⛔ Acceso restringido a administradores', 'error'); return; }
+      document.getElementById('admin-panel').classList.toggle('hidden');
+      if (!document.getElementById('admin-panel').classList.contains('hidden')) {
+        loadEditions();
+        loadStats();
+        document.getElementById('admin-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
 
-    await cargarRevista();
-  }
-
-  function getGreeting() {
-    const h = new Date().getHours();
-    if (h >= 6 && h < 12) return 'Buenos días';
-    if (h >= 12 && h < 19) return 'Buenas tardes';
-    return 'Buenas noches';
-  }
-
-
-  // ── ADMIN: LOAD EDITIONS ──
-  async function cargarRevista() {
-    const { data, error } = await sb
-      .from('qhse_editions')
-      .select('*')
-      .eq('publicada', true)
-      .eq('activa', true)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (error || !data) {
-      document.getElementById('revista-container').innerHTML =
-        '<p style="text-align:center;padding:60px;color:#64748b;font-size:14px;">No hay edición publicada actualmente.</p>';
-      return;
+    function switchAdminTab(tabId, btn) {
+      document.querySelectorAll('.admin-tab-content').forEach(t => t.classList.add('hidden'));
+      document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.remove('hidden');
+      btn.classList.add('active');
     }
 
-    montarRevista('revista-container');
-    aplicarEdicionARevista(data);
-
-    // Actualizar topbar
-    const setEl = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.textContent = val; };
-    setEl('edition-tag',  data.edicion ? `Edición ${data.edicion} — ${data.volumen || 'Vol.1'}` : 'Edición —');
-    setEl('issue-counter', data.id ? `ED-${String(data.id).padStart(3,'0')}` : '— — —');
-
-    // Cargar Near Miss de esta edición
-    const { data: nm } = await sb
-      .from('qhse_near_miss')
-      .select('*')
-      .eq('edition_id', data.id)
-      .eq('visible_revista', true)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (nm) {
-      const pv = id => document.getElementById(id);
-      const set = (id, val) => { const el = pv(id); if (el && val != null) el.textContent = val; };
-      set('pv-nm-area',   (nm.area || '').toUpperCase());
-      set('pv-nm-titulo', nm.titulo || '—');
-      set('pv-nm-desc',   nm.descripcion || '');
-      set('pv-nm-causa',  nm.causa_raiz || '—');
-      set('pv-nm-accion', nm.accion_correctiva || '—');
+    function scrollToSection(id) {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    // Actualizar también la portada estática superior
-    const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.textContent = val; };
-    if (data.titulo) { const ct = document.getElementById('cover-title'); if (ct) ct.textContent = data.titulo; }
-    set('cover-edition-badge', data.edicion ? `Edición ${data.edicion}` : '');
-    set('edition-tag',  data.edicion ? `Edición ${data.edicion} — ${data.volumen || 'Vol.1'}` : '');
-    set('issue-counter', data.id ? `ED-${String(data.id).padStart(3,'0')}` : '');
-    set('director-message', data.mensaje_director);
-    set('director-name', data.nombre_director ? `Ing. ${data.nombre_director}` : '');
-    set('stat-dias', data.stat_dias ?? 0);
-    set('stat-obs',  data.stat_obs  ?? 0);
-    set('stat-acc',  data.stat_acc  ?? 0);
 
-    // Extraer mes y año del campo "edicion" (ej: "Mayo 2026")
-    const mesesES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-    const partes  = (data.edicion || '').toLowerCase().split(' ');
-    const mesEdicion  = mesesES.indexOf(partes[0]) + 1 || null;
-    const anioEdicion = parseInt(partes[1]) || null;
-    setTimeout(() => {
-      cargarStatsAutomaticos(mesEdicion, anioEdicion);
-      iniciarLibro();
-    }, 600);
-  }
+    // ── ÍNDICE INTERACTIVO ──
+    const MAPA_INDICE = {
+      safety:      { hoja: 2,  seccion: 'prev-safety'      },
+      quality:     { hoja: 4,  seccion: 'prev-quality'      },
+      health:      { hoja: 6,  seccion: 'prev-health'       },
+      environment: { hoja: 8,  seccion: 'prev-environment'  },
+      guardian:    { hoja: 10, seccion: 'prev-guardian'     }
+    };
 
-  async function cargarStatsAutomaticos(mesRevista, anioRevista) {
-  const mes  = mesRevista  ?? new Date().getMonth() + 1;
-  const anio = anioRevista ?? new Date().getFullYear();
-
-  // 1. REPORTES DE RIESGO — todos los registros del mes/año
-  const { count: totalReportes } = await sb
-    .from('safety_alerts')
-    .select('id', { count: 'exact', head: true })
-    .eq('mes_registro',  mes)
-    .eq('anio_registro', anio);
-
-  // 2. NEAR MISS RESUELTOS — solo los de tipo "Incidente" del mes/año
-  const { count: totalNearMiss } = await sb
-    .from('safety_alerts')
-    .select('id', { count: 'exact', head: true })
-    .eq('mes_registro',  mes)
-    .eq('anio_registro', anio)
-    .eq('tipo_evento', 'Incidente');
-
-  // 3. DÍAS SIN ACCIDENTE — días desde el último accidente registrado
-  const { data: ultimoAccidenteArr } = await sb
-    .from('safety_alerts')
-    .select('fecha_evento')
-    .eq('tipo_evento', 'Accidente')
-    .order('fecha_evento', { ascending: false })
-    .limit(1);
-  const ultimoAccidente = ultimoAccidenteArr?.[0] ?? null;
-
-  let diasSinAccidente = 0;
-  if (ultimoAccidente?.fecha_evento) {
-    const hoy        = new Date();
-    const fechaAcc   = new Date(ultimoAccidente.fecha_evento);
-    const diffMs     = hoy - fechaAcc;
-    diasSinAccidente = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  } else {
-    // Sin accidentes registrados, contar desde inicio del año
-    diasSinAccidente = Math.floor((new Date() - new Date(anio, 0, 1)) / (1000 * 60 * 60 * 24));
-  }
-
-  // 4. Pintar en la revista
-  const setEl = (id, val) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = val ?? 0;
-  };
-  setEl('pv-stat-dias', diasSinAccidente);
-  setEl('pv-stat-obs',  totalReportes ?? 0);
-  setEl('pv-stat-acc',  totalNearMiss ?? 0);
-}
-
-  async function deleteEdition(id) {
-    if (!isAdmin) return;
-    if (!confirm('¿Eliminar esta edición? Esta acción no se puede deshacer.')) return;
-    const { error } = await sb.from('qhse_editions').delete().eq('id', id);
-    if (error) { showToast('❌ Error al eliminar', 'error'); return; }
-    showToast('🗑️ Edición eliminada');
-    cargarRevista();
-  }
-
-  // ── ADMIN: LOAD STATS ──
-  async function loadStats() {
-    const [edCount, nmCount, gCount] = await Promise.all([
-      sb.from('qhse_editions').select('id', {count:'exact',head:true}),
-      sb.from('qhse_near_miss').select('id', {count:'exact',head:true}),
-      sb.from('qhse_editions').select('guardian_nombre').not('guardian_nombre','is',null)
-    ]);
-    document.getElementById('stat-ediciones').textContent    = edCount.count ?? '—';
-    document.getElementById('stat-nm-total').textContent     = nmCount.count ?? '—';
-    document.getElementById('stat-guardianes').textContent   = gCount.data?.filter(g=>g.guardian_nombre).length ?? '—';
-    document.getElementById('stat-last-update').textContent  = new Date().toLocaleDateString('es-MX');
-  }
-
-  // ── UI HELPERS ──
-  function toggleAdminPanel() {
-    if (!isAdmin) { showToast('⛔ Acceso restringido a administradores', 'error'); return; }
-    document.getElementById('admin-panel').classList.toggle('hidden');
-    if (!document.getElementById('admin-panel').classList.contains('hidden')) {
-      loadEditions();
-      loadStats();
-      document.getElementById('admin-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    function irAIndice(destino) {
+      const info = MAPA_INDICE[destino];
+      if (!info) return;
+      const bookOverlay = document.getElementById('book-overlay');
+      if (bookOverlay && typeof irAHoja === 'function') {
+        irAHoja(info.hoja);              // celular/tablet: salta de hoja en el flipbook
+      } else {
+        scrollToSection(info.seccion);   // escritorio: scroll suave a la sección
+      }
     }
-  }
 
-  function switchAdminTab(tabId, btn) {
-    document.querySelectorAll('.admin-tab-content').forEach(t => t.classList.add('hidden'));
-    document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
-    document.getElementById(tabId).classList.remove('hidden');
-    btn.classList.add('active');
-  }
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
 
-  function scrollToSection(id) {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+    let toastTimer = null;
+    function showToast(msg, type = 'success') {
+      const toast = document.getElementById('toast');
+      const colors = { success: '#00c8ff', error: '#ef4444', warn: '#f59e0b' };
+      toast.style.borderLeftColor = colors[type] || colors.success;
+      document.getElementById('toast-msg').textContent = msg;
+      toast.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 3800);
+    }
 
-  function closeModal(id) {
-    document.getElementById(id).classList.add('hidden');
-  }
+    init();
+  </script>
 
-  let toastTimer = null;
-  function showToast(msg, type = 'success') {
-    const toast = document.getElementById('toast');
-    const colors = { success: '#00c8ff', error: '#ef4444', warn: '#f59e0b' };
-    toast.style.borderLeftColor = colors[type] || colors.success;
-    document.getElementById('toast-msg').textContent = msg;
-    toast.classList.add('show');
-    if (toastTimer) clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('show'), 3800);
-  }
+  <script>
+    fetch('header.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('site-header').innerHTML = html;
+      });
+    fetch('footer.html')
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById('footer-componente').innerHTML = html;
+        document.getElementById('footer-year').textContent = new Date().getFullYear();
+      });
+    function toggleMenu(id) { 
+      document.getElementById(id).classList.toggle('hidden'); 
+    }
 
-  init();
-</script>
+    // ── MODO LECTURA / PANTALLA COMPLETA ──
+    let autoAvanceInterval = null;
 
-<script>
-  fetch('header.html')
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById('site-header').innerHTML = html;
+    function toggleModoLectura() {
+      const activo = document.body.classList.toggle('modo-lectura');
+      document.getElementById('btn-salir-lectura').classList.toggle('hidden', !activo);
+
+      if (activo) {
+        document.documentElement.requestFullscreen?.().catch(() => {});
+        iniciarAutoAvance();
+        iniciarOcultarCursor();
+      } else if (document.fullscreenElement) {
+        document.exitFullscreen?.();
+      }
+
+      if (!activo) {
+        detenerAutoAvance();
+        detenerOcultarCursor();
+      }
+    }
+
+    // ── AUTO-AVANCE (flip automático o auto-scroll) ──
+    function iniciarAutoAvance() {
+      detenerAutoAvance();
+      document.getElementById('indicador-auto').classList.remove('hidden');
+      autoAvanceInterval = setInterval(() => {
+        const bookOverlay = document.getElementById('book-overlay');
+
+        if (bookOverlay) {
+          // Modo flipbook (celular/tablet): usa voltearPagina y regresa al inicio al llegar al final
+          const btnNext = document.getElementById('btn-next');
+          if (btnNext && !btnNext.disabled) {
+            voltearPagina(1);
+          } else {
+            // Llegó al final: reinicia desde la primera página
+            hojaActual = 0;
+            renderizarHoja(0);
+          }
+        } else {
+          // Modo escritorio (sin paginación): auto-scroll suave
+          const cerca_del_final = (window.innerHeight + window.scrollY) >= (document.body.scrollHeight - 40);
+          if (cerca_del_final) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          } else {
+            window.scrollBy({ top: window.innerHeight * 0.85, behavior: 'smooth' });
+          }
+        }
+      }, 8000); // cada 8 segundos — ajustable
+    }
+
+    function detenerAutoAvance() {
+      if (autoAvanceInterval) { clearInterval(autoAvanceInterval); autoAvanceInterval = null; }
+      document.getElementById('indicador-auto').classList.add('hidden');
+    }
+
+    // ── OCULTAR CURSOR EN INACTIVIDAD ──
+    let cursorTimeout = null;
+    function resetCursor() {
+      document.body.classList.remove('cursor-oculto');
+      clearTimeout(cursorTimeout);
+      cursorTimeout = setTimeout(() => {
+        if (document.body.classList.contains('modo-lectura')) {
+          document.body.classList.add('cursor-oculto');
+        }
+      }, 3000); // 3 segundos sin mover el mouse
+    }
+
+    function iniciarOcultarCursor() {
+      document.addEventListener('mousemove', resetCursor);
+      resetCursor();
+    }
+
+    function detenerOcultarCursor() {
+      document.removeEventListener('mousemove', resetCursor);
+      clearTimeout(cursorTimeout);
+      document.body.classList.remove('cursor-oculto');
+    }
+
+    // Si el usuario sale de pantalla completa con ESC o el botón nativo del navegador,
+    // también salimos del modo lectura para no dejarlo "atrapado" sin header.
+    document.getElementById('revista-container').addEventListener('dblclick', toggleModoLectura);
+
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement && document.body.classList.contains('modo-lectura')) {
+        document.body.classList.remove('modo-lectura');
+        document.getElementById('btn-salir-lectura').classList.add('hidden');
+        detenerAutoAvance();
+        detenerOcultarCursor();
+      }
     });
-  fetch('footer.html')
-    .then(r => r.text())
-    .then(html => {
-      document.getElementById('footer-componente').innerHTML = html;
-      document.getElementById('footer-year').textContent = new Date().getFullYear();
-    });
-  function toggleMenu(id) { 
-    document.getElementById(id).classList.toggle('hidden'); 
-  }
-  function toggleSubmenu(btn) {
-    const submenu = btn.nextElementSibling;
-    if (!submenu) return;
-    if (window.innerWidth < 1024) {
+
+    function toggleSubmenu(btn) {
+      const submenu = btn.nextElementSibling;
+      if (!submenu) return;
+      if (window.innerWidth < 1024) {
         submenu.classList.toggle('mobile-active');
-    } else {
+      } else {
         submenu.classList.toggle('hidden');
+      }
+      const icon = btn.querySelector('.fa-chevron-down, .fa-chevron-right');
+      if (icon) icon.classList.toggle('rotate-180');
     }
-    const icon = btn.querySelector('.fa-chevron-down, .fa-chevron-right');
-    if (icon) icon.classList.toggle('rotate-180');
-  }
-  function cerrarSesion() { 
-    sb.auth.signOut().then(() => {
-      window.location.href = '../index.html'; 
-    }); 
-  }
-</script>
-<div id="footer-componente"></div>
+    function cerrarSesion() {
+      sb.auth.signOut().then(() => {
+        window.location.href = '../index.html';
+      });
+    }
+  </script>
+
+  <div id="footer-componente"></div>
+
 </body>
 </html>

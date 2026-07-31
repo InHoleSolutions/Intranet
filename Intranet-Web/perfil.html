@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Perfil | Sentinel IHS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700;1,800;1,900&family=Barlow:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --navy: #0a1628;
+      --navy2: #0e2044;
+      --blue: #1e88e5;
+      --cyan: #00c8ff;
+      --red: #e31e24;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; margin: 0; }
+
+    .perfil-header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 60%, #1a3160 100%);
+      border-radius: 18px;
+      padding: 32px;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      color: white;
+      margin-bottom: 28px;
+    }
+    .perfil-avatar {
+      width: 76px; height: 76px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 28px;
+    }
+    .perfil-nombre {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 26px; line-height: 1;
+    }
+    .perfil-rol {
+      font-size: 12px; color: rgba(255,255,255,.6); font-weight: 600;
+      text-transform: uppercase; letter-spacing: .08em; margin-top: 6px;
+    }
+    .perfil-stat-trimestre {
+      margin-left: auto; text-align: right;
+    }
+    .perfil-stat-num {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 34px;
+      color: var(--cyan); line-height: 1;
+    }
+    .perfil-stat-label {
+      font-size: 11px; color: rgba(255,255,255,.55); text-transform: uppercase;
+      letter-spacing: .06em; font-weight: 700; margin-top: 4px;
+    }
+
+    .seccion-titulo {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 16px;
+      text-transform: uppercase; letter-spacing: .06em; color: #0e2044;
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+
+    .insignias-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .insignia-card {
+      background: white; border-radius: 16px; padding: 22px 18px; text-align: center;
+      border: 2px solid #e2e8f0; position: relative; overflow: hidden;
+      transition: transform .2s;
+    }
+    .insignia-card.obtenida {
+      border-color: var(--cyan);
+      background: linear-gradient(160deg, #ffffff 0%, #f0faff 100%);
+      box-shadow: 0 8px 24px rgba(0,200,255,.18);
+    }
+    .insignia-card.obtenida:hover { transform: translateY(-4px); }
+    .insignia-card.bloqueada { opacity: .55; filter: grayscale(.6); }
+    .insignia-emoji { font-size: 42px; line-height: 1; margin-bottom: 10px; }
+    .insignia-nombre {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 16px;
+      color: #0e2044; margin-bottom: 4px;
+    }
+    .insignia-criterio { font-size: 11px; color: #64748b; font-weight: 500; }
+    .insignia-tag {
+      position: absolute; top: 10px; right: 10px;
+      background: var(--cyan); color: white; font-size: 9px; font-weight: 800;
+      letter-spacing: .05em; padding: 3px 8px; border-radius: 100px;
+    }
+    .insignia-lock {
+      position: absolute; top: 12px; right: 12px; color: #94a3b8; font-size: 13px;
+    }
+
+    .progreso-wrap { margin-top: 10px; }
+    .progreso-barra-bg {
+      width: 100%; height: 6px; background: #e2e8f0; border-radius: 100px; overflow: hidden;
+    }
+    .progreso-barra-fill {
+      height: 100%; background: linear-gradient(90deg, var(--blue), var(--cyan));
+      border-radius: 100px; transition: width .6s ease;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ── HEADER (compartido) ── -->
+  <div id="site-header"></div>
+
+  <main class="mx-auto px-4 md:px-8 py-8" style="max-width:1100px; margin-top: 110px;">
+    <div class="flex items-center gap-3 mb-6">
+      <a href="dashboard.html" class="text-slate-400 hover:text-[#e31e24] text-sm transition-colors"><i class="fas fa-home"></i></a>
+      <span class="text-slate-300">/</span>
+      <span class="text-sm text-slate-500 font-medium">Mi Perfil</span>
+    </div>
+
+    <!-- ── TARJETA DE PERFIL ── -->
+    <div class="perfil-header">
+      <div class="perfil-avatar" id="perfil-iniciales">--</div>
+      <div>
+        <div class="perfil-nombre" id="mi-perfil-nombre">Cargando...</div>
+        <div class="perfil-rol" id="perfil-rol">—</div>
+      </div>
+      <div class="perfil-stat-trimestre">
+        <div class="perfil-stat-num" id="perfil-total-trimestre">0</div>
+        <div class="perfil-stat-label">Reportes este trimestre</div>
+      </div>
+    </div>
+
+    <!-- ── INSIGNIAS ── -->
+    <div class="seccion-titulo"><i class="fas fa-medal"></i> Mis Insignias</div>
+    <div class="insignias-grid" id="insignias-grid">
+      <!-- Se llenan por JS -->
+    </div>
+  </main>
+
+  <div id="footer-componente"></div>
+
+  <script>
+    const { createClient } = supabase;
+    const sb = createClient(
+      'https://bgqlvkvlscujikhzzazf.supabase.co',
+      'sb_publishable_S5G17esnd47Gw9hO3rTfbA_cTxVtG-P'
+    );
+
+    // ── Normaliza nombres para comparar sin importar acentos/mayúsculas/espacios ──
+    function normalizarNombre(str) {
+      return (str || '')
+        .toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+    function coincideNombre(a, b) {
+      const na = normalizarNombre(a);
+      const nb = normalizarNombre(b);
+      if (!na || !nb) return false;
+      return na.includes(nb) || nb.includes(na);
+    }
+
+    // ── Definición de las 4 insignias ──
+    const DEFINICION_INSIGNIAS = [
+      { id: 'bronce', nombre: 'Analista de Riesgo',    emoji: '🥉', umbral: 3  },
+      { id: 'plata',  nombre: 'Faro de Prevención',    emoji: '🥈', umbral: 6  },
+      { id: 'oro',    nombre: 'Promotor de Seguridad', emoji: '🥇', umbral: 10 },
+    ];
+
+    async function init() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'intranet-login.html'; return; }
+
+      const { data: perfil } = await sb.from('perfiles').select('*').eq('id', session.user.id).single();
+      if (!perfil) { window.location.href = 'dashboard.html'; return; }
+
+      pintarPerfil(perfil);
+      await calcularYPintarInsignias(perfil);
+    }
+
+    function pintarPerfil(perfil) {
+      document.getElementById('mi-perfil-nombre').textContent = perfil.nombre_completo || 'Colaborador';
+      document.getElementById('perfil-rol').textContent = perfil.rol || 'Miembro del equipo';
+      const iniciales = (perfil.nombre_completo || '??')
+        .trim().split(/\s+/).slice(0, 2).map(p => p[0]?.toUpperCase() || '').join('');
+      document.getElementById('perfil-iniciales').textContent = iniciales || '--';
+    }
+
+    async function calcularYPintarInsignias(perfil) {
+      const nombreCompleto = perfil.nombre_completo || '';
+
+      // 1. Rango del trimestre actual
+      const hoy = new Date();
+      const mesActual = hoy.getMonth() + 1;
+      const anioActual = hoy.getFullYear();
+      const trimestre = Math.ceil(mesActual / 3);
+      const mesesTrimestre = [1, 2, 3].map(n => (trimestre - 1) * 3 + n);
+
+      // 2. Reportes del trimestre (se filtran en el cliente por coincidencia de nombre)
+      const { data: reportes } = await sb
+        .from('safety_alerts')
+        .select('nombre_reporta')
+        .eq('anio_registro', anioActual)
+        .in('mes_registro', mesesTrimestre);
+
+      const misReportes = (reportes || []).filter(r => coincideNombre(r.nombre_reporta, nombreCompleto));
+      const totalTrimestre = misReportes.length;
+      document.getElementById('perfil-total-trimestre').textContent = totalTrimestre;
+
+      // 3. ¿Es el Guardián/destacado de la edición activa?
+      const { data: edicionActiva } = await sb
+        .from('qhse_editions')
+        .select('guardian_nombre')
+        .eq('activa', true)
+        .eq('publicada', true)
+        .maybeSingle();
+
+      const esDestacado = edicionActiva?.guardian_nombre
+        ? coincideNombre(edicionActiva.guardian_nombre, nombreCompleto)
+        : false;
+
+      // 4. Armar insignias (las 3 automáticas por umbral + la de reconocimiento)
+      const insignias = DEFINICION_INSIGNIAS.map(def => ({
+        ...def,
+        obtenida: totalTrimestre >= def.umbral,
+      }));
+      insignias.push({
+        id: 'motor', nombre: 'Motor de Cambio', emoji: '⚡',
+        obtenida: esDestacado,
+        criterioTexto: 'Reconocido como Guardián del Mes en la edición activa',
+      });
+
+      pintarInsignias(insignias, totalTrimestre);
+    }
+
+    function pintarInsignias(insignias, totalTrimestre) {
+      const cont = document.getElementById('insignias-grid');
+
+      cont.innerHTML = insignias.map(ins => {
+        const criterio = ins.criterioTexto
+          ? ins.criterioTexto
+          : (ins.obtenida
+              ? `Cumpliste ${ins.umbral}+ reportes este trimestre`
+              : `Faltan ${Math.max(ins.umbral - totalTrimestre, 0)} reportes para desbloquearla`);
+
+        const barra = (!ins.criterioTexto) ? `
+          <div class="progreso-wrap">
+            <div class="progreso-barra-bg">
+              <div class="progreso-barra-fill" style="width:${Math.min((totalTrimestre / ins.umbral) * 100, 100)}%"></div>
+            </div>
+          </div>` : '';
+
+        return `
+          <div class="insignia-card ${ins.obtenida ? 'obtenida' : 'bloqueada'}">
+            ${ins.obtenida
+              ? '<span class="insignia-tag">OBTENIDA</span>'
+              : '<i class="fas fa-lock insignia-lock"></i>'}
+            <div class="insignia-emoji">${ins.emoji}</div>
+            <div class="insignia-nombre">${ins.nombre}</div>
+            <div class="insignia-criterio">${criterio}</div>
+            ${barra}
+          </div>
+        `;
+      }).join('');
+    }
+
+    init();
+  </script>
+
+  <script>
+    fetch('header.html')
+      .then(res => res.text())
+      .then(html => { document.getElementById('site-header').innerHTML = html; });
+    fetch('footer.html')
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById('footer-componente').innerHTML = html;
+        const y = document.getElementById('footer-year');
+        if (y) y.textContent = new Date().getFullYear();
+      });
+  </script>
+</body>
+</html>

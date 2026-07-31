@@ -241,9 +241,6 @@
     <div id="widget-resumen-ia" class="bg-gradient-to-br from-slate-800 via-slate-800 to-[#7a1216] rounded-2xl p-6 mb-8 relative overflow-hidden">
       <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-16 translate-x-16"></div>
       <div class="relative flex items-start gap-4">
-        <div class="w-11 h-11 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center justify-center flex-shrink-0">
-          <i class="fas fa-robot text-white text-lg"></i>
-        </div>
         <div class="flex-1 min-w-0">
           <p class="text-[10px] font-black uppercase tracking-widest text-white/50 mb-1.5">Resumen de IHS CONNECT</p>
           <p id="texto-resumen-ia" class="text-white text-sm leading-relaxed text-justify">
@@ -341,6 +338,12 @@
           <i class="fas fa-chart-pie text-[#e31e24] text-4xl mb-6 relative z-10"></i>
           <h4 class="text-lg font-bold text-slate-800 mb-2 relative z-10">Evaluaciones de Calidad</h4>
           <p class="text-slate-500 text-sm leading-relaxed relative z-10">Consulta y grafica los resultados de las evaluaciones de calidad en servicio.</p>
+        </a>
+        <a id="card-examenes-medicos" href="examenes-medicos.html"
+          class="hidden group relative p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl transition-all cursor-pointer overflow-hidden">
+          <i class="fas fa-notes-medical text-[#e31e24] text-4xl mb-6 relative z-10"></i>
+          <h4 class="text-lg font-bold text-slate-800 mb-2 relative z-10">Exámenes Médicos</h4>
+          <p class="text-slate-500 text-sm leading-relaxed relative z-10">Controla la vigencia de los exámenes médicos del personal operativo.</p>
         </a>
       </div>
     </div>
@@ -565,86 +568,6 @@
 
     </aside>
   </main>
-  <!-- ── MODAL PDF ── -->
-  <div id="modalPDF" class="hidden fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-5xl h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-      <div class="p-4 border-b flex justify-between items-center">
-        <h3 class="font-bold text-slate-800 uppercase tracking-tight text-sm">Visor de Documentos</h3>
-        <button onclick="cerrarPDF()" class="text-slate-400 hover:text-red-600 transition-colors"><i class="fas fa-times text-xl"></i></button>
-      </div>
-      <div class="flex-1 bg-slate-100"><iframe id="iframePDF" src="" class="w-full h-full border-none"></iframe></div>
-    </div>
-  </div>
-  <!-- ── MODAL REVISTA ── -->
-  <div id="modalRevista" class="hidden fixed inset-0 z-[100] bg-slate-950/98 backdrop-blur-xl flex items-center justify-center p-4">
-    <div class="w-full h-full max-w-7xl flex flex-col">
-      <div class="flex justify-between items-center mb-6 text-white">
-        <div>
-          <h2 class="text-2xl md:text-4xl font-black italic tracking-tighter uppercase">Sentinel <span class="text-red-600">IHS</span></h2>
-          <p class="text-xs uppercase tracking-[0.3em] text-slate-400 font-bold">Cultura de Prevención</p>
-        </div>
-        <button onclick="cerrarRevista()" class="bg-white/10 hover:bg-red-600 h-12 w-12 rounded-full flex items-center justify-center transition-all">
-          <i class="fas fa-times text-xl"></i>
-        </button>
-      </div>
-      <div class="flex-1 overflow-x-auto magazine-container flex gap-8 items-center pb-8 px-4">
-
-        <div class="magazine-page min-w-[320px] md:min-w-[450px] h-[600px] bg-red-700 rounded-2xl p-10 flex flex-col justify-between text-white relative overflow-hidden">
-          <div class="z-10">
-            <span class="bg-white text-red-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase mb-4 inline-block">Edición Mayo 2026</span>
-            <h1 class="text-5xl font-black italic leading-none">SEGURIDAD<br>SIN EXCUSAS</h1>
-          </div>
-          <div class="z-10 border-l-4 border-white pl-4">
-            <p class="text-sm font-medium">Liderazgo en Campo</p>
-            <p class="text-xs opacity-80 mt-1">Tu compromiso salva vidas.</p>
-          </div>
-          <i class="fas fa-helmet-safety absolute -bottom-10 -right-10 text-[200px] opacity-10 rotate-12"></i>
-        </div>
-
-        <div class="magazine-page min-w-[320px] md:min-w-[450px] h-[600px] rounded-2xl relative overflow-hidden flex items-end">
-          <img src="../assets/images/about/seguridad-revista.jpg.jpeg" class="absolute inset-0 w-full h-full object-contain" alt="Tu mayor motivación">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-          <div class="relative z-10 p-8 text-white">
-            <h3 class="text-2xl font-black italic uppercase leading-tight mb-2">Tu mayor motivación</h3>
-            <p class="text-sm opacity-90 leading-relaxed font-light italic">"Porque en casa siempre hay alguien esperando por ti..."</p>
-          </div>
-        </div>
-
-        <div class="magazine-page min-w-[320px] md:min-w-[480px] h-[650px] bg-white rounded-3xl p-10 flex flex-col flex-shrink-0 relative overflow-hidden">
-          <div class="absolute top-0 right-0 p-8">
-            <span class="text-slate-100 text-9xl font-black italic select-none">01</span>
-          </div>
-          <div class="relative z-10">
-            <span class="bg-red-600 text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-tighter shadow-lg shadow-red-500/30">Cultura Preventiva</span>
-            <h3 class="text-4xl font-black text-slate-800 leading-tight mt-6 uppercase italic">Lección<br>Aprendida</h3>
-          </div>
-          <div class="flex-1 mt-10 bg-slate-50 rounded-2xl p-8 border-l-[6px] border-red-600 shadow-inner">
-            <h4 class="font-bold text-red-600 mb-4 flex items-center gap-2">
-              <i class="fas fa-exclamation-triangle"></i> ANÁLISIS DE RIESGO
-            </h4>
-            <p class="text-slate-600 leading-relaxed italic text-lg">
-              "El uso correcto de los chicotes de seguridad no es opcional; es la diferencia entre un susto y una fatalidad."
-            </p>
-          </div>
-          <div class="mt-auto flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="h-10 w-10 bg-slate-800 rounded-full flex items-center justify-center text-white">
-                <i class="fas fa-user-shield text-sm"></i>
-              </div>
-              <div>
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Validado por</p>
-                <p class="text-xs font-bold text-slate-800 tracking-tight">Dpto. QHSE</p>
-              </div>
-            </div>
-            <button class="h-12 w-12 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm">
-              <i class="fas fa-plus"></i>
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1078,6 +1001,49 @@
       document.getElementById('panel-notificaciones').classList.add('hidden');
     }
 
+    // Revisa exámenes médicos vencidos o por vencer y genera notificaciones agrupadas
+    async function revisarExamenesMedicos() {
+      const { data, error } = await supabaseClient
+        .from('examenes_medicos')
+        .select('colaborador, fecha_proxima')
+        .not('fecha_proxima', 'is', null);
+
+      if (error || !data) return;
+
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      const msPorDia = 1000 * 60 * 60 * 24;
+
+      const vencidos = [];
+      const porVencer = [];
+
+      data.forEach(row => {
+        const fechaProxima = new Date(row.fecha_proxima + 'T00:00:00');
+        const dias = Math.round((fechaProxima - hoy) / msPorDia);
+
+        if (dias < 0) vencidos.push(row.colaborador);
+        else if (dias <= 30) porVencer.push(row.colaborador);
+      });
+
+      if (vencidos.length > 0) {
+        agregarNotificacion(
+          'fa-triangle-exclamation',
+          'bg-red-50 text-red-600',
+          `${vencidos.length} exámen(es) médico(s) vencido(s)`,
+          vencidos.slice(0, 3).join(', ') + (vencidos.length > 3 ? ` y ${vencidos.length - 3} más` : '')
+        );
+      }
+
+      if (porVencer.length > 0) {
+        agregarNotificacion(
+          'fa-clock',
+          'bg-amber-50 text-amber-600',
+          `${porVencer.length} exámen(es) médico(s) por vencer`,
+          porVencer.slice(0, 3).join(', ') + (porVencer.length > 3 ? ` y ${porVencer.length - 3} más` : '')
+        );
+      }
+    }
+
     async function escucharNotificacionesGlobales() {
       const canalPoliticas = supabaseClient.getChannels().find(c => c.topic === 'realtime:notif-politicas');
       if (canalPoliticas) await supabaseClient.removeChannel(canalPoliticas);
@@ -1310,19 +1276,22 @@
           document.getElementById('card-extintores')?.classList.remove('hidden');
           document.getElementById('card-qhse-nc')?.classList.remove('hidden'); 
           document.getElementById('card-eval-calidad')?.classList.remove('hidden');
+          document.getElementById('card-examenes-medicos')?.classList.remove('hidden');
+          revisarExamenesMedicos();
 
           // ── Reordenar tarjetas: prioridad QHSE arriba ──
           const ordenQHSE = {
             'card-safety-alerts': 1,
             'card-eval-calidad': 2,
-            'card-coc': 3,
-            'card-qhse-nc': 4,
-            'card-capacitacion': 5,
-            'card-extintores': 6,
-            'card-politicas': 7,
-            'card-formatos': 8,
-            'card-directorio': 9,
-            'card-accesos': 10
+            'card-examenes-medicos': 3,
+            'card-coc': 4,
+            'card-qhse-nc': 5,
+            'card-capacitacion': 6,
+            'card-extintores': 7,
+            'card-politicas': 8,
+            'card-formatos': 9,
+            'card-directorio': 10,
+            'card-accesos': 11
           };
           Object.entries(ordenQHSE).forEach(([id, orden]) => {
             const el = document.getElementById(id);

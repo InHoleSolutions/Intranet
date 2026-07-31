@@ -1,5 +1,70 @@
 // ═══════════════════════════════════════════════
 // REVISTA MOBILE — Efecto libro con volteo 3D
+
+// ── SONIDO DE PÁGINA ──
+let audioLibro = null;
+let sonidoActivo = localStorage.getItem('qhse-sonido-libro') !== 'off';
+
+function toggleSonidoLibro() {
+  sonidoActivo = !sonidoActivo;
+  localStorage.setItem('qhse-sonido-libro', sonidoActivo ? 'on' : 'off');
+  const icon = document.querySelector('#btn-mute i');
+  if (icon) icon.className = sonidoActivo ? 'fas fa-volume-up' : 'fas fa-volume-mute';
+}
+
+function sonidoPagina() {
+  if (!sonidoActivo) return;
+  try {
+    if (!audioLibro) audioLibro = new (window.AudioContext || window.webkitAudioContext)();
+    const osc  = audioLibro.createOscillator();
+    const gain = audioLibro.createGain();
+    osc.connect(gain);
+    gain.connect(audioLibro.destination);
+
+    const variacion = (Math.random() * 20) - 10; // ±10Hz
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(180 + variacion, audioLibro.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(90 + variacion, audioLibro.currentTime + 0.18);
+    gain.gain.setValueAtTime(0.05, audioLibro.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioLibro.currentTime + 0.2);
+    osc.start(); osc.stop(audioLibro.currentTime + 0.2);
+  } catch (e) {}
+}
+
+function sonidoLimite() {
+  if (!sonidoActivo) return;
+  try {
+    if (!audioLibro) audioLibro = new (window.AudioContext || window.webkitAudioContext)();
+    const osc  = audioLibro.createOscillator();
+    const gain = audioLibro.createGain();
+    osc.connect(gain);
+    gain.connect(audioLibro.destination);
+
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(120, audioLibro.currentTime);
+    gain.gain.setValueAtTime(0.04, audioLibro.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioLibro.currentTime + 0.06);
+    osc.start(); osc.stop(audioLibro.currentTime + 0.06);
+  } catch (e) {}
+}
+
+function sonidoAbrirLibro() {
+  if (!sonidoActivo) return;
+  try {
+    if (!audioLibro) audioLibro = new (window.AudioContext || window.webkitAudioContext)();
+    const osc  = audioLibro.createOscillator();
+    const gain = audioLibro.createGain();
+    osc.connect(gain);
+    gain.connect(audioLibro.destination);
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(200, audioLibro.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(500, audioLibro.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.05, audioLibro.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioLibro.currentTime + 0.35);
+    osc.start(); osc.stop(audioLibro.currentTime + 0.35);
+  } catch (e) {}
+}
 // Solo se activa en pantallas < 768px
 // ═══════════════════════════════════════════════
 
@@ -13,7 +78,6 @@ const MOBILE_CSS = `
     flex-direction: column;
     overflow: hidden;
   }
-
   .book-topbar {
     height: 48px;
     background: rgba(10,22,40,.95);
@@ -25,7 +89,6 @@ const MOBILE_CSS = `
     flex-shrink: 0;
     z-index: 10;
   }
-
   .book-topbar-title {
     font-family: 'Barlow Condensed', sans-serif;
     font-size: 13px;
@@ -34,13 +97,11 @@ const MOBILE_CSS = `
     text-transform: uppercase;
     color: rgba(255,255,255,.8);
   }
-
   .book-topbar-page {
     font-family: 'DM Mono', monospace;
     font-size: 11px;
     color: rgba(0,200,255,.7);
   }
-
   .book-stage {
     flex: 1;
     display: flex;
@@ -50,7 +111,6 @@ const MOBILE_CSS = `
     padding: 12px;
     overflow: hidden;
   }
-
   .book-page {
     width: 100%;
     height: 100%;
@@ -64,17 +124,14 @@ const MOBILE_CSS = `
     -webkit-backface-visibility: hidden;
     box-shadow: 0 20px 60px rgba(0,0,0,.5);
   }
-
   .book-page.dark-page {
     background: linear-gradient(135deg, #0a1628 0%, #0e2044 50%, #1a3160 100%);
   }
-
   .book-page-inner {
     padding: 20px;
     height: 100%;
     box-sizing: border-box;
   }
-
   .book-nav {
     height: 72px;
     display: flex;
@@ -83,7 +140,6 @@ const MOBILE_CSS = `
     padding: 0 20px;
     flex-shrink: 0;
   }
-
   .book-nav-btn {
     width: 48px;
     height: 48px;
@@ -99,23 +155,19 @@ const MOBILE_CSS = `
     transition: all .2s;
     -webkit-tap-highlight-color: transparent;
   }
-
   .book-nav-btn:active {
     background: rgba(30,136,229,.4);
     transform: scale(.93);
   }
-
   .book-nav-btn:disabled {
     opacity: .25;
     pointer-events: none;
   }
-
   .book-dots {
     display: flex;
     gap: 6px;
     align-items: center;
   }
-
   .book-dot {
     width: 6px;
     height: 6px;
@@ -123,13 +175,47 @@ const MOBILE_CSS = `
     background: rgba(255,255,255,.2);
     transition: all .3s;
   }
-
   .book-dot.active {
     background: #00c8ff;
     width: 18px;
     border-radius: 3px;
   }
-
+  .book-indice-wrap { position: relative; }
+  .book-indice-menu {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background: #0e2044;
+    border: 1px solid rgba(0,200,255,.25);
+    border-radius: 10px;
+    padding: 6px;
+    min-width: 190px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.4);
+    z-index: 20;
+    display: none;
+  }
+  .book-indice-menu.open { display: block; }
+  .book-indice-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,.85);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 9px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .book-indice-item:hover,
+  .book-indice-item:active {
+    background: rgba(30,136,229,.25);
+    color: white;
+  }
   /* Animación slide + fade hacia adelante */
   @keyframes slideOutLeft {
     0%   { transform: translateX(0);     opacity: 1; }
@@ -139,7 +225,6 @@ const MOBILE_CSS = `
     0%   { transform: translateX(60px);  opacity: 0; }
     100% { transform: translateX(0);     opacity: 1; }
   }
-
   /* Animación slide + fade hacia atrás */
   @keyframes slideOutRight {
     0%   { transform: translateX(0);     opacity: 1; }
@@ -149,7 +234,6 @@ const MOBILE_CSS = `
     0%   { transform: translateX(-60px); opacity: 0; }
     100% { transform: translateX(0);     opacity: 1; }
   }
-
   .flip-out          { animation: slideOutLeft  .22s ease-in  forwards; }
   .flip-in           { animation: slideInRight  .22s ease-out forwards; }
   .flip-out-reverse  { animation: slideOutRight .22s ease-in  forwards; }
@@ -162,7 +246,6 @@ const MOBILE_CSS = `
 
 function obtenerHojas() {
   return [
-
     // ── HOJA 1: Portada izquierda ──
     {
       id: 'hoja-portada-left',
@@ -432,6 +515,7 @@ let animando   = false;
 let hojas      = [];
 
 function iniciarLibro() {
+  sonidoAbrirLibro();
   if (window.innerWidth >= 768) return;
 
   hojas      = obtenerHojas();
@@ -452,6 +536,23 @@ function iniciarLibro() {
         <span style="color:#00c8ff;margin-right:6px">●</span> SENTINEL IHS
       </span>
       <span class="book-topbar-page" id="book-page-label">1 / ${totalHojas}</span>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div class="book-indice-wrap">
+          <button class="book-nav-btn" id="btn-indice" onclick="toggleIndiceLibro()" style="width:34px;height:34px;font-size:13px;">
+            <i class="fas fa-list"></i>
+          </button>
+          <div class="book-indice-menu" id="book-indice-menu">
+            <button class="book-indice-item" onclick="irAHoja(2)"><i class="fas fa-hard-hat" style="color:#e31e24"></i> Safety</button>
+            <button class="book-indice-item" onclick="irAHoja(4)"><i class="fas fa-check-double" style="color:#1e88e5"></i> Quality</button>
+            <button class="book-indice-item" onclick="irAHoja(6)"><i class="fas fa-heartbeat" style="color:#f59e0b"></i> Health</button>
+            <button class="book-indice-item" onclick="irAHoja(8)"><i class="fas fa-leaf" style="color:#10b981"></i> Environment</button>
+            <button class="book-indice-item" onclick="irAHoja(10)"><i class="fas fa-star" style="color:#fbbf24"></i> Guardián del Mes</button>
+          </div>
+        </div>
+        <button class="book-nav-btn" id="btn-mute" onclick="toggleSonidoLibro()" style="width:34px;height:34px;font-size:13px;">
+          <i class="fas fa-volume-${sonidoActivo ? 'up' : 'mute'}"></i>
+        </button>
+      </div>
     </div>
 
     <div class="book-stage">
@@ -537,7 +638,13 @@ function renderizarHoja(index) {
 function voltearPagina(direccion) {
   if (animando) return;
   const nueva = hojaActual + direccion;
-  if (nueva < 0 || nueva >= totalHojas) return;
+  if (nueva < 0 || nueva >= totalHojas) {
+    sonidoLimite();
+    if (navigator.vibrate) navigator.vibrate(15);
+    return;
+  }
+
+  sonidoPagina();
 
   animando = true;
   const pageEl = document.getElementById('book-page');
@@ -559,4 +666,44 @@ function voltearPagina(direccion) {
       animando = false;
     }, 260);
   }, 260);
+}
+
+// ── ÍNDICE: saltar directo a una hoja específica ──
+function irAHoja(index) {
+  if (animando) return;
+  if (index < 0 || index >= totalHojas || index === hojaActual) {
+    toggleIndiceLibro(false);
+    return;
+  }
+
+  sonidoPagina();
+  animando = true;
+  const pageEl = document.getElementById('book-page');
+  const direccion = index > hojaActual ? 1 : -1;
+  const claseOut = direccion > 0 ? 'flip-out' : 'flip-out-reverse';
+  const claseIn  = direccion > 0 ? 'flip-in'  : 'flip-in-reverse';
+
+  pageEl.classList.add(claseOut);
+
+  setTimeout(() => {
+    pageEl.classList.remove(claseOut);
+    hojaActual = index;
+    renderizarHoja(hojaActual);
+    pageEl.classList.add(claseIn);
+
+    setTimeout(() => {
+      pageEl.classList.remove(claseIn);
+      animando = false;
+    }, 260);
+  }, 260);
+
+  toggleIndiceLibro(false);
+}
+
+// ── Abrir/cerrar el menú del índice ──
+function toggleIndiceLibro(forzar) {
+  const menu = document.getElementById('book-indice-menu');
+  if (!menu) return;
+  const abrir = forzar !== undefined ? forzar : !menu.classList.contains('open');
+  menu.classList.toggle('open', abrir);
 }

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exámenes Médicos | In Hole Solutions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    <div id="header-placeholder"></div>
+    <main class="flex-1 max-w-[1440px] 3xl:max-w-[1800px] mx-auto w-full px-6 pt-32 sm:pt-36 pb-10">
+        <nav class="flex items-center gap-2 text-sm text-slate-400 mb-4">
+            <a href="dashboard.html" class="hover:text-[#e31e24] transition-colors">
+                <i class="fas fa-house"></i>
+            </a>
+            <i class="fas fa-chevron-right text-[10px] text-slate-300"></i>
+            <span class="font-semibold text-slate-500">Exámenes Médicos</span>
+        </nav>
+
+        <div class="flex items-start justify-between mb-8 flex-wrap gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-slate-800 tracking-tight">Control de Exámenes Médicos</h1>
+                <p class="text-slate-400 text-sm mt-1">Seguimiento de vigencia médica del personal operativo</p>
+            </div>
+            <button onclick="abrirModalColaborador()"
+                class="bg-[#e31e24] hover:bg-[#b3161b] text-white font-semibold text-sm px-5 py-2.5 rounded-xl shadow-lg shadow-red-200 transition flex items-center gap-2">
+                <i class="fas fa-plus"></i> Agregar colaborador
+            </button>
+        </div>
+
+        <div id="tarjetas-resumen" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <!-- Se llenan con JS -->
+        </div>
+
+        <div class="flex justify-end mb-3">
+            <label class="flex items-center gap-2 text-sm text-slate-500 cursor-pointer select-none">
+                <input type="checkbox" id="chk-mostrar-ocultos" onchange="toggleMostrarOcultos()"
+                    class="rounded border-slate-300 text-[#e31e24] focus:ring-red-500/30">
+            </label>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-100">
+                            <th class="pl-6 pr-2 py-4 text-left font-semibold w-8"></th>
+                            <th class="px-3 py-4 text-center font-semibold w-12">No.</th>
+                            <th class="px-3 py-4 text-left font-semibold">Colaborador</th>
+                            <th class="px-3 py-4 text-left font-semibold">Puesto</th>
+                            <th class="px-3 py-4 text-center font-semibold">Última</th>
+                            <th class="px-3 py-4 text-center font-semibold">Próxima</th>
+                            <th class="px-3 py-4 text-center font-semibold">Vigencia</th>
+                            <th class="px-3 py-4 text-center font-semibold">Estado</th>
+                            <th class="px-3 py-4 text-center font-semibold">Certificado</th>
+                            <th class="px-3 py-4 text-center font-semibold">Exámen</th>
+                            <th class="px-3 py-4 text-left font-semibold">Seguimiento</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-examenes">
+                        <!-- Las filas se generan con JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="modal-colaborador" class="hidden fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] overflow-y-auto">
+
+            <div class="flex items-center justify-between px-6 py-5 bg-gradient-to-r from-slate-800 to-[#e31e24]">
+            <h3 id="modal-titulo" class="font-bold text-white text-lg flex items-center gap-2">
+                <i class="fas fa-user-plus"></i> Agregar Colaborador
+            </h3>
+            <button onclick="cerrarModalColaborador()" class="h-9 w-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition">
+                <i class="fas fa-times"></i>
+            </button>
+            </div>
+
+            <div class="p-6 space-y-4">
+            <input type="hidden" id="form-id">
+
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+                    No. <span class="text-slate-400 font-normal normal-case">(automático)</span>
+                </label>
+                <input id="form-numero" type="number"
+                class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#e31e24] transition">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Colaborador</label>
+                <input id="form-colaborador" type="text"
+                class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#e31e24] transition">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Puesto</label>
+                <input id="form-puesto" type="text"
+                class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#e31e24] transition">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Fecha última</label>
+                <input id="form-fecha-ultima" type="date"
+                    class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#e31e24] transition">
+                </div>
+                <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Fecha próxima</label>
+                <input id="form-fecha-proxima" type="date"
+                    class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#e31e24] transition">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Seguimiento</label>
+                <textarea id="form-seguimiento" rows="2"
+                class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#e31e24] transition"></textarea>
+            </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50">
+            <div class="flex gap-2">
+                <button id="btn-eliminar-colaborador" onclick="eliminarColaborador()"
+                    class="hidden px-5 py-2.5 rounded-xl border border-red-200 bg-white text-red-600 font-semibold text-sm hover:bg-red-50 transition">
+                    <i class="fas fa-trash mr-1.5"></i>Eliminar
+                </button>
+                <button id="btn-ocultar-colaborador" onclick="toggleOcultarColaborador()"
+                    class="hidden px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold text-sm hover:bg-slate-100 transition">
+                    <i class="fas fa-eye-slash mr-1.5"></i>
+                </button>
+            </div>
+            <div class="flex gap-3 ml-auto">
+                <button onclick="cerrarModalColaborador()" class="px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold text-sm hover:bg-slate-100 transition">Cancelar</button>
+                <button onclick="guardarColaborador()" id="btn-guardar-colaborador"
+                class="px-5 py-2.5 rounded-xl bg-[#e31e24] hover:bg-[#b3161b] text-white font-semibold text-sm shadow-lg shadow-red-200 transition disabled:opacity-50">
+                <i class="fas fa-check mr-1.5"></i>Guardar
+                </button>
+            </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal-confirmar" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div class="p-6 text-center">
+                <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-trash text-red-500 text-xl"></i>
+                </div>
+                <h3 id="confirmar-titulo" class="font-bold text-slate-800 text-lg mb-2">¿Eliminar colaborador?</h3>
+                <p id="confirmar-mensaje" class="text-slate-500 text-sm leading-relaxed">
+                    Esta acción no se puede deshacer. Se eliminará permanentemente el registro.
+                </p>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50">
+                <button onclick="cerrarModalConfirmar()"
+                    class="flex-1 px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold text-sm hover:bg-slate-100 transition">
+                    Cancelar
+                </button>
+                <button id="btn-confirmar-eliminar"
+                    class="flex-1 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-sm shadow-lg shadow-red-200 transition">
+                    <i class="fas fa-trash mr-1.5"></i>Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="footer-placeholder"></div>
+    <script>
+        const supabaseClient = supabase.createClient(
+            'https://bgqlvkvlscujikhzzazf.supabase.co',
+            'sb_publishable_S5G17esnd47Gw9hO3rTfbA_cTxVtG-P'
+        );
+
+        async function cargarComponente(url, elementoId) {
+            const res = await fetch(url);
+            const html = await res.text();
+            const contenedor = document.getElementById(elementoId);
+            contenedor.innerHTML = html;
+
+            contenedor.querySelectorAll('script').forEach(scriptViejo => {
+                const scriptNuevo = document.createElement('script');
+                if (scriptViejo.src) {
+                    scriptNuevo.src = scriptViejo.src;
+                } else {
+                    scriptNuevo.textContent = scriptViejo.textContent;
+                }
+                document.body.appendChild(scriptNuevo);
+            });
+        }
+
+        function obtenerSaludoPorHora() {
+            const hora = new Date().getHours();
+            if (hora >= 5 && hora < 12) return 'Buenos días';
+            if (hora >= 12 && hora < 19) return 'Buenas tardes';
+            return 'Buenas noches';
+        }
+
+        Promise.all([
+            cargarComponente('header.html', 'header-placeholder'),
+            cargarComponente('footer.html', 'footer-placeholder')
+        ]).then(async () => {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) return;
+
+            const { data: perfil } = await supabaseClient
+                .from('perfiles')
+                .select('nombre_completo')
+                .eq('id', session.user.id)
+                .single();
+
+            if (perfil) {
+                const saludo = obtenerSaludoPorHora();
+                const nombre = perfil.nombre_completo || 'Usuario';
+                document.getElementById('user-welcome').textContent = `${saludo}, ${nombre}`;
+            }
+        });
+    </script>
+    <script>
+        let datosExamenes = []; // guarda la última carga para poder calcular el siguiente No.
+
+        let mostrarOcultos = false; // controla si se ven los colaboradores ocultos
+
+        function toggleMostrarOcultos() {
+            mostrarOcultos = document.getElementById('chk-mostrar-ocultos').checked;
+            cargarExamenes();
+        }
+
+        async function cargarExamenes() {
+            const { data, error } = await supabaseClient
+                .from('examenes_medicos')
+                .select('*')
+                .order('colaborador', { ascending: true });
+
+            if (error) { console.error(error); return; }
+
+            datosExamenes = data;
+
+            // Filtra los colaboradores ocultos, a menos que el usuario pida verlos
+            const datosVisibles = mostrarOcultos ? data : data.filter(row => row.activo !== false);
+
+            const tbody = document.getElementById('tabla-examenes');
+            tbody.innerHTML = '';
+
+            datosVisibles.forEach((row, indice) => {
+                const info = calcularEstado(row.fecha_proxima);
+
+                const esOculto = row.activo === false;
+                const tr = document.createElement('tr');
+                tr.className = `border-b border-slate-50 hover:bg-slate-50/70 cursor-pointer transition-colors relative ${esOculto ? 'opacity-40' : ''}`;
+                tr.onclick = (e) => {
+                    if (e.target.closest('a') || e.target.closest('label') || e.target.closest('input') || e.target.closest('button')) return;
+                    abrirModalColaborador(row);
+                };
+                tr.innerHTML = `
+            <td class="pl-6 pr-2 py-4"><span class="block w-1.5 h-9 rounded-full ${info.barra}"></span></td>
+            <td class="px-3 py-4 text-center text-slate-400 font-semibold text-sm">${indice + 1}</td>
+            <td class="px-3 py-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full ${info.avatarBg} flex items-center justify-center text-xs font-bold ${info.avatarText} shrink-0">
+                        ${obtenerIniciales(row.colaborador)}
+                    </div>
+                    <span class="font-semibold text-slate-700">${row.colaborador}</span>
+                </div>
+            </td>
+            <td class="px-3 py-4 text-slate-500">${row.puesto || ''}</td>
+            <td class="px-3 py-4 text-center text-slate-500 text-xs">${formatearFecha(row.fecha_ultima)}</td>
+            <td class="px-3 py-4 text-center text-slate-500 text-xs">${formatearFecha(row.fecha_proxima)}</td>
+            <td class="px-3 py-4 text-center">
+                ${info.dias !== null
+                    ? `<span class="font-bold ${info.textoUrgencia}">${info.dias < 0 ? Math.abs(info.dias) : info.dias}</span>
+                       <span class="text-[10px] text-slate-400 block">${info.dias < 0 ? 'días vencido' : 'días'}</span>`
+                    : '<span class="text-slate-300">—</span>'}
+            </td>
+            <td class="px-3 py-4 text-center">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold ${info.colorEstado}">
+                    <i class="fas ${info.icono} text-[10px]"></i> ${info.estado}
+                </span>
+            </td>
+            <td class="px-3 py-4 text-center">
+                ${botonArchivo(row.id, 'certificado_medico_url', row.certificado_medico_url)}
+            </td>
+            <td class="px-3 py-4 text-center">
+                ${botonArchivo(row.id, 'examen_medico_url', row.examen_medico_url)}
+            </td>
+            <td class="px-3 py-4 text-slate-400 text-xs max-w-[140px] truncate">${row.seguimiento || '—'}</td>
+        `;
+                tbody.appendChild(tr);
+            });
+
+            actualizarTarjetasResumen(datosVisibles);
+        }
+
+        // Genera las iniciales de un nombre completo, ej. "Jairo Díaz Chablé" -> "JD"
+        function obtenerIniciales(nombreCompleto) {
+            if (!nombreCompleto) return '?';
+            const partes = nombreCompleto.trim().split(/\s+/);
+            const inicial1 = partes[0]?.[0] || '';
+            const inicial2 = partes[1]?.[0] || '';
+            return (inicial1 + inicial2).toUpperCase();
+        }
+
+        // Formatea YYYY-MM-DD a DD/MM/YYYY para mostrar en la tabla
+        function formatearFecha(fechaStr) {
+            if (!fechaStr) return '—';
+            const [anio, mes, dia] = fechaStr.split('-');
+            return `${dia}/${mes}/${anio}`;
+        }
+
+        // Calcula días, estado (Vigente / Por vencer / Vencido) y estilos asociados
+        function calcularEstado(fechaProximaStr) {
+            if (!fechaProximaStr) {
+                return {
+                    dias: null, estado: 'Sin fecha', icono: 'fa-circle-question',
+                    colorEstado: 'bg-slate-100 text-slate-500',
+                    barra: 'bg-slate-200', avatarBg: 'bg-slate-100', avatarText: 'text-slate-500',
+                    textoUrgencia: 'text-slate-400'
+                };
+            }
+
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            const fechaProxima = new Date(fechaProximaStr + 'T00:00:00');
+            const msPorDia = 1000 * 60 * 60 * 24;
+            const dias = Math.round((fechaProxima - hoy) / msPorDia);
+
+            if (dias < 0) {
+                return {
+                    dias, estado: 'Vencido', icono: 'fa-triangle-exclamation',
+                    colorEstado: 'bg-red-50 text-red-600',
+                    barra: 'bg-red-500', avatarBg: 'bg-red-50', avatarText: 'text-red-600',
+                    textoUrgencia: 'text-red-600'
+                };
+            } else if (dias <= 30) {
+                return {
+                    dias, estado: 'Por vencer', icono: 'fa-clock',
+                    colorEstado: 'bg-amber-50 text-amber-600',
+                    barra: 'bg-amber-400', avatarBg: 'bg-amber-50', avatarText: 'text-amber-600',
+                    textoUrgencia: 'text-amber-600'
+                };
+            } else {
+                return {
+                    dias, estado: 'Vigente', icono: 'fa-circle-check',
+                    colorEstado: 'bg-emerald-50 text-emerald-600',
+                    barra: 'bg-emerald-500', avatarBg: 'bg-emerald-50', avatarText: 'text-emerald-600',
+                    textoUrgencia: 'text-slate-600'
+                };
+            }
+        }
+
+        // Llena las 4 tarjetas de resumen arriba de la tabla
+        function actualizarTarjetasResumen(data) {
+            const total = data.length;
+            let vigentes = 0, porVencer = 0, vencidos = 0;
+
+            data.forEach(row => {
+                const info = calcularEstado(row.fecha_proxima);
+                if (info.estado === 'Vigente') vigentes++;
+                else if (info.estado === 'Por vencer') porVencer++;
+                else if (info.estado === 'Vencido') vencidos++;
+            });
+
+            const tarjetas = [
+                { label: 'Total colaboradores', valor: total, icono: 'fa-users', color: 'text-slate-700', bg: 'bg-slate-100' },
+                { label: 'Vigentes', valor: vigentes, icono: 'fa-circle-check', color: 'text-emerald-600', bg: 'bg-emerald-50' },
+                { label: 'Por vencer (≤30 días)', valor: porVencer, icono: 'fa-clock', color: 'text-amber-600', bg: 'bg-amber-50' },
+                { label: 'Vencidos', valor: vencidos, icono: 'fa-triangle-exclamation', color: 'text-red-600', bg: 'bg-red-50' },
+            ];
+
+            const contenedor = document.getElementById('tarjetas-resumen');
+            contenedor.innerHTML = tarjetas.map(t => `
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4 shadow-sm">
+                    <div class="w-11 h-11 rounded-xl ${t.bg} flex items-center justify-center shrink-0">
+                        <i class="fas ${t.icono} ${t.color}"></i>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-slate-800 leading-none">${t.valor}</p>
+                        <p class="text-xs text-slate-400 mt-1">${t.label}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function botonArchivo(id, campo, urlActual) {
+            if (urlActual) {
+                return `
+            <div class="flex items-center justify-center gap-2">
+            <a href="${urlActual}" target="_blank" class="text-red-600 hover:underline text-xs font-semibold">
+                <i class="fas fa-file-pdf"></i> Ver PDF
+            </a>
+            <label class="cursor-pointer text-slate-400 hover:text-slate-600 text-xs" title="Reemplazar archivo">
+                <i class="fas fa-rotate"></i>
+                <input type="file" accept="application/pdf" class="hidden"
+                onchange="subirArchivo(event, '${id}', '${campo}')">
+            </label>
+            <button type="button" onclick="confirmarEliminarArchivo('${id}', '${campo}', '${urlActual}')"
+                class="text-slate-300 hover:text-red-500 transition-colors text-xs" title="Eliminar archivo">
+                <i class="fas fa-trash"></i>
+            </button>
+            </div>`;
+            } else {
+                return `
+            <label class="cursor-pointer text-blue-600 hover:underline text-xs font-semibold">
+            <i class="fas fa-upload"></i> Subir PDF
+            <input type="file" accept="application/pdf" class="hidden"
+                onchange="subirArchivo(event, '${id}', '${campo}')">
+            </label>`;
+            }
+        }
+
+        async function subirArchivo(event, filaId, campo) {
+            const archivo = event.target.files[0];
+            if (!archivo) return;
+
+            const nombreArchivo = `${filaId}_${campo}_${Date.now()}.pdf`;
+
+            const { error: errorSubida } = await supabaseClient
+                .storage
+                .from('examenes-medicos')
+                .upload(nombreArchivo, archivo, { upsert: true });
+
+            if (errorSubida) {
+                alert('Error al subir archivo: ' + errorSubida.message);
+                return;
+            }
+
+            const { data: urlData } = supabaseClient
+                .storage
+                .from('examenes-medicos')
+                .getPublicUrl(nombreArchivo);
+
+            const { error: errorUpdate } = await supabaseClient
+                .from('examenes_medicos')
+                .update({ [campo]: urlData.publicUrl })
+                .eq('id', filaId);
+
+            if (errorUpdate) {
+                alert('Error al guardar en base de datos: ' + errorUpdate.message);
+                return;
+            }
+
+            cargarExamenes();
+        }
+
+        // Pide confirmación antes de eliminar un PDF, usando el mismo modal de confirmación
+        function confirmarEliminarArchivo(filaId, campo, urlActual) {
+            const etiqueta = campo === 'certificado_medico_url' ? 'certificado médico' : 'exámen médico';
+
+            confirmarAccion(
+                `¿Seguro que quieres eliminar este ${etiqueta}? Esta acción no se puede deshacer.`,
+                async () => { await eliminarArchivo(filaId, campo, urlActual); },
+                `¿Eliminar ${etiqueta}?`
+            );
+        }
+
+        // Borra el archivo del Storage y limpia el campo en la base de datos
+        async function eliminarArchivo(filaId, campo, urlActual) {
+            // Extrae el nombre del archivo a partir de la URL pública guardada
+            const nombreArchivo = urlActual.split('/').pop();
+
+            const { error: errorStorage } = await supabaseClient
+                .storage
+                .from('examenes-medicos')
+                .remove([nombreArchivo]);
+
+            if (errorStorage) {
+                alert('Error al eliminar el archivo del storage: ' + errorStorage.message);
+                return;
+            }
+
+            const { error: errorUpdate } = await supabaseClient
+                .from('examenes_medicos')
+                .update({ [campo]: null })
+                .eq('id', filaId);
+
+            if (errorUpdate) {
+                alert('Error al actualizar la base de datos: ' + errorUpdate.message);
+                return;
+            }
+
+            cargarExamenes();
+        }
+
+        let modoEdicion = false;
+
+        // Calcula el siguiente No. disponible según los colaboradores ya cargados
+        function calcularSiguienteNumero() {
+            if (!datosExamenes.length) return 1;
+            const maximo = Math.max(...datosExamenes.map(r => r.numero || 0));
+            return maximo + 1;
+        }
+
+        function abrirModalColaborador(row = null) {
+            modoEdicion = !!row;
+
+            document.getElementById('modal-titulo').innerHTML = modoEdicion
+                ? '<i class="fas fa-user-edit"></i> Editar Colaborador'
+                : '<i class="fas fa-user-plus"></i> Agregar Colaborador';
+
+            document.getElementById('btn-eliminar-colaborador').classList.toggle('hidden', !modoEdicion);
+
+            const btnOcultar = document.getElementById('btn-ocultar-colaborador');
+            btnOcultar.classList.toggle('hidden', !modoEdicion);
+            if (modoEdicion) {
+                const estaOculto = row.activo === false;
+                btnOcultar.innerHTML = estaOculto
+                    ? '<i class="fas fa-eye mr-1.5"></i>'
+                    : '<i class="fas fa-eye-slash mr-1.5"></i>';
+                btnOcultar.dataset.activo = estaOculto ? 'false' : 'true';
+            }
+
+            const inputNumero = document.getElementById('form-numero');
+
+            document.getElementById('form-id').value = row?.id || '';
+
+            if (modoEdicion) {
+                inputNumero.value = row.numero || '';
+            } else {
+                inputNumero.value = calcularSiguienteNumero();
+            }
+            inputNumero.readOnly = true;
+            inputNumero.classList.add('bg-slate-50', 'text-slate-400');
+
+            document.getElementById('form-colaborador').value = row?.colaborador || '';
+          document.getElementById('form-puesto').value = row?.puesto || '';
+          document.getElementById('form-fecha-ultima').value = row?.fecha_ultima || '';
+          document.getElementById('form-fecha-proxima').value = row?.fecha_proxima || '';
+          document.getElementById('form-seguimiento').value = row?.seguimiento || '';
+
+          document.getElementById('modal-colaborador').classList.remove('hidden');
+        }
+
+        function cerrarModalColaborador() {
+          document.getElementById('modal-colaborador').classList.add('hidden');
+        }
+
+        async function guardarColaborador() {
+          const btn = document.getElementById('btn-guardar-colaborador');
+          btn.disabled = true;
+
+          const id = document.getElementById('form-id').value;
+
+          const payload = {
+            numero: parseInt(document.getElementById('form-numero').value) || null,
+            colaborador: document.getElementById('form-colaborador').value.trim(),
+            puesto: document.getElementById('form-puesto').value.trim(),
+            fecha_ultima: document.getElementById('form-fecha-ultima').value || null,
+            fecha_proxima: document.getElementById('form-fecha-proxima').value || null,
+            seguimiento: document.getElementById('form-seguimiento').value.trim(),
+          };
+
+          if (!payload.colaborador) {
+            alert('El nombre del colaborador es obligatorio');
+            btn.disabled = false;
+            return;
+          }
+
+          let error;
+          if (id) {
+            ({ error } = await supabaseClient
+              .from('examenes_medicos')
+              .update(payload)
+              .eq('id', id));
+          } else {
+            ({ error } = await supabaseClient
+              .from('examenes_medicos')
+              .insert(payload));
+          }
+
+          btn.disabled = false;
+
+          if (error) {
+            alert('Error al guardar: ' + error.message);
+            return;
+          }
+
+          cerrarModalColaborador();
+          cargarExamenes();
+        }
+
+        // Muestra el modal de confirmación y ejecuta la acción solo si el usuario acepta
+        function confirmarAccion(mensaje, alConfirmar, titulo = '¿Eliminar colaborador?') {
+            document.getElementById('confirmar-titulo').textContent = titulo;
+            document.getElementById('confirmar-mensaje').textContent = mensaje;
+            document.getElementById('modal-confirmar').classList.remove('hidden');
+
+            const btnConfirmar = document.getElementById('btn-confirmar-eliminar');
+
+            // Reemplaza el botón para evitar que se acumulen listeners de veces anteriores
+            const btnNuevo = btnConfirmar.cloneNode(true);
+            btnConfirmar.parentNode.replaceChild(btnNuevo, btnConfirmar);
+
+            btnNuevo.addEventListener('click', () => {
+                cerrarModalConfirmar();
+                alConfirmar();
+            });
+        }
+
+        function cerrarModalConfirmar() {
+            document.getElementById('modal-confirmar').classList.add('hidden');
+        }
+
+        async function toggleOcultarColaborador() {
+            const id = document.getElementById('form-id').value;
+            if (!id) return;
+
+            const btnOcultar = document.getElementById('btn-ocultar-colaborador');
+            const estaActivoActualmente = btnOcultar.dataset.activo === 'true';
+            const nuevoValor = !estaActivoActualmente;
+
+            const { error } = await supabaseClient
+                .from('examenes_medicos')
+                .update({ activo: nuevoValor })
+                .eq('id', id);
+
+            if (error) {
+                alert('Error al actualizar: ' + error.message);
+                return;
+            }
+
+            cerrarModalColaborador();
+            cargarExamenes();
+        }
+
+        function eliminarColaborador() {
+            const id = document.getElementById('form-id').value;
+            if (!id) return;
+
+            const nombre = document.getElementById('form-colaborador').value || 'este colaborador';
+
+            confirmarAccion(`¿Seguro que quieres eliminar a "${nombre}"? Esta acción no se puede deshacer.`, async () => {
+                const { error } = await supabaseClient
+                    .from('examenes_medicos')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) {
+                    alert('Error al eliminar: ' + error.message);
+                    return;
+                }
+
+                cerrarModalColaborador();
+                cargarExamenes();
+            });
+        }
+
+        cargarExamenes();
+    </script>
+</body>
+</html>
