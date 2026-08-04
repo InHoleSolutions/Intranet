@@ -9,10 +9,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" href="data:,">
   <style>
-    body { font-family: 'Inter', sans-serif; }
+    body { font-family: 'Calibri', 'Candara', 'Segoe UI', 'Optima', sans-serif; }
     .glass-nav {
         background: rgba(255,255,255,0.97);
         backdrop-filter: blur(16px);
@@ -268,7 +267,8 @@
     <!-- HEADER -->
   <div id="site-header"></div>
   <!-- MAIN -->
-  <main class="flex-1 max-w-[1440px] mx-auto p-6 md:p-10
+  <main class="flex-1 w-full">
+    <div class="max-w-[1440px] 3xl:max-w-[1800px] 4xl:max-w-[2400px] mx-auto px-4 sm:px-6 3xl:px-12 py-6 md:py-10
              pt-[60px] sm:pt-[120px] lg:pt-[130px] 3xl:pt-[150px]">
     <!-- TÍTULO DE PÁGINA -->
     <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -1367,1051 +1367,1052 @@
                             <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
                             <span class="text-sm font-semibold text-slate-600 truncate">Completions Products (diseño de la instalación)</span>
                         </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-2" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
-                            <button id="noapl-fmt-2" onclick="deshacerNoAplica(2)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
-                            <label id="btn-subir-fmt-2" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i>
-                                <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(2, this)">
-                            </label>
-                            <button id="btn-noapl-fmt-2" onclick="noAplicaFormato(2)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span id="estado-fmt-2" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                                <button id="noapl-fmt-2" onclick="deshacerNoAplica(2)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
+                                <label id="btn-subir-fmt-2" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
+                                    <i class="fas fa-arrow-up-from-bracket mr-1"></i>
+                                    <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(2, this)">
+                                </label>
+                                <button id="btn-noapl-fmt-2" onclick="noAplicaFormato(2)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
+                            </div>
                         </div>
+
+                        <!-- Certificado de Servicio de Apriete -->
+                        <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
+                                <span class="text-sm font-semibold text-slate-600 truncate">Certificado de Servicio de Apriete</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span id="estado-fmt-3" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                                <button id="noapl-fmt-3" onclick="deshacerNoAplica(3)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
+                                <label id="btn-subir-fmt-3" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
+                                    <i class="fas fa-arrow-up-from-bracket mr-1"></i>
+                                    <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(3, this)">
+                                </label>
+                                <button id="btn-noapl-fmt-3" onclick="noAplicaFormato(3)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
+                            </div>
+                        </div>
+
+                        <!-- Reporte de operación -->
+                        <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
+                                <span class="text-sm font-semibold text-slate-600 truncate">Reporte de operación (joblog)</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span id="estado-fmt-4" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                                <button id="noapl-fmt-4" onclick="deshacerNoAplica(4)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
+                                <label id="btn-subir-fmt-4" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
+                                    <i class="fas fa-arrow-up-from-bracket mr-1"></i>
+                                    <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(4, this)">
+                                </label>
+                                <button id="btn-noapl-fmt-4" onclick="noAplicaFormato(4)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
+                            </div>
+                        </div>
+
+                        <!-- Certificado de Servicio de campo -->
+                        <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
+                                <span class="text-sm font-semibold text-slate-600 truncate">Certificado de Servicio de Campo</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span id="estado-fmt-5" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                                <button id="noapl-fmt-5" onclick="deshacerNoAplica(5)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
+                                <label id="btn-subir-fmt-5" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
+                                    <i class="fas fa-arrow-up-from-bracket mr-1"></i>
+                                    <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(5, this)">
+                                </label>
+                                <button id="btn-noapl-fmt-5" onclick="noAplicaFormato(5)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
+                            </div>
+                        </div>
+
+                        <!-- Certificado de Servicio de Taller -->
+                        <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
+                                <span class="text-sm font-semibold text-slate-600 truncate">Certificado de Servicio de Taller</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span id="estado-fmt-6" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                                <button id="noapl-fmt-6" onclick="deshacerNoAplica(6)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
+                                <label id="btn-subir-fmt-6" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
+                                    <i class="fas fa-arrow-up-from-bracket mr-1"></i>
+                                    <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(6, this)">
+                                </label>
+                                <button id="btn-noapl-fmt-6" onclick="noAplicaFormato(6)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
+                            </div>
+                        </div>
+
+                        <!-- Certificado de Servicio de PH -->
+                        <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
+                                <span class="text-sm font-semibold text-slate-600 truncate">Certificado de Servicio de PH</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span id="estado-fmt-7" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                                <button id="noapl-fmt-7" onclick="deshacerNoAplica(7)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
+                                <label id="btn-subir-fmt-7" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
+                                    <i class="fas fa-arrow-up-from-bracket mr-1"></i>
+                                    <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(7, this)">
+                                </label>
+                                <button id="btn-noapl-fmt-7" onclick="noAplicaFormato(7)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
+                            </div>
+                        </div>
+
+                        <!-- Reporte Operativo Brief-Debrief -->
+                        <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
+                                <span class="text-sm font-semibold text-slate-600 truncate">Reporte Operativo Brief-Debrief</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span id="estado-fmt-8" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                                <button id="noapl-fmt-8" onclick="deshacerNoAplica(8)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
+                                <label id="btn-subir-fmt-8" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
+                                    <i class="fas fa-arrow-up-from-bracket mr-1"></i>
+                                    <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(8, this)">
+                                </label>
+                                <button id="btn-noapl-fmt-8" onclick="noAplicaFormato(8)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
+                            </div>
+                        </div>
+
+                        <!-- Relevo de Personal -->
+                        <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
+                                <span class="text-sm font-semibold text-slate-600 truncate">Relevo de Personal</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span id="estado-fmt-9" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                                <button id="noapl-fmt-9" onclick="deshacerNoAplica(9)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
+                                <label id="btn-subir-fmt-9" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
+                                    <i class="fas fa-arrow-up-from-bracket mr-1"></i>
+                                    <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(9, this)">
+                                </label>
+                                <button id="btn-noapl-fmt-9" onclick="noAplicaFormato(9)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
+                            </div>
+                        </div>
+
+                        <!-- Evaluación de Calidad -->
+                        <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
+                                <span class="text-sm font-semibold text-slate-600 truncate">Evaluación de Calidad en el Servicio</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span id="estado-fmt-10" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                                <button id="noapl-fmt-10" onclick="deshacerNoAplica(10)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
+                                <label id="btn-subir-fmt-10" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
+                                    <i class="fas fa-arrow-up-from-bracket mr-1"></i>
+                                    <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(10, this)">
+                                </label>
+                                <button id="btn-noapl-fmt-10" onclick="noAplicaFormato(10)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
+                            </div>
+                        </div>
+
+                        <!-- Fichas Técnicas -->
+                        <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
+                                <span class="text-sm font-semibold text-slate-600 truncate">Fichas Técnicas</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span id="estado-fmt-11" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                                <button id="noapl-fmt-11" onclick="deshacerNoAplica(11)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
+                                <label id="btn-subir-fmt-11" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
+                                    <i class="fas fa-arrow-up-from-bracket mr-1"></i>
+                                    <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(11, this)">
+                                </label>
+                                <button id="btn-noapl-fmt-11" onclick="noAplicaFormato(11)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
+                            </div>
+                        </div>
+
                     </div>
 
-                    <!-- Certificado de Servicio de Apriete -->
-                    <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
-                            <span class="text-sm font-semibold text-slate-600 truncate">Certificado de Servicio de Apriete</span>
+                    <!-- Formatos adicionales -->
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Adicionales</p>
+                    <div class="space-y-3">
+
+                        <!-- Propuesta Técnica -->
+                        <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
+                                <span class="text-sm font-semibold text-slate-600 truncate">Propuesta Técnica</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span id="estado-fmt-12" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                                <button id="noapl-fmt-12" onclick="deshacerNoAplica(12)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
+                                <label id="btn-subir-fmt-12" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
+                                    <i class="fas fa-arrow-up-from-bracket mr-1"></i>
+                                    <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(12, this)">
+                                </label>
+                                <button id="btn-noapl-fmt-12" onclick="noAplicaFormato(12)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-3" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
-                            <button id="noapl-fmt-3" onclick="deshacerNoAplica(3)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
-                            <label id="btn-subir-fmt-3" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i>
-                                <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(3, this)">
-                            </label>
-                            <button id="btn-noapl-fmt-3" onclick="noAplicaFormato(3)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
+
+                        <!-- Cedulo de bombeo -->
+                        <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
+                                <span class="text-sm font-semibold text-slate-600 truncate">Cédula de Bombeo</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span id="estado-fmt-13" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                                <button id="noapl-fmt-13" onclick="deshacerNoAplica(13)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
+                                <label id="btn-subir-fmt-13" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
+                                    <i class="fas fa-arrow-up-from-bracket mr-1"></i>
+                                    <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(13, this)">
+                                </label>
+                                <button id="btn-noapl-fmt-13" onclick="noAplicaFormato(13)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
+                            </div>
                         </div>
+
+                        <!-- QA/QC -->
+                        <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
+                                <span class="text-sm font-semibold text-slate-600 truncate">QA/QC (dimensionamiento y pruebas)</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span id="estado-fmt-14" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
+                                <button id="noapl-fmt-14" onclick="deshacerNoAplica(14)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
+                                <label id="btn-subir-fmt-14" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
+                                    <i class="fas fa-arrow-up-from-bracket mr-1"></i>
+                                    <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(14, this)">
+                                </label>
+                                <button id="btn-noapl-fmt-14" onclick="noAplicaFormato(14)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- Formatos: Otros -->
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 mt-6">Otros</p>
+                    <div id="lista-otros-formatos" class="space-y-3 mb-3">
+                        <!-- Aquí se pintan dinámicamente los documentos "Otros" ya subidos -->
                     </div>
 
-                    <!-- Reporte de operación -->
-                    <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
-                            <span class="text-sm font-semibold text-slate-600 truncate">Reporte de operación (joblog)</span>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-4" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
-                            <button id="noapl-fmt-4" onclick="deshacerNoAplica(4)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
-                            <label id="btn-subir-fmt-4" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i>
-                                <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(4, this)">
-                            </label>
-                            <button id="btn-noapl-fmt-4" onclick="noAplicaFormato(4)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
-                        </div>
+                    <div class="border border-dashed border-slate-300 rounded-xl px-4 py-3 flex items-center gap-3">
+                        <input id="input-nombre-otro" type="text" placeholder="Nombre del documento"
+                            class="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-200">
+                        <label class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-2 rounded-lg transition-all shrink-0">
+                            <i class="fas fa-arrow-up-from-bracket mr-1"></i> Agregar
+                            <input id="input-file-otro" type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="agregarOtroDocumento(this)">
+                        </label>
+                    </div>
+                </div><!-- /paso-6 -->
+
+                </div><!-- /contenido pasos -->
+
+                <!-- Footer del panel -->
+                <div class="px-4 sm:px-8 py-4 sm:py-5 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-0">
+                    <button id="btn-anterior" onclick="pasoAnterior()" class="hidden order-3 sm:order-1 w-full sm:w-auto flex items-center justify-center text-slate-500 hover:text-slate-700 text-sm font-semibold px-5 py-3 sm:py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all">
+                        <i class="fas fa-arrow-left mr-2"></i> Anterior
+                    </button>
+                    <div class="hidden sm:block flex-1"></div>
+                    <div class="order-1 sm:order-2 w-full sm:w-auto flex flex-col-reverse sm:flex-row gap-3">
+                        <button id="btn-siguiente" onclick="pasoSiguiente()" class="w-full sm:w-auto bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-6 py-3 sm:py-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
+                            <i class="fas fa-arrow-right"></i> Siguiente 
+                        </button>
+                        <button id="btn-guardar" onclick="confirmarGuardarOperacion()" class="hidden w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-6 py-3 sm:py-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
+                            <i class="fas fa-floppy-disk"></i> Guardar Borrador
+                        </button>
+                        <button id="btn-finalizar" onclick="confirmarFinalizarOperacion()" class="hidden w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-6 py-3 sm:py-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
+                            <i class="fas fa-lock"></i> Finalizar Operación
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- PANEL VISTA GERENCIAL (solo lectura) -->
+        <div id="panel-reporte" class="hidden fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm overflow-y-auto py-0 px-0 sm:py-10 sm:px-4">
+            <div class="rounded-none sm:rounded-2xl shadow-2xl w-full max-w-4xl min-h-screen sm:min-h-0" style="background:#1e2332;">
+
+                <!-- Cabecera -->
+                <div class="flex items-center justify-between px-6 py-5" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                <div>
+                    <h3 id="rep-titulo" class="text-white text-lg font-bold">Reporte de Operación</h3>
+                    <p id="rep-subtitulo" class="text-slate-400 text-xs mt-0.5">Vista de solo lectura</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="btn-editar-reporte" onclick="editarDesdeReporte()" class="text-slate-300 hover:text-white text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-2" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                    <button onclick="cerrarReporte()" class="text-slate-400 hover:text-white h-8 w-8 rounded-lg flex items-center justify-center transition-colors" style="background:rgba(255,255,255,0.08);">
+                        <i class="fas fa-times text-sm"></i>
+                    </button>
+                </div>
+                </div>
+
+                <!-- Pestañas -->
+                <div class="flex border-b" style="border-color:rgba(255,255,255,0.08);">
+                    <button id="tab-rep-datos" onclick="cambiarTabReporte('datos')"
+                        class="px-6 py-3 text-sm font-bold text-white border-b-2 border-red-500 transition-all">
+                        <i class="fas fa-file-lines mr-2"></i>Datos
+                    </button>
+                    <button id="tab-rep-bitacora" onclick="cambiarTabReporte('bitacora')"
+                        class="px-6 py-3 text-sm font-semibold text-slate-400 border-b-2 border-transparent hover:text-white transition-all">
+                        <i class="fas fa-calendar-days mr-2"></i>Bitácora
+                    </button>
+                </div>
+
+                <div id="rep-tab-datos">
+                <!-- KPIs automáticos -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 px-6 py-5" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.06);">
+                    <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">⏱️ Duración del Bombeo</p>
+                    <p id="rep-duracion-bombeo" class="text-white text-base font-bold">—</p>
+                </div>
+                <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.06);">
+                    <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">🚛 Estancia en Pozo</p>
+                    <p id="rep-estancia" class="text-white text-base font-bold">—</p>
+                </div>
+                <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.06);">
+                    <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">📈 Estatus</p>
+                    <p id="rep-estatus-badge" class="text-base font-bold">—</p>
+                </div>
+                </div>
+
+                <div id="rep-observacion-rechazo" class="hidden mx-6 mb-5 px-4 py-3 rounded-xl text-left" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3);">
+                    <p class="text-red-400 text-xs font-bold uppercase tracking-wider mb-1">
+                        <i class="fas fa-circle-exclamation mr-1"></i> Motivo del rechazo
+                    </p>
+                    <p id="rep-observacion-rechazo-texto" class="text-red-200 text-sm">—</p>
+                </div>
+
+                <!-- Cuerpo del reporte -->
+                <div class="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Columna izq: Identificación -->
+                <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
+                    <i class="fas fa-id-card mr-2"></i>Identificación
+                    </p>
+                    <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">ID</span>
+                        <span id="rep-jobid" class="font-mono font-black text-red-400 text-xs bg-red-900/30 px-2 py-0.5 rounded">—</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Cliente</span>
+                        <span id="rep-cliente" class="text-white font-semibold">—</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Pozo / Plataforma</span>
+                        <span id="rep-pozo" class="text-white font-semibold">—</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Rig</span>
+                        <span id="rep-rig" class="text-white font-semibold">—</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Ingeniero</span>
+                        <span id="rep-ingeniero" class="text-white font-semibold">—</span>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- Columna der: Fechas de Estancia -->
+                <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
+                    <i class="fas fa-calendar-days mr-2"></i>Fechas de Estancia
+                    </p>
+                    <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Llegada al pozo</span>
+                        <span id="rep-llegada" class="text-white font-semibold">—</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Salida del pozo</span>
+                        <span id="rep-salida" class="text-white font-semibold">—</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Inicio del bombeo</span>
+                        <span id="rep-inicio-bombeo" class="text-white font-semibold">—</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Fin del bombeo</span>
+                        <span id="rep-fin-bombeo" class="text-white font-semibold">—</span>
+                    </div>
+                    </div>
+                </div>
+                </div>
+
+                <!-- Datos técnicos (fila completa) -->
+                <div class="px-6 pb-5">
+                <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
+                    <i class="fas fa-flask-vial mr-2"></i>Datos Técnicos
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-sm">
+
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Línea de Producto</p>
+                        <p id="rep-linea-producto" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Modelo-Nombre del Equipo</p>
+                        <p id="rep-modelo" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Grado de Acero-Material</p>
+                        <p id="rep-grado-acero" class="text-white font-semibold">—</p>
                     </div>
 
-                    <!-- Certificado de Servicio de campo -->
-                    <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
-                            <span class="text-sm font-semibold text-slate-600 truncate">Certificado de Servicio de Campo</span>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-5" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
-                            <button id="noapl-fmt-5" onclick="deshacerNoAplica(5)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
-                            <label id="btn-subir-fmt-5" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i>
-                                <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(5, this)">
-                            </label>
-                            <button id="btn-noapl-fmt-5" onclick="noAplicaFormato(5)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
-                        </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Temperatura de Trabajo</p>
+                        <p id="rep-temperatura" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Casing Size</p>
+                        <p id="rep-casing-size" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Tamaño, Libraje y Conexión</p>
+                        <p id="rep-tamano-libraje-conexion" class="text-white font-semibold">—</p>
                     </div>
 
-                    <!-- Certificado de Servicio de Taller -->
-                    <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
-                            <span class="text-sm font-semibold text-slate-600 truncate">Certificado de Servicio de Taller</span>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-6" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
-                            <button id="noapl-fmt-6" onclick="deshacerNoAplica(6)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
-                            <label id="btn-subir-fmt-6" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i>
-                                <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(6, this)">
-                            </label>
-                            <button id="btn-noapl-fmt-6" onclick="noAplicaFormato(6)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
-                        </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">OD Máximo</p>
+                        <p id="rep-od-maximo" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Material del Elastómero</p>
+                        <p id="rep-material-elastomero" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Mínima Área de Flujo</p>
+                        <p id="rep-area-flujo-min" class="text-white font-semibold">—</p>
                     </div>
 
-                    <!-- Certificado de Servicio de PH -->
-                    <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
-                            <span class="text-sm font-semibold text-slate-600 truncate">Certificado de Servicio de PH</span>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-7" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
-                            <button id="noapl-fmt-7" onclick="deshacerNoAplica(7)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
-                            <label id="btn-subir-fmt-7" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i>
-                                <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(7, this)">
-                            </label>
-                            <button id="btn-noapl-fmt-7" onclick="noAplicaFormato(7)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
-                        </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">ID Mínimo</p>
+                        <p id="rep-id-minimo" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Seal Bore</p>
+                        <p id="rep-seal-bore" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Máximo Rating Presión</p>
+                        <p id="rep-rating-presion-max" class="text-white font-semibold">—</p>
                     </div>
 
-                    <!-- Reporte Operativo Brief-Debrief -->
-                    <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
-                            <span class="text-sm font-semibold text-slate-600 truncate">Reporte Operativo Brief-Debrief</span>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-8" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
-                            <button id="noapl-fmt-8" onclick="deshacerNoAplica(8)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
-                            <label id="btn-subir-fmt-8" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i>
-                                <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(8, this)">
-                            </label>
-                            <button id="btn-noapl-fmt-8" onclick="noAplicaFormato(8)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
-                        </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Presión de Corte Pin (1st)</p>
+                        <p id="rep-presion-corte-pin1" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Presión de Estallido</p>
+                        <p id="rep-presion-estallido" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Área de Pistón</p>
+                        <p id="rep-area-piston" class="text-white font-semibold">—</p>
                     </div>
 
-                    <!-- Relevo de Personal -->
-                    <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
-                            <span class="text-sm font-semibold text-slate-600 truncate">Relevo de Personal</span>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-9" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
-                            <button id="noapl-fmt-9" onclick="deshacerNoAplica(9)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
-                            <label id="btn-subir-fmt-9" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i>
-                                <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(9, this)">
-                            </label>
-                            <button id="btn-noapl-fmt-9" onclick="noAplicaFormato(9)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
-                        </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Presión de Corte Pines (2st)</p>
+                        <p id="rep-presion-corte-pin2" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Landing Profile</p>
+                        <p id="rep-landing-profile" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Presión de Activación</p>
+                        <p id="rep-presion-activacion" class="text-white font-semibold">—</p>
+                    </div>
+
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Presión de Apertura TRSV</p>
+                        <p id="rep-presion-apertura-trsv" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">OD Esfera (Ball)</p>
+                        <p id="rep-od-esfera" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Material del Flapper/Plunger</p>
+                        <p id="rep-material-flapper" class="text-white font-semibold">—</p>
+                    </div>
+
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Presión de Cierre TRSV</p>
+                        <p id="rep-presion-cierre-trsv" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Presión Contra-Flujo Flapper/Plunger</p>
+                        <p id="rep-presion-contraflujo" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Cantidad de Plungers o Flappers</p>
+                        <p id="rep-cantidad-plungers" class="text-white font-semibold">—</p>
+                    </div>
+
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Cortadores PDC/Tungsteno</p>
+                        <p id="rep-cortadores-pdc" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Nose/Crown Material</p>
+                        <p id="rep-nose-crown-material" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Cantidad de Aletas</p>
+                        <p id="rep-cantidad-aletas" class="text-white font-semibold">—</p>
+                    </div>
+
+                    </div>
+                </div>
+                </div>
+
+                <!-- Información General -->
+                <div class="px-6 pb-5">
+                <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
+                    <i class="fas fa-mountain mr-2"></i>Información General
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-sm">
+
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Nombre del Pozo</p>
+                        <p id="rep-dp-nombre-pozo" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Nombre del Campo</p>
+                        <p id="rep-dp-nombre-campo" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Representante del Cliente</p>
+                        <p id="rep-dp-rep-cliente" class="text-white font-semibold">—</p>
+                    </div>
+
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Representante IHS</p>
+                        <p id="rep-dp-rep-ihs" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Cía. Operadora</p>
+                        <p id="rep-dp-cia-operadora" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Número de Equipo (Rig)</p>
+                        <p id="rep-dp-equipo" class="text-white font-semibold">—</p>
+                    </div>
+
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Ubicación Geográfica</p>
+                        <p id="rep-dp-ubicacion-geografica" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Fluido de Producción</p>
+                        <p id="rep-dp-fluido-produccion" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Estado</p>
+                        <p id="rep-dp-estado" class="text-white font-semibold">—</p>
+                    </div>
+
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Municipio</p>
+                        <p id="rep-dp-municipio" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Localidad</p>
+                        <p id="rep-dp-localidad" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Distrito</p>
+                        <p id="rep-dp-distrito" class="text-white font-semibold">—</p>
+                    </div>
+
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Tipo de Campo</p>
+                        <p id="rep-dp-tipo-campo" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Tipo de Intervención</p>
+                        <p id="rep-dp-tipo-intervencion" class="text-white font-semibold">—</p>
+                    </div>
+
+                    </div>
+                </div>
+                </div>
+
+                <!-- Datos Técnicos del Pozo -->
+                <div class="px-6 pb-5">
+                <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
+                    <i class="fas fa-mountain mr-2"></i>Datos Técnicos del Pozo
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-sm">
+
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">TD</p>
+                        <p id="rep-dp-td" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">TVD</p>
+                        <p id="rep-dp-tvd" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Tipo de Pozo</p>
+                        <p id="rep-dp-tipo-pozo" class="text-white font-semibold">—</p>
+                    </div>
+
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Ángulo Máximo (°)</p>
+                        <p id="rep-dp-angulo-maximo" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Última BL (TOL)</p>
+                        <p id="rep-dp-ultima-bl" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Prof. Zona de Interés</p>
+                        <p id="rep-dp-profundidad-zona-interes" class="text-white font-semibold">—</p>
+                    </div>
+
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Temp. de Fondo</p>
+                        <p id="rep-dp-temp-fondo" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Temp. en Superficie</p>
+                        <p id="rep-dp-temp-superficie" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Tipo de Fluido de Control</p>
+                        <p id="rep-dp-tipo-fluido-control" class="text-white font-semibold">—</p>
+                    </div>
+
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Densidad Fluido de Control</p>
+                        <p id="rep-dp-densidad-fluido-control" class="text-white font-semibold">—</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                        <p class="text-[11px] text-slate-500 mb-1">Pérdida de Circulación</p>
+                        <p id="rep-dp-perdida-circulacion" class="text-white font-semibold">—</p>
+                    </div>
+
+                    </div>
+                </div>
+                </div>
+
+                <!-- Profundidad de Instalación de Herramientas -->
+                <div class="px-6 pb-5">
+                <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
+                    <i class="fas fa-mountain mr-2"></i>Profundidad de Instalación de Herramientas
+                    </p>
+                    <div id="rep-dp-herramientas" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-sm">
+                    <!-- Se llena dinámicamente por JS -->
+                    </div>
+                </div>
+                </div>
+
+                <!-- QHSE -->
+                <div class="px-6 pb-5" id="rep-bloque-qhse">
+                <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
+                    <i class="fas fa-shield-halved mr-2"></i>Gestión QHSE
+                    </p>
+                    <div class="space-y-2 text-sm mb-3">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Verificación de Conformidad</span>
+                        <span id="rep-conformidad" class="text-white font-semibold">—</span>
+                    </div>
+                    </div>
+                    <!-- Detalle Observación -->
+                    <div id="rep-bloque-observacion" class="hidden mt-3 pt-3 border-t border-white/10 space-y-2 text-sm">
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Detalle de Observación</p>
+                    <div class="flex justify-between"><span class="text-slate-500">Tipo</span><span id="rep-tipo-observacion" class="text-white font-semibold">—</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Responsable</span><span id="rep-obs-responsable" class="text-white font-semibold">—</span></div>
+                    <div><span class="text-slate-500 block mb-1">Descripción</span><p id="rep-obs-descripcion" class="text-slate-300 text-xs leading-relaxed">—</p></div>
+                    <div><span class="text-slate-500 block mb-1">Acción Inmediata</span><p id="rep-obs-accion" class="text-slate-300 text-xs leading-relaxed">—</p></div>
+                    <div><span class="text-slate-500 block mb-1">Evidencia</span><div id="rep-obs-evidencia"></div></div>
+                    </div>
+                    <!-- Reporte NC -->
+                    <div id="rep-bloque-nc" class="hidden mt-3 pt-3 border-t border-white/10 space-y-2 text-sm">
+                    <p class="text-xs font-bold uppercase tracking-widest text-red-400 mb-2">Reporte Preliminar NC</p>
+                    <div class="flex justify-between"><span class="text-slate-500">Folio NC</span><span id="rep-folio-nc" class="font-mono font-black text-red-400 text-xs bg-red-900/30 px-2 py-0.5 rounded">—</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Tipo de Hallazgo</span><span id="rep-tipo-hallazgo" class="text-white font-semibold">—</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Responsable</span><span id="rep-nc-responsable" class="text-white font-semibold">—</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">¿Corregido en campo?</span><span id="rep-nc-corregido" class="text-white font-semibold">—</span></div>
+                    <div><span class="text-slate-500 block mb-1">Descripción</span><p id="rep-nc-descripcion" class="text-slate-300 text-xs leading-relaxed">—</p></div>
+                    <div><span class="text-slate-500 block mb-1">Acción Inmediata</span><p id="rep-nc-accion" class="text-slate-300 text-xs leading-relaxed">—</p></div>
+                    <div><span class="text-slate-500 block mb-1">Comentarios</span><p id="rep-nc-comentarios" class="text-slate-300 text-xs leading-relaxed">—</p></div>
+                    <div><span class="text-slate-500 block mb-1">Evidencia</span><div id="rep-nc-evidencia"></div></div>
+                    </div>
+                    <!-- Safety Cards -->
+                    <div id="rep-bloque-safety" class="hidden mt-3 pt-3 border-t border-white/10 space-y-2 text-sm">
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">HSE · Safety Alert Cards</p>
+                    <div class="flex justify-between"><span class="text-slate-500">Total de tarjetas</span><span id="rep-safety-count" class="text-white font-semibold">—</span></div>
+                    <div id="rep-safety-ids" class="mt-2 flex flex-wrap gap-2"></div>
                     </div>
 
                     <!-- Evaluación de Calidad -->
-                    <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
-                            <span class="text-sm font-semibold text-slate-600 truncate">Evaluación de Calidad en el Servicio</span>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-10" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
-                            <button id="noapl-fmt-10" onclick="deshacerNoAplica(10)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
-                            <label id="btn-subir-fmt-10" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i>
-                                <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(10, this)">
-                            </label>
-                            <button id="btn-noapl-fmt-10" onclick="noAplicaFormato(10)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
-                        </div>
-                    </div>
-
-                    <!-- Fichas Técnicas -->
-                    <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
-                            <span class="text-sm font-semibold text-slate-600 truncate">Fichas Técnicas</span>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-11" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
-                            <button id="noapl-fmt-11" onclick="deshacerNoAplica(11)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
-                            <label id="btn-subir-fmt-11" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i>
-                                <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(11, this)">
-                            </label>
-                            <button id="btn-noapl-fmt-11" onclick="noAplicaFormato(11)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Formatos adicionales -->
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Adicionales</p>
-                <div class="space-y-3">
-
-                    <!-- Propuesta Técnica -->
-                    <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
-                            <span class="text-sm font-semibold text-slate-600 truncate">Propuesta Técnica</span>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-12" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
-                            <button id="noapl-fmt-12" onclick="deshacerNoAplica(12)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
-                            <label id="btn-subir-fmt-12" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i>
-                                <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(12, this)">
-                            </label>
-                            <button id="btn-noapl-fmt-12" onclick="noAplicaFormato(12)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
-                        </div>
-                    </div>
-
-                    <!-- Cedulo de bombeo -->
-                    <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
-                            <span class="text-sm font-semibold text-slate-600 truncate">Cédula de Bombeo</span>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-13" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
-                            <button id="noapl-fmt-13" onclick="deshacerNoAplica(13)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
-                            <label id="btn-subir-fmt-13" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i>
-                                <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(13, this)">
-                            </label>
-                            <button id="btn-noapl-fmt-13" onclick="noAplicaFormato(13)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
-                        </div>
-                    </div>
-
-                    <!-- QA/QC -->
-                    <div class="formato-item border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <i class="fas fa-file-lines text-slate-400 text-lg shrink-0"></i>
-                            <span class="text-sm font-semibold text-slate-600 truncate">QA/QC (dimensionamiento y pruebas)</span>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span id="estado-fmt-14" class="hidden items-center gap-1.5 text-green-600 text-xs font-semibold"><i class="fas fa-circle-check text-green-500"></i> Cargado</span>
-                            <button id="noapl-fmt-14" onclick="deshacerNoAplica(14)" class="hidden text-xs text-slate-400 italic hover:text-red-500 hover:line-through transition-all" title="Clic para deshacer">No aplica</button>
-                            <label id="btn-subir-fmt-14" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fas fa-arrow-up-from-bracket mr-1"></i>
-                                <input type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="subirFormato(14, this)">
-                            </label>
-                            <button id="btn-noapl-fmt-14" onclick="noAplicaFormato(14)" class="text-xs text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-all">No aplica</button>
-                        </div>
-                    </div>
-
-                </div>
-                <!-- Formatos: Otros -->
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 mt-6">Otros</p>
-                <div id="lista-otros-formatos" class="space-y-3 mb-3">
-                    <!-- Aquí se pintan dinámicamente los documentos "Otros" ya subidos -->
-                </div>
-
-                <div class="border border-dashed border-slate-300 rounded-xl px-4 py-3 flex items-center gap-3">
-                    <input id="input-nombre-otro" type="text" placeholder="Nombre del documento"
-                        class="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-200">
-                    <label class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold px-3 py-2 rounded-lg transition-all shrink-0">
-                        <i class="fas fa-arrow-up-from-bracket mr-1"></i> Agregar
-                        <input id="input-file-otro" type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="agregarOtroDocumento(this)">
-                    </label>
-                </div>
-            </div><!-- /paso-6 -->
-
-            </div><!-- /contenido pasos -->
-
-            <!-- Footer del panel -->
-            <div class="px-4 sm:px-8 py-4 sm:py-5 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-0">
-                <button id="btn-anterior" onclick="pasoAnterior()" class="hidden order-3 sm:order-1 w-full sm:w-auto flex items-center justify-center text-slate-500 hover:text-slate-700 text-sm font-semibold px-5 py-3 sm:py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all">
-                    <i class="fas fa-arrow-left mr-2"></i> Anterior
-                </button>
-                <div class="hidden sm:block flex-1"></div>
-                <div class="order-1 sm:order-2 w-full sm:w-auto flex flex-col-reverse sm:flex-row gap-3">
-                    <button id="btn-siguiente" onclick="pasoSiguiente()" class="w-full sm:w-auto bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-6 py-3 sm:py-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
-                        <i class="fas fa-arrow-right"></i> Siguiente 
-                    </button>
-                    <button id="btn-guardar" onclick="confirmarGuardarOperacion()" class="hidden w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-6 py-3 sm:py-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
-                        <i class="fas fa-floppy-disk"></i> Guardar Borrador
-                    </button>
-                    <button id="btn-finalizar" onclick="confirmarFinalizarOperacion()" class="hidden w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-6 py-3 sm:py-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
-                        <i class="fas fa-lock"></i> Finalizar Operación
-                    </button>
-                </div>
-            </div>
-
-        </div>
-    </div>
-    <!-- PANEL VISTA GERENCIAL (solo lectura) -->
-    <div id="panel-reporte" class="hidden fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm overflow-y-auto py-0 px-0 sm:py-10 sm:px-4">
-        <div class="rounded-none sm:rounded-2xl shadow-2xl w-full max-w-4xl min-h-screen sm:min-h-0" style="background:#1e2332;">
-
-            <!-- Cabecera -->
-            <div class="flex items-center justify-between px-6 py-5" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-            <div>
-                <h3 id="rep-titulo" class="text-white text-lg font-bold">Reporte de Operación</h3>
-                <p id="rep-subtitulo" class="text-slate-400 text-xs mt-0.5">Vista de solo lectura</p>
-            </div>
-            <div class="flex items-center gap-2">
-                <button id="btn-editar-reporte" onclick="editarDesdeReporte()" class="text-slate-300 hover:text-white text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-2" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);">
-                    <i class="fas fa-pen"></i>
-                </button>
-                <button onclick="cerrarReporte()" class="text-slate-400 hover:text-white h-8 w-8 rounded-lg flex items-center justify-center transition-colors" style="background:rgba(255,255,255,0.08);">
-                    <i class="fas fa-times text-sm"></i>
-                </button>
-            </div>
-            </div>
-
-            <!-- Pestañas -->
-            <div class="flex border-b" style="border-color:rgba(255,255,255,0.08);">
-                <button id="tab-rep-datos" onclick="cambiarTabReporte('datos')"
-                    class="px-6 py-3 text-sm font-bold text-white border-b-2 border-red-500 transition-all">
-                    <i class="fas fa-file-lines mr-2"></i>Datos
-                </button>
-                <button id="tab-rep-bitacora" onclick="cambiarTabReporte('bitacora')"
-                    class="px-6 py-3 text-sm font-semibold text-slate-400 border-b-2 border-transparent hover:text-white transition-all">
-                    <i class="fas fa-calendar-days mr-2"></i>Bitácora
-                </button>
-            </div>
-
-            <div id="rep-tab-datos">
-            <!-- KPIs automáticos -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 px-6 py-5" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-            <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.06);">
-                <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">⏱️ Duración del Bombeo</p>
-                <p id="rep-duracion-bombeo" class="text-white text-base font-bold">—</p>
-            </div>
-            <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.06);">
-                <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">🚛 Estancia en Pozo</p>
-                <p id="rep-estancia" class="text-white text-base font-bold">—</p>
-            </div>
-            <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.06);">
-                <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">📈 Estatus</p>
-                <p id="rep-estatus-badge" class="text-base font-bold">—</p>
-            </div>
-            </div>
-
-            <div id="rep-observacion-rechazo" class="hidden mx-6 mb-5 px-4 py-3 rounded-xl text-left" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3);">
-                <p class="text-red-400 text-xs font-bold uppercase tracking-wider mb-1">
-                    <i class="fas fa-circle-exclamation mr-1"></i> Motivo del rechazo
-                </p>
-                <p id="rep-observacion-rechazo-texto" class="text-red-200 text-sm">—</p>
-            </div>
-
-            <!-- Cuerpo del reporte -->
-            <div class="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- Columna izq: Identificación -->
-            <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
-                <i class="fas fa-id-card mr-2"></i>Identificación
-                </p>
-                <div class="space-y-2 text-sm">
-                <div class="flex justify-between">
-                    <span class="text-slate-500">ID</span>
-                    <span id="rep-jobid" class="font-mono font-black text-red-400 text-xs bg-red-900/30 px-2 py-0.5 rounded">—</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Cliente</span>
-                    <span id="rep-cliente" class="text-white font-semibold">—</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Pozo / Plataforma</span>
-                    <span id="rep-pozo" class="text-white font-semibold">—</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Rig</span>
-                    <span id="rep-rig" class="text-white font-semibold">—</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Ingeniero</span>
-                    <span id="rep-ingeniero" class="text-white font-semibold">—</span>
-                </div>
-                </div>
-            </div>
-
-            <!-- Columna der: Fechas de Estancia -->
-            <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
-                <i class="fas fa-calendar-days mr-2"></i>Fechas de Estancia
-                </p>
-                <div class="space-y-2 text-sm">
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Llegada al pozo</span>
-                    <span id="rep-llegada" class="text-white font-semibold">—</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Salida del pozo</span>
-                    <span id="rep-salida" class="text-white font-semibold">—</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Inicio del bombeo</span>
-                    <span id="rep-inicio-bombeo" class="text-white font-semibold">—</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Fin del bombeo</span>
-                    <span id="rep-fin-bombeo" class="text-white font-semibold">—</span>
-                </div>
-                </div>
-            </div>
-            </div>
-
-            <!-- Datos técnicos (fila completa) -->
-            <div class="px-6 pb-5">
-            <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
-                <i class="fas fa-flask-vial mr-2"></i>Datos Técnicos
-                </p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-sm">
-
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Línea de Producto</p>
-                    <p id="rep-linea-producto" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Modelo-Nombre del Equipo</p>
-                    <p id="rep-modelo" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Grado de Acero-Material</p>
-                    <p id="rep-grado-acero" class="text-white font-semibold">—</p>
-                </div>
-
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Temperatura de Trabajo</p>
-                    <p id="rep-temperatura" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Casing Size</p>
-                    <p id="rep-casing-size" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Tamaño, Libraje y Conexión</p>
-                    <p id="rep-tamano-libraje-conexion" class="text-white font-semibold">—</p>
-                </div>
-
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">OD Máximo</p>
-                    <p id="rep-od-maximo" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Material del Elastómero</p>
-                    <p id="rep-material-elastomero" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Mínima Área de Flujo</p>
-                    <p id="rep-area-flujo-min" class="text-white font-semibold">—</p>
-                </div>
-
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">ID Mínimo</p>
-                    <p id="rep-id-minimo" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Seal Bore</p>
-                    <p id="rep-seal-bore" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Máximo Rating Presión</p>
-                    <p id="rep-rating-presion-max" class="text-white font-semibold">—</p>
-                </div>
-
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Presión de Corte Pin (1st)</p>
-                    <p id="rep-presion-corte-pin1" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Presión de Estallido</p>
-                    <p id="rep-presion-estallido" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Área de Pistón</p>
-                    <p id="rep-area-piston" class="text-white font-semibold">—</p>
-                </div>
-
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Presión de Corte Pines (2st)</p>
-                    <p id="rep-presion-corte-pin2" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Landing Profile</p>
-                    <p id="rep-landing-profile" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Presión de Activación</p>
-                    <p id="rep-presion-activacion" class="text-white font-semibold">—</p>
-                </div>
-
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Presión de Apertura TRSV</p>
-                    <p id="rep-presion-apertura-trsv" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">OD Esfera (Ball)</p>
-                    <p id="rep-od-esfera" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Material del Flapper/Plunger</p>
-                    <p id="rep-material-flapper" class="text-white font-semibold">—</p>
-                </div>
-
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Presión de Cierre TRSV</p>
-                    <p id="rep-presion-cierre-trsv" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Presión Contra-Flujo Flapper/Plunger</p>
-                    <p id="rep-presion-contraflujo" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Cantidad de Plungers o Flappers</p>
-                    <p id="rep-cantidad-plungers" class="text-white font-semibold">—</p>
-                </div>
-
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Cortadores PDC/Tungsteno</p>
-                    <p id="rep-cortadores-pdc" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Nose/Crown Material</p>
-                    <p id="rep-nose-crown-material" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Cantidad de Aletas</p>
-                    <p id="rep-cantidad-aletas" class="text-white font-semibold">—</p>
-                </div>
-
-                </div>
-            </div>
-            </div>
-
-            <!-- Información General -->
-            <div class="px-6 pb-5">
-            <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
-                <i class="fas fa-mountain mr-2"></i>Información General
-                </p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-sm">
-
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Nombre del Pozo</p>
-                    <p id="rep-dp-nombre-pozo" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Nombre del Campo</p>
-                    <p id="rep-dp-nombre-campo" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Representante del Cliente</p>
-                    <p id="rep-dp-rep-cliente" class="text-white font-semibold">—</p>
-                </div>
-
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Representante IHS</p>
-                    <p id="rep-dp-rep-ihs" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Cía. Operadora</p>
-                    <p id="rep-dp-cia-operadora" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Número de Equipo (Rig)</p>
-                    <p id="rep-dp-equipo" class="text-white font-semibold">—</p>
-                </div>
-
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Ubicación Geográfica</p>
-                    <p id="rep-dp-ubicacion-geografica" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Fluido de Producción</p>
-                    <p id="rep-dp-fluido-produccion" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Estado</p>
-                    <p id="rep-dp-estado" class="text-white font-semibold">—</p>
-                </div>
-
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Municipio</p>
-                    <p id="rep-dp-municipio" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Localidad</p>
-                    <p id="rep-dp-localidad" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Distrito</p>
-                    <p id="rep-dp-distrito" class="text-white font-semibold">—</p>
-                </div>
-
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Tipo de Campo</p>
-                    <p id="rep-dp-tipo-campo" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Tipo de Intervención</p>
-                    <p id="rep-dp-tipo-intervencion" class="text-white font-semibold">—</p>
-                </div>
-
-                </div>
-            </div>
-            </div>
-
-            <!-- Datos Técnicos del Pozo -->
-            <div class="px-6 pb-5">
-            <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
-                <i class="fas fa-mountain mr-2"></i>Datos Técnicos del Pozo
-                </p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-sm">
-
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">TD</p>
-                    <p id="rep-dp-td" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">TVD</p>
-                    <p id="rep-dp-tvd" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Tipo de Pozo</p>
-                    <p id="rep-dp-tipo-pozo" class="text-white font-semibold">—</p>
-                </div>
-
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Ángulo Máximo (°)</p>
-                    <p id="rep-dp-angulo-maximo" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Última BL (TOL)</p>
-                    <p id="rep-dp-ultima-bl" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Prof. Zona de Interés</p>
-                    <p id="rep-dp-profundidad-zona-interes" class="text-white font-semibold">—</p>
-                </div>
-
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Temp. de Fondo</p>
-                    <p id="rep-dp-temp-fondo" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Temp. en Superficie</p>
-                    <p id="rep-dp-temp-superficie" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Tipo de Fluido de Control</p>
-                    <p id="rep-dp-tipo-fluido-control" class="text-white font-semibold">—</p>
-                </div>
-
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Densidad Fluido de Control</p>
-                    <p id="rep-dp-densidad-fluido-control" class="text-white font-semibold">—</p>
-                </div>
-                <div class="bg-white/5 rounded-lg px-3 py-2">
-                    <p class="text-[11px] text-slate-500 mb-1">Pérdida de Circulación</p>
-                    <p id="rep-dp-perdida-circulacion" class="text-white font-semibold">—</p>
-                </div>
-
-                </div>
-            </div>
-            </div>
-
-            <!-- Profundidad de Instalación de Herramientas -->
-            <div class="px-6 pb-5">
-            <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
-                <i class="fas fa-mountain mr-2"></i>Profundidad de Instalación de Herramientas
-                </p>
-                <div id="rep-dp-herramientas" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-sm">
-                <!-- Se llena dinámicamente por JS -->
-                </div>
-            </div>
-            </div>
-
-            <!-- QHSE -->
-            <div class="px-6 pb-5" id="rep-bloque-qhse">
-            <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
-                <i class="fas fa-shield-halved mr-2"></i>Gestión QHSE
-                </p>
-                <div class="space-y-2 text-sm mb-3">
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Verificación de Conformidad</span>
-                    <span id="rep-conformidad" class="text-white font-semibold">—</span>
-                </div>
-                </div>
-                <!-- Detalle Observación -->
-                <div id="rep-bloque-observacion" class="hidden mt-3 pt-3 border-t border-white/10 space-y-2 text-sm">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Detalle de Observación</p>
-                <div class="flex justify-between"><span class="text-slate-500">Tipo</span><span id="rep-tipo-observacion" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Responsable</span><span id="rep-obs-responsable" class="text-white font-semibold">—</span></div>
-                <div><span class="text-slate-500 block mb-1">Descripción</span><p id="rep-obs-descripcion" class="text-slate-300 text-xs leading-relaxed">—</p></div>
-                <div><span class="text-slate-500 block mb-1">Acción Inmediata</span><p id="rep-obs-accion" class="text-slate-300 text-xs leading-relaxed">—</p></div>
-                <div><span class="text-slate-500 block mb-1">Evidencia</span><div id="rep-obs-evidencia"></div></div>
-                </div>
-                <!-- Reporte NC -->
-                <div id="rep-bloque-nc" class="hidden mt-3 pt-3 border-t border-white/10 space-y-2 text-sm">
-                <p class="text-xs font-bold uppercase tracking-widest text-red-400 mb-2">Reporte Preliminar NC</p>
-                <div class="flex justify-between"><span class="text-slate-500">Folio NC</span><span id="rep-folio-nc" class="font-mono font-black text-red-400 text-xs bg-red-900/30 px-2 py-0.5 rounded">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Tipo de Hallazgo</span><span id="rep-tipo-hallazgo" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Responsable</span><span id="rep-nc-responsable" class="text-white font-semibold">—</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">¿Corregido en campo?</span><span id="rep-nc-corregido" class="text-white font-semibold">—</span></div>
-                <div><span class="text-slate-500 block mb-1">Descripción</span><p id="rep-nc-descripcion" class="text-slate-300 text-xs leading-relaxed">—</p></div>
-                <div><span class="text-slate-500 block mb-1">Acción Inmediata</span><p id="rep-nc-accion" class="text-slate-300 text-xs leading-relaxed">—</p></div>
-                <div><span class="text-slate-500 block mb-1">Comentarios</span><p id="rep-nc-comentarios" class="text-slate-300 text-xs leading-relaxed">—</p></div>
-                <div><span class="text-slate-500 block mb-1">Evidencia</span><div id="rep-nc-evidencia"></div></div>
-                </div>
-                <!-- Safety Cards -->
-                <div id="rep-bloque-safety" class="hidden mt-3 pt-3 border-t border-white/10 space-y-2 text-sm">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">HSE · Safety Alert Cards</p>
-                <div class="flex justify-between"><span class="text-slate-500">Total de tarjetas</span><span id="rep-safety-count" class="text-white font-semibold">—</span></div>
-                <div id="rep-safety-ids" class="mt-2 flex flex-wrap gap-2"></div>
-                </div>
-
-                <!-- Evaluación de Calidad -->
-                <div id="rep-bloque-evaluacion" class="hidden mt-3 pt-3 border-t border-white/10">
-                    <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Evaluación de Calidad en el Servicio</p>
-                    <div class="hidden sm:block overflow-x-auto">
-                        <table class="w-full text-xs">
-                            <thead>
-                                <tr style="background:rgba(255,255,255,0.05);">
-                                    <th class="px-3 py-2 text-left text-slate-400 font-semibold">Criterio</th>
-                                    <th class="px-2 py-2 text-center text-red-400 font-semibold">1<br><span class="font-normal opacity-70">Deficiente</span></th>
-                                    <th class="px-2 py-2 text-center text-orange-400 font-semibold">2<br><span class="font-normal opacity-70">Regular</span></th>
-                                    <th class="px-2 py-2 text-center text-yellow-400 font-semibold">3<br><span class="font-normal opacity-70">Satisfactorio</span></th>
-                                    <th class="px-2 py-2 text-center text-lime-400 font-semibold">4<br><span class="font-normal opacity-70">Bueno</span></th>
-                                    <th class="px-2 py-2 text-center text-green-400 font-semibold">5<br><span class="font-normal opacity-70">Excelente</span></th>
-                                </tr>
-                            </thead>
-                            <tbody id="rep-eval-body"></tbody>
-                        </table>
-                    </div>
-
-                    <!-- Vista de tarjetas (solo móvil) -->
-                    <div id="rep-eval-cards" class="sm:hidden space-y-2"></div>
-
-                    <!-- Promedio - Percepción del Cliente -->
-                    <div class="mt-3 flex items-center justify-between rounded-xl px-4 py-3" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
-                        <span class="text-xs font-bold uppercase tracking-widest text-slate-500">Resultado de Evaluación</span>
-                        <span id="rep-eval-promedio-valor" class="text-lg font-bold text-slate-400">—</span>
-                    </div>
-                </div>
-
-                <!-- Comentarios Finales del Cliente -->
-                <div id="rep-bloque-comentarios-cliente" class="hidden mt-3 pt-3 border-t border-white/10">
-                    <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Comentarios Finales del Cliente</p>
-                    <p id="rep-comentarios-cliente" class="text-slate-300 text-xs leading-relaxed">—</p>
-                </div>
-            </div>
-            </div>
-
-            <!-- Tabla de herramientas en el reporte -->
-            <div class="px-6 pb-6">
-            <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
-                <i class="fas fa-boxes-stacked mr-2"></i>Inventario de Herramientas
-            </p>
-            <div class="hidden sm:block overflow-x-auto rounded-xl" style="border:1px solid rgba(255,255,255,0.08);">
-                <table class="w-full text-xs">
-                    <thead>
-                        <tr style="background:rgba(255,255,255,0.05);">
-                        <th class="px-4 py-3 text-left text-slate-400 font-semibold uppercase tracking-wider">#</th>
-                        <th class="px-4 py-3 text-left text-slate-400 font-semibold uppercase tracking-wider">NP</th>
-                        <th class="px-4 py-3 text-left text-slate-400 font-semibold uppercase tracking-wider">Descripción</th>
-                        <th class="px-4 py-3 text-left text-slate-400 font-semibold uppercase tracking-wider">Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody id="rep-tabla-herramientas">
-                        <tr>
-                        <td colspan="4"class="px-4 py-8 text-center text-slate-500">Sin herramientas registradas.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Vista de tarjetas (solo móvil) -->
-            <div id="rep-cards-herramientas" class="sm:hidden space-y-2"></div>
-            </div>
-
-            <!-- Archivos Adjuntos -->
-            <div class="px-6 pb-5" id="rep-bloque-archivos">
-            <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
-                <i class="fas fa-folder-open mr-2"></i>Archivos Adjuntos
-                </p>
-                <div id="rep-lista-archivos" class="space-y-2">
-                <p class="text-xs text-slate-500">Sin archivos cargados.</p>
-                </div>
-            </div>
-            </div>
-
-            </div><!-- fin rep-tab-datos -->
-
-            <!-- Vista Bitácora -->
-            <div id="rep-tab-bitacora" class="hidden">
-                <div class="px-6 py-5">
-                    <div class="rounded-xl overflow-hidden" style="border:1px solid rgba(255,255,255,0.08);">
+                    <div id="rep-bloque-evaluacion" class="hidden mt-3 pt-3 border-t border-white/10">
+                        <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Evaluación de Calidad en el Servicio</p>
                         <div class="hidden sm:block overflow-x-auto">
-                            <table class="w-full text-sm">
+                            <table class="w-full text-xs">
                                 <thead>
-                                    <tr style="background:rgba(255,255,255,0.06);">
-                                        <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-400">Fecha</th>
-                                        <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-400">Hora Inicio</th>
-                                        <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-400">Hora Término</th>
-                                        <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-400">Observación</th>
-                                        <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-slate-400">Estatus</th>
+                                    <tr style="background:rgba(255,255,255,0.05);">
+                                        <th class="px-3 py-2 text-left text-slate-400 font-semibold">Criterio</th>
+                                        <th class="px-2 py-2 text-center text-red-400 font-semibold">1<br><span class="font-normal opacity-70">Deficiente</span></th>
+                                        <th class="px-2 py-2 text-center text-orange-400 font-semibold">2<br><span class="font-normal opacity-70">Regular</span></th>
+                                        <th class="px-2 py-2 text-center text-yellow-400 font-semibold">3<br><span class="font-normal opacity-70">Satisfactorio</span></th>
+                                        <th class="px-2 py-2 text-center text-lime-400 font-semibold">4<br><span class="font-normal opacity-70">Bueno</span></th>
+                                        <th class="px-2 py-2 text-center text-green-400 font-semibold">5<br><span class="font-normal opacity-70">Excelente</span></th>
                                     </tr>
                                 </thead>
-                                <tbody id="rep-tabla-bitacora">
-                                    <tr>
-                                        <td colspan="5" class="px-4 py-10 text-center text-slate-500 text-sm">
-                                            <i class="fas fa-calendar-xmark text-2xl mb-2 block text-slate-600"></i>
-                                            Sin registros de bitácora.
-                                        </td>
-                                    </tr>
-                                </tbody>
+                                <tbody id="rep-eval-body"></tbody>
                             </table>
                         </div>
 
                         <!-- Vista de tarjetas (solo móvil) -->
-                        <div id="rep-cards-bitacora" class="sm:hidden p-3 space-y-2">
-                            <p class="text-center text-slate-500 text-sm py-6">
-                                <i class="fas fa-calendar-xmark text-2xl mb-2 block text-slate-600"></i>
-                                Sin registros de bitácora.
-                            </p>
+                        <div id="rep-eval-cards" class="sm:hidden space-y-2"></div>
+
+                        <!-- Promedio - Percepción del Cliente -->
+                        <div class="mt-3 flex items-center justify-between rounded-xl px-4 py-3" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
+                            <span class="text-xs font-bold uppercase tracking-widest text-slate-500">Resultado de Evaluación</span>
+                            <span id="rep-eval-promedio-valor" class="text-lg font-bold text-slate-400">—</span>
                         </div>
                     </div>
-                </div>
-            </div><!-- fin rep-tab-bitacora -->
 
-            <!-- Footer con firma -->
-            <div class="px-6 py-4 rounded-b-2xl flex items-center justify-center" style="background:rgba(255,255,255,0.04); border-top:1px solid rgba(255,255,255,0.08);">
-            <p class="text-xs text-slate-500">In Hole Solutions · Intranet Corporativa</p>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- PANEL VER MOTIVO COMPLETO (admin) -->
-    <div id="panel-motivo" class="hidden fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-                <div class="flex items-center gap-3">
-                    <div class="bg-amber-50 rounded-xl p-2">
-                        <i class="fas fa-message text-amber-500 text-sm"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm font-bold text-slate-700">Motivo de la solicitud</p>
-                        <p id="panel-motivo-pozo" class="text-xs text-slate-400 mt-0.5"></p>
+                    <!-- Comentarios Finales del Cliente -->
+                    <div id="rep-bloque-comentarios-cliente" class="hidden mt-3 pt-3 border-t border-white/10">
+                        <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Comentarios Finales del Cliente</p>
+                        <p id="rep-comentarios-cliente" class="text-slate-300 text-xs leading-relaxed">—</p>
                     </div>
                 </div>
-                <button onclick="cerrarPanelMotivo()" class="text-slate-400 hover:text-red-600 transition-colors h-9 w-9 rounded-xl border border-slate-200 flex items-center justify-center">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="px-6 py-5">
-                <p id="panel-motivo-texto" class="text-sm text-slate-600 leading-relaxed"></p>
-            </div>
-            <div class="px-6 py-4 border-t border-slate-100 flex justify-end">
-                <button onclick="cerrarPanelMotivo()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-semibold px-5 py-2 rounded-xl transition-all">
-                    Cerrar
-                </button>
-            </div>
-        </div>
-    </div>
+                </div>
 
-    <!-- PANEL CONFIRMAR GUARDAR -->
-    <div id="panel-confirmar-guardar" class="hidden fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-            <div class="flex items-center gap-3 px-6 py-5">
-                <div class="bg-green-50 rounded-xl p-2">
-                    <i class="fas fa-floppy-disk text-green-600 text-sm"></i>
-                </div>
-                <div>
-                    <p class="text-sm font-bold text-slate-700">Guardar operación</p>
-                    <p class="text-xs text-slate-400 mt-0.5">La operación será guardada</p>
-                </div>
-            </div>
-            <div class="px-6 pb-5">
-                <p class="text-sm text-slate-600 leading-relaxed">
-                    Se guardarán los datos capturados hasta ahora. Podrás seguir editando la operación más adelante.
+                <!-- Tabla de herramientas en el reporte -->
+                <div class="px-6 pb-6">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
+                    <i class="fas fa-boxes-stacked mr-2"></i>Inventario de Herramientas
                 </p>
-            </div>
-            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
-                <button onclick="cerrarPanelConfirmarGuardar()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-semibold px-5 py-2 rounded-xl transition-all">
-                    Cancelar
-                </button>
-                <button onclick="cerrarPanelConfirmarGuardar(); guardarOperacion(false);" class="bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-5 py-2 rounded-xl transition-all">
-                    Guardar
-                </button>
-            </div>
-        </div>
-    </div>
+                <div class="hidden sm:block overflow-x-auto rounded-xl" style="border:1px solid rgba(255,255,255,0.08);">
+                    <table class="w-full text-xs">
+                        <thead>
+                            <tr style="background:rgba(255,255,255,0.05);">
+                            <th class="px-4 py-3 text-left text-slate-400 font-semibold uppercase tracking-wider">#</th>
+                            <th class="px-4 py-3 text-left text-slate-400 font-semibold uppercase tracking-wider">NP</th>
+                            <th class="px-4 py-3 text-left text-slate-400 font-semibold uppercase tracking-wider">Descripción</th>
+                            <th class="px-4 py-3 text-left text-slate-400 font-semibold uppercase tracking-wider">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rep-tabla-herramientas">
+                            <tr>
+                            <td colspan="4"class="px-4 py-8 text-center text-slate-500">Sin herramientas registradas.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-    <!-- PANEL CONFIRMAR FINALIZAR -->
-    <div id="panel-confirmar-finalizar" class="hidden fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-            <div class="flex items-center gap-3 px-6 py-5">
-                <div class="bg-blue-50 rounded-xl p-2">
-                    <i class="fas fa-lock text-blue-600 text-sm"></i>
+                <!-- Vista de tarjetas (solo móvil) -->
+                <div id="rep-cards-herramientas" class="sm:hidden space-y-2"></div>
                 </div>
-                <div>
-                    <p class="text-sm font-bold text-slate-700">Finalizar operación</p>
-                    <p class="text-xs text-slate-400 mt-0.5">Esta acción no se puede deshacer</p>
-                </div>
-            </div>
-            <div class="px-6 pb-5">
-                <p class="text-sm text-slate-600 leading-relaxed">
-                    ¿Seguro que quieres finalizar la operación? Una vez finalizada, <strong>ya no se podrán realizar cambios</strong>.
-                </p>
-            </div>
-            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
-                <button onclick="cerrarPanelConfirmarFinalizar()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-semibold px-5 py-2 rounded-xl transition-all">
-                    Cancelar
-                </button>
-                <button onclick="cerrarPanelConfirmarFinalizar(); guardarOperacion(true);" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-5 py-2 rounded-xl transition-all">
-                    Finalizar
-                </button>
-            </div>
-        </div>
-    </div>
 
-    <!-- PANEL CONFIRMAR CAMBIO DE CATÁLOGO -->
-    <div id="panel-confirmar-cambio-catalogo" class="hidden fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-            <div class="flex items-center gap-3 px-6 py-5">
-                <div class="bg-amber-50 rounded-xl p-2">
-                    <i class="fas fa-triangle-exclamation text-amber-600 text-sm"></i>
-                </div>
-                <div>
-                    <p class="text-sm font-bold text-slate-700">Cambiar catálogo</p>
-                    <p class="text-xs text-slate-400 mt-0.5">Se perderá tu selección actual</p>
-                </div>
-            </div>
-            <div class="px-6 pb-5">
-                <p id="texto-confirmar-cambio-catalogo" class="text-sm text-slate-600 leading-relaxed">
-                </p>
-            </div>
-            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
-                <button onclick="cerrarPanelConfirmarCambioCatalogo()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-semibold px-5 py-2 rounded-xl transition-all">
-                    Cancelar
-                </button>
-                <button onclick="confirmarCambioCatalogo()" class="bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-5 py-2 rounded-xl transition-all">
-                    Continuar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- PANEL SOLICITAR EDICIÓN (solo empleados) -->
-    <div id="panel-solicitud-edicion" class="hidden fixed inset-0 z-[150] bg-black/40 backdrop-blur-sm px-0 py-0 sm:px-4 sm:py-6 flex items-center justify-center overflow-y-auto">
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-0 w-full sm:w-auto">
-        <div class="bg-white rounded-none sm:rounded-3xl shadow-2xl w-full sm:max-w-lg panel-entrada">
-            <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100">
-                <div class="flex items-center gap-3">
-                    <div class="bg-purple-50 rounded-xl p-2.5">
-                        <i class="fas fa-file-circle-xmark text-purple-500 text-lg"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-base font-bold text-slate-800">Solicitar Eliminación de PDF</h3>
-                        <p class="text-xs text-slate-400 mt-0.5">Elige la operación y el PDF a eliminar</p>
+                <!-- Archivos Adjuntos -->
+                <div class="px-6 pb-5" id="rep-bloque-archivos">
+                <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
+                    <i class="fas fa-folder-open mr-2"></i>Archivos Adjuntos
+                    </p>
+                    <div id="rep-lista-archivos" class="space-y-2">
+                    <p class="text-xs text-slate-500">Sin archivos cargados.</p>
                     </div>
                 </div>
-                <button onclick="cerrarPanelSolicitud()" class="text-slate-400 hover:text-red-600 transition-colors h-9 w-9 rounded-xl border border-slate-200 flex items-center justify-center">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
+                </div>
 
-            <!-- Lista de operaciones -->
-            <div class="px-6 py-4 max-h-72 overflow-y-auto" id="lista-ops-solicitud">
-                <p class="text-sm text-slate-400 text-center py-8">Cargando operaciones...</p>
-            </div>
+                </div><!-- fin rep-tab-datos -->
 
-            <!-- Lista de formatos (solo para Eliminar PDF) -->
-            <div class="px-6 pb-4 hidden" id="contenedor-lista-formatos">
-                <label class="block text-xs font-semibold text-slate-500 mb-1.5">¿Cuál PDF quieres que se elimine? <span class="text-red-400">*</span></label>
-                <div class="max-h-56 overflow-y-auto border border-slate-200 rounded-xl" id="lista-formatos-solicitud"></div>
-            </div>
+                <!-- Vista Bitácora -->
+                <div id="rep-tab-bitacora" class="hidden">
+                    <div class="px-6 py-5">
+                        <div class="rounded-xl overflow-hidden" style="border:1px solid rgba(255,255,255,0.08);">
+                            <div class="hidden sm:block overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead>
+                                        <tr style="background:rgba(255,255,255,0.06);">
+                                            <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-400">Fecha</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-400">Hora Inicio</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-400">Hora Término</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-400">Observación</th>
+                                            <th class="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-slate-400">Estatus</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rep-tabla-bitacora">
+                                        <tr>
+                                            <td colspan="5" class="px-4 py-10 text-center text-slate-500 text-sm">
+                                                <i class="fas fa-calendar-xmark text-2xl mb-2 block text-slate-600"></i>
+                                                Sin registros de bitácora.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
 
-            <!-- Motivo -->
-            <div class="px-6 pb-4">
-                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Motivo de la solicitud <span class="text-red-400">*</span></label>
-                <textarea id="solicitud-motivo" rows="3" placeholder="Explica brevemente qué necesitas corregir..." class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-200 resize-none"></textarea>
-            </div>
+                            <!-- Vista de tarjetas (solo móvil) -->
+                            <div id="rep-cards-bitacora" class="sm:hidden p-3 space-y-2">
+                                <p class="text-center text-slate-500 text-sm py-6">
+                                    <i class="fas fa-calendar-xmark text-2xl mb-2 block text-slate-600"></i>
+                                    Sin registros de bitácora.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- fin rep-tab-bitacora -->
 
-            <!-- Footer -->
-            <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
-                <p class="text-xs text-slate-400"><i class="fas fa-clock mr-1"></i> El admin deberá aprobar tu solicitud</p>
-                <div class="flex gap-3">
-                    <button onclick="cerrarPanelSolicitud()" class="text-slate-400 text-sm px-5 py-2.5 rounded-xl hover:bg-slate-50 transition-all">Cancelar</button>
-                    <button onclick="enviarSolicitudEdicion()" class="bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
-                        <i class="fas fa-paper-plane"></i> Enviar Solicitud
+                <!-- Footer con firma -->
+                <div class="px-6 py-4 rounded-b-2xl flex items-center justify-center" style="background:rgba(255,255,255,0.04); border-top:1px solid rgba(255,255,255,0.08);">
+                <p class="text-xs text-slate-500">In Hole Solutions · Intranet Corporativa</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- PANEL VER MOTIVO COMPLETO (admin) -->
+        <div id="panel-motivo" class="hidden fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-amber-50 rounded-xl p-2">
+                            <i class="fas fa-message text-amber-500 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-700">Motivo de la solicitud</p>
+                            <p id="panel-motivo-pozo" class="text-xs text-slate-400 mt-0.5"></p>
+                        </div>
+                    </div>
+                    <button onclick="cerrarPanelMotivo()" class="text-slate-400 hover:text-red-600 transition-colors h-9 w-9 rounded-xl border border-slate-200 flex items-center justify-center">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="px-6 py-5">
+                    <p id="panel-motivo-texto" class="text-sm text-slate-600 leading-relaxed"></p>
+                </div>
+                <div class="px-6 py-4 border-t border-slate-100 flex justify-end">
+                    <button onclick="cerrarPanelMotivo()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-semibold px-5 py-2 rounded-xl transition-all">
+                        Cerrar
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Panel historial lateral -->
-        <div class="bg-white rounded-none sm:rounded-3xl shadow-2xl w-full sm:max-w-sm panel-entrada sm:ml-4 flex flex-col" style="max-height:600px;">
-            <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
-                <div class="bg-slate-50 rounded-xl p-2">
-                    <i class="fas fa-clock-rotate-left text-slate-400 text-sm"></i>
+        <!-- PANEL CONFIRMAR GUARDAR -->
+        <div id="panel-confirmar-guardar" class="hidden fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+                <div class="flex items-center gap-3 px-6 py-5">
+                    <div class="bg-green-50 rounded-xl p-2">
+                        <i class="fas fa-floppy-disk text-green-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-700">Guardar operación</p>
+                        <p class="text-xs text-slate-400 mt-0.5">La operación será guardada</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-sm font-bold text-slate-700">Historial de Solicitudes</p>
-                    <p class="text-xs text-slate-400">Tus solicitudes enviadas</p>
+                <div class="px-6 pb-5">
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Se guardarán los datos capturados hasta ahora. Podrás seguir editando la operación más adelante.
+                    </p>
                 </div>
-            </div>
-            <div id="historial-solicitudes" class="flex-1 overflow-y-auto px-4 py-3 space-y-2">
-                <p class="text-xs text-slate-400 text-center py-6">Cargando historial...</p>
+                <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
+                    <button onclick="cerrarPanelConfirmarGuardar()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-semibold px-5 py-2 rounded-xl transition-all">
+                        Cancelar
+                    </button>
+                    <button onclick="cerrarPanelConfirmarGuardar(); guardarOperacion(false);" class="bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-5 py-2 rounded-xl transition-all">
+                        Guardar
+                    </button>
+                </div>
             </div>
         </div>
 
+        <!-- PANEL CONFIRMAR FINALIZAR -->
+        <div id="panel-confirmar-finalizar" class="hidden fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+                <div class="flex items-center gap-3 px-6 py-5">
+                    <div class="bg-blue-50 rounded-xl p-2">
+                        <i class="fas fa-lock text-blue-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-700">Finalizar operación</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Esta acción no se puede deshacer</p>
+                    </div>
+                </div>
+                <div class="px-6 pb-5">
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        ¿Seguro que quieres finalizar la operación? Una vez finalizada, <strong>ya no se podrán realizar cambios</strong>.
+                    </p>
+                </div>
+                <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
+                    <button onclick="cerrarPanelConfirmarFinalizar()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-semibold px-5 py-2 rounded-xl transition-all">
+                        Cancelar
+                    </button>
+                    <button onclick="cerrarPanelConfirmarFinalizar(); guardarOperacion(true);" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-5 py-2 rounded-xl transition-all">
+                        Finalizar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL CONFIRMAR CAMBIO DE CATÁLOGO -->
+        <div id="panel-confirmar-cambio-catalogo" class="hidden fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+                <div class="flex items-center gap-3 px-6 py-5">
+                    <div class="bg-amber-50 rounded-xl p-2">
+                        <i class="fas fa-triangle-exclamation text-amber-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-700">Cambiar catálogo</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Se perderá tu selección actual</p>
+                    </div>
+                </div>
+                <div class="px-6 pb-5">
+                    <p id="texto-confirmar-cambio-catalogo" class="text-sm text-slate-600 leading-relaxed">
+                    </p>
+                </div>
+                <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
+                    <button onclick="cerrarPanelConfirmarCambioCatalogo()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-semibold px-5 py-2 rounded-xl transition-all">
+                        Cancelar
+                    </button>
+                    <button onclick="confirmarCambioCatalogo()" class="bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold px-5 py-2 rounded-xl transition-all">
+                        Continuar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL SOLICITAR EDICIÓN (solo empleados) -->
+        <div id="panel-solicitud-edicion" class="hidden fixed inset-0 z-[150] bg-black/40 backdrop-blur-sm px-0 py-0 sm:px-4 sm:py-6 flex items-center justify-center overflow-y-auto">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-0 w-full sm:w-auto">
+            <div class="bg-white rounded-none sm:rounded-3xl shadow-2xl w-full sm:max-w-lg panel-entrada">
+                <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-purple-50 rounded-xl p-2.5">
+                            <i class="fas fa-file-circle-xmark text-purple-500 text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800">Solicitar Eliminación de PDF</h3>
+                            <p class="text-xs text-slate-400 mt-0.5">Elige la operación y el PDF a eliminar</p>
+                        </div>
+                    </div>
+                    <button onclick="cerrarPanelSolicitud()" class="text-slate-400 hover:text-red-600 transition-colors h-9 w-9 rounded-xl border border-slate-200 flex items-center justify-center">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Lista de operaciones -->
+                <div class="px-6 py-4 max-h-72 overflow-y-auto" id="lista-ops-solicitud">
+                    <p class="text-sm text-slate-400 text-center py-8">Cargando operaciones...</p>
+                </div>
+
+                <!-- Lista de formatos (solo para Eliminar PDF) -->
+                <div class="px-6 pb-4 hidden" id="contenedor-lista-formatos">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">¿Cuál PDF quieres que se elimine? <span class="text-red-400">*</span></label>
+                    <div class="max-h-56 overflow-y-auto border border-slate-200 rounded-xl" id="lista-formatos-solicitud"></div>
+                </div>
+
+                <!-- Motivo -->
+                <div class="px-6 pb-4">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Motivo de la solicitud <span class="text-red-400">*</span></label>
+                    <textarea id="solicitud-motivo" rows="3" placeholder="Explica brevemente qué necesitas corregir..." class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-200 resize-none"></textarea>
+                </div>
+
+                <!-- Footer -->
+                <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+                    <p class="text-xs text-slate-400"><i class="fas fa-clock mr-1"></i> El admin deberá aprobar tu solicitud</p>
+                    <div class="flex gap-3">
+                        <button onclick="cerrarPanelSolicitud()" class="text-slate-400 text-sm px-5 py-2.5 rounded-xl hover:bg-slate-50 transition-all">Cancelar</button>
+                        <button onclick="enviarSolicitudEdicion()" class="bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2">
+                            <i class="fas fa-paper-plane"></i> Enviar Solicitud
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel historial lateral -->
+            <div class="bg-white rounded-none sm:rounded-3xl shadow-2xl w-full sm:max-w-sm panel-entrada sm:ml-4 flex flex-col" style="max-height:600px;">
+                <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+                    <div class="bg-slate-50 rounded-xl p-2">
+                        <i class="fas fa-clock-rotate-left text-slate-400 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-700">Historial de Solicitudes</p>
+                        <p class="text-xs text-slate-400">Tus solicitudes enviadas</p>
+                    </div>
+                </div>
+                <div id="historial-solicitudes" class="flex-1 overflow-y-auto px-4 py-3 space-y-2">
+                    <p class="text-xs text-slate-400 text-center py-6">Cargando historial...</p>
+                </div>
+            </div>
+
+        </div>
     </div>
-</div>
 
-    <!-- MODAL DE CONFIRMACIÓN PERSONALIZADO -->
+        <!-- MODAL DE CONFIRMACIÓN PERSONALIZADO -->
 
-    <!-- Modal: Línea de producto -->
-    <div id="modal-linea-producto" class="hidden fixed inset-0 z-[350] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 flex flex-col gap-6">
-            <div>
-                <h4 class="text-slate-800 font-bold text-lg">Nueva Operación</h4>
-                <p class="text-slate-400 text-sm mt-1">Selecciona la línea de producto antes de continuar.</p>
+        <!-- Modal: Línea de producto -->
+        <div id="modal-linea-producto" class="hidden fixed inset-0 z-[350] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 flex flex-col gap-6">
+                <div>
+                    <h4 class="text-slate-800 font-bold text-lg">Nueva Operación</h4>
+                    <p class="text-slate-400 text-sm mt-1">Selecciona la línea de producto antes de continuar.</p>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Línea de producto</label>
+                    <select id="select-linea-producto" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-200">
+                        <option value="">Selecciona una opción...</option>
+                        <option value="Cased Hole Completions">Cased Hole Completions</option>
+                        <option value="Cementing">Cementing</option>
+                        <option value="Flow Control & Gas Lift">Flow Control & Gas Lift</option>
+                        <option value="Servicios">Servicios</option>
+                    </select>
+                </div>
+                <div class="flex gap-3 justify-end">
+                    <button onclick="cerrarModalLineaProducto()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-500 text-sm font-semibold hover:bg-slate-50 transition-all">
+                        Cancelar
+                    </button>
+                    <button onclick="confirmarLineaProducto()" class="px-5 py-2.5 rounded-xl bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold transition-all">
+                        Continuar
+                    </button>
+                </div>
             </div>
-            <div class="flex flex-col gap-2">
-                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Línea de producto</label>
-                <select id="select-linea-producto" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-200">
-                    <option value="">Selecciona una opción...</option>
-                    <option value="Cased Hole Completions">Cased Hole Completions</option>
-                    <option value="Cementing">Cementing</option>
-                    <option value="Flow Control & Gas Lift">Flow Control & Gas Lift</option>
-                    <option value="Servicios">Servicios</option>
-                </select>
-            </div>
-            <div class="flex gap-3 justify-end">
-                <button onclick="cerrarModalLineaProducto()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-500 text-sm font-semibold hover:bg-slate-50 transition-all">
+        </div>
+
+        <div id="modal-confirm" class="hidden fixed inset-0 z-[300] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-7 text-center">
+                <div id="modal-icono" class="text-4xl mb-4">⚠️</div>
+                <h4 id="modal-titulo" class="text-slate-800 font-bold text-lg mb-2">¿Estás seguro?</h4>
+                <p id="modal-mensaje" class="text-slate-500 text-sm leading-relaxed mb-7"></p>
+                <div class="flex gap-3 justify-center">
+                <button id="modal-cancelar" class="px-6 py-2.5 rounded-xl border border-slate-200 text-slate-500 text-sm font-semibold hover:bg-slate-50 transition-all">
                     Cancelar
                 </button>
-                <button onclick="confirmarLineaProducto()" class="px-5 py-2.5 rounded-xl bg-[#e31e24] hover:bg-red-700 text-white text-sm font-bold transition-all">
-                    Continuar
+                <button id="modal-aceptar" class="px-6 py-2.5 rounded-xl text-white text-sm font-bold transition-all">
+                    Aceptar
                 </button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div id="modal-confirm" class="hidden fixed inset-0 z-[300] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-7 text-center">
-            <div id="modal-icono" class="text-4xl mb-4">⚠️</div>
-            <h4 id="modal-titulo" class="text-slate-800 font-bold text-lg mb-2">¿Estás seguro?</h4>
-            <p id="modal-mensaje" class="text-slate-500 text-sm leading-relaxed mb-7"></p>
-            <div class="flex gap-3 justify-center">
-            <button id="modal-cancelar" class="px-6 py-2.5 rounded-xl border border-slate-200 text-slate-500 text-sm font-semibold hover:bg-slate-50 transition-all">
-                Cancelar
-            </button>
-            <button id="modal-aceptar" class="px-6 py-2.5 rounded-xl text-white text-sm font-bold transition-all">
-                Aceptar
-            </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL DE AVISO (un solo botón, reemplaza al alert() nativo) -->
-    <div id="modal-aviso" class="hidden fixed inset-0 z-[300] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-7 text-center">
-            <div id="aviso-icono" class="text-4xl mb-4">⚠️</div>
-            <h4 id="aviso-titulo" class="text-slate-800 font-bold text-lg mb-2">Atención</h4>
-            <p id="aviso-mensaje" class="text-slate-500 text-sm leading-relaxed mb-7"></p>
-            <div class="flex justify-center">
-            <button id="aviso-aceptar" class="px-8 py-2.5 rounded-xl text-white text-sm font-bold transition-all bg-[#e31e24] hover:bg-red-700">
-                Aceptar
-            </button>
+        <!-- MODAL DE AVISO (un solo botón, reemplaza al alert() nativo) -->
+        <div id="modal-aviso" class="hidden fixed inset-0 z-[300] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-7 text-center">
+                <div id="aviso-icono" class="text-4xl mb-4">⚠️</div>
+                <h4 id="aviso-titulo" class="text-slate-800 font-bold text-lg mb-2">Atención</h4>
+                <p id="aviso-mensaje" class="text-slate-500 text-sm leading-relaxed mb-7"></p>
+                <div class="flex justify-center">
+                <button id="aviso-aceptar" class="px-8 py-2.5 rounded-xl text-white text-sm font-bold transition-all bg-[#e31e24] hover:bg-red-700">
+                    Aceptar
+                </button>
+                </div>
             </div>
         </div>
     </div>
@@ -2504,6 +2505,18 @@
         const html = await res.text();
         document.getElementById('site-header').innerHTML = html;
 
+        // Los <script> insertados via innerHTML no se ejecutan solos:
+        // hay que recrearlos manualmente para que las funciones queden definidas.
+        document.querySelectorAll('#site-header script').forEach(oldScript => {
+            const newScript = document.createElement('script');
+            if (oldScript.src) {
+                newScript.src = oldScript.src;
+            } else {
+                newScript.textContent = oldScript.textContent;
+            }
+            oldScript.replaceWith(newScript);
+        });
+
         const resFoot = await fetch('footer.html');
         const htmlFoot = await resFoot.text();
         document.getElementById('site-footer').innerHTML = htmlFoot;
@@ -2530,12 +2543,12 @@
             const welcomeEl = document.getElementById('user-welcome');
             if (welcomeEl) welcomeEl.textContent = `${obtenerSaludo()}, ${perfil.nombre_completo}`;
             const rolLabel = document.getElementById('user-rol-label');
-            if (rolLabel) rolLabel.innerText = `Miembro del Equipo · ${perfil.rol}`;
+            if (rolLabel) rolLabel.innerText = `Miembro del Equipo`;
             rolUsuario = perfil.rol?.trim() || 'Empleado';
             console.log('Rol cargado:', rolUsuario);
 
             // 👈 AGREGAR: Autocompletar campo ingeniero solo para Empleados
-            if (rolUsuario === 'Empleado') {
+            if (esEmpleado()) {
                 const campoIngeniero = document.getElementById('f-ingeniero');
                 if (campoIngeniero) {
                     campoIngeniero.value = perfil.nombre_completo;
@@ -2547,7 +2560,7 @@
             // Mostrar las tarjetas KPI (Total / En Proceso / Terminadas) solo para Empleados
             const kpiContainer = document.getElementById('kpi-cards-container');
             if (kpiContainer) {
-                kpiContainer.classList.toggle('hidden', rolUsuario !== 'Empleado');
+                kpiContainer.classList.toggle('hidden', !esEmpleado());
             }
 
             await cargarOperaciones();
@@ -2580,6 +2593,11 @@
     let perfilNombre = '';
     let usuarioId = null;
 
+    // Trata 'Empleado' y 'Operaciones' como la misma vista de usuario
+    function esEmpleado() {
+        return rolUsuario === 'Empleado' || rolUsuario === 'Operaciones';
+    }
+
     cargarUsuario();
 
     // ── CARGAR OPERACIONES ──
@@ -2587,7 +2605,7 @@
         mostrarSkeleton();
         try {
             // Si es empleado Y ya tenemos su ID, filtra por usuario
-            const filtroUsuario = (rolUsuario === 'Empleado' && usuarioId)
+            const filtroUsuario = (esEmpleado() && usuarioId)
                 ? `&usuario_id=eq.${usuarioId}`
                 : '';
 
@@ -2621,7 +2639,7 @@
         tbody.querySelectorAll('tr:not(#fila-vacia)').forEach(r => r.remove());
 
         // Empleado siempre ve solo seccion-jobids, nunca tabla-principal
-        if (rolUsuario === 'Empleado') {
+        if (esEmpleado()) {
             document.getElementById('tabla-principal').classList.add('hidden');
             renderJobIds(datos);
             return;
@@ -2688,7 +2706,7 @@
                 <button onclick="event.stopPropagation(); abrirOperacion('${op.id}')" class="text-blue-500 hover:text-blue-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-blue-200 hover:bg-blue-50 transition-all">
                     <i class="fas fa-eye mr-1"></i> Ver
                 </button>
-                ${rolUsuario !== 'Empleado' ? `
+                ${!esEmpleado() ? `
                 <button onclick="event.stopPropagation(); abrirOperacion('${op.id}')" class="text-slate-500 hover:text-red-600 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-red-50 transition-all">
                     <i class="fas fa-pen mr-1"></i> Editar
                 </button>
@@ -2701,7 +2719,7 @@
             `;
             tbody.appendChild(tr);
         });
-        if (rolUsuario === 'Empleado') {
+        if (esEmpleado()) {
             renderJobIds(datos);
         } else {
             renderAdmin(datos);
@@ -2710,7 +2728,7 @@
 
     // ── HISTORIAL IDs (empleado) ──
     function renderJobIds(datos) {
-        if (rolUsuario !== 'Empleado') return;
+        if (!esEmpleado()) return;
 
         document.getElementById('seccion-jobids').classList.remove('hidden');
 
@@ -2814,7 +2832,7 @@
 
     // ── PANEL ADMINISTRADOR ──
     function renderAdmin(datos) {
-        if (rolUsuario === 'Empleado') return;
+        if (esEmpleado()) return;
 
         document.getElementById('tabla-principal').classList.add('hidden');
         document.getElementById('seccion-admin').classList.remove('hidden');
@@ -3188,7 +3206,7 @@
         } else {
             document.getElementById('form-titulo').textContent = 'Nueva Operación';
             // Autocompletar ingeniero si es Empleado
-            if (rolUsuario === 'Empleado') {
+            if (esEmpleado()) {
                 const campoIngeniero = document.getElementById('f-ingeniero');
                 if (campoIngeniero && perfilNombre) {
                     campoIngeniero.value = perfilNombre;
@@ -4881,7 +4899,7 @@
 
         const btnEditarReporte = document.getElementById('btn-editar-reporte');
         if (btnEditarReporte) {
-            const puedeEditar = rolUsuario === 'Empleado' && (!op.finalizada || op.estatus_revision === 'rechazado');
+            const puedeEditar = esEmpleado() && (!op.finalizada || op.estatus_revision === 'rechazado');
             btnEditarReporte.classList.toggle('hidden', !puedeEditar);
         }
         document.body.style.overflow = 'hidden';
@@ -5647,7 +5665,7 @@
 
     // ── CARGAR BITÁCORA EN EL FORMULARIO (modo edición) ──
     async function cargarBitacoraEnFormulario(operacionId) {
-        if (rolUsuario !== 'Empleado') return;
+        if (!esEmpleado()) return;
 
         try {
             const res = await fetch(
@@ -5723,7 +5741,7 @@
 
     // ── GUARDAR BITÁCORA ──
     async function guardarBitacora(operacionId) {
-        if (rolUsuario !== 'Empleado') return;
+        if (!esEmpleado()) return;
 
         const filas = [];
         const contadorPorFecha = {};
@@ -6196,7 +6214,7 @@
 
     // ── SOLICITUDES DE EDICIÓN (admin) ──
     async function cargarSolicitudes() {
-        if (rolUsuario === 'Empleado') return;
+        if (esEmpleado()) return;
 
         try {
             const res = await fetch(
@@ -7217,7 +7235,7 @@
     }
 
     function actualizarBadgeNotif() {
-      const esAdmin = rolUsuario !== 'Empleado';
+      const esAdmin = !esEmpleado();
       const btnNotif = document.getElementById('btn-notif-solicitudes');
       const badge = document.getElementById('badge-notif-count');
       if (!esAdmin || !btnNotif) return;
@@ -7244,7 +7262,7 @@
     }
 
     setInterval(() => {
-      if (rolUsuario !== 'Empleado') {
+      if (!esEmpleado()) {
         cargarSolicitudes();
       }
     }, 30000); // revisa cada 30 segundos
@@ -7261,7 +7279,7 @@
 
     // ── BITÁCORA: genera filas por día ──
     function generarFilasBitacora() {
-        if (rolUsuario !== 'Empleado') return;
+        if (!esEmpleado()) return;
 
         const llegada = document.getElementById('f-llegada').value;
         const salida  = document.getElementById('f-salida').value;

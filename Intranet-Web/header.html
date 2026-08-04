@@ -256,7 +256,7 @@
     <div class="p-6 space-y-4">
       <div>
         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Nombre</label>
-        <input id="perfil-nombre" type="text" disabled
+        <input id="mi-perfil-nombre-input" type="text" disabled
           class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm text-slate-500">
       </div>
 
@@ -306,7 +306,7 @@
       .single();
 
     if (perfil) {
-      document.getElementById('perfil-nombre').value = perfil.nombre_completo || '';
+      document.getElementById('mi-perfil-nombre-input').value = perfil.nombre_completo || '';
       document.getElementById('perfil-fecha-nacimiento').value = perfil.fecha_nacimiento || '';
       document.getElementById('perfil-fecha-ingreso').value = perfil.fecha_ingreso || '';
     }
@@ -315,6 +315,61 @@
   function cerrarMiPerfil() {
     document.getElementById('modal-mi-perfil').classList.add('hidden');
   }
+
+  function toggleNotificaciones() {
+    document.getElementById('panel-notificaciones').classList.toggle('hidden');
+    cargarNotificaciones();
+  }
+
+  async function cargarNotificaciones() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) return;
+
+    const { data: notifs } = await supabaseClient
+      .from('notificaciones')
+      .select('*')
+      .eq('usuario_id', session.user.id)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    pintarNotificaciones(notifs || []);
+  }
+
+  function pintarNotificaciones(notifs) {
+    const lista = document.getElementById('lista-notificaciones');
+    const badge = document.getElementById('badge-notificaciones');
+    const noLeidas = notifs.filter(n => !n.leida).length;
+
+    if (noLeidas > 0) {
+      badge.textContent = noLeidas > 9 ? '9+' : noLeidas;
+      badge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+    }
+
+    if (notifs.length === 0) {
+      lista.innerHTML = '<p class="text-center text-xs text-slate-400 py-8">Sin notificaciones nuevas</p>';
+      return;
+    }
+
+    lista.innerHTML = notifs.map(n => `
+      <a href="${n.link || '#'}" class="block px-4 py-3 hover:bg-slate-50 transition-colors ${n.leida ? '' : 'bg-red-50/40'}">
+        <p class="text-xs font-bold text-slate-700">${n.titulo}</p>
+        <p class="text-[11px] text-slate-500 mt-0.5">${n.mensaje || ''}</p>
+        <p class="text-[10px] text-slate-400 mt-1">${new Date(n.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}</p>
+      </a>
+    `).join('');
+  }
+
+  async function marcarNotificacionesLeidas() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) return;
+
+    await supabaseClient.from('notificaciones').update({ leida: true }).eq('usuario_id', session.user.id).eq('leida', false);
+    await cargarNotificaciones();
+  }
+
+  cargarNotificaciones();
 
   async function guardarMiPerfil() {
     const btn = document.getElementById('btn-guardar-perfil');

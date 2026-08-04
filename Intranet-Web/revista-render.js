@@ -42,6 +42,34 @@ const REVISTA_CSS = `
 
   @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
   .fade-in { animation: fadeIn .3s ease both; }
+
+  /* ── EPP interactivo ── */
+  .epp-item { cursor: pointer; transition: transform .15s, box-shadow .15s; }
+  .epp-item:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(10,22,40,.12); }
+  .epp-modal-overlay {
+    position: fixed; inset: 0; background: rgba(10,22,40,.72);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 99999; padding: 20px; backdrop-filter: blur(2px);
+  }
+  .epp-modal-overlay.hidden { display: none; }
+  .epp-modal-box {
+    background: white; border-radius: 18px; padding: 28px 24px;
+    max-width: 320px; width: 100%; text-align: center; position: relative;
+    animation: eppModalIn .2s ease;
+  }
+  @keyframes eppModalIn { from { opacity:0; transform:scale(.94); } to { opacity:1; transform:scale(1); } }
+  .epp-modal-cerrar {
+    position: absolute; top: 12px; right: 12px; width: 28px; height: 28px;
+    border-radius: 50%; border: none; background: #f1f5f9; color: #64748b;
+    cursor: pointer; font-size: 12px;
+  }
+  .epp-modal-cerrar:hover { background: #e2e8f0; }
+  .epp-modal-emoji { font-size: 48px; margin-bottom: 12px; }
+  .epp-modal-label {
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 18px;
+    text-transform: uppercase; color: #0e2044; margin-bottom: 10px; letter-spacing: .02em;
+  }
+  .epp-modal-desc { font-size: 13px; color: #475569; line-height: 1.6; }
 `;
 
 // ═══════════════════════════════════════════════════════════
@@ -91,7 +119,13 @@ const REVISTA_HTML = `
             <p style="font-size:8px;color:rgba(255,255,255,.55);font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-top:2px">Near miss<br>resueltos</p>
           </div>
         </div>
-      </div>
+        <div id="pv-sparkline-wrap" style="margin-top:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <p style="font-size:8px;font-weight:800;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em">Tendencia · Últimos 6 meses</p>
+            <span id="pv-sparkline-trend" style="font-size:9px;font-weight:800;"></span>
+          </div>
+          <svg id="pv-sparkline-svg" viewBox="0 0 200 40" style="width:100%;height:36px;display:block;"></svg>
+        </div>
     </div>
     <div style="position:absolute;bottom:20px;left:40px;display:flex;flex-wrap:wrap;gap:6px;z-index:10;">
       <span style="font-size:10px;font-weight:700;text-transform:uppercase;padding:4px 10px;border-radius:100px;color:rgba(255,255,255,.8);background:rgba(227,30,36,.25);border:1px solid rgba(227,30,36,.3)"><i class="fas fa-hard-hat mr-1"></i>Safety</span>
@@ -339,6 +373,15 @@ const REVISTA_HTML = `
   </div>
 
 </div><!-- /magazine-wrap -->
+
+<div id="epp-modal-overlay" class="epp-modal-overlay hidden" onclick="cerrarModalEpp(event)">
+  <div class="epp-modal-box" onclick="event.stopPropagation()">
+    <button class="epp-modal-cerrar" onclick="cerrarModalEpp()"><i class="fas fa-times"></i></button>
+    <div id="epp-modal-emoji" class="epp-modal-emoji">🔧</div>
+    <h3 id="epp-modal-label" class="epp-modal-label">—</h3>
+    <p id="epp-modal-desc" class="epp-modal-desc">—</p>
+  </div>
+</div>
 `;
 
 // ═══════════════════════════════════════════════════════════
@@ -387,7 +430,7 @@ function aplicarEdicionARevista(data) {
     const items = Array.isArray(data.epp_safety) ? data.epp_safety : [];
     epSGrid.innerHTML = items.length
       ? items.map(e => `
-          <div style="background:#f0f4f8;border-radius:10px;padding:10px 6px;text-align:center">
+          <div class="epp-item" data-emoji="${escapeHtmlEpp(e.emoji||'🔧')}" data-label="${escapeHtmlEpp(e.label||'')}" data-desc="${escapeHtmlEpp(e.descripcion||'')}" style="background:#f0f4f8;border-radius:10px;padding:10px 6px;text-align:center">
             <span style="font-size:26px;display:block;margin-bottom:4px">${e.emoji || '🔧'}</span>
             <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#0e2044;line-height:1.2;display:block">${e.label || ''}</span>
           </div>`).join('')
@@ -493,7 +536,7 @@ function aplicarEdicionARevista(data) {
     const items = Array.isArray(data.epp_quality) ? data.epp_quality : [];
     epQGrid.innerHTML = items.length
       ? items.map(e => `
-          <div style="background:white;border-radius:10px;padding:10px 6px;text-align:center;border:1px solid #e2e8f0">
+          <div class="epp-item" data-emoji="${escapeHtmlEpp(e.emoji||'🔧')}" data-label="${escapeHtmlEpp(e.label||'')}" data-desc="${escapeHtmlEpp(e.descripcion||'')}" style="background:white;border-radius:10px;padding:10px 6px;text-align:center;border:1px solid #e2e8f0">
             <span style="font-size:26px;display:block;margin-bottom:4px">${e.emoji||'🔧'}</span>
             <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#0e2044;line-height:1.2;display:block">${e.label||''}</span>
           </div>`).join('')
@@ -645,4 +688,45 @@ function aplicarEdicionARevista(data) {
       return `<span style="font-size:10px;font-weight:700;text-transform:uppercase;padding:4px 12px;border-radius:100px;background:${c.bg};border:1px solid ${c.border};color:${c.color}">${b.emoji || '⭐'} ${b.label || ''}</span>`;
     }).join('');
   }
+}
+
+// ── EPP INTERACTIVO: modal de referencia rápida ──
+function escapeHtmlEpp(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function abrirModalEpp(datos) {
+  const overlay = document.getElementById('epp-modal-overlay');
+  if (!overlay) return;
+  document.getElementById('epp-modal-emoji').textContent = datos.emoji || '🔧';
+  document.getElementById('epp-modal-label').textContent = datos.label || 'EPP';
+  document.getElementById('epp-modal-desc').textContent =
+    datos.descripcion || 'Aún no hay información registrada para este equipo.';
+  overlay.classList.remove('hidden');
+}
+
+function cerrarModalEpp(e) {
+  if (e && e.stopPropagation) e.stopPropagation();
+  const overlay = document.getElementById('epp-modal-overlay');
+  if (overlay) overlay.classList.add('hidden');
+}
+
+// Delegación de clics: funciona con cualquier grid EPP presente en la página,
+// incluyendo el clon que arma el flipbook móvil (revista-mobile.js)
+if (!window.__eppModalListenerBound) {
+  document.addEventListener('click', function (e) {
+    const item = e.target.closest('.epp-item');
+    if (!item) return;
+    abrirModalEpp({
+      emoji: item.dataset.emoji,
+      label: item.dataset.label,
+      descripcion: item.dataset.desc,
+    });
+  });
+  window.__eppModalListenerBound = true;
 }

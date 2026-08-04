@@ -81,6 +81,47 @@
       margin: 0 auto 24px;
       padding: 0 16px;
     }
+    /* ── MAPA DE CALOR: reportes por locación ── */
+    #heatmap-locacion-wrap {
+      max-width: 80%;
+      margin: 0 auto 24px;
+      padding: 0 16px;
+    }
+    .heatmap-fila {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .heatmap-fila:last-child { margin-bottom: 0; }
+    .heatmap-label {
+      width: 170px;
+      flex-shrink: 0;
+      font-size: 12px;
+      font-weight: 700;
+      color: #0e2044;
+    }
+    .heatmap-barra-bg {
+      flex: 1;
+      height: 22px;
+      background: #f1f5f9;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .heatmap-barra-fill {
+      height: 100%;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+      transition: width .6s ease;
+    }
+    .heatmap-count {
+      font-size: 11px;
+      font-weight: 800;
+      color: white;
+    }
     .hemeroteca-titulo {
       display: flex;
       align-items: center;
@@ -688,13 +729,6 @@
       <span class="text-slate-300">/</span>
       <span class="text-sm text-slate-500 font-medium">Alertas QHSE</span>
     </div>
-    <div class="indice-revista" style="max-width:80%;margin:0 auto 14px;display:flex;flex-wrap:wrap;gap:10px;padding:0 16px;">
-      <button onclick="irAIndice('safety')" class="indice-btn"><i class="fas fa-hard-hat"></i> Safety</button>
-      <button onclick="irAIndice('quality')" class="indice-btn"><i class="fas fa-check-double"></i> Quality</button>
-      <button onclick="irAIndice('health')" class="indice-btn"><i class="fas fa-heartbeat"></i> Health</button>
-      <button onclick="irAIndice('environment')" class="indice-btn"><i class="fas fa-leaf"></i> Environment</button>
-      <button onclick="irAIndice('guardian')" class="indice-btn"><i class="fas fa-star"></i> Guardián del Mes</button>
-    </div>
 
     <div id="hemeroteca-wrap">
       <div class="hemeroteca-titulo">
@@ -712,6 +746,23 @@
         </div>
         <button class="hemeroteca-arrow right" onclick="moverHemeroteca(1)"><i class="fas fa-chevron-right"></i></button>
       </div>
+    </div>
+
+    <div id="heatmap-locacion-wrap">
+      <div class="hemeroteca-titulo">
+        <span class="hemeroteca-titulo-texto"><i class="fas fa-fire"></i> Reportes por Locación — Año en curso</span>
+      </div>
+      <div id="heatmap-locacion-body" style="background:white;border-radius:14px;padding:18px 20px;border:1px solid #e2e8f0;">
+        <p style="text-align:center;color:#94a3b8;font-size:12px;">Cargando...</p>
+      </div>
+    </div>
+
+    <div class="indice-revista" style="max-width:80%;margin:0 auto 14px;display:flex;flex-wrap:wrap;gap:10px;padding:0 16px;">
+      <button onclick="irAIndice('safety')" class="indice-btn"><i class="fas fa-hard-hat"></i> Safety</button>
+      <button onclick="irAIndice('quality')" class="indice-btn"><i class="fas fa-check-double"></i> Quality</button>
+      <button onclick="irAIndice('health')" class="indice-btn"><i class="fas fa-heartbeat"></i> Health</button>
+      <button onclick="irAIndice('environment')" class="indice-btn"><i class="fas fa-leaf"></i> Environment</button>
+      <button onclick="irAIndice('guardian')" class="indice-btn"><i class="fas fa-star"></i> Guardián del Mes</button>
     </div>
 
     <div id="revista-container" style="padding: 8px 16px; background: #e8edf4; min-height: 100vh; overflow-x: auto;"></div>
@@ -796,6 +847,7 @@
       }
 
       await cargarRevista();
+      cargarHeatmapLocacion();
     }
 
     function getGreeting() {
@@ -803,6 +855,56 @@
       if (h >= 6 && h < 12) return 'Buenos días';
       if (h >= 12 && h < 19) return 'Buenas tardes';
       return 'Buenas noches';
+    }
+
+    // ── MAPA DE CALOR: reportes por locación ──
+    const CATEGORIAS_LOCACION = [
+      { prefijo: 'In Hole Solutions - Taller',  nombre: 'Taller' },
+      { prefijo: 'Pozo/Campo',                  nombre: 'Pozo / Campo' },
+      { prefijo: 'Instalación del cliente',     nombre: 'Instalación del cliente' },
+      { prefijo: 'Otro',                        nombre: 'Otro' },
+    ];
+
+    async function cargarHeatmapLocacion() {
+      const cont = document.getElementById('heatmap-locacion-body');
+      if (!cont) return;
+
+      const anioActual = new Date().getFullYear();
+      const { data: reportes, error } = await sb
+        .from('safety_alerts')
+        .select('locacion')
+        .eq('anio_registro', anioActual);
+
+      if (error || !reportes || reportes.length === 0) {
+        cont.innerHTML = '<p style="text-align:center;color:#94a3b8;font-size:12px;">Aún no hay reportes registrados este año.</p>';
+        return;
+      }
+
+      const conteos = CATEGORIAS_LOCACION.map(cat => ({
+        ...cat,
+        total: reportes.filter(r => (r.locacion || '').startsWith(cat.prefijo)).length,
+      }));
+
+      const maxTotal = Math.max(...conteos.map(c => c.total), 1);
+
+      cont.innerHTML = conteos
+        .sort((a, b) => b.total - a.total)
+        .map(c => {
+          const pct = Math.round((c.total / maxTotal) * 100);
+          // Más reportes = rojo más intenso (heat map real)
+          const intensidad = c.total === 0 ? 0 : 0.25 + (c.total / maxTotal) * 0.65;
+          const color = c.total === 0 ? '#cbd5e1' : `rgba(227, 30, 36, ${intensidad})`;
+          return `
+            <div class="heatmap-fila">
+              <div class="heatmap-label">${c.nombre}</div>
+              <div class="heatmap-barra-bg">
+                <div class="heatmap-barra-fill" style="width:${Math.max(pct, c.total > 0 ? 8 : 0)}%; background:${color};">
+                  ${c.total > 0 ? `<span class="heatmap-count">${c.total}</span>` : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
     }
 
     // ── ADMIN: LOAD EDITIONS ──
@@ -982,6 +1084,62 @@
       requestAnimationFrame(frame);
     }
 
+    // ── SPARKLINE: resta N meses a un mes/año dado ──
+    function restarMeses(mes, anio, n) {
+      let m = mes - n;
+      let a = anio;
+      while (m <= 0) { m += 12; a -= 1; }
+      return { mes: m, anio: a };
+    }
+
+    // ── SPARKLINE: dibuja la mini gráfica de tendencia ──
+    function renderSparkline(valores) {
+      const svg = document.getElementById('pv-sparkline-svg');
+      const trendEl = document.getElementById('pv-sparkline-trend');
+      if (!svg || !valores || valores.length === 0) return;
+
+      const w = 200, h = 40, pad = 4;
+      const max = Math.max(...valores, 1);
+      const min = Math.min(...valores, 0);
+      const rango = (max - min) || 1;
+
+      const puntos = valores.map((v, i) => {
+        const x = pad + (i * (w - pad * 2)) / (valores.length - 1 || 1);
+        const y = h - pad - ((v - min) / rango) * (h - pad * 2);
+        return [x, y];
+      });
+
+      const linea = puntos.map(p => p.join(',')).join(' ');
+      const area = `${pad},${h - pad} ${linea} ${w - pad},${h - pad}`;
+
+      // "Mejora" = terminamos con menos (o igual) reportes que al inicio
+      const mejora = valores[valores.length - 1] <= valores[0];
+      const color = mejora ? '#34d399' : '#fbbf24';
+
+      svg.innerHTML = `
+        <defs>
+          <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${color}" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <polygon points="${area}" fill="url(#sparkGrad)"/>
+        <polyline points="${linea}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="${puntos[puntos.length - 1][0]}" cy="${puntos[puntos.length - 1][1]}" r="3" fill="${color}"/>
+      `;
+
+      const diferencia = valores[0] === 0
+        ? 0
+        : Math.round(((valores[valores.length - 1] - valores[0]) / valores[0]) * 100);
+
+      if (trendEl) {
+        trendEl.style.color = color;
+        trendEl.innerHTML = mejora
+          ? `<i class="fas fa-arrow-down"></i> ${Math.abs(diferencia)}%`
+          : `<i class="fas fa-arrow-up"></i> ${Math.abs(diferencia)}%`;
+      }
+    }
+
     async function cargarStatsAutomaticos(mesRevista, anioRevista) {
       const mes = mesRevista ?? new Date().getMonth() + 1;
       const anio = anioRevista ?? new Date().getFullYear();
@@ -1026,9 +1184,21 @@
         const el = document.getElementById(id);
         if (el) el.textContent = val ?? 0;
       };
-      setTimeout(() => animarContador('pv-stat-dias', diasSinAccidente), 0);
-      setTimeout(() => animarContador('pv-stat-obs', totalReportes ?? 0), 150);
-      setTimeout(() => animarContador('pv-stat-acc', totalNearMiss ?? 0), 300);
+      animarContador('pv-stat-dias', diasSinAccidente);
+      animarContador('pv-stat-obs', totalReportes ?? 0);
+      animarContador('pv-stat-acc', totalNearMiss ?? 0);
+
+      // 5. TENDENCIA — reportes de riesgo de los últimos 6 meses (incluyendo el mes de la edición)
+      const ultimosSeisMeses = [5, 4, 3, 2, 1, 0].map(n => restarMeses(mes, anio, n));
+      const conteosSparkline = await Promise.all(
+        ultimosSeisMeses.map(({ mes: m, anio: a }) =>
+          sb.from('safety_alerts')
+            .select('id', { count: 'exact', head: true })
+            .eq('mes_registro', m)
+            .eq('anio_registro', a)
+        )
+      );
+      renderSparkline(conteosSparkline.map(c => c.count ?? 0));
     }
 
     async function deleteEdition(id) {
@@ -1114,15 +1284,33 @@
   </script>
 
   <script>
+    // Los <script> insertados vía innerHTML NO se ejecutan solos.
+    // Esta función los "recrea" para que sí corran.
+    function ejecutarScriptsInyectados(contenedor) {
+      contenedor.querySelectorAll('script').forEach(oldScript => {
+        const newScript = document.createElement('script');
+        if (oldScript.src) {
+          newScript.src = oldScript.src;
+        } else {
+          newScript.textContent = oldScript.textContent;
+        }
+        document.body.appendChild(newScript);
+      });
+    }
+
     fetch('header.html')
       .then(res => res.text())
       .then(html => {
-        document.getElementById('site-header').innerHTML = html;
+        const contenedor = document.getElementById('site-header');
+        contenedor.innerHTML = html;
+        ejecutarScriptsInyectados(contenedor);
       });
     fetch('footer.html')
       .then(r => r.text())
       .then(html => {
-        document.getElementById('footer-componente').innerHTML = html;
+        const contenedorFooter = document.getElementById('footer-componente');
+        contenedorFooter.innerHTML = html;
+        ejecutarScriptsInyectados(contenedorFooter);
         document.getElementById('footer-year').textContent = new Date().getFullYear();
       });
     function toggleMenu(id) { 

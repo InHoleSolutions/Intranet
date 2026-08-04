@@ -436,8 +436,8 @@
               <div class="flex-1 min-w-0">
                 <div class="flex flex-wrap items-start justify-between gap-3 mb-1">
                   <div>
-                    <h2 id="perfil-nombre" class="text-2xl font-black text-slate-800 leading-tight"></h2>
-                    <p id="perfil-puesto" class="text-sm text-slate-400 font-medium mt-0.5"></p>
+                    <h2 id="perfil-nombre" style="font-size:1.5rem; font-weight:900; color:#1e293b; line-height:1.2; margin:0; display:block;"></h2>
+                    <p id="perfil-puesto" class="text-sm text-slate-400 font-medium"></p>
                   </div>
                 </div>
 
@@ -940,6 +940,8 @@
           else if (d <= 45) cursosProximos++;
           else              cursosVigentes++;
         });
+        // Los cursos "pendientes" (asignados y nunca tomados) cuentan como Expired/Pending
+        cursosVencidos += (emp.cursos_pendientes || []).length;
       });
 
       const totalCursos = cursosVigentes + cursosProximos + cursosVencidos;
@@ -1456,22 +1458,31 @@
     // ────────────────────────────────────────────
     function agregarPiePagina(doc) {
       const paginas = doc.internal.getNumberOfPages();
-      const textoLegal = 'Documento generado desde la Plataforma de Gestión HSE de IN HOLE SOLUTIONS. La reproducción, distribución o modificación no autorizada queda restringida. Este documento se considera una copia no controlada una vez descargado de la plataforma.';
+      const anioActual = new Date().getFullYear();
+      const textoLegal = `©${anioActual} IN HOLE SOLUTIONS - Todos los derechos reservados. Documento generado desde IHS CONNECT, plataforma integral de IN HOLE SOLUTIONS. Una vez descargado o impreso, este documento se considera una copia no controlada. La versión vigente es la disponible en IHS CONNECT. La información contenida en este documento es confidencial y de uso exclusivo para fines autorizados por IN HOLE SOLUTIONS. Queda restringida su reproducción, distribución, divulgación o modificación total o parcial sin la autorización correspondiente.`;
 
       for (let i = 1; i <= paginas; i++) {
         doc.setPage(i);
 
+        // Calcular medidas reales de la página (cambia entre vertical y horizontal)
+        const anchoPagina = doc.internal.pageSize.getWidth();
+        const altoPagina  = doc.internal.pageSize.getHeight();
+        const margen      = 14;
+        const anchoTexto  = anchoPagina - margen * 2;
+        const yLinea      = altoPagina - 21;
+        const yTexto      = altoPagina - 17;
+
         // Línea separadora sutil
         doc.setDrawColor(226, 232, 240);
         doc.setLineWidth(0.2);
-        doc.line(14, 280, 196, 280);
+        doc.line(margen, yLinea, anchoPagina - margen, yLinea);
 
         // Texto legal (justificado, se ajusta automáticamente a varias líneas)
         doc.setFontSize(7);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(148, 163, 184);
-        const lineasLegales = doc.splitTextToSize(textoLegal, 182);
-        doc.text(lineasLegales, 14, 286, { align: 'justify', maxWidth: 182 });
+        const lineasLegales = doc.splitTextToSize(textoLegal, anchoTexto);
+        doc.text(lineasLegales, margen, yTexto, { align: 'justify', maxWidth: anchoTexto });
       }
     }
 
@@ -1541,6 +1552,8 @@
           else if (d <= 45) proximos++;
           else              vigentes++;
         });
+        // Los cursos "pendientes" (asignados y nunca tomados) cuentan como Expired/Pending
+        vencidos += (emp.cursos_pendientes || []).length;
       });
       const totalCursos = vigentes + proximos + vencidos;
 
@@ -1647,6 +1660,7 @@
         head: [encabezados],
         body: filas,
         theme: 'grid',
+        margin: { bottom: 28 },
         headStyles: { fillColor: [30, 41, 59], textColor: 255, fontStyle: 'bold', fontSize: 8, halign: 'center' },
         bodyStyles: { fontSize: 8, textColor: [51, 65, 85], valign: 'middle' },
         alternateRowStyles: { fillColor: [248, 250, 252] }, // rayas alternas suaves (slate-50)
@@ -1713,6 +1727,8 @@
           else if (d <= 45) proximos++;
           else              vigentes++;
         });
+        // Los cursos "pendientes" (asignados y nunca tomados) cuentan como Expired/Pending
+        vencidos += (emp.cursos_pendientes || []).length;
       });
       const totalCursos = vigentes + proximos + vencidos;
 
@@ -1817,6 +1833,7 @@
         head: [encabezados],
         body: filas,
         theme: 'grid',
+        margin: { bottom: 28 },
         headStyles: { fillColor: [30, 41, 59], textColor: 255, fontStyle: 'bold', fontSize: 8, halign: 'center' },
         bodyStyles: { fontSize: 8, textColor: [51, 65, 85], valign: 'middle' },
         alternateRowStyles: { fillColor: [248, 250, 252] },

@@ -186,6 +186,24 @@
       document.getElementById('perfil-iniciales').textContent = iniciales || '--';
     }
 
+    async function notificarInsigniasNuevas(usuarioId, insignias, trimestre, anio, edicionActivaId) {
+      const obtenidas = insignias.filter(i => i.obtenida);
+      if (obtenidas.length === 0) return;
+
+      const notifs = obtenidas.map(i => ({
+        usuario_id: usuarioId,
+        tipo: 'insignia_nueva',
+        titulo: `${i.emoji} ¡Nueva insignia desbloqueada!`,
+        mensaje: i.nombre,
+        link: 'perfil.html',
+        clave_unica: i.id === 'motor'
+          ? `insignia-motor-edicion-${edicionActivaId}`
+          : `insignia-${i.id}-${anio}-Q${trimestre}`,
+      }));
+
+      await sb.from('notificaciones').upsert(notifs, { onConflict: 'usuario_id,clave_unica', ignoreDuplicates: true });
+    }
+
     async function calcularYPintarInsignias(perfil) {
       const nombreCompleto = perfil.nombre_completo || '';
 
@@ -210,7 +228,7 @@
       // 3. ¿Es el Guardián/destacado de la edición activa?
       const { data: edicionActiva } = await sb
         .from('qhse_editions')
-        .select('guardian_nombre')
+        .select('id, guardian_nombre')
         .eq('activa', true)
         .eq('publicada', true)
         .maybeSingle();
@@ -229,6 +247,8 @@
         obtenida: esDestacado,
         criterioTexto: 'Reconocido como Guardián del Mes en la edición activa',
       });
+
+      await notificarInsigniasNuevas(perfil.id, insignias, trimestre, anioActual, edicionActiva?.id);
 
       pintarInsignias(insignias, totalTrimestre);
     }
@@ -268,13 +288,31 @@
   </script>
 
   <script>
+    function ejecutarScriptsInyectados(contenedor) {
+      contenedor.querySelectorAll('script').forEach(oldScript => {
+        const newScript = document.createElement('script');
+        if (oldScript.src) {
+          newScript.src = oldScript.src;
+        } else {
+          newScript.textContent = oldScript.textContent;
+        }
+        document.body.appendChild(newScript);
+      });
+    }
+
     fetch('header.html')
       .then(res => res.text())
-      .then(html => { document.getElementById('site-header').innerHTML = html; });
+      .then(html => {
+        const contenedor = document.getElementById('site-header');
+        contenedor.innerHTML = html;
+        ejecutarScriptsInyectados(contenedor);
+      });
     fetch('footer.html')
       .then(r => r.text())
       .then(html => {
-        document.getElementById('footer-componente').innerHTML = html;
+        const contenedorFooter = document.getElementById('footer-componente');
+        contenedorFooter.innerHTML = html;
+        ejecutarScriptsInyectados(contenedorFooter);
         const y = document.getElementById('footer-year');
         if (y) y.textContent = new Date().getFullYear();
       });

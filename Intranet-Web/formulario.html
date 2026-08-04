@@ -395,6 +395,74 @@
   }
 
   // ── Submit ──
+
+  // ── Normaliza nombres para comparar sin importar acentos/mayúsculas/espacios ──
+  function normalizarNombreForm(str) {
+    return (str || '')
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+  function coincideNombreForm(a, b) {
+    var na = normalizarNombreForm(a);
+    var nb = normalizarNombreForm(b);
+    if (!na || !nb) return false;
+    return na.indexOf(nb) !== -1 || nb.indexOf(na) !== -1;
+  }
+
+  // ── Revisa si el nombre que reportó ya alcanzó una insignia nueva y la notifica ──
+  async function notificarPosibleInsigniaNueva(nombreReporta) {
+    try {
+      var perfilesRes = await db.from('perfiles').select('id, nombre_completo');
+      var perfiles = perfilesRes.data || [];
+      var perfilMatch = perfiles.find(function(p) { return coincideNombreForm(p.nombre_completo, nombreReporta); });
+      if (!perfilMatch) return; // no hay perfil registrado con ese nombre, no se puede notificar
+
+      var hoy = new Date();
+      var mesActual  = hoy.getMonth() + 1;
+      var anioActual = hoy.getFullYear();
+      var trimestre  = Math.ceil(mesActual / 3);
+      var mesesTrimestre = [1, 2, 3].map(function(n) { return (trimestre - 1) * 3 + n; });
+
+      var reportesRes = await db.from('safety_alerts')
+        .select('nombre_reporta')
+        .eq('anio_registro', anioActual)
+        .in('mes_registro', mesesTrimestre);
+
+      var misReportes = (reportesRes.data || []).filter(function(r) {
+        return coincideNombreForm(r.nombre_reporta, nombreReporta);
+      });
+      var totalTrimestre = misReportes.length;
+
+      var UMBRALES = [
+        { id: 'bronce', nombre: 'Analista de Riesgo',    emoji: '🥉', umbral: 3  },
+        { id: 'plata',  nombre: 'Faro de Prevención',    emoji: '🥈', umbral: 6  },
+        { id: 'oro',    nombre: 'Promotor de Seguridad', emoji: '🥇', umbral: 10 },
+      ];
+
+      var notifs = UMBRALES
+        .filter(function(u) { return totalTrimestre >= u.umbral; })
+        .map(function(u) {
+          return {
+            usuario_id: perfilMatch.id,
+            tipo: 'insignia_nueva',
+            titulo: u.emoji + ' ¡Nueva insignia desbloqueada!',
+            mensaje: u.nombre,
+            link: 'perfil.html',
+            clave_unica: 'insignia-' + u.id + '-' + anioActual + '-Q' + trimestre,
+          };
+        });
+
+      if (notifs.length > 0) {
+        await db.from('notificaciones').upsert(notifs, { onConflict: 'usuario_id,clave_unica', ignoreDuplicates: true });
+      }
+    } catch (err) {
+      console.error('No se pudo evaluar insignias tras el reporte:', err);
+      // No relanzamos el error: esto nunca debe afectar el guardado del reporte
+    }
+  }
+
   document.getElementById('safety-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     document.getElementById('global-error').classList.remove('show');
@@ -444,6 +512,9 @@
       var folioGenerado = ins.data.folio;
       document.getElementById('success-folio').textContent = 'Folio: ' + folioGenerado;
       document.getElementById('success-screen').classList.add('show');
+
+      // No se espera (await) a propósito: no debe retrasar la pantalla de éxito
+      notificarPosibleInsigniaNueva(record.nombre_reporta);
 
     } catch(err) {
       console.error('Error al guardar:', err);

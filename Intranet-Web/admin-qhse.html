@@ -599,6 +599,14 @@
             <label class="field-label">Descripción</label>
             <textarea id="f-nm-desc" class="field-input field-textarea" placeholder="¿Qué ocurrió?" oninput="livePreview()"></textarea>
           </div>
+
+          <button type="button" id="btn-generar-ia" onclick="generarCausaAccionIA()"
+            style="display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:white;border:none;border-radius:10px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:14px;">
+            <i class="fas fa-wand-magic-sparkles"></i>
+            <span id="btn-generar-ia-texto">Generar causa raíz y acción con IA</span>
+          </button>
+          <p id="ia-error-msg" class="hidden" style="color:#ef4444;font-size:11px;margin:-8px 0 12px;"></p>
+
           <div class="field-group">
             <label class="field-label">Causa raíz</label>
             <textarea id="f-nm-causa" class="field-input field-textarea" placeholder="¿Por qué ocurrió?" oninput="livePreview()"></textarea>
@@ -1054,6 +1062,48 @@
     showDashboard();
   }
 
+  async function generarCausaAccionIA() {
+    const btn = document.getElementById('btn-generar-ia');
+    const btnTexto = document.getElementById('btn-generar-ia-texto');
+    const errorEl = document.getElementById('ia-error-msg');
+    errorEl.classList.add('hidden');
+
+    const descripcion = document.getElementById('f-nm-desc').value.trim();
+    const titulo = document.getElementById('f-nm-titulo').value.trim();
+    const area = document.getElementById('f-nm-area').value.trim();
+
+    if (descripcion.length < 5) {
+      errorEl.textContent = 'Escribe primero una descripción de qué ocurrió.';
+      errorEl.classList.remove('hidden');
+      return;
+    }
+
+    btn.disabled = true;
+    btnTexto.textContent = 'Generando...';
+
+    try {
+      const { data, error } = await sb.functions.invoke('generar-near-miss', {
+        body: { descripcion, titulo, area },
+      });
+
+      if (error || data?.error) {
+        throw new Error(data?.error || error.message);
+      }
+
+      document.getElementById('f-nm-causa').value = data.causa_raiz || '';
+      document.getElementById('f-nm-accion').value = data.accion_correctiva || '';
+      livePreview();
+
+      btnTexto.textContent = '✅ ¡Listo! Revisa el texto';
+      setTimeout(() => { btnTexto.textContent = 'Generar causa raíz y acción con IA'; }, 2500);
+    } catch (err) {
+      errorEl.textContent = 'No se pudo generar: ' + err.message;
+      errorEl.classList.remove('hidden');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
   async function cerrarSesion() { await sb.auth.signOut(); window.location.href = '../index.html'; }
 
   let intervaloLatido = null;
@@ -1323,6 +1373,22 @@
     }
   }
 
+  async function notificarNuevaEdicionATodos(edicionId, tituloEdicion) {
+    const { data: perfiles } = await sb.from('perfiles').select('id');
+    if (!perfiles || perfiles.length === 0) return;
+
+    const notifs = perfiles.map(p => ({
+      usuario_id: p.id,
+      tipo: 'edicion_nueva',
+      titulo: '📰 Nueva edición publicada',
+      mensaje: tituloEdicion,
+      link: 'alertas-qhse.html',
+      clave_unica: `edicion-${edicionId}`,
+    }));
+
+    await sb.from('notificaciones').upsert(notifs, { onConflict: 'usuario_id,clave_unica', ignoreDuplicates: true });
+  }
+
   // ── GUARDAR ──
   async function guardarEdicion(publicar) {
     const titulo  = document.getElementById('f-titulo').value.trim();
@@ -1442,6 +1508,10 @@
       const { data, error: e } = await sb.from('qhse_editions').insert({ ...payload, activa: true }).select('id').single();
       error = e;
       if (data) edId = data.id;
+
+      if (!error && edId) {
+        await notificarNuevaEdicionATodos(edId, payload.titulo || 'Nueva edición');
+      }
     }
 
     if (error) { toast('Error al guardar: ' + error.message, 'error'); return; }
@@ -1496,7 +1566,7 @@
   // ── EPP ──
   function addEpp(section) {
     const arr = section === 'safety' ? eppSafety : eppQuality;
-    arr.push({ emoji: '⛑️', label: '' });
+    arr.push({ emoji: '⛑️', label: '', descripcion: '' });
     renderEpp(section);
     livePreview();
   }
@@ -1512,7 +1582,7 @@
     const arr = section === 'safety' ? eppSafety : eppQuality;
     const container = document.getElementById(`epp-${section}-list`);
     container.innerHTML = arr.map((item, i) => `
-      <div class="epp-editor-item">
+      <div class="epp-editor-item" style="flex-wrap:wrap;">
         <button class="emoji-trigger" id="etrig-${section}-${i}"
           onclick="openPicker('${section}',${i},this)"
           title="Cambiar emoji EPP">${item.emoji || '⛑️'}</button>
@@ -1520,6 +1590,9 @@
           value="${item.label || ''}" placeholder="Nombre EPP..."
           oninput="updateEpp('${section}',${i},'label',this.value)">
         <button class="remove-btn" onclick="removeEpp('${section}',${i})"><i class="fas fa-times"></i></button>
+        <textarea class="field-input" style="width:100%;min-height:44px;font-size:11px;margin-top:4px"
+          placeholder="¿Cuándo/cómo se usa este EPP? (aparece en el modal al hacer clic)"
+          oninput="updateEpp('${section}',${i},'descripcion',this.value)">${item.descripcion || ''}</textarea>
       </div>`).join('');
   }
 
@@ -2065,7 +2138,6 @@
       .eq('tipo_evento', 'Accidente')
       .order('fecha_evento', { ascending: false })
       .limit(1)
-      .single()
       .then(({ data: ult }) => {
         let dias = 0;
         if (ult?.fecha_evento) {

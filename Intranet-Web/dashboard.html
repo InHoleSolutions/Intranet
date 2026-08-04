@@ -295,6 +295,12 @@
           <h4 class="text-lg font-bold text-slate-800 mb-2">Directorio Interno</h4>
           <p class="text-slate-500 text-sm leading-relaxed">Contacta con responsables de área.</p>
         </a>
+        <a id="card-fichas-tecnicas" href="fichas_tecnicas.html"
+          class="group relative p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl transition-all cursor-pointer">
+          <i class="fas fa-file-invoice text-[#e31e24] text-4xl mb-6"></i>
+          <h4 class="text-lg font-bold text-slate-800 mb-2">Fichas Técnicas</h4>
+          <p class="text-slate-500 text-sm leading-relaxed">Genera y consulta fichas técnicas de productos.</p>
+        </a>
         <a id="card-safety-alerts" href="alerts.html"
           class="hidden group relative p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl transition-all cursor-pointer">
           <i class="fas fa-triangle-exclamation text-[#e31e24] text-4xl mb-6"></i>
@@ -574,6 +580,7 @@
   <script type="module">
     import { supabaseClient } from './Js/supabase-config.js';
     window.supabaseClient = supabaseClient;
+    document.dispatchEvent(new Event('supabaseListo'));
   </script>
 
   <script>
@@ -593,11 +600,13 @@
       });
     }
 
-    fetch('header.html')
-      .then(r => r.text())
-      .then(html => {
-        insertarHTMLConScripts('header-componente', html);
-      });
+    document.addEventListener('supabaseListo', () => {
+      fetch('header.html')
+        .then(r => r.text())
+        .then(html => {
+          insertarHTMLConScripts('header-componente', html);
+        });
+    });
     fetch('footer.html')
       .then(r => r.text())
       .then(html => {
