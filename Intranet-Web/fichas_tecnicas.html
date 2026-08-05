@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,16 +28,19 @@
         body {
             font-family: 'Calibri', 'Carlito', Arial, sans-serif;
         }
+
         #header-componente {
             display: block;
         }
     </style>
 </head>
+
 <body class="min-h-screen bg-slate-50 flex flex-col" id="app-body">
     <!-- ── HEADER ── -->
     <div id="header-componente"></div>
     <!-- ── MAIN ── -->
-    <main class="w-full px-4 3xl:px-16 4xl:px-32 pb-10 max-w-[1400px] mx-auto mt-[56px] sm:mt-[64px] lg:mt-[20px] flex-1">
+    <main
+        class="w-full px-4 3xl:px-16 4xl:px-32 pb-10 max-w-[1400px] mx-auto mt-[56px] sm:mt-[64px] lg:mt-[20px] flex-1">
         <div class="pt-4 lg:pt-32">
 
             <div class="mb-8">
@@ -52,6 +56,20 @@
                         <i class="fas fa-plus mr-2"></i>Nueva ficha
                     </button>
                 </div>
+
+                <div class="flex flex-col sm:flex-row gap-3 mb-6">
+                    <div class="relative flex-1">
+                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-sm"></i>
+                        <input type="text" id="buscador-fichas" placeholder="Buscar por título o código..."
+                            oninput="filtrarFichas()"
+                            class="w-full border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]">
+                    </div>
+                    <select id="filtro-categoria" onchange="filtrarFichas()"
+                        class="border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24] bg-white">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                </div>
+
                 <div id="grid-fichas" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
                 <p id="mensaje-vacio" class="hidden text-center text-slate-400 mt-16">
                     Aún no hay fichas creadas.
@@ -59,115 +77,119 @@
             </div>
             <!-- ==================== VISTA: NUEVA FICHA ==================== -->
             <div id="vista-formulario" class="hidden">
-            <button onclick="mostrarVista('dashboard')" class="text-sm text-slate-500 hover:text-slate-700 mb-4">
-                <i class="fas fa-arrow-left mr-1"></i> Volver al dashboard
-            </button>
-            <h3 class="text-lg font-bold text-slate-700 mb-6">Nueva ficha técnica</h3>
-
-            <form id="form-ficha" class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-8">
-
-                <!-- DATOS GENERALES -->
-                <div>
-                <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Datos generales</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="md:col-span-2">
-                    <label class="text-xs font-bold text-slate-500">Título del producto *</label>
-                    <input type="text" id="f-titulo" required
-                        class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]"
-                        placeholder='Ej. Auto Fill Double Valve Non-Rotating Float Collar 7.000" 23-38Lb-ft N80 BTC'>
-                    </div>
-                    <div>
-                    <label class="text-xs font-bold text-slate-500">Código (opcional)</label>
-                    <input type="text" id="f-codigo"
-                        class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]"
-                        placeholder="Ej. OP-FT-IHS-013">
-                    </div>
-                    <div>
-                    <label class="text-xs font-bold text-slate-500">Categoría / Línea de producto</label>
-                    <input type="text" id="f-categoria"
-                        class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]"
-                        placeholder="Ej. Cementing Products">
-                    </div>
-                    <div class="md:col-span-2">
-                    <label class="text-xs font-bold text-slate-500">Descripción</label>
-                    <textarea id="f-descripcion" rows="3"
-                        class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]"></textarea>
-                    </div>
-                    <div class="md:col-span-2">
-                    <label class="text-xs font-bold text-slate-500">Imagen del producto</label>
-                    <input type="file" id="f-imagen" accept="image/*"
-                        class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm">
-                    </div>
-                </div>
-                </div>
-
-                <!-- DIMENSIONS -->
-                <div>
-                <div class="flex justify-between items-center mb-3">
-                    <p class="text-xs font-black uppercase tracking-widest text-slate-400">Dimensions</p>
-                    <button type="button" onclick="agregarFila('dimensiones')"
-                    class="text-xs font-bold text-[#e31e24] hover:underline"><i class="fas fa-plus mr-1"></i>Agregar fila</button>
-                </div>
-                <div id="filas-dimensiones" class="space-y-2"></div>
-                </div>
-
-                <!-- MATERIAL SPECIFICATIONS -->
-                <div>
-                <div class="flex justify-between items-center mb-3">
-                    <p class="text-xs font-black uppercase tracking-widest text-slate-400">Material Specifications</p>
-                    <button type="button" onclick="agregarFila('material')"
-                    class="text-xs font-bold text-[#e31e24] hover:underline"><i class="fas fa-plus mr-1"></i>Agregar fila</button>
-                </div>
-                <div id="filas-material" class="space-y-2"></div>
-                </div>
-
-                <!-- RATINGS -->
-                <div>
-                <div class="flex justify-between items-center mb-3">
-                    <p class="text-xs font-black uppercase tracking-widest text-slate-400">Ratings</p>
-                    <button type="button" onclick="agregarFila('ratings')"
-                    class="text-xs font-bold text-[#e31e24] hover:underline"><i class="fas fa-plus mr-1"></i>Agregar fila</button>
-                </div>
-                <div id="filas-ratings" class="space-y-2"></div>
-                </div>
-
-                <!-- FIRMAS -->
-                <div>
-                <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Elaboración</p>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                    <label class="text-xs font-bold text-slate-500">Realizó</label>
-                    <input type="text" id="f-realizo"
-                        class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]">
-                    </div>
-                    <div>
-                    <label class="text-xs font-bold text-slate-500">Aprobó</label>
-                    <input type="text" id="f-aprobo"
-                        class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]">
-                    </div>
-                    <div>
-                    <label class="text-xs font-bold text-slate-500">Versión</label>
-                    <input type="text" id="f-version" value="1"
-                        class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]">
-                    </div>
-                    <div>
-                    <label class="text-xs font-bold text-slate-500">Fecha</label>
-                    <input type="date" id="f-fecha"
-                        class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]">
-                    </div>
-                </div>
-                </div>
-
-                <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
-                <button type="button" onclick="mostrarVista('dashboard')"
-                    class="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50">Cancelar</button>
-                <button type="submit" id="btn-guardar-ficha"
-                    class="bg-[#e31e24] hover:bg-[#b3161b] text-white px-8 py-3 rounded-xl text-sm font-bold uppercase tracking-widest transition-all">
-                    Guardar ficha
+                <button onclick="mostrarVista('dashboard')" class="text-sm text-slate-500 hover:text-slate-700 mb-4">
+                    <i class="fas fa-arrow-left mr-1"></i> Volver al dashboard
                 </button>
-                </div>
+                <h3 class="text-lg font-bold text-slate-700 mb-6">Nueva ficha técnica</h3>
 
-            </form>
+                <form id="form-ficha" class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-8">
+
+                    <!-- DATOS GENERALES -->
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Datos generales</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="md:col-span-2">
+                                <label class="text-xs font-bold text-slate-500">Título del producto *</label>
+                                <input type="text" id="f-titulo" required
+                                    class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]"
+                                    placeholder='Ej. Auto Fill Double Valve Non-Rotating Float Collar 7.000" 23-38Lb-ft N80 BTC'>
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-slate-500">Código (opcional)</label>
+                                <input type="text" id="f-codigo"
+                                    class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]"
+                                    placeholder="Ej. OP-FT-IHS-013">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-slate-500">Categoría / Línea de producto</label>
+                                <input type="text" id="f-categoria"
+                                    class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]"
+                                    placeholder="Ej. Cementing Products">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="text-xs font-bold text-slate-500">Descripción</label>
+                                <textarea id="f-descripcion" rows="3"
+                                    class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]"></textarea>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="text-xs font-bold text-slate-500">Imagen del producto</label>
+                                <input type="file" id="f-imagen" accept="image/*"
+                                    class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DIMENSIONS -->
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <p class="text-xs font-black uppercase tracking-widest text-slate-400">Dimensions</p>
+                            <button type="button" onclick="agregarFila('dimensiones')"
+                                class="text-xs font-bold text-[#e31e24] hover:underline"><i
+                                    class="fas fa-plus mr-1"></i>Agregar fila</button>
+                        </div>
+                        <div id="filas-dimensiones" class="space-y-2"></div>
+                    </div>
+
+                    <!-- MATERIAL SPECIFICATIONS -->
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <p class="text-xs font-black uppercase tracking-widest text-slate-400">Material
+                                Specifications</p>
+                            <button type="button" onclick="agregarFila('material')"
+                                class="text-xs font-bold text-[#e31e24] hover:underline"><i
+                                    class="fas fa-plus mr-1"></i>Agregar fila</button>
+                        </div>
+                        <div id="filas-material" class="space-y-2"></div>
+                    </div>
+
+                    <!-- RATINGS -->
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <p class="text-xs font-black uppercase tracking-widest text-slate-400">Ratings</p>
+                            <button type="button" onclick="agregarFila('ratings')"
+                                class="text-xs font-bold text-[#e31e24] hover:underline"><i
+                                    class="fas fa-plus mr-1"></i>Agregar fila</button>
+                        </div>
+                        <div id="filas-ratings" class="space-y-2"></div>
+                    </div>
+
+                    <!-- FIRMAS -->
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Elaboración</p>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="text-xs font-bold text-slate-500">Realizó</label>
+                                <input type="text" id="f-realizo"
+                                    class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-slate-500">Aprobó</label>
+                                <input type="text" id="f-aprobo"
+                                    class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-slate-500">Versión</label>
+                                <input type="text" id="f-version" value="1"
+                                    class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-slate-500">Fecha</label>
+                                <input type="date" id="f-fecha"
+                                    class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                        <button type="button" onclick="mostrarVista('dashboard')"
+                            class="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50">Cancelar</button>
+                        <button type="submit" id="btn-guardar-ficha"
+                            class="bg-[#e31e24] hover:bg-[#b3161b] text-white px-8 py-3 rounded-xl text-sm font-bold uppercase tracking-widest transition-all">
+                            Guardar ficha
+                        </button>
+                    </div>
+
+                </form>
             </div>
         </div>
     </main>
@@ -196,7 +218,10 @@
         document.addEventListener('supabaseListo', () => {
             fetch('header.html')
                 .then(r => r.text())
-                .then(html => insertarHTMLConScripts('header-componente', html));
+                .then(html => {
+                    insertarHTMLConScripts('header-componente', html);
+                    cargarDatos();
+                });
         });
         fetch('footer.html')
             .then(r => r.text())
@@ -205,21 +230,63 @@
                 const anio = document.getElementById('footer-year');
                 if (anio) anio.textContent = new Date().getFullYear();
             });
-        // Protección de sesión (igual que dashboard.html)
-        async function verificarSesion() {
+        function obtenerSaludo() {
+            const hora = new Date().getHours();
+            if (hora >= 6 && hora < 12) return "Buenos días";
+            if (hora >= 12 && hora < 19) return "Buenas tardes";
+            return "Buenas noches";
+        }
+
+        function toggleMenu(id) {
+            document.getElementById(id).classList.toggle('hidden');
+        }
+
+        function toggleSubmenu(btn) {
+            if (window.innerWidth < 1024) {
+                const submenu = btn.nextElementSibling;
+                if (submenu) submenu.classList.toggle('mobile-active');
+            }
+        }
+
+        function mostrarInicio() {
+            window.location.href = "dashboard.html";
+        }
+
+        async function cerrarSesion() {
+            await supabaseClient.auth.signOut();
+            window.location.href = "intranet-login.html";
+        }
+
+        // Protección de sesión + datos del usuario en el header (igual que dashboard.html)
+        async function cargarDatos() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) { window.location.href = "intranet-login.html"; return; }
+
+            const { data: perfil } = await supabaseClient
+                .from('perfiles').select('*').eq('id', session.user.id).single();
+
+            if (perfil) {
+                const welcome = document.getElementById('user-welcome');
+                if (welcome) {
+                    welcome.innerHTML = `${obtenerSaludo()}, <span class="text-[#e31e24]">${perfil.nombre_completo}</span>`;
+                }
+                const rolLabel = document.getElementById('user-rol-label');
+                if (rolLabel) rolLabel.innerText = `Miembro del Equipo`;
+            }
+
             cargarFichas();
         }
+
         // Alterna entre las vistas "dashboard" y "formulario"
         function mostrarVista(vista) {
             document.getElementById("vista-dashboard").classList.toggle("hidden", vista !== "dashboard");
             document.getElementById("vista-formulario").classList.toggle("hidden", vista !== "formulario");
             if (vista === "dashboard") cargarFichas();
         }
+        let todasLasFichas = [];
+
         async function cargarFichas() {
             const grid = document.getElementById("grid-fichas");
-            const mensajeVacio = document.getElementById("mensaje-vacio");
 
             const { data, error } = await supabaseClient
                 .from("fichas_tecnicas")
@@ -232,117 +299,151 @@
                 return;
             }
 
-            if (!data || data.length === 0) {
+            todasLasFichas = data || [];
+            poblarFiltroCategorias();
+            filtrarFichas();
+        }
+
+        function poblarFiltroCategorias() {
+            const select = document.getElementById("filtro-categoria");
+            const valorActual = select.value;
+            const categorias = [...new Set(todasLasFichas.map(f => f.categoria).filter(Boolean))].sort();
+
+            select.innerHTML = `<option value="">Todas las categorías</option>` +
+                categorias.map(c => `<option value="${c}">${c}</option>`).join("");
+            select.value = valorActual;
+        }
+
+        function filtrarFichas() {
+            const texto = document.getElementById("buscador-fichas").value.trim().toLowerCase();
+            const categoria = document.getElementById("filtro-categoria").value;
+
+            const filtradas = todasLasFichas.filter(ficha => {
+                const coincideTexto = !texto ||
+                    (ficha.titulo || "").toLowerCase().includes(texto) ||
+                    (ficha.codigo || "").toLowerCase().includes(texto);
+                const coincideCategoria = !categoria || ficha.categoria === categoria;
+                return coincideTexto && coincideCategoria;
+            });
+
+            renderizarFichas(filtradas);
+        }
+
+        function renderizarFichas(fichas) {
+            const grid = document.getElementById("grid-fichas");
+            const mensajeVacio = document.getElementById("mensaje-vacio");
+
+            if (!fichas || fichas.length === 0) {
                 mensajeVacio.classList.remove("hidden");
+                mensajeVacio.textContent = todasLasFichas.length === 0
+                    ? "Aún no hay fichas creadas."
+                    : "No se encontraron fichas con ese criterio.";
                 grid.innerHTML = "";
                 return;
             }
 
             mensajeVacio.classList.add("hidden");
-            grid.innerHTML = data.map(ficha => `
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col hover:shadow-lg transition-all">
-          <img src="${ficha.imagen_url || 'https://via.placeholder.com/280x160?text=Sin+imagen'}"
-               class="w-full h-40 object-contain bg-slate-50" alt="${ficha.titulo}">
-          <div class="p-4">
-            <h3 class="text-sm font-bold text-slate-800 mb-1 line-clamp-2">${ficha.titulo}</h3>
-            <p class="text-xs text-slate-400">${ficha.codigo || 'Sin código'} · v${ficha.version || '1'}</p>
-          </div>
-        </div>
-      `).join("");
+            grid.innerHTML = fichas.map(ficha => `
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col hover:shadow-lg transition-all">
+            <img src="${ficha.imagen_url || 'https://via.placeholder.com/280x160?text=Sin+imagen'}"
+                class="w-full h-40 object-contain bg-slate-50" alt="${ficha.titulo}">
+            <div class="p-4">
+                <h3 class="text-sm font-bold text-slate-800 mb-1 line-clamp-2">${ficha.titulo}</h3>
+                <p class="text-xs text-slate-400">${ficha.codigo || 'Sin código'} · v${ficha.version || '1'}</p>
+                ${ficha.categoria ? `<span class="inline-block mt-2 text-[10px] font-bold uppercase tracking-wide bg-slate-100 text-slate-500 px-2 py-1 rounded-full">${ficha.categoria}</span>` : ''}
+            </div>
+            </div>
+        `).join("");
         }
         // ── Filas dinámicas de las secciones técnicas ──
         function agregarFila(seccion) {
-        const contenedor = document.getElementById(`filas-${seccion}`);
-        const fila = document.createElement('div');
-        fila.className = 'flex gap-2 items-center fila-dinamica';
+            const contenedor = document.getElementById(`filas-${seccion}`);
+            const fila = document.createElement('div');
+            fila.className = 'flex gap-2 items-center fila-dinamica';
 
-        if (seccion === 'dimensiones') {
-            fila.innerHTML = `
+            if (seccion === 'dimensiones') {
+                fila.innerHTML = `
             <input type="text" placeholder="Etiqueta (ej. Casing Size)" class="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm campo-label">
             <input type="text" placeholder="Metric" class="w-28 border border-slate-200 rounded-lg px-3 py-2 text-sm campo-metric">
             <input type="text" placeholder="Imperial" class="w-28 border border-slate-200 rounded-lg px-3 py-2 text-sm campo-imperial">
             <button type="button" onclick="this.closest('.fila-dinamica').remove()" class="text-slate-300 hover:text-red-500 px-2"><i class="fas fa-trash"></i></button>
             `;
-        } else {
-            fila.innerHTML = `
+            } else {
+                fila.innerHTML = `
             <input type="text" placeholder="Etiqueta (ej. Material Grade)" class="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm campo-label">
             <input type="text" placeholder="Valor" class="w-40 border border-slate-200 rounded-lg px-3 py-2 text-sm campo-valor">
             <button type="button" onclick="this.closest('.fila-dinamica').remove()" class="text-slate-300 hover:text-red-500 px-2"><i class="fas fa-trash"></i></button>
             `;
-        }
-        contenedor.appendChild(fila);
+            }
+            contenedor.appendChild(fila);
         }
 
         function leerSeccionDimensiones() {
-        return [...document.querySelectorAll('#filas-dimensiones .fila-dinamica')].map(fila => ({
-            label: fila.querySelector('.campo-label').value.trim(),
-            metric: fila.querySelector('.campo-metric').value.trim(),
-            imperial: fila.querySelector('.campo-imperial').value.trim()
-        })).filter(f => f.label);
+            return [...document.querySelectorAll('#filas-dimensiones .fila-dinamica')].map(fila => ({
+                label: fila.querySelector('.campo-label').value.trim(),
+                metric: fila.querySelector('.campo-metric').value.trim(),
+                imperial: fila.querySelector('.campo-imperial').value.trim()
+            })).filter(f => f.label);
         }
 
         function leerSeccionSimple(seccion) {
-        return [...document.querySelectorAll(`#filas-${seccion} .fila-dinamica`)].map(fila => ({
-            label: fila.querySelector('.campo-label').value.trim(),
-            valor: fila.querySelector('.campo-valor').value.trim()
-        })).filter(f => f.label);
+            return [...document.querySelectorAll(`#filas-${seccion} .fila-dinamica`)].map(fila => ({
+                label: fila.querySelector('.campo-label').value.trim(),
+                valor: fila.querySelector('.campo-valor').value.trim()
+            })).filter(f => f.label);
         }
 
         // ── Guardar ficha ──
         document.getElementById('form-ficha').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('btn-guardar-ficha');
-        btn.disabled = true;
-        btn.textContent = 'Guardando...';
+            e.preventDefault();
+            const btn = document.getElementById('btn-guardar-ficha');
+            btn.disabled = true;
+            btn.textContent = 'Guardando...';
 
-        try {
-            // 1. Subir imagen si se seleccionó una
-            let imagenUrl = null;
-            const archivo = document.getElementById('f-imagen').files[0];
-            if (archivo) {
-            const nombreArchivo = `${Date.now()}_${archivo.name}`;
-            const { error: errorSubida } = await supabaseClient
-                .storage.from('fichas-imagenes').upload(nombreArchivo, archivo);
-            if (errorSubida) throw errorSubida;
+            try {
+                // 1. Subir imagen si se seleccionó una
+                let imagenUrl = null;
+                const archivo = document.getElementById('f-imagen').files[0];
+                if (archivo) {
+                    const nombreArchivo = `${Date.now()}_${archivo.name}`;
+                    const { error: errorSubida } = await supabaseClient
+                        .storage.from('fichas-imagenes').upload(nombreArchivo, archivo);
+                    if (errorSubida) throw errorSubida;
 
-            const { data: urlPublica } = supabaseClient
-                .storage.from('fichas-imagenes').getPublicUrl(nombreArchivo);
-            imagenUrl = urlPublica.publicUrl;
+                    const { data: urlPublica } = supabaseClient
+                        .storage.from('fichas-imagenes').getPublicUrl(nombreArchivo);
+                    imagenUrl = urlPublica.publicUrl;
+                }
+
+                // 2. Insertar la ficha
+                const { error } = await supabaseClient.from('fichas_tecnicas').insert({
+                    titulo: document.getElementById('f-titulo').value.trim(),
+                    codigo: document.getElementById('f-codigo').value.trim() || null,
+                    categoria: document.getElementById('f-categoria').value.trim() || null,
+                    descripcion: document.getElementById('f-descripcion').value.trim() || null,
+                    imagen_url: imagenUrl,
+                    dimensiones: leerSeccionDimensiones(),
+                    material_specs: leerSeccionSimple('material'),
+                    ratings: leerSeccionSimple('ratings'),
+                    realizo: document.getElementById('f-realizo').value.trim() || null,
+                    aprobo: document.getElementById('f-aprobo').value.trim() || null,
+                    version: document.getElementById('f-version').value.trim() || '1',
+                    fecha: document.getElementById('f-fecha').value || null
+                });
+
+                if (error) throw error;
+
+                document.getElementById('form-ficha').reset();
+                document.querySelectorAll('.fila-dinamica').forEach(f => f.remove());
+                mostrarVista('dashboard');
+
+            } catch (err) {
+                console.error(err);
+                alert('Error al guardar la ficha: ' + err.message);
             }
 
-            // 2. Insertar la ficha
-            const { error } = await supabaseClient.from('fichas_tecnicas').insert({
-            titulo: document.getElementById('f-titulo').value.trim(),
-            codigo: document.getElementById('f-codigo').value.trim() || null,
-            categoria: document.getElementById('f-categoria').value.trim() || null,
-            descripcion: document.getElementById('f-descripcion').value.trim() || null,
-            imagen_url: imagenUrl,
-            dimensiones: leerSeccionDimensiones(),
-            material_specs: leerSeccionSimple('material'),
-            ratings: leerSeccionSimple('ratings'),
-            realizo: document.getElementById('f-realizo').value.trim() || null,
-            aprobo: document.getElementById('f-aprobo').value.trim() || null,
-            version: document.getElementById('f-version').value.trim() || '1',
-            fecha: document.getElementById('f-fecha').value || null
-            });
-
-            if (error) throw error;
-
-            document.getElementById('form-ficha').reset();
-            document.querySelectorAll('.fila-dinamica').forEach(f => f.remove());
-            mostrarVista('dashboard');
-
-        } catch (err) {
-            console.error(err);
-            alert('Error al guardar la ficha: ' + err.message);
-        }
-
-        btn.disabled = false;
-        btn.textContent = 'Guardar ficha';
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-        document.addEventListener('supabaseListo', verificarSesion, { once: true });
+            btn.disabled = false;
+            btn.textContent = 'Guardar ficha';
         });
     </script>
 
