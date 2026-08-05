@@ -11,10 +11,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.4.4/qrcode.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="icon" href="data:,">
   <style>
-    body { font-family: 'Inter', sans-serif; background: #f8fafc; }
+    body { font-family: 'Calibri', 'Carlito', 'Segoe UI', sans-serif; background: #f8fafc; }
 
     /* ── TARJETAS EMPLEADO ── */
     .employee-card {
@@ -2119,13 +2118,21 @@
       document.getElementById('modal-completar-nombre').textContent = curso.nombre || curso;
       document.getElementById('modal-completar-inicio').value      = '';
       document.getElementById('modal-completar-vencimiento').value = '';
+      document.getElementById('modal-completar-constancia-input').value = '';
+      document.getElementById('modal-completar-constancia-nombre').textContent = 'Subir constancia (PDF o imagen)';
       document.getElementById('modal-completar-curso').classList.remove('hidden');
+    }
+
+    function previsualizarConstanciaPendiente(event) {
+      const file = event.target.files[0];
+      document.getElementById('modal-completar-constancia-nombre').textContent = file ? file.name : 'Subir constancia (PDF o imagen)';
     }
 
     async function completarCursoPendiente() {
       const idx    = parseInt(document.getElementById('modal-completar-idx').value);
       const inicio = document.getElementById('modal-completar-inicio').value;
       const venc   = document.getElementById('modal-completar-vencimiento').value;
+      const archivoConstancia = document.getElementById('modal-completar-constancia-input').files[0];
 
       if (!inicio) { mostrarToast('La fecha de inicio es obligatoria', 'err'); return; }
       if (!venc)   { mostrarToast('La fecha de vencimiento es obligatoria', 'err'); return; }
@@ -2134,8 +2141,9 @@
       const pendientes = [...(emp.cursos_pendientes || [])];
       const curso      = pendientes[idx];
 
-      const cursosActualizados    = [...(emp.cursos || []), { nombre: curso.nombre || curso, fecha_inicio: inicio, fecha_vencimiento: venc }];
+      const cursosActualizados     = [...(emp.cursos || []), { nombre: curso.nombre || curso, fecha_inicio: inicio, fecha_vencimiento: venc }];
       const pendientesActualizados = pendientes.filter((_, i) => i !== idx);
+      const nuevoIdx = cursosActualizados.length - 1;
 
       const { error } = await supabaseClient
         .from('cap_hse_empleados')
@@ -2143,6 +2151,36 @@
         .eq('id', emp.id);
 
       if (error) { mostrarToast('Error al guardar', 'err'); console.error(error); return; }
+
+      // Si el usuario adjuntó una constancia, se sube ahora que el curso ya existe
+      if (archivoConstancia) {
+        document.getElementById('modal-completar-constancia-subiendo').classList.remove('hidden');
+
+        const ext = archivoConstancia.name.split('.').pop();
+        const rutaArchivo = `${emp.id}/${nuevoIdx}_${Date.now()}.${ext}`;
+
+        const { error: errorSubida } = await supabaseClient.storage
+          .from('constancias')
+          .upload(rutaArchivo, archivoConstancia, { upsert: true });
+
+        if (errorSubida) {
+          console.error(errorSubida);
+          mostrarToast('Curso guardado, pero falló la subida de la constancia', 'err');
+        } else {
+          const { data: urlData } = supabaseClient.storage.from('constancias').getPublicUrl(rutaArchivo);
+          cursosActualizados[nuevoIdx] = {
+            ...cursosActualizados[nuevoIdx],
+            constancia_url: urlData.publicUrl,
+            constancia_path: rutaArchivo
+          };
+          await supabaseClient
+            .from('cap_hse_empleados')
+            .update({ cursos: cursosActualizados })
+            .eq('id', emp.id);
+        }
+
+        document.getElementById('modal-completar-constancia-subiendo').classList.add('hidden');
+      }
 
       cerrarModal('modal-completar-curso');
       mostrarToast('Curso registrado ✓', 'ok');
@@ -2668,6 +2706,17 @@
       // Cargar header/footer
       fetch('header.html').then(r => r.text()).then(h => {
         document.getElementById('header-componente').innerHTML = h;
+        // Los <script> insertados via innerHTML no se ejecutan solos:
+        // hay que recrearlos para que el navegador los corra.
+        document.getElementById('header-componente').querySelectorAll('script').forEach(oldScript => {
+          const newScript = document.createElement('script');
+          if (oldScript.src) {
+            newScript.src = oldScript.src;
+          } else {
+            newScript.textContent = oldScript.textContent;
+          }
+          oldScript.replaceWith(newScript);
+        });
 
         supabaseClient.auth.getSession().then(({ data: { session } }) => {
           if (!session) return;
@@ -3915,6 +3964,18 @@
             <input id="modal-completar-vencimiento" type="date"
               class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#e31e24] transition-colors">
           </div>
+
+          <!-- ── CONSTANCIA / CERTIFICADO ── -->
+          <div class="border-t border-slate-100 pt-4">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Constancia</label>
+            <label class="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-slate-200 rounded-xl py-5 cursor-pointer hover:border-[#e31e24] hover:bg-red-50/30 transition-colors">
+              <i id="modal-completar-constancia-icono" class="fas fa-cloud-arrow-up text-2xl text-slate-300"></i>
+              <span id="modal-completar-constancia-nombre" class="text-xs font-bold text-slate-500 px-4 text-center truncate max-w-full">Subir constancia (PDF o imagen)</span>
+              <input id="modal-completar-constancia-input" type="file" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="previsualizarConstanciaPendiente(event)">
+            </label>
+            <p id="modal-completar-constancia-subiendo" class="hidden text-xs text-slate-400 mt-2"><i class="fas fa-spinner fa-spin mr-1"></i> Subiendo archivo...</p>
+          </div>
+
           <div class="flex gap-3 pt-2">
             <button onclick="cerrarModal('modal-completar-curso')"
               class="flex-1 border border-slate-200 text-slate-600 font-bold rounded-xl py-2.5 text-sm hover:bg-slate-50 transition-colors">

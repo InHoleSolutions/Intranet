@@ -114,6 +114,19 @@
                 space-y-0 lg:space-y-0 lg:space-x-2 xl:space-x-6
                 py-2 lg:py-0">
 
+      <a href="dashboard.html" id="nav-inicio"
+         class="relative px-4 sm:px-5 py-3 lg:py-0 lg:h-full
+                text-[11px] md:text-xs font-bold
+                text-white/90 hover:text-white
+                lg:hover:bg-white/10
+                uppercase tracking-widest
+                flex items-center justify-start lg:justify-center
+                border-b border-red-600 lg:border-none
+                transition-colors">
+        Inicio
+        <span class="nav-indicator hidden absolute left-4 right-4 lg:left-1/2 lg:right-auto lg:-translate-x-1/2 -bottom-[1px] lg:bottom-0 h-[2px] lg:h-[3px] bg-white rounded-full"></span>
+      </a>
+
       <a href="politicas.html" id="nav-politicas"
          class="relative px-4 sm:px-5 py-3 lg:py-0 lg:h-full
                 text-[11px] md:text-xs font-bold
@@ -226,6 +239,7 @@
   (function marcarPaginaActiva() {
     const pagina = window.location.pathname.split('/').pop();
     const mapa = {
+      'dashboard.html': 'nav-inicio',
       'politicas.html': 'nav-politicas',
       'alertas-qhse.html': 'nav-alertas',
       'mantto.html': 'nav-mantto'
