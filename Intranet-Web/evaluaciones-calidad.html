@@ -78,7 +78,17 @@
       </div>
     </div>
 
+    <!-- ── Pestañas principales ── -->
+    <div class="flex gap-1 bg-slate-100 rounded-lg p-1 mb-6 w-fit">
+      <button id="btn-seccion-general" onclick="cambiarSeccion('general')" class="tab-btn px-4 py-2 text-sm font-bold rounded-md">General</button>
+      <button id="btn-seccion-campo" onclick="cambiarSeccion('campo')" class="tab-btn px-4 py-2 text-sm font-bold rounded-md">Servicio en Campo</button>
+      <button id="btn-seccion-taller" onclick="cambiarSeccion('taller')" class="tab-btn px-4 py-2 text-sm font-bold rounded-md">Servicio en Taller</button>
+    </div>
+
     <div id="banner-alertas" class="hidden mb-6"></div>
+
+    <!-- ── Contenedor: Servicio en Campo (contenido actual) ── -->
+    <div id="seccion-campo">
 
     <!-- Aquí irán KPIs, gráficas y tabla (siguientes pasos) -->
     <div class="flex items-center justify-between mb-3">
@@ -88,7 +98,8 @@
       </div>
       <div class="flex gap-1 bg-slate-100 rounded-lg p-1">
         <button id="btn-global-mes" onclick="cambiarVistaGlobal('mes')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Mes</button>
-        <button id="btn-global-general" onclick="cambiarVistaGlobal('general')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">General</button>
+        <button id="btn-global-trimestre" onclick="cambiarVistaGlobal('trimestre')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Trimestre</button>
+        <button id="btn-global-anual" onclick="cambiarVistaGlobal('anual')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Anual</button>
       </div>
     </div>
     <div id="contenedor-kpis" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -144,6 +155,133 @@
         <tbody id="tabla-evaluaciones-body"></tbody>
       </table>
       </div>
+    </div>
+
+    </div>
+    <!-- ── Fin Contenedor: Servicio en Campo ── -->
+
+    <!-- ── Contenedor: General (vacío por ahora) ── -->
+    <div id="seccion-general" class="hidden">
+      <div class="kpi-card text-center text-slate-400 py-12">
+        Contenido de "General" — próximamente.
+      </div>
+    </div>
+
+    <!-- ── Contenedor: Servicio en Taller ── -->
+    <div id="seccion-taller" class="hidden">
+
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Periodo a Mostrar</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="flex gap-1 bg-slate-100 rounded-lg p-1">
+            <button id="btn-taller-mes" onclick="cambiarVistaGlobalTaller('mes')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Mes</button>
+            <button id="btn-taller-trimestre" onclick="cambiarVistaGlobalTaller('trimestre')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Trimestre</button>
+            <button id="btn-taller-anual" onclick="cambiarVistaGlobalTaller('anual')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Anual</button>
+          </div>
+          <button onclick="abrirModalAgregarTaller()" class="bg-[#e31e24] hover:bg-[#c11a1f] text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors flex items-center gap-2">
+            <i class="fas fa-plus"></i> Agregar Evaluación
+          </button>
+        </div>
+      </div>
+
+      <div id="contenedor-kpis-taller" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="kpi-card-mini skeleton-card"></div>
+        <div class="kpi-card-mini skeleton-card"></div>
+        <div class="kpi-card-mini skeleton-card"></div>
+        <div class="kpi-card-mini skeleton-card"></div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="kpi-card">
+          <p class="text-sm font-bold text-slate-700 mb-4">Promedio por Criterio</p>
+          <canvas id="grafica-criterios-taller"></canvas>
+        </div>
+        <div class="kpi-card">
+          <p id="titulo-tendencia-taller" class="text-sm font-bold text-slate-700 mb-4">Evolución del Promedio</p>
+          <canvas id="grafica-tendencia-taller"></canvas>
+        </div>
+      </div>
+
+      <div class="kpi-card overflow-x-auto">
+        <button onclick="toggleDetalleOperacionTaller()" class="w-full flex items-center justify-between mb-4">
+          <p class="text-sm font-bold text-slate-700">Detalle por Operación</p>
+          <i id="icono-detalle-operacion-taller" class="fas fa-chevron-up text-slate-400 text-xs transition-transform"></i>
+        </button>
+        <div id="contenido-detalle-operacion-taller">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-xs font-bold uppercase text-slate-400 border-b border-slate-100">
+              <th class="py-2 pr-4">Job ID</th>
+              <th class="py-2 pr-4">Cliente</th>
+              <th class="py-2 pr-4">Referencia</th>
+              <th class="py-2 pr-4">Fecha</th>
+              <th class="py-2 pr-4">Resultado</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-evaluaciones-taller-body"></tbody>
+        </table>
+        </div>
+      </div>
+
+      <!-- Modal Detalle de Evaluación (Taller) -->
+      <div id="modal-detalle-evaluacion-taller" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onclick="cerrarModalDetalleTaller(event)">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6" onclick="event.stopPropagation()">
+          <div class="flex items-center justify-between mb-1">
+            <h3 id="modal-detalle-titulo-taller" class="text-lg font-bold text-slate-800">Detalle de Evaluación</h3>
+            <button onclick="cerrarModalDetalleTaller()" class="text-slate-400 hover:text-slate-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <p id="modal-detalle-subtitulo-taller" class="text-xs text-slate-400 mb-5"></p>
+          <div id="modal-detalle-criterios-taller" class="space-y-3"></div>
+          <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
+            <span class="text-sm font-bold text-slate-700">Promedio General</span>
+            <span id="modal-detalle-promedio-taller" class="text-lg font-black text-[#e31e24]"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Agregar Evaluación (Taller) -->
+      <div id="modal-agregar-taller" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onclick="cerrarModalAgregarTaller(event)">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-slate-800">Agregar Evaluación de Taller</h3>
+            <button onclick="cerrarModalAgregarTaller()" class="text-slate-400 hover:text-slate-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <form id="form-agregar-taller" onsubmit="guardarEvaluacionTaller(event)" class="space-y-4">
+            <div>
+              <label class="text-xs font-bold text-slate-500 mb-1 block">Job ID</label>
+              <input id="taller-job-id" type="text" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
+            </div>
+            <div>
+              <label class="text-xs font-bold text-slate-500 mb-1 block">Cliente</label>
+              <input id="taller-cliente" type="text" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
+            </div>
+            <div>
+              <label class="text-xs font-bold text-slate-500 mb-1 block">Referencia / Equipo</label>
+              <input id="taller-pozo" type="text" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
+            </div>
+            <div>
+              <label class="text-xs font-bold text-slate-500 mb-1 block">Fecha</label>
+              <input id="taller-fecha" type="date" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
+            </div>
+
+            <div class="pt-2 border-t border-slate-100 space-y-3">
+              <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Criterios (1 a 5)</p>
+              <div id="taller-criterios-inputs" class="space-y-3"></div>
+            </div>
+
+            <button type="submit" class="w-full bg-[#e31e24] hover:bg-[#c11a1f] text-white text-sm font-bold py-2.5 rounded-lg transition-colors">
+              Guardar Evaluación
+            </button>
+          </form>
+        </div>
+      </div>
+
     </div>
   </main>
 
@@ -226,6 +364,8 @@
   <script>
     let operacionesEvaluadas = [];
     let operacionesDelMesGlobal = [];
+    let operacionesTrimestreGlobal = [];
+    let operacionesAnualGlobal = [];
     let vistaCriterios = 'mes';
     let vistaTendencia = 'mes';
     let vistaKPIs = 'mes';
@@ -336,6 +476,7 @@
       if (fechaEl) fechaEl.textContent = `· Hoy es ${fechaTexto}`;
 
       cargarEvaluaciones();
+      cargarEvaluacionesTaller();
     });
   </script>
 
@@ -385,6 +526,45 @@
 
       const evaluacionesDelMes = operacionesDelMes.length;
 
+      // ── Filtrar operaciones del trimestre actual (últimos 3 meses) ──
+      const inicioTrimestre = new Date(anioActual, mesActual - 2, 1);
+      const operacionesTrimestre = operacionesEvaluadas.filter(op => {
+        if (!op.created_at) return false;
+        const fechaOp = new Date(op.created_at);
+        return fechaOp >= inicioTrimestre;
+      });
+      operacionesTrimestreGlobal = operacionesTrimestre;
+
+      const evaluacionesTrimestre = operacionesTrimestre.length;
+      const promediosTrimestre = operacionesTrimestre.map(promedioOperacion).filter(v => v !== null);
+      const promedioTrimestral = promediosTrimestre.length ? (promediosTrimestre.reduce((a,b)=>a+b,0) / promediosTrimestre.length) : 0;
+      const criteriosBajosTrimestre = operacionesTrimestre.reduce((acc, op) => {
+        CRITERIOS_CALIDAD.forEach(c => {
+          const val = op.evaluacion_calidad[c.id];
+          if (val && val <= 3) acc++;
+        });
+        return acc;
+      }, 0);
+
+      // ── Filtrar operaciones del año actual ──
+      const operacionesAnual = operacionesEvaluadas.filter(op => {
+        if (!op.created_at) return false;
+        const fechaOp = new Date(op.created_at);
+        return fechaOp.getFullYear() === anioActual;
+      });
+      operacionesAnualGlobal = operacionesAnual;
+
+      const evaluacionesAnual = operacionesAnual.length;
+      const promediosAnual = operacionesAnual.map(promedioOperacion).filter(v => v !== null);
+      const promedioAnual = promediosAnual.length ? (promediosAnual.reduce((a,b)=>a+b,0) / promediosAnual.length) : 0;
+      const criteriosBajosAnual = operacionesAnual.reduce((acc, op) => {
+        CRITERIOS_CALIDAD.forEach(c => {
+          const val = op.evaluacion_calidad[c.id];
+          if (val && val <= 3) acc++;
+        });
+        return acc;
+      }, 0);
+
       // ── Cálculos GENERALES ──
       const promedios = operacionesEvaluadas.map(promedioOperacion).filter(v => v !== null);
       const promedioGeneral = promedios.length ? (promedios.reduce((a,b)=>a+b,0) / promedios.length) : 0;
@@ -421,19 +601,40 @@
 
       // ── Elegir qué mostrar según la vista activa ──
       const esMes = vistaKPIs === 'mes';
-      const cantidad = esMes ? evaluacionesDelMes : total;
-      const cantidadLabel = esMes ? 'Evaluaciones del Mes' : 'Evaluaciones Totales';
-      const cantidadSub = esMes ? obtenerMesAnioActual() : 'Histórico general';
-      const promedio = esMes ? promedioMensual : promedioGeneral;
-      const promedioLabel = esMes ? 'Promedio Mensual' : 'Promedio General';
-      const bajos = esMes ? criteriosBajosMensual : criteriosBajos;
-      const nivelLabel = esMes ? 'Nivel Mensual' : 'Nivel';
+      const esTrimestre = vistaKPIs === 'trimestre';
+
+      let cantidad, cantidadLabel, cantidadSub, promedio, promedioLabel, bajos, nivelLabel;
+
+      if (esMes) {
+        cantidad = evaluacionesDelMes;
+        cantidadLabel = 'Evaluaciones del Mes';
+        cantidadSub = obtenerMesAnioActual();
+        promedio = promedioMensual;
+        promedioLabel = 'Promedio Mensual';
+        bajos = criteriosBajosMensual;
+        nivelLabel = 'Nivel Mensual';
+      } else if (esTrimestre) {
+        cantidad = evaluacionesTrimestre;
+        cantidadLabel = 'Evaluaciones del Trimestre';
+        cantidadSub = 'Últimos 3 meses';
+        promedio = promedioTrimestral;
+        promedioLabel = 'Promedio Trimestral';
+        bajos = criteriosBajosTrimestre;
+        nivelLabel = 'Nivel Trimestral';
+      } else {
+        cantidad = evaluacionesAnual;
+        cantidadLabel = 'Evaluaciones del Año';
+        cantidadSub = String(anioActual);
+        promedio = promedioAnual;
+        promedioLabel = 'Promedio Anual';
+        bajos = criteriosBajosAnual;
+        nivelLabel = 'Nivel Anual';
+      }
 
       // ── Tendencia (solo tiene sentido en vista Mes, comparando contra mes anterior) ──
       let tendenciaHtml = '';
       if (esMes && promedioMesAnterior !== null) {
         const diferencia = promedio - promedioMesAnterior;
-        const subioBajo = diferencia >= 0 ? 'up' : 'down';
         const colorTendencia = diferencia >= 0 ? 'text-green-600' : 'text-red-600';
         const icono = diferencia >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
         tendenciaHtml = `<p class="text-[10px] font-bold ${colorTendencia} mt-0.5"><i class="fas ${icono}"></i> ${diferencia >= 0 ? '+' : ''}${diferencia.toFixed(2)} vs mes anterior</p>`;
@@ -493,6 +694,18 @@
       actualizarBotonesTabs();
     }
 
+    function cambiarSeccion(seccion) {
+      document.getElementById('seccion-general').classList.toggle('hidden', seccion !== 'general');
+      document.getElementById('seccion-campo').classList.toggle('hidden', seccion !== 'campo');
+      document.getElementById('seccion-taller').classList.toggle('hidden', seccion !== 'taller');
+
+      document.getElementById('btn-seccion-general').classList.toggle('active', seccion === 'general');
+      document.getElementById('btn-seccion-campo').classList.toggle('active', seccion === 'campo');
+      document.getElementById('btn-seccion-taller').classList.toggle('active', seccion === 'taller');
+    }
+
+    cambiarSeccion('campo');
+
   </script>
 
   <script>
@@ -506,7 +719,9 @@
     }
 
     function renderGraficaCriterios() {
-      const dataset = vistaCriterios === 'mes' ? operacionesDelMesGlobal : operacionesEvaluadas;
+      const dataset = vistaCriterios === 'mes' ? operacionesDelMesGlobal
+        : vistaCriterios === 'trimestre' ? operacionesTrimestreGlobal
+        : operacionesAnualGlobal;
 
       const promediosPorCriterio = CRITERIOS_CALIDAD.map(c => {
         const valores = dataset
@@ -532,13 +747,17 @@
     }
 
     function renderGraficaTendencia() {
-      const dataset = vistaTendencia === 'mes' ? operacionesDelMesGlobal : operacionesEvaluadas;
+      const dataset = vistaTendencia === 'mes' ? operacionesDelMesGlobal
+        : vistaTendencia === 'trimestre' ? operacionesTrimestreGlobal
+        : operacionesAnualGlobal;
 
       const tituloEl = document.getElementById('titulo-tendencia');
       if (tituloEl) {
         tituloEl.textContent = vistaTendencia === 'mes'
           ? 'Evolución del Promedio — Mes en Curso'
-          : 'Evolución del Promedio — Histórico General';
+          : vistaTendencia === 'trimestre'
+          ? 'Evolución del Promedio — Trimestre en Curso'
+          : 'Evolución del Promedio — Año en Curso';
       }
       const ordenCronologico = [...dataset].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
       const etiquetasFecha = ordenCronologico.map(op => new Date(op.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }));
@@ -565,7 +784,8 @@
 
     function actualizarBotonesTabs() {
       document.getElementById('btn-global-mes').classList.toggle('active', vistaKPIs === 'mes');
-      document.getElementById('btn-global-general').classList.toggle('active', vistaKPIs === 'general');
+      document.getElementById('btn-global-trimestre').classList.toggle('active', vistaKPIs === 'trimestre');
+      document.getElementById('btn-global-anual').classList.toggle('active', vistaKPIs === 'anual');
     }
 
     function abrirModalDetalle(opId) {
@@ -613,7 +833,9 @@
 
   <script>
     function renderTablaEvaluaciones() {
-      const dataset = vistaTabla === 'mes' ? operacionesDelMesGlobal : operacionesEvaluadas;
+      const dataset = vistaTabla === 'mes' ? operacionesDelMesGlobal
+        : vistaTabla === 'trimestre' ? operacionesTrimestreGlobal
+        : operacionesAnualGlobal;
       const tbody = document.getElementById('tabla-evaluaciones-body');
       tbody.innerHTML = dataset.map(op => {
         const prom = promedioOperacion(op);
@@ -644,6 +866,354 @@
       icono.classList.toggle('fa-chevron-down');
     }
 
+  </script>
+
+  <script>
+    // ══════════════════════════════════════════
+    //  SERVICIO EN TALLER
+    // ══════════════════════════════════════════
+    let operacionesTaller = [];
+    let operacionesTallerMesGlobal = [];
+    let operacionesTallerTrimestreGlobal = [];
+    let operacionesTallerAnualGlobal = [];
+    let vistaKPIsTaller = 'mes';
+    let vistaCriteriosTaller = 'mes';
+    let vistaTendenciaTaller = 'mes';
+    let vistaTablaTaller = 'mes';
+    let chartCriteriosTaller = null;
+    let chartTendenciaTaller = null;
+
+    async function cargarEvaluacionesTaller() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) return;
+
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/taller_evaluaciones?select=id,job_id,cliente,nombre_pozo,created_at,evaluacion_calidad&order=created_at.desc`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`
+          }
+        }
+      );
+      const data = await res.json();
+      operacionesTaller = Array.isArray(data) ? data : [];
+
+      renderKPIsTaller();
+      renderGraficaCriteriosTaller();
+      renderGraficaTendenciaTaller();
+      renderTablaEvaluacionesTaller();
+    }
+
+    function renderKPIsTaller() {
+      const cont = document.getElementById('contenedor-kpis-taller');
+      const total = operacionesTaller.length;
+
+      const fechaActual = new Date();
+      const mesActual = fechaActual.getMonth();
+      const anioActual = fechaActual.getFullYear();
+
+      const operacionesMes = operacionesTaller.filter(op => {
+        if (!op.created_at) return false;
+        const f = new Date(op.created_at);
+        return f.getMonth() === mesActual && f.getFullYear() === anioActual;
+      });
+      operacionesTallerMesGlobal = operacionesMes;
+
+      const inicioTrimestre = new Date(anioActual, mesActual - 2, 1);
+      const operacionesTrimestre = operacionesTaller.filter(op => {
+        if (!op.created_at) return false;
+        return new Date(op.created_at) >= inicioTrimestre;
+      });
+      operacionesTallerTrimestreGlobal = operacionesTrimestre;
+
+      const operacionesAnual = operacionesTaller.filter(op => {
+        if (!op.created_at) return false;
+        return new Date(op.created_at).getFullYear() === anioActual;
+      });
+      operacionesTallerAnualGlobal = operacionesAnual;
+
+      const promedioDe = (lista) => {
+        const vals = lista.map(promedioOperacion).filter(v => v !== null);
+        return vals.length ? vals.reduce((a,b)=>a+b,0) / vals.length : 0;
+      };
+      const bajosDe = (lista) => lista.reduce((acc, op) => {
+        CRITERIOS_CALIDAD.forEach(c => {
+          const val = op.evaluacion_calidad[c.id];
+          if (val && val <= 3) acc++;
+        });
+        return acc;
+      }, 0);
+
+      let cantidad, cantidadLabel, cantidadSub, promedio, promedioLabel, bajos, nivelLabel;
+
+      if (vistaKPIsTaller === 'mes') {
+        cantidad = operacionesMes.length;
+        cantidadLabel = 'Evaluaciones del Mes';
+        cantidadSub = obtenerMesAnioActual();
+        promedio = promedioDe(operacionesMes);
+        promedioLabel = 'Promedio Mensual';
+        bajos = bajosDe(operacionesMes);
+        nivelLabel = 'Nivel Mensual';
+      } else if (vistaKPIsTaller === 'trimestre') {
+        cantidad = operacionesTrimestre.length;
+        cantidadLabel = 'Evaluaciones del Trimestre';
+        cantidadSub = 'Últimos 3 meses';
+        promedio = promedioDe(operacionesTrimestre);
+        promedioLabel = 'Promedio Trimestral';
+        bajos = bajosDe(operacionesTrimestre);
+        nivelLabel = 'Nivel Trimestral';
+      } else {
+        cantidad = operacionesAnual.length;
+        cantidadLabel = 'Evaluaciones del Año';
+        cantidadSub = String(anioActual);
+        promedio = promedioDe(operacionesAnual);
+        promedioLabel = 'Promedio Anual';
+        bajos = bajosDe(operacionesAnual);
+        nivelLabel = 'Nivel Anual';
+      }
+
+      cont.innerHTML = `
+        <div class="kpi-card-mini">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">${cantidadLabel}</p>
+          <p class="text-3xl font-black text-slate-800">${cantidad}</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">${cantidadSub}</p>
+        </div>
+        <div class="kpi-card-mini">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">${promedioLabel}</p>
+          <p class="text-3xl font-black text-[#e31e24]">${promedio.toFixed(2)} / 5</p>
+        </div>
+        <div class="kpi-card-mini">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Criterios Bajos (≤3)</p>
+          <p class="text-3xl font-black ${bajos > 0 ? 'text-amber-500' : 'text-green-500'}">${bajos}</p>
+        </div>
+        <div class="kpi-card-mini">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">${nivelLabel}</p>
+          <p class="text-lg font-bold text-slate-800">${NIVEL_TEXTO[Math.round(promedio) - 1] || '—'}</p>
+        </div>
+      `;
+    }
+
+    function renderGraficaCriteriosTaller() {
+      const dataset = vistaCriteriosTaller === 'mes' ? operacionesTallerMesGlobal
+        : vistaCriteriosTaller === 'trimestre' ? operacionesTallerTrimestreGlobal
+        : operacionesTallerAnualGlobal;
+
+      const promedios = CRITERIOS_CALIDAD.map(c => {
+        const valores = dataset.map(op => op.evaluacion_calidad[c.id]).filter(v => v !== null && v !== undefined);
+        return valores.length ? valores.reduce((a,b)=>a+b,0) / valores.length : 0;
+      });
+
+      const ctx = document.getElementById('grafica-criterios-taller').getContext('2d');
+      if (chartCriteriosTaller) chartCriteriosTaller.destroy();
+      chartCriteriosTaller = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: CRITERIOS_CALIDAD.map(c => c.nombre),
+          datasets: [{ label: 'Promedio', data: promedios, backgroundColor: '#e31e24' }]
+        },
+        options: { scales: { y: { min: 0, max: 5 } }, plugins: { legend: { display: false } } }
+      });
+    }
+
+    function renderGraficaTendenciaTaller() {
+      const dataset = vistaTendenciaTaller === 'mes' ? operacionesTallerMesGlobal
+        : vistaTendenciaTaller === 'trimestre' ? operacionesTallerTrimestreGlobal
+        : operacionesTallerAnualGlobal;
+
+      const tituloEl = document.getElementById('titulo-tendencia-taller');
+      if (tituloEl) {
+        tituloEl.textContent = vistaTendenciaTaller === 'mes'
+          ? 'Evolución del Promedio — Mes en Curso'
+          : vistaTendenciaTaller === 'trimestre'
+          ? 'Evolución del Promedio — Trimestre en Curso'
+          : 'Evolución del Promedio — Año en Curso';
+      }
+
+      const orden = [...dataset].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+      const etiquetas = orden.map(op => new Date(op.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }));
+      const promedios = orden.map(promedioOperacion);
+
+      const ctx = document.getElementById('grafica-tendencia-taller').getContext('2d');
+      if (chartTendenciaTaller) chartTendenciaTaller.destroy();
+      chartTendenciaTaller = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: etiquetas,
+          datasets: [{
+            label: 'Promedio por operación',
+            data: promedios,
+            borderColor: '#e31e24',
+            backgroundColor: 'rgba(227,30,36,0.1)',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: { scales: { y: { min: 0, max: 5 } } }
+      });
+    }
+
+    function renderTablaEvaluacionesTaller() {
+      const dataset = vistaTablaTaller === 'mes' ? operacionesTallerMesGlobal
+        : vistaTablaTaller === 'trimestre' ? operacionesTallerTrimestreGlobal
+        : operacionesTallerAnualGlobal;
+
+      const tbody = document.getElementById('tabla-evaluaciones-taller-body');
+      tbody.innerHTML = dataset.map(op => {
+        const prom = promedioOperacion(op);
+        const nivel = prom ? Math.round(prom) : 0;
+        const color = NIVEL_COLOR[nivel - 1] || '#94a3b8';
+        const bgFila = nivel > 0 ? `${color}0d` : 'transparent';
+        return `
+          <tr class="border-b border-slate-50 fila-hover" style="background:${bgFila};" onclick="abrirModalDetalleTaller('${op.id}')">
+            <td class="py-2 pr-4 font-mono text-xs">${op.job_id || '—'}</td>
+            <td class="py-2 pr-4">${op.cliente || '—'}</td>
+            <td class="py-2 pr-4">${op.nombre_pozo || '—'}</td>
+            <td class="py-2 pr-4">${new Date(op.created_at).toLocaleDateString('es-MX')}</td>
+            <td class="py-2 pr-4">
+              <span class="px-2 py-1 rounded-full text-xs font-bold" style="background:${color}20; color:${color};">
+                ${prom ? prom.toFixed(2) : '—'} / 5
+              </span>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function cambiarVistaGlobalTaller(vista) {
+      vistaKPIsTaller = vista;
+      vistaCriteriosTaller = vista;
+      vistaTendenciaTaller = vista;
+      vistaTablaTaller = vista;
+      renderKPIsTaller();
+      renderGraficaCriteriosTaller();
+      renderGraficaTendenciaTaller();
+      renderTablaEvaluacionesTaller();
+      actualizarBotonesTabsTaller();
+    }
+
+    function actualizarBotonesTabsTaller() {
+      document.getElementById('btn-taller-mes').classList.toggle('active', vistaKPIsTaller === 'mes');
+      document.getElementById('btn-taller-trimestre').classList.toggle('active', vistaKPIsTaller === 'trimestre');
+      document.getElementById('btn-taller-anual').classList.toggle('active', vistaKPIsTaller === 'anual');
+    }
+
+    function toggleDetalleOperacionTaller() {
+      const cont = document.getElementById('contenido-detalle-operacion-taller');
+      const icono = document.getElementById('icono-detalle-operacion-taller');
+      cont.classList.toggle('hidden');
+      icono.classList.toggle('fa-chevron-up');
+      icono.classList.toggle('fa-chevron-down');
+    }
+
+    function abrirModalDetalleTaller(opId) {
+      const op = operacionesTaller.find(o => String(o.id) === String(opId));
+      if (!op) return;
+
+      document.getElementById('modal-detalle-titulo-taller').textContent = op.job_id || 'Evaluación';
+      document.getElementById('modal-detalle-subtitulo-taller').textContent =
+        `${op.cliente || '—'} · ${op.nombre_pozo || '—'} · ${new Date(op.created_at).toLocaleDateString('es-MX')}`;
+
+      const cont = document.getElementById('modal-detalle-criterios-taller');
+      cont.innerHTML = CRITERIOS_CALIDAD.map(c => {
+        const val = op.evaluacion_calidad[c.id];
+        const tieneValor = val !== null && val !== undefined;
+        const nivelIdx = tieneValor ? Math.round(val) : 0;
+        const color = tieneValor ? NIVEL_COLOR[nivelIdx - 1] : '#cbd5e1';
+        const pct = tieneValor ? (val / 5) * 100 : 0;
+        return `
+          <div>
+            <div class="flex items-center justify-between text-xs mb-1">
+              <span class="font-semibold text-slate-600">${c.nombre}</span>
+              <span class="font-bold" style="color:${color};">${tieneValor ? val.toFixed(1) + ' / 5' : '—'}</span>
+            </div>
+            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div class="h-full rounded-full" style="width:${pct}%; background:${color};"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const prom = promedioOperacion(op);
+      document.getElementById('modal-detalle-promedio-taller').textContent = prom ? `${prom.toFixed(2)} / 5` : '—';
+
+      document.getElementById('modal-detalle-evaluacion-taller').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarModalDetalleTaller(event) {
+      if (event && event.target.id !== 'modal-detalle-evaluacion-taller') return;
+      document.getElementById('modal-detalle-evaluacion-taller').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    // ── Modal "Agregar Evaluación" ──
+    function construirInputsCriteriosTaller() {
+      const cont = document.getElementById('taller-criterios-inputs');
+      cont.innerHTML = CRITERIOS_CALIDAD.map(c => `
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1">
+            <span class="font-semibold text-slate-600">${c.nombre}</span>
+            <span id="taller-valor-${c.id}" class="font-bold text-[#e31e24]">3</span>
+          </div>
+          <input id="taller-criterio-${c.id}" type="range" min="1" max="5" step="1" value="3"
+            class="w-full accent-[#e31e24]"
+            oninput="document.getElementById('taller-valor-${c.id}').textContent = this.value">
+        </div>
+      `).join('');
+    }
+
+    function abrirModalAgregarTaller() {
+      construirInputsCriteriosTaller();
+      const hoy = new Date().toISOString().split('T')[0];
+      document.getElementById('taller-fecha').value = hoy;
+      document.getElementById('modal-agregar-taller').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarModalAgregarTaller(event) {
+      if (event && event.target.id !== 'modal-agregar-taller') return;
+      document.getElementById('modal-agregar-taller').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    async function guardarEvaluacionTaller(event) {
+      event.preventDefault();
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) return;
+
+      const evaluacion_calidad = {};
+      CRITERIOS_CALIDAD.forEach(c => {
+        evaluacion_calidad[c.id] = Number(document.getElementById(`taller-criterio-${c.id}`).value);
+      });
+
+      const nuevaEvaluacion = {
+        job_id: document.getElementById('taller-job-id').value,
+        cliente: document.getElementById('taller-cliente').value,
+        nombre_pozo: document.getElementById('taller-pozo').value,
+        created_at: new Date(document.getElementById('taller-fecha').value).toISOString(),
+        evaluacion_calidad
+      };
+
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/taller_evaluaciones`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(nuevaEvaluacion)
+      });
+
+      if (res.ok) {
+        cerrarModalAgregarTaller();
+        document.getElementById('form-agregar-taller').reset();
+        cargarEvaluacionesTaller();
+      } else {
+        alert('Hubo un error al guardar la evaluación. Intenta de nuevo.');
+      }
+    }
   </script>
 
 </body>
