@@ -306,14 +306,23 @@
 </div>
 
 <script>
+  // Detecta si la página anfitriona declaró su cliente de Supabase como "sb" o como "supabaseClient"
+  const dbHeader = (typeof sb !== 'undefined') ? sb
+    : (typeof supabaseClient !== 'undefined') ? supabaseClient
+    : null;
+
+  if (!dbHeader) {
+    console.error('header.html: no se encontró ni "sb" ni "supabaseClient" en esta página.');
+  }
+
   async function abrirMiPerfil() {
     const modal = document.getElementById('modal-mi-perfil');
     modal.classList.remove('hidden');
 
-    const { data: { session } } = await supabaseClient.auth.getSession();
+    const { data: { session } } = await dbHeader.auth.getSession();
     if (!session) return;
 
-    const { data: perfil } = await supabaseClient
+    const { data: perfil } = await dbHeader
       .from('perfiles')
       .select('nombre_completo, fecha_nacimiento, fecha_ingreso')
       .eq('id', session.user.id)
@@ -336,10 +345,10 @@
   }
 
   async function cargarNotificaciones() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
+    const { data: { session } } = await dbHeader.auth.getSession();
     if (!session) return;
 
-    const { data: notifs } = await supabaseClient
+    const { data: notifs } = await dbHeader
       .from('notificaciones')
       .select('*')
       .eq('usuario_id', session.user.id)
@@ -376,26 +385,70 @@
   }
 
   async function marcarNotificacionesLeidas() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
+    const { data: { session } } = await dbHeader.auth.getSession();
     if (!session) return;
 
-    await supabaseClient.from('notificaciones').update({ leida: true }).eq('usuario_id', session.user.id).eq('leida', false);
+    await dbHeader.from('notificaciones').update({ leida: true }).eq('usuario_id', session.user.id).eq('leida', false);
     await cargarNotificaciones();
   }
 
   cargarNotificaciones();
+  suscribirNotificacionesRealtime();
+
+  async function suscribirNotificacionesRealtime() {
+    const { data: { session } } = await dbHeader.auth.getSession();
+    if (!session) return;
+
+    dbHeader
+      .channel('notificaciones-realtime-' + session.user.id)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notificaciones',
+        filter: `usuario_id=eq.${session.user.id}`,
+      }, (payload) => {
+        mostrarNotificacionEntrante(payload.new);
+        cargarNotificaciones();
+      })
+      .subscribe();
+  }
+
+  function mostrarNotificacionEntrante(notif) {
+    const badge = document.getElementById('badge-notificaciones');
+    if (badge) badge.classList.remove('hidden');
+
+    const banner = document.createElement('div');
+    banner.textContent = (notif.titulo || '🔔 Nueva notificación') + (notif.mensaje ? ': ' + notif.mensaje : '');
+    banner.style.cssText = `
+      position:fixed;top:16px;right:16px;z-index:100000;
+      background:#0e2044;color:white;padding:12px 18px;border-radius:12px;
+      font-size:12px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.25);
+      max-width:280px;opacity:0;transform:translateY(-8px);
+      transition:opacity .3s ease, transform .3s ease;
+    `;
+    document.body.appendChild(banner);
+    requestAnimationFrame(() => {
+      banner.style.opacity = '1';
+      banner.style.transform = 'translateY(0)';
+    });
+    setTimeout(() => {
+      banner.style.opacity = '0';
+      banner.style.transform = 'translateY(-8px)';
+      setTimeout(() => banner.remove(), 300);
+    }, 4500);
+  }
 
   async function guardarMiPerfil() {
     const btn = document.getElementById('btn-guardar-perfil');
     btn.disabled = true;
 
-    const { data: { session } } = await supabaseClient.auth.getSession();
+    const { data: { session } } = await dbHeader.auth.getSession();
     if (!session) { btn.disabled = false; return; }
 
     const fechaNacimiento = document.getElementById('perfil-fecha-nacimiento').value || null;
     const fechaIngreso = document.getElementById('perfil-fecha-ingreso').value || null;
 
-    const { error } = await supabaseClient
+    const { error } = await dbHeader
       .from('perfiles')
       .update({ fecha_nacimiento: fechaNacimiento, fecha_ingreso: fechaIngreso })
       .eq('id', session.user.id);

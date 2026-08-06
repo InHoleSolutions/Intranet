@@ -1508,10 +1508,13 @@
       const { data, error: e } = await sb.from('qhse_editions').insert({ ...payload, activa: true }).select('id').single();
       error = e;
       if (data) edId = data.id;
+    }
 
-      if (!error && edId) {
-        await notificarNuevaEdicionATodos(edId, payload.titulo || 'Nueva edición');
-      }
+    // Notifica en CUALQUIER guardado (nuevo o editado) donde el resultado final quede publicado.
+    // notificarNuevaEdicionATodos ya es seguro llamarlo aunque ya se haya notificado antes
+    // (el índice único clave_unica evita duplicados), así que no hace falta rastrear el estado anterior.
+    if (!error && edId && publicar) {
+      await notificarNuevaEdicionATodos(edId, payload.titulo || 'Nueva edición');
     }
 
     if (error) { toast('Error al guardar: ' + error.message, 'error'); return; }
@@ -1544,9 +1547,20 @@
 
   // ── PUBLICAR / DESPUBLICAR ──
   async function togglePublicar(id, actual) {
-    const { error } = await sb.from('qhse_editions').update({ publicada: !actual }).eq('id', id);
+    const { data, error } = await sb
+      .from('qhse_editions')
+      .update({ publicada: !actual })
+      .eq('id', id)
+      .select('titulo')
+      .single();
+
     if (error) { toast('Error: ' + error.message, 'error'); return; }
     toast(!actual ? '✅ Edición publicada' : '⬇️ Edición despublicada');
+
+    if (!actual) { // pasó de borrador a publicada
+      await notificarNuevaEdicionATodos(id, data?.titulo || 'Nueva edición');
+    }
+
     loadDashboard();
   }
 
