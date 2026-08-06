@@ -186,8 +186,8 @@
 
   <!-- ── MODAL AGREGAR/EDITAR ── -->
   <div id="modal-form" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200/50">
-      <div class="page-banner flex items-center justify-between px-6 py-5">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden border border-slate-200/50">
+      <div class="page-banner flex items-center justify-between px-6 py-5 flex-shrink-0">
         <div class="relative flex items-center gap-3">
           <div class="w-9 h-9 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/10">
             <i class="fas fa-file-circle-plus text-white text-sm"></i>
@@ -198,14 +198,26 @@
           <i class="fas fa-times"></i>
         </button>
       </div>
-      <div class="p-6 space-y-4">
+
+      <div class="p-6 space-y-4 overflow-y-auto">
         <input type="hidden" id="form-id">
         <input type="hidden" id="form-archivo-url">
+        <input type="hidden" id="form-imagen-url">
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Nombre de la Política</label>
-          <input type="text" id="form-nombre" placeholder="ej. Política de Calidad SGI"
-            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#e31e24] transition">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Nombre de la Política</label>
+            <input type="text" id="form-nombre" placeholder="ej. Política de Calidad SGI"
+              class="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#e31e24] transition">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Categoría</label>
+            <select id="form-categoria"
+              class="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#e31e24] transition">
+              <option value="SGI">SGI</option>
+              <option value="Generales">Generales</option>
+            </select>
+          </div>
         </div>
 
         <div>
@@ -214,45 +226,82 @@
             class="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#e31e24] transition resize-none"></textarea>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Categoría</label>
-          <select id="form-categoria"
-            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#e31e24] transition">
-            <option value="SGI">SGI</option>
-            <option value="Generales">Generales</option>
-          </select>
+        <!-- Subir archivo y subir imagen lado a lado -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Subir Archivo PDF</label>
+            <div id="drop-zone" class="drop-zone rounded-xl p-6 text-center cursor-pointer bg-slate-50 hover:bg-red-50/30 transition"
+                 onclick="document.getElementById('file-input').click()"
+                 ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+              <input type="file" id="file-input" accept=".pdf" class="hidden" onchange="archivoSeleccionado(this.files[0])">
+              <div id="drop-content">
+                <i class="fas fa-cloud-arrow-up text-3xl text-slate-300 mb-2"></i>
+                <p class="text-sm font-semibold text-slate-500">Haz clic o arrastra un PDF aquí</p>
+                <p class="text-xs text-slate-400 mt-1">Solo archivos PDF</p>
+              </div>
+              <div id="file-selected" class="hidden flex items-center justify-center gap-3">
+                <i class="fas fa-file-pdf text-2xl text-red-500"></i>
+                <div class="text-left">
+                  <p id="file-name" class="text-sm font-bold text-slate-700 truncate max-w-[240px]"></p>
+                  <p id="file-size" class="text-xs text-slate-400"></p>
+                </div>
+                <button type="button" onclick="quitarArchivo(event)"
+                  class="ml-2 h-6 w-6 rounded-full bg-slate-200 hover:bg-red-100 hover:text-red-600 text-slate-500 flex items-center justify-center text-xs transition">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+            <div id="archivo-actual" class="hidden mt-2 flex items-center gap-2 text-xs text-slate-500">
+              <i class="fas fa-file-pdf text-red-500"></i>
+              <span id="archivo-actual-nombre" class="truncate"></span>
+              <span class="text-slate-400">(archivo actual)</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Imagen de la Política (opcional)</label>
+            <div id="drop-zone-img" class="drop-zone rounded-xl p-4 text-center cursor-pointer bg-slate-50 hover:bg-red-50/30 transition"
+                 onclick="document.getElementById('imagen-input').click()"
+                 ondragover="dragOverImg(event)" ondragleave="dragLeaveImg(event)" ondrop="dropImagen(event)">
+              <input type="file" id="imagen-input" accept="image/*" class="hidden" onchange="imagenSeleccionada(this.files[0])">
+              <div id="drop-content-img">
+                <i class="fas fa-image text-2xl text-slate-300 mb-1.5"></i>
+                <p class="text-sm font-semibold text-slate-500">Haz clic o arrastra una imagen aquí</p>
+                <p class="text-xs text-slate-400 mt-1">JPG, PNG o WEBP</p>
+              </div>
+              <div id="imagen-preview-wrap" class="hidden flex items-center justify-center gap-3">
+                <img id="imagen-preview" class="w-14 h-14 object-cover rounded-lg border border-slate-200" src="">
+                <div class="text-left">
+                  <p id="imagen-nombre" class="text-sm font-bold text-slate-700 truncate max-w-[200px]"></p>
+                  <p id="imagen-tamano" class="text-xs text-slate-400"></p>
+                </div>
+                <button type="button" onclick="quitarImagen(event)"
+                  class="ml-2 h-6 w-6 rounded-full bg-slate-200 hover:bg-red-100 hover:text-red-600 text-slate-500 flex items-center justify-center text-xs transition">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+            <div id="imagen-actual" class="hidden mt-2 flex items-center gap-3 text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-xl p-2.5">
+              <img id="imagen-actual-preview" class="w-12 h-12 object-cover rounded-lg border border-slate-200 shadow-sm flex-shrink-0" src="">
+              <div>
+                <p class="font-semibold text-slate-600">Imagen actual</p>
+                <p class="text-slate-400">Sube una nueva para reemplazarla</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Subir archivo -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Subir Archivo PDF</label>
-          <div id="drop-zone" class="drop-zone rounded-xl p-6 text-center cursor-pointer bg-slate-50 hover:bg-red-50/30 transition"
-               onclick="document.getElementById('file-input').click()"
-               ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
-            <input type="file" id="file-input" accept=".pdf" class="hidden" onchange="archivoSeleccionado(this.files[0])">
-            <div id="drop-content">
-              <i class="fas fa-cloud-arrow-up text-3xl text-slate-300 mb-2"></i>
-              <p class="text-sm font-semibold text-slate-500">Haz clic o arrastra un PDF aquí</p>
-              <p class="text-xs text-slate-400 mt-1">Solo archivos PDF</p>
-            </div>
-            <div id="file-selected" class="hidden flex items-center justify-center gap-3">
-              <i class="fas fa-file-pdf text-2xl text-red-500"></i>
-              <div class="text-left">
-                <p id="file-name" class="text-sm font-bold text-slate-700 truncate max-w-[240px]"></p>
-                <p id="file-size" class="text-xs text-slate-400"></p>
-              </div>
-              <button type="button" onclick="quitarArchivo(event)"
-                class="ml-2 h-6 w-6 rounded-full bg-slate-200 hover:bg-red-100 hover:text-red-600 text-slate-500 flex items-center justify-center text-xs transition">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
+        <!-- Vista previa de encuadre: arrastra la imagen para ajustar -->
+        <div id="encuadre-wrap" class="hidden mt-3">
+          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+            Encuadre en la tarjeta <span class="normal-case font-normal text-slate-400">(arrastra la imagen)</span>
+          </label>
+          <div id="encuadre-caja" class="relative h-28 w-full rounded-xl overflow-hidden border border-slate-200 bg-slate-100 cursor-move select-none">
+            <img id="encuadre-preview" class="absolute w-full h-full object-cover pointer-events-none" style="object-position: 50% 50%;" src="" draggable="false">
+            <div class="absolute inset-0 border-2 border-dashed border-white/60 pointer-events-none"></div>
           </div>
-          <!-- Archivo actual al editar -->
-          <div id="archivo-actual" class="hidden mt-2 flex items-center gap-2 text-xs text-slate-500">
-            <i class="fas fa-file-pdf text-red-500"></i>
-            <span id="archivo-actual-nombre" class="truncate"></span>
-            <span class="text-slate-400">(archivo actual)</span>
-          </div>
+          <p class="text-[11px] text-slate-400 mt-1">Haz clic y arrastra dentro del recuadro para elegir qué parte se ve.</p>
+          <input type="hidden" id="form-imagen-posicion" value="50% 50%">
         </div>
 
         <!-- Barra de progreso -->
@@ -269,7 +318,7 @@
         <div id="form-error" class="hidden p-3 rounded-xl bg-red-50 border border-red-100 text-red-700 text-sm font-medium"></div>
       </div>
 
-      <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/70">
+      <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/70 flex-shrink-0">
         <button onclick="cerrarModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold text-sm hover:bg-slate-100 transition">Cancelar</button>
         <button onclick="guardarPolitica()" id="btn-guardar"
           class="px-5 py-2.5 rounded-xl bg-[#e31e24] hover:bg-[#b3161b] text-white font-semibold text-sm shadow-lg shadow-red-200 transition disabled:opacity-50">
@@ -331,10 +380,11 @@
     let vistaActual = 'grid'; // 'grid' o 'lista'
     let politicaAEliminar = null;
     let archivoActual = null; // File object seleccionado
+    let imagenActual = null; // File object de imagen seleccionado
 
     const iconos = {
-      'SGI':       { icon: 'fa-shield-halved', color: 'bg-blue-100 text-blue-600', solid: '#2563eb', dark: '#1d4ed8' },
-      'Generales': { icon: 'fa-file-contract', color: 'bg-purple-100 text-purple-600', solid: '#9333ea', dark: '#7e22ce' }
+      'SGI':       { icon: 'fa-shield-halved', color: 'bg-blue-100 text-blue-600', solid: '#2563eb', dark: '#1d4ed8', imagen: '../assets/imagenes/politicas/sgi.jpg' },
+      'Generales': { icon: 'fa-file-contract', color: 'bg-purple-100 text-purple-600', solid: '#9333ea', dark: '#7e22ce', imagen: '../assets/imagenes/politicas/generales.jpg' }
     };
 
     function obtenerBadgeEstado(p) {
@@ -568,12 +618,20 @@
                   <span class="absolute top-2 left-2 ${badgeEstado.color} text-white text-[9px] font-bold uppercase tracking-wide px-2 py-1 rounded-full shadow-sm z-10">
                     ${badgeEstado.texto}
                   </span>` : ''}
+                  ${p.imagen ? `
+                  <img src="${p.imagen}" alt="${p.nombre}"
+                       style="object-position: ${p.imagen_posicion || 'center'};"
+                       class="absolute inset-0 w-full h-full object-cover transition-transform duration-200 group-hover/preview:scale-105"
+                       onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <div class="relative w-12 h-16 bg-white rounded-md shadow-sm border border-slate-200 hidden flex-col items-center justify-center gap-1.5">
+                    <i class="fas ${ic2.icon} text-sm" style="color: ${ic2.solid || '#94a3b8'}"></i>
+                  </div>` : `
                   <div class="relative w-12 h-16 bg-white rounded-md shadow-sm border border-slate-200 flex flex-col items-center justify-center gap-1.5 transition-transform duration-200 group-hover/preview:-translate-y-1">
                     <div class="absolute top-0 right-0 w-0 h-0" style="border-style: solid; border-width: 0 8px 8px 0; border-color: transparent #e2e8f0 transparent transparent;"></div>
                     <i class="fas ${ic2.icon} text-sm" style="color: ${ic2.solid || '#94a3b8'}"></i>
                     <div class="w-6 h-[3px] bg-slate-100 rounded-full"></div>
                     <div class="w-5 h-[3px] bg-slate-100 rounded-full"></div>
-                  </div>
+                  </div>`}
                   <div class="absolute inset-0 bg-[#1e293b]/0 group-hover/preview:bg-[#1e293b]/50 transition-colors duration-200 flex items-center justify-center">
                     <span class="text-white text-xs font-semibold opacity-0 group-hover/preview:opacity-100 transition-opacity duration-200 flex items-center gap-1.5">
                       <i class="fas fa-eye text-[10px]"></i> Ver documento
@@ -683,18 +741,109 @@
       document.getElementById('file-selected').classList.add('hidden');
     }
 
+    // ── Drag & Drop de imagen ──
+    function dragOverImg(e) { e.preventDefault(); document.getElementById('drop-zone-img').classList.add('drag-over'); }
+    function dragLeaveImg(e) { document.getElementById('drop-zone-img').classList.remove('drag-over'); }
+    function dropImagen(e) {
+      e.preventDefault();
+      document.getElementById('drop-zone-img').classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) imagenSeleccionada(file);
+    }
+
+    function imagenSeleccionada(file) {
+      if (!file || !file.type.startsWith('image/')) {
+        mostrarToast('Solo se permiten archivos de imagen', true);
+        return;
+      }
+      imagenActual = file;
+      const url = URL.createObjectURL(file);
+      document.getElementById('drop-content-img').classList.add('hidden');
+      document.getElementById('imagen-preview-wrap').classList.remove('hidden');
+      document.getElementById('imagen-preview-wrap').classList.add('flex');
+      document.getElementById('imagen-preview').src = url;
+      document.getElementById('imagen-nombre').innerText = file.name;
+      document.getElementById('imagen-tamano').innerText = (file.size / 1024).toFixed(1) + ' KB';
+
+      // Mostrar el bloque de encuadre con la nueva imagen
+      document.getElementById('encuadre-wrap').classList.remove('hidden');
+      document.getElementById('encuadre-preview').src = url;
+      setEncuadreDesdeValor('50% 50%');
+    }
+
+    function quitarImagen(e) {
+      e.stopPropagation();
+      imagenActual = null;
+      document.getElementById('imagen-input').value = '';
+      document.getElementById('drop-content-img').classList.remove('hidden');
+      document.getElementById('imagen-preview-wrap').classList.add('hidden');
+      document.getElementById('imagen-preview-wrap').classList.remove('flex');
+      document.getElementById('encuadre-wrap').classList.add('hidden');
+    }
+
+    // ── Arrastrar para ajustar encuadre ──
+    let encuadrePosX = 50, encuadrePosY = 50; // porcentaje
+    let arrastrando = false;
+
+    function actualizarEncuadre() {
+      const pos = `${encuadrePosX}% ${encuadrePosY}%`;
+      document.getElementById('encuadre-preview').style.objectPosition = pos;
+      document.getElementById('form-imagen-posicion').value = pos;
+    }
+
+    function moverEncuadreDesdeEvento(e) {
+      const caja = document.getElementById('encuadre-caja');
+      const rect = caja.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      let x = ((clientX - rect.left) / rect.width) * 100;
+      let y = ((clientY - rect.top) / rect.height) * 100;
+      x = Math.max(0, Math.min(100, x));
+      y = Math.max(0, Math.min(100, y));
+      encuadrePosX = x;
+      encuadrePosY = y;
+      actualizarEncuadre();
+    }
+
+    function iniciarEncuadreListeners() {
+      const caja = document.getElementById('encuadre-caja');
+      if (!caja || caja.dataset.listo) return;
+      caja.dataset.listo = '1';
+
+      caja.addEventListener('mousedown', e => { arrastrando = true; moverEncuadreDesdeEvento(e); });
+      window.addEventListener('mousemove', e => { if (arrastrando) moverEncuadreDesdeEvento(e); });
+      window.addEventListener('mouseup', () => { arrastrando = false; });
+
+      caja.addEventListener('touchstart', e => { arrastrando = true; moverEncuadreDesdeEvento(e); });
+      window.addEventListener('touchmove', e => { if (arrastrando) moverEncuadreDesdeEvento(e); });
+      window.addEventListener('touchend', () => { arrastrando = false; });
+    }
+
+    function setEncuadreDesdeValor(valor) {
+      const partes = (valor || '50% 50%').replace(/%/g, '').trim().split(/\s+/);
+      encuadrePosX = parseFloat(partes[0]) || 50;
+      encuadrePosY = parseFloat(partes[1]) || 50;
+      actualizarEncuadre();
+      iniciarEncuadreListeners();
+    }
+
     // ── Modal Agregar/Editar ──
     function abrirModal() {
       document.getElementById('form-id').value = '';
       document.getElementById('form-archivo-url').value = '';
+      document.getElementById('form-imagen-url').value = '';
       document.getElementById('form-nombre').value = '';
       document.getElementById('form-descripcion').value = '';
       document.getElementById('form-categoria').value = 'SGI';
       document.getElementById('form-error').classList.add('hidden');
       document.getElementById('archivo-actual').classList.add('hidden');
+      document.getElementById('imagen-actual').classList.add('hidden');
+      document.getElementById('encuadre-wrap').classList.add('hidden');
+      document.getElementById('form-imagen-posicion').value = '50% 50%';
       document.getElementById('modal-titulo').innerText = 'Agregar Política';
       document.getElementById('btn-guardar-text').innerText = 'Guardar';
       quitarArchivo({ stopPropagation: () => {} });
+      quitarImagen({ stopPropagation: () => {} });
       document.getElementById('modal-form').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
     }
@@ -702,6 +851,7 @@
     function abrirEditar(p) {
       document.getElementById('form-id').value = p.id;
       document.getElementById('form-archivo-url').value = p.archivo;
+      document.getElementById('form-imagen-url').value = p.imagen || '';
       document.getElementById('form-nombre').value = p.nombre;
       document.getElementById('form-descripcion').value = p.descripcion || '';
       document.getElementById('form-categoria').value = p.categoria;
@@ -714,7 +864,19 @@
         : p.archivo;
       document.getElementById('archivo-actual-nombre').innerText = nombreArchivo;
       document.getElementById('archivo-actual').classList.remove('hidden');
+      // Mostrar imagen actual si existe
+      if (p.imagen) {
+        document.getElementById('imagen-actual-preview').src = p.imagen;
+        document.getElementById('imagen-actual').classList.remove('hidden');
+        document.getElementById('encuadre-wrap').classList.remove('hidden');
+        document.getElementById('encuadre-preview').src = p.imagen;
+        setEncuadreDesdeValor(p.imagen_posicion || '50% 50%');
+      } else {
+        document.getElementById('imagen-actual').classList.add('hidden');
+        document.getElementById('encuadre-wrap').classList.add('hidden');
+      }
       quitarArchivo({ stopPropagation: () => {} });
+      quitarImagen({ stopPropagation: () => {} });
       document.getElementById('modal-form').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
     }
@@ -733,6 +895,7 @@
       const errEl    = document.getElementById('form-error');
       const btn      = document.getElementById('btn-guardar');
       let archivoUrl = document.getElementById('form-archivo-url').value;
+      let imagenUrl  = document.getElementById('form-imagen-url').value;
 
       if (!nombre) {
         errEl.innerText = 'El nombre es obligatorio.';
@@ -789,11 +952,47 @@
         const { data: urlData } = supabaseClient.storage.from('politicas').getPublicUrl(nombreArchivo);
         archivoUrl = urlData.publicUrl;
 
-        document.getElementById('progreso-bar').style.width = '100%';
-        document.getElementById('progreso-pct').innerText = '100%';
+        document.getElementById('progreso-bar').style.width = '90%';
+        document.getElementById('progreso-pct').innerText = '90%';
       }
 
-      const payload = { nombre, descripcion: desc, categoria: cat, archivo: archivoUrl, updated_at: new Date().toISOString() };
+      // Subir imagen si hay una nueva
+      if (imagenActual) {
+        document.getElementById('progreso-container').classList.remove('hidden');
+
+        const extImg = imagenActual.name.split('.').pop();
+        const sanitizarNombre = (nombre) => {
+          return nombre
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/ñ/gi, 'n')
+            .replace(/[^a-zA-Z0-9._-]/g, '_')
+            .replace(/_+/g, '_');
+        };
+        const nombreImagen = `${Date.now()}_${sanitizarNombre(imagenActual.name)}`;
+
+        const { data: uploadImgData, error: uploadImgError } = await supabaseClient.storage
+          .from('imagenes-politicas')
+          .upload(nombreImagen, imagenActual, { cacheControl: '3600', upsert: false });
+
+        if (uploadImgError) {
+          errEl.innerText = 'Error al subir la imagen: ' + uploadImgError.message;
+          errEl.classList.remove('hidden');
+          btn.disabled = false;
+          document.getElementById('btn-guardar-text').innerText = id ? 'Actualizar' : 'Guardar';
+          document.getElementById('progreso-container').classList.add('hidden');
+          return;
+        }
+
+        const { data: urlImgData } = supabaseClient.storage.from('imagenes-politicas').getPublicUrl(nombreImagen);
+        imagenUrl = urlImgData.publicUrl;
+      }
+
+      document.getElementById('progreso-bar').style.width = '100%';
+      document.getElementById('progreso-pct').innerText = '100%';
+
+      const imagenPosicion = document.getElementById('form-imagen-posicion').value;
+      const payload = { nombre, descripcion: desc, categoria: cat, archivo: archivoUrl, imagen: imagenUrl || null, imagen_posicion: imagenPosicion, updated_at: new Date().toISOString() };
 
       let error;
       if (id) {
