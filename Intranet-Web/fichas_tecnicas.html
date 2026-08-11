@@ -51,7 +51,7 @@
             <div id="vista-dashboard">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-bold text-slate-700">Fichas guardadas</h3>
-                    <button onclick="mostrarVista('formulario')"
+                    <button onclick="mostrarVista('categorias')"
                         class="bg-[#e31e24] hover:bg-[#b3161b] text-white px-6 py-3 rounded-xl text-sm font-bold uppercase tracking-widest transition-all">
                         <i class="fas fa-plus mr-2"></i>Nueva ficha
                     </button>
@@ -75,121 +75,157 @@
                     Aún no hay fichas creadas.
                 </p>
             </div>
+            <!-- ==================== VISTA: SELECCIÓN DE CATEGORÍA ==================== -->
+            <div id="vista-categorias" class="hidden">
+                <button onclick="mostrarVista('dashboard')" class="text-sm text-slate-500 hover:text-slate-700 mb-6">
+                    <i class="fas fa-arrow-left mr-1"></i> Volver
+                </button>
+                <h3 class="text-lg font-bold text-slate-700 mb-6">¿Qué tipo de ficha vas a crear?</h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl">
+                    <button type="button" onclick="irASubcategorias('Cementing')"
+                        class="group text-left p-8 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:border-[#e31e24] transition-all">
+                        <i class="fas fa-oil-well text-[#e31e24] text-4xl mb-6"></i>
+                        <h4 class="text-lg font-bold text-slate-800 mb-2">Cementing</h4>
+                        <p class="text-slate-500 text-sm leading-relaxed">Productos y accesorios de cementación.</p>
+                    </button>
+
+                    <button type="button" onclick="irASubcategorias('Cased Hole Completions (CHC)')"
+                        class="group text-left p-8 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:border-[#e31e24] transition-all">
+                        <i class="fas fa-toolbox text-[#e31e24] text-4xl mb-6"></i>
+                        <h4 class="text-lg font-bold text-slate-800 mb-2">Cased Hole Completions (CHC)</h4>
+                        <p class="text-slate-500 text-sm leading-relaxed">Productos de terminación de pozo entubado.</p>
+                    </button>
+
+                    <button type="button" onclick="irASubcategorias('Artificial Lift Systems')"
+                        class="group text-left p-8 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:border-[#e31e24] transition-all">
+                        <i class="fas fa-gauge-high text-[#e31e24] text-4xl mb-6"></i>
+                        <h4 class="text-lg font-bold text-slate-800 mb-2">Artificial Lift Systems</h4>
+                        <p class="text-slate-500 text-sm leading-relaxed">Sistemas de levantamiento artificial.</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ==================== VISTA: SUBCATEGORÍAS ==================== -->
+            <div id="vista-subcategorias" class="hidden">
+                <button onclick="mostrarVista('categorias')" class="text-sm text-slate-500 hover:text-slate-700 mb-6">
+                    <i class="fas fa-arrow-left mr-1"></i> Volver
+                </button>
+                <h3 class="text-lg font-bold text-slate-700 mb-1">¿Qué producto vas a documentar?</h3>
+                <p id="subcategoria-titulo-padre" class="text-sm text-slate-400 mb-6"></p>
+
+                <div id="grid-subcategorias" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl"></div>
+            </div>
+
             <!-- ==================== VISTA: NUEVA FICHA ==================== -->
             <div id="vista-formulario" class="hidden">
-                <button onclick="mostrarVista('dashboard')" class="text-sm text-slate-500 hover:text-slate-700 mb-4">
-                    <i class="fas fa-arrow-left mr-1"></i> Volver al dashboard
-                </button>
-                <h3 class="text-lg font-bold text-slate-700 mb-6">Nueva ficha técnica</h3>
 
-                <form id="form-ficha" class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-8">
-
-                    <!-- DATOS GENERALES -->
+                <!-- Encabezado -->
+                <div class="flex items-center justify-between mb-6">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Datos generales</p>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button onclick="mostrarVista('subcategorias')" class="text-sm text-slate-500 hover:text-slate-700 mb-2">
+                            <i class="fas fa-arrow-left mr-1"></i> Volver
+                        </button>
+                        <h3 class="text-2xl font-black text-slate-800 tracking-tight">Nueva Ficha Técnica</h3>
+                        <p id="f-subtitulo-subcategoria" class="text-sm text-slate-400 mt-1"></p>
+                    </div>
+                    <div class="hidden sm:flex flex-col items-end">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Código de ficha</span>
+                        <span id="f-codigo-display" class="text-xl font-black text-[#e31e24]">Generando...</span>
+                    </div>
+                </div>
+
+                <form id="form-ficha" class="space-y-6 pb-28">
+
+                    <input type="hidden" id="f-codigo">
+                    <input type="hidden" id="f-categoria">
+                    <input type="hidden" id="f-subcategoria">
+
+                    <!-- SECCIÓN 1: INFORMACIÓN GENERAL -->
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="flex items-center gap-3 px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+                            <span class="w-8 h-8 rounded-full bg-[#e31e24] text-white flex items-center justify-center text-xs font-black shrink-0">1</span>
+                            <i class="fas fa-file-signature text-[#e31e24]"></i>
+                            <h4 class="text-sm font-black uppercase tracking-widest text-slate-600">Información General</h4>
+                        </div>
+                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div class="md:col-span-2">
                                 <label class="text-xs font-bold text-slate-500">Título del producto *</label>
                                 <input type="text" id="f-titulo" required
-                                    class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]"
+                                    class="w-full mt-1.5 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#e31e24]/20 focus:border-[#e31e24] transition-all"
                                     placeholder='Ej. Auto Fill Double Valve Non-Rotating Float Collar 7.000" 23-38Lb-ft N80 BTC'>
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-slate-500">Código (opcional)</label>
-                                <input type="text" id="f-codigo"
-                                    class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]"
-                                    placeholder="Ej. OP-FT-IHS-013">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-slate-500">Categoría / Línea de producto</label>
-                                <input type="text" id="f-categoria"
-                                    class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]"
-                                    placeholder="Ej. Cementing Products">
                             </div>
                             <div class="md:col-span-2">
                                 <label class="text-xs font-bold text-slate-500">Descripción</label>
                                 <textarea id="f-descripcion" rows="3"
-                                    class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]"></textarea>
+                                    class="w-full mt-1.5 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#e31e24]/20 focus:border-[#e31e24] transition-all"></textarea>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="text-xs font-bold text-slate-500">Part Number</label>
+                                <input type="text" id="f-part-number"
+                                    class="w-full mt-1.5 border border-slate-200 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#e31e24]/20 focus:border-[#e31e24] transition-all"
+                                    placeholder="Ej. AF13372110521W">
                             </div>
                             <div class="md:col-span-2">
                                 <label class="text-xs font-bold text-slate-500">Imagen del producto</label>
                                 <input type="file" id="f-imagen" accept="image/*"
-                                    class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm">
+                                    class="w-full mt-1.5 border border-slate-200 rounded-xl px-4 py-3 text-sm">
                             </div>
                         </div>
                     </div>
 
-                    <!-- DIMENSIONS -->
-                    <div>
-                        <div class="flex justify-between items-center mb-3">
-                            <p class="text-xs font-black uppercase tracking-widest text-slate-400">Dimensions</p>
-                            <button type="button" onclick="agregarFila('dimensiones')"
-                                class="text-xs font-bold text-[#e31e24] hover:underline"><i
-                                    class="fas fa-plus mr-1"></i>Agregar fila</button>
+                    <!-- SECCIÓN 2: DIMENSIONS & SPECIFICATIONS -->
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="flex items-center gap-3 px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+                            <span class="w-8 h-8 rounded-full bg-[#e31e24] text-white flex items-center justify-center text-xs font-black shrink-0">2</span>
+                            <i class="fas fa-ruler-combined text-[#e31e24]"></i>
+                            <h4 class="text-sm font-black uppercase tracking-widest text-slate-600">Dimensions & Specifications</h4>
                         </div>
-                        <div id="filas-dimensiones" class="space-y-2"></div>
+                        <div class="grid grid-cols-[2fr_1fr_1fr] gap-2 px-6 pt-4 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                            <span>Especificación</span><span>Imperial</span><span>Metric</span>
+                        </div>
+                        <div id="filas-dimensiones" class="px-6 pb-6"></div>
                     </div>
 
-                    <!-- MATERIAL SPECIFICATIONS -->
-                    <div>
-                        <div class="flex justify-between items-center mb-3">
-                            <p class="text-xs font-black uppercase tracking-widest text-slate-400">Material
-                                Specifications</p>
-                            <button type="button" onclick="agregarFila('material')"
-                                class="text-xs font-bold text-[#e31e24] hover:underline"><i
-                                    class="fas fa-plus mr-1"></i>Agregar fila</button>
+                    <!-- SECCIÓN 3: MATERIAL INFORMATION -->
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="flex items-center gap-3 px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+                            <span class="w-8 h-8 rounded-full bg-[#e31e24] text-white flex items-center justify-center text-xs font-black shrink-0">3</span>
+                            <i class="fas fa-flask text-[#e31e24]"></i>
+                            <h4 class="text-sm font-black uppercase tracking-widest text-slate-600">Material Information</h4>
                         </div>
-                        <div id="filas-material" class="space-y-2"></div>
+                        <div class="grid grid-cols-[2fr_3fr] gap-2 px-6 pt-4 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                            <span>Especificación</span><span>Valor</span>
+                        </div>
+                        <div id="filas-material" class="px-6 pb-6"></div>
                     </div>
 
-                    <!-- RATINGS -->
-                    <div>
-                        <div class="flex justify-between items-center mb-3">
-                            <p class="text-xs font-black uppercase tracking-widest text-slate-400">Ratings</p>
-                            <button type="button" onclick="agregarFila('ratings')"
-                                class="text-xs font-bold text-[#e31e24] hover:underline"><i
-                                    class="fas fa-plus mr-1"></i>Agregar fila</button>
+                    <!-- SECCIÓN 4: RATINGS -->
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="flex items-center gap-3 px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+                            <span class="w-8 h-8 rounded-full bg-[#e31e24] text-white flex items-center justify-center text-xs font-black shrink-0">4</span>
+                            <i class="fas fa-gauge-high text-[#e31e24]"></i>
+                            <h4 class="text-sm font-black uppercase tracking-widest text-slate-600">Ratings</h4>
                         </div>
-                        <div id="filas-ratings" class="space-y-2"></div>
-                    </div>
-
-                    <!-- FIRMAS -->
-                    <div>
-                        <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Elaboración</p>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div>
-                                <label class="text-xs font-bold text-slate-500">Realizó</label>
-                                <input type="text" id="f-realizo"
-                                    class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-slate-500">Aprobó</label>
-                                <input type="text" id="f-aprobo"
-                                    class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-slate-500">Versión</label>
-                                <input type="text" id="f-version" value="1"
-                                    class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-slate-500">Fecha</label>
-                                <input type="date" id="f-fecha"
-                                    class="w-full mt-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e31e24]">
-                            </div>
+                        <div class="grid grid-cols-[2fr_3fr] gap-2 px-6 pt-4 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                            <span>Especificación</span><span>Valor</span>
                         </div>
-                    </div>
-
-                    <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
-                        <button type="button" onclick="mostrarVista('dashboard')"
-                            class="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50">Cancelar</button>
-                        <button type="submit" id="btn-guardar-ficha"
-                            class="bg-[#e31e24] hover:bg-[#b3161b] text-white px-8 py-3 rounded-xl text-sm font-bold uppercase tracking-widest transition-all">
-                            Guardar ficha
-                        </button>
+                        <div id="filas-ratings" class="px-6 pb-6"></div>
                     </div>
 
                 </form>
+
+                <!-- Barra de acción fija -->
+                <div class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur border-t border-slate-200 px-6 py-4 z-20">
+                    <div class="max-w-[1400px] mx-auto flex justify-end gap-3">
+                        <button type="button" onclick="mostrarVista('dashboard')"
+                            class="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 transition-all">Cancelar</button>
+                        <button type="submit" form="form-ficha" id="btn-guardar-ficha"
+                            class="bg-[#e31e24] hover:bg-[#b3161b] text-white px-8 py-3 rounded-xl text-sm font-bold uppercase tracking-widest shadow-lg shadow-[#e31e24]/20 transition-all">
+                            <i class="fas fa-check mr-2"></i>Guardar ficha
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -215,6 +251,7 @@
                 scriptViejo.replaceWith(scriptNuevo);
             });
         }
+
         document.addEventListener('supabaseListo', () => {
             fetch('header.html')
                 .then(r => r.text())
@@ -277,12 +314,55 @@
             cargarFichas();
         }
 
-        // Alterna entre las vistas "dashboard" y "formulario"
+        // Mapa de categoría -> subcategorías
+        const subcategoriasPorCategoria = {
+            'Cementing': ['Float Collars', 'Guide Shoes', 'Drilling and Reamers Shoe', 'Centradores', 'Stop Collars'],
+            'Cased Hole Completions (CHC)': ['Packers'],
+            'Artificial Lift Systems': ['Gas Lift Mandrels', 'Válvulas Gas Lift', 'Candados Gas Lift', 'Flow Control Niples&Camisas']
+        };
+
+        // Alterna entre las vistas "dashboard", "categorias", "subcategorias" y "formulario"
         function mostrarVista(vista) {
             document.getElementById("vista-dashboard").classList.toggle("hidden", vista !== "dashboard");
+            document.getElementById("vista-categorias").classList.toggle("hidden", vista !== "categorias");
+            document.getElementById("vista-subcategorias").classList.toggle("hidden", vista !== "subcategorias");
             document.getElementById("vista-formulario").classList.toggle("hidden", vista !== "formulario");
             if (vista === "dashboard") cargarFichas();
         }
+
+        function irASubcategorias(categoria) {
+            const grid = document.getElementById('grid-subcategorias');
+            const subcategorias = subcategoriasPorCategoria[categoria] || [];
+
+            document.getElementById('subcategoria-titulo-padre').textContent = categoria;
+
+            grid.innerHTML = subcategorias.map(sub => `
+                <button type="button" onclick="irAFormulario('${categoria}', '${sub}')"
+                class="text-left p-6 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:border-[#e31e24] transition-all">
+                <i class="fas fa-cube text-[#e31e24] text-2xl mb-4"></i>
+                <h4 class="text-sm font-bold text-slate-800">${sub}</h4>
+                </button>
+            `).join("");
+
+            mostrarVista('subcategorias');
+        }
+
+        async function irAFormulario(categoria, subcategoria) {
+            document.getElementById('f-categoria').value = categoria;
+            document.getElementById('f-subcategoria').value = subcategoria;
+            document.getElementById('f-subtitulo-subcategoria').textContent = `${categoria} · ${subcategoria}`;
+
+            document.getElementById('f-codigo-display').textContent = 'Generando...';
+            document.getElementById('f-codigo').value = '';
+
+            renderizarCamposTecnicos(subcategoria);
+            mostrarVista('formulario');
+
+            const codigo = await generarCodigo(categoria, subcategoria);
+            document.getElementById('f-codigo').value = codigo;
+            document.getElementById('f-codigo-display').textContent = codigo;
+        }
+
         let todasLasFichas = [];
 
         async function cargarFichas() {
@@ -355,42 +435,445 @@
             </div>
         `).join("");
         }
-        // ── Filas dinámicas de las secciones técnicas ──
-        function agregarFila(seccion) {
-            const contenedor = document.getElementById(`filas-${seccion}`);
-            const fila = document.createElement('div');
-            fila.className = 'flex gap-2 items-center fila-dinamica';
+        
+        // ── Siglas para el código automático ──
+        const categoriaSiglas = {
+            'Cementing': 'CM',
+            'Cased Hole Completions (CHC)': 'CHC',
+            'Artificial Lift Systems': 'ALS'
+        };
+        const subcategoriaSiglas = {
+            'Float Collars': 'FC',
+            'Guide Shoes': 'GS',
+            'Drilling and Reamers Shoe': 'DRS',
+            'Centradores': 'CEN',
+            'Stop Collars': 'SC',
+            'Packers': 'PKR',
+            'Gas Lift Mandrels': 'GLM',
+            'Válvulas Gas Lift': 'VGL',
+            'Candados Gas Lift': 'CGL',
+            'Flow Control Niples&Camisas': 'FCN'
+        };
 
-            if (seccion === 'dimensiones') {
-                fila.innerHTML = `
-            <input type="text" placeholder="Etiqueta (ej. Casing Size)" class="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm campo-label">
-            <input type="text" placeholder="Metric" class="w-28 border border-slate-200 rounded-lg px-3 py-2 text-sm campo-metric">
-            <input type="text" placeholder="Imperial" class="w-28 border border-slate-200 rounded-lg px-3 py-2 text-sm campo-imperial">
-            <button type="button" onclick="this.closest('.fila-dinamica').remove()" class="text-slate-300 hover:text-red-500 px-2"><i class="fas fa-trash"></i></button>
-            `;
+        async function generarCodigo(categoria, subcategoria) {
+            const { count } = await supabaseClient
+                .from('fichas_tecnicas')
+                .select('*', { count: 'exact', head: true })
+                .eq('categoria', categoria)
+                .eq('subcategoria', subcategoria);
+
+            const numero = String((count || 0) + 1).padStart(3, '0');
+            const catSigla = categoriaSiglas[categoria] || 'XX';
+            const subSigla = subcategoriaSiglas[subcategoria] || 'XX';
+            return `${catSigla}-${subSigla}-${numero}`;
+        }
+
+        // ── Definición de campos fijos por subcategoría ──
+        // "dual" = tiene columnas Imperial y Metric. "single" = un solo valor.
+
+        function convertirInAmm(input) {
+            // Toma lo que escribió el usuario en pulgadas (in) y llena el campo Metric (mm)
+            const fila = input.closest('.fila-fija');
+            const campoMetric = fila.querySelector('.campo-metric');
+            if (!campoMetric) return;
+
+            let valor = input.value.trim();
+
+            // Soporta fracciones tipo 1/2, 3/4, o mixtas tipo 1 1/2
+            let pulgadas = null;
+            if (valor.includes('/')) {
+                const partes = valor.split(' ');
+                let entero = 0;
+                let fraccion = partes[partes.length - 1];
+                if (partes.length > 1) entero = parseFloat(partes[0]) || 0;
+                const [num, den] = fraccion.split('/').map(Number);
+                if (den) pulgadas = entero + (num / den);
             } else {
-                fila.innerHTML = `
-            <input type="text" placeholder="Etiqueta (ej. Material Grade)" class="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm campo-label">
-            <input type="text" placeholder="Valor" class="w-40 border border-slate-200 rounded-lg px-3 py-2 text-sm campo-valor">
-            <button type="button" onclick="this.closest('.fila-dinamica').remove()" class="text-slate-300 hover:text-red-500 px-2"><i class="fas fa-trash"></i></button>
-            `;
+                pulgadas = parseFloat(valor);
             }
-            contenedor.appendChild(fila);
+
+            if (pulgadas === null || isNaN(pulgadas)) {
+                campoMetric.value = '';
+                return;
+            }
+
+            const mm = pulgadas * 25.4;
+            // Redondea a 2 decimales, quitando ceros innecesarios
+            campoMetric.value = (Math.round(mm * 100) / 100).toString();
+        }
+
+        const configuracionCampos = {
+        'Float Collars': {
+            dimensiones: [
+                { label: 'Casing Size', tipo: 'dual', ejemploImp: '13.375', ejemploMet: '339.70' },
+                { label: 'Thread Connection', tipo: 'single', ejemplo: 'THS-521, VAM TOP, FJBear, 8rd etc' },
+                { label: 'OD', tipo: 'dual', ejemploImp: '14.35', ejemploMet: '364.49' },
+                { label: 'ID', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'OD Drift', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'Length', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'Max. Drillout Diameter', tipo: 'dual', ejemploImp: '12.25', ejemploMet: '311.00' },
+                { label: 'Valve Diameter', tipo: 'dual', ejemploImp: '3.00', ejemploMet: '76.20' },
+                { label: 'Float Collar Model', tipo: 'single', ejemplo: 'Auto-fill NR double valve' },
+                { label: 'Float Collar Type', tipo: 'single', ejemplo: 'Mid bore, Large bore, Small Bore etc' },
+                { label: 'Deactivation Method', tipo: 'single', ejemplo: 'Hydraulic displacement' },
+                { label: 'Valve Quantity', tipo: 'single', ejemplo: '2' },
+                { label: 'Valve Type', tipo: 'single', ejemplo: 'Plonger or Flapper' },
+                { label: 'Landing Profile', tipo: 'single', ejemplo: 'Non-Rotating Seat or Standar' },
+                { label: 'Jets Orientation', tipo: 'single', ejemplo: 'Up-Jet or Down-Jet' },
+                { label: 'Nose Configuration', tipo: 'single', ejemplo: 'Round Cement' },
+                { label: 'PDC Drillable', tipo: 'single', ejemplo: 'Yes' }
+            ],
+            material: [
+                { label: 'Material Grade', ejemplo: 'P110' },
+                { label: 'Valve Material', ejemplo: 'Phenolic resin' },
+                { label: 'Flapper Material', ejemplo: 'Aluminum or Phenolic Resin' },
+                { label: 'Spring Material', ejemplo: 'Bronze' },
+                { label: 'Nose Material', ejemplo: 'Cement or Aluminum' }
+            ],
+            ratings: [
+                { label: 'Deactivation Rating', ejemplo: '6-8 bpm' },
+                { label: 'Burst Pressure', ejemplo: '10324psi' },
+                { label: 'Collapse Pressure', ejemplo: '6904psi' },
+                { label: 'Tensile', ejemplo: '1599x1000 lb' },
+                { label: 'Back Pressure', ejemplo: '5000psi' },
+                { label: 'Bump Pressure', ejemplo: '6000psi' },
+                { label: 'Temperature', ejemplo: '204°C' },
+                { label: 'Min Flow Area in²', ejemplo: '4.91' },
+                { label: 'Max Flow Rate bbl/min', ejemplo: '15' },
+                { label: 'Flow Endurance', ejemplo: '24 hours' },
+                { label: 'API RP 10F Float Collar Category', ejemplo: 'III C' },
+                { label: 'Maximum WOB (Kgs/Pounds)', ejemplo: 'Peso sobre la Zapata permitido' }
+            ]
+        },
+        'Guide Shoes': {
+            dimensiones: [
+                { label: 'Casing Size', tipo: 'dual', ejemploImp: '13.375', ejemploMet: '339.70' },
+                { label: 'Thread Connection', tipo: 'single', ejemplo: 'THS-521, VAM TOP, FJBear, 8rd etc' },
+                { label: 'OD', tipo: 'dual', ejemploImp: '14.35', ejemploMet: '364.49' },
+                { label: 'ID', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'OD Drift', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'Length', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'Max. Drillout Diameter', tipo: 'dual', ejemploImp: '12.25', ejemploMet: '311.00' },
+                { label: 'Valve Diameter', tipo: 'dual', ejemploImp: '3.00', ejemploMet: '76.20' },
+                { label: 'Guide Shoe Model', tipo: 'single', ejemplo: 'Auto-fill double valve, Float, Guide' },
+                { label: 'Deactivation Method', tipo: 'single', ejemplo: 'Hydraulic displacement' },
+                { label: 'Valve Quantity', tipo: 'single', ejemplo: '2' },
+                { label: 'Valve Type', tipo: 'single', ejemplo: 'Plonger or Flapper' },
+                { label: 'Jets Orientation', tipo: 'single', ejemplo: 'Up-Jet or Down-Jet' },
+                { label: 'Nose Configuration', tipo: 'single', ejemplo: 'Round Cement, Aluminum or Phenolic Resin etc' },
+                { label: 'PDC Drillable', tipo: 'single', ejemplo: 'Yes' }
+            ],
+            material: [
+                { label: 'Material Grade', ejemplo: 'P110' },
+                { label: 'Valve Material', ejemplo: 'Phenolic resin' },
+                { label: 'Flapper Material', ejemplo: 'Aluminum or Phenolic Resin' },
+                { label: 'Spring Material', ejemplo: 'Bronze' },
+                { label: 'Nose Material', ejemplo: 'Cement or Aluminum' }
+            ],
+            ratings: [
+                { label: 'Deactivation Rating', ejemplo: '6-8 bpm' },
+                { label: 'Burst Pressure', ejemplo: '10324psi' },
+                { label: 'Collapse Pressure', ejemplo: '6904psi' },
+                { label: 'Tensile', ejemplo: '1599x1000 lb' },
+                { label: 'Back Pressure', ejemplo: '5000psi' },
+                { label: 'Bump Pressure', ejemplo: '6000psi' },
+                { label: 'Temperature', ejemplo: '204°C' },
+                { label: 'Min Flow Area in²', ejemplo: '4.91' },
+                { label: 'Max Flow Rate bbl/min', ejemplo: '15' },
+                { label: 'Flow Endurance', ejemplo: '24 hours' },
+                { label: 'API RP 10F Float Collar Category', ejemplo: 'III C' },
+                { label: 'Maximum WOB (Kgs/Pounds)', ejemplo: 'Peso sobre la Zapata permitido' }
+            ]
+        },
+        'Drilling and Reamers Shoe': {
+            dimensiones: [
+                { label: 'Casing Size', tipo: 'dual', ejemploImp: '13.375', ejemploMet: '339.70' },
+                { label: 'Thread Connection', tipo: 'single', ejemplo: 'THS-521, VAM TOP, FJBear, 8rd etc' },
+                { label: 'Body OD', tipo: 'dual', ejemploImp: '14.35', ejemploMet: '364.49' },
+                { label: 'Tool OD', tipo: 'dual', ejemploImp: '14.35', ejemploMet: '364.49' },
+                { label: 'Max Reamer/Drilling OD', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'Bit Sub ID', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'OD Drift', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'Length', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'Max. Drillout Diameter', tipo: 'dual', ejemploImp: '12.25', ejemploMet: '311.00' },
+                { label: 'Drilling Shoe Model', tipo: 'single', ejemplo: 'Standard, Super, Crown, High etc Performance' },
+                { label: 'Reamer Shoe Model', tipo: 'single', ejemplo: 'Standard, Super, Crown, High etc Performance. Alrunner-S etc' },
+                { label: 'Blade Direction', tipo: 'single', ejemplo: 'Left-hand' },
+                { label: 'Number of Blades', tipo: 'single', ejemplo: '3,4,5,6 etc' },
+                { label: 'PDC face cutter size', tipo: 'single', ejemplo: 'mm' },
+                { label: 'Face cutter count', tipo: 'single', ejemplo: '' },
+                { label: 'Number of tungsten carbide', tipo: 'single', ejemplo: '10,20,40 etc' },
+                { label: 'PDC Drillable', tipo: 'single', ejemplo: 'Yes' }
+            ],
+            material: [
+                { label: 'Material Grade', ejemplo: '110ksi, 125ksi, 140ksi etc' },
+                { label: 'Nose Material', ejemplo: 'Copper alloy or Aluminum' },
+                { label: 'Nozzle material', ejemplo: 'Copper alloy or Aluminum' }
+            ],
+            ratings: [
+                { label: 'Tensile (Lbs)', ejemplo: '1599x1000' },
+                { label: 'Burst Pressure (Psi)', ejemplo: 'Presion de estallido' },
+                { label: 'Collapse pressure(Psi)', ejemplo: 'Presion de colapso' },
+                { label: 'MAX RPM', ejemplo: '50,80,100 etc' },
+                { label: 'Nozzle Qty', ejemplo: 'Cantidad de boquillas, 5,10,15' },
+                { label: 'Ports Size ID (in)', ejemplo: 'Diametro de los puertos de circulacion' },
+                { label: 'Ports TFA (Total Flow area in²)', ejemplo: 'Area total de flujo de todos los puertos o boquillas, laterales y frontales' },
+                { label: 'Rupture Disk Pressure rate (Psi)', ejemplo: 'unicamente para Drilling Shoes' },
+                { label: 'Rupture Disk ID (in)', ejemplo: 'unicamente para Drilling Shoes' },
+                { label: 'Rupture Disk TFA (in²)', ejemplo: 'unicamente para Drilling Shoes' },
+                { label: 'Temperature', ejemplo: '204°C' },
+                { label: 'Flow Endurance', ejemplo: '24 hours' },
+                { label: 'Maximum WOB(Lbs)', ejemplo: 'Peso Permitido sobre la Zapata' }
+            ]
+        },
+        'Centradores': {
+            dimensiones: [
+                { label: 'Casing Size', tipo: 'dual', ejemploImp: '13.375', ejemploMet: '339.70' },
+                { label: 'Nominal OD', tipo: 'dual', ejemploImp: '14.35', ejemploMet: '364.49' },
+                { label: 'Nominal ID', tipo: 'dual', ejemploImp: '14.35', ejemploMet: '364.49' },
+                { label: 'Height', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'Installation Type', tipo: 'single', ejemplo: 'Slip-on, Latch on etc' },
+                { label: 'Weight(Lbs/Kg)', tipo: 'single', ejemplo: '32lbs' },
+                { label: 'Number of blades', tipo: 'single', ejemplo: 'Numero de Aletas' },
+                { label: 'Blade Type', tipo: 'single', bloqueado: true, valorFijo: 'Spiral, Diagonal etc' },
+                { label: 'Centralizer Type', tipo: 'single', bloqueado: true, valorFijo: 'Rigid, Bown-Spring etc' }
+            ],
+            material: [
+                { label: 'Material Grade', ejemplo: 'Carbon Steel, Phenolic resin etc' }
+            ],
+            ratings: [
+                { label: 'Temperature', ejemplo: '' },
+                { label: 'Tensile', ejemplo: '' },
+                { label: 'API reference', ejemplo: '' },
+                { label: 'Maximum WOB (Kgs/Pounds)', ejemplo: 'Peso sobre el centrador' }
+            ]
+        },
+        'Stop Collars': {
+            dimensiones: [
+                { label: 'Casing Size', tipo: 'dual', ejemploImp: '13.375', ejemploMet: '339.70' },
+                { label: 'Maximum OD', tipo: 'dual', ejemploImp: '14.35', ejemploMet: '364.49' },
+                { label: 'Minimum ID', tipo: 'dual', ejemploImp: '14.35', ejemploMet: '364.49' },
+                { label: 'Height', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'Installation Type', tipo: 'single', ejemplo: 'Slip-on, Latch on etc' },
+                { label: 'Weight(Lbs/Kg)', tipo: 'single', ejemplo: 'Peso de Collarin' },
+                { label: 'Number of Screw', tipo: 'single', ejemplo: 'Numero de pines' },
+                { label: 'Make up Torque (Lbs)', tipo: 'single', ejemplo: 'Torque por pin' },
+                { label: 'Stop Collar Type', tipo: 'single', bloqueado: true, valorFijo: 'Heavy Duty, Single etc' }
+            ],
+            material: [
+                { label: 'Material Grade', ejemplo: 'Carbon Steel, Phenolic resin etc' }
+            ],
+            ratings: [
+                { label: 'Temperature', ejemplo: '' },
+                { label: 'Maximum Holding Force', ejemplo: '' },
+                { label: 'API reference', ejemplo: '' }
+            ]
+        },
+        'Packers': {
+            dimensiones: [
+                { label: 'Casing Range Size (Set)', tipo: 'single', ejemplo: '7" 23-29#' },
+                { label: 'Thread Connection (P-B)', tipo: 'single', ejemplo: 'THS-521, VAM TOP, FJBear, 8rd etc' },
+                { label: 'OD Gauge Ring', tipo: 'dual', ejemploImp: '14.35', ejemploMet: '364.49' },
+                { label: 'ID', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'ID Drift (Mandrel)', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'Length', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'Seal Bore', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'Setting Method', tipo: 'single', ejemplo: 'Hydraulic Displacement' },
+                { label: 'Deactivation Method', tipo: 'single', ejemplo: 'Rotate to release, Turn to Release, Cut to Release' },
+                { label: 'Min. activation pressure', tipo: 'single', ejemplo: 'Presion de anclaje' }
+            ],
+            material: [
+                { label: 'Material Grade', ejemplo: 'P110' },
+                { label: 'Metallic Material Slips', ejemplo: 'Material y dureza de las cuñas' },
+                { label: 'Packing Element', ejemplo: 'Nitrilo, Viton etc' }
+            ],
+            ratings: [
+                { label: 'Piston Area', ejemplo: '' },
+                { label: 'Temperature (°F-°C)', ejemplo: '' },
+                { label: 'Pressure Rating Above (Psi)', ejemplo: '' },
+                { label: 'Pressure Rating Below (Psi)', ejemplo: '' },
+                { label: 'Pressure Mandrel Burst (Psi)', ejemplo: '' },
+                { label: 'Pressure Mandrel Collapse (Psi)', ejemplo: '' },
+                { label: 'Tensile Rating - Unset (Lbf-Kg)', ejemplo: '' },
+                { label: 'Tensile Rating - Released (Lbf-Kg)', ejemplo: '' },
+                { label: 'Recommended Setting Force (Lbf-Kg)', ejemplo: '' }
+            ]
+        },
+        'Gas Lift Mandrels': {
+            dimensiones: [
+                { label: 'Casing Range Size (Thru)', tipo: 'dual', ejemploImp: 'Tamaño del casing donde se recomienda instalar', ejemploMet: '364.49' },
+                { label: 'Thread Connection (P-B)', tipo: 'single', ejemplo: 'THS-521, VAM TOP, FJBear, 8rd etc' },
+                { label: 'Size Pocket (seal bore)', tipo: 'dual', ejemploImp: 'Tamaño del Bolsillo', ejemploMet: '364.49' },
+                { label: 'Major Diameter OD (Oval side)', tipo: 'dual', ejemploImp: 'OD lado Oval(panza)', ejemploMet: '364.49' },
+                { label: 'Minor Diameter OD (Flat side)', tipo: 'dual', ejemploImp: 'OD lado Plano (panza)', ejemploMet: '364.49' },
+                { label: 'Drift ID', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'Sleev To Pocket', tipo: 'dual', ejemploImp: 'Longitud desde la camisa discriminadora al tope del bolsillo', ejemploMet: '320.00' },
+                { label: 'Length', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'SPMO Type', tipo: 'single', ejemplo: 'Forgado o Mecanizado' },
+                { label: 'Gas Lift Devices', tipo: 'single', bloqueado: true, valorFijo: 'IPO, Dummy, Orifice, Circulations, Pilot Valves' },
+                { label: 'Kickover Tool', tipo: 'single', bloqueado: true, valorFijo: 'OM-1/KOT-2' },
+                { label: 'Running Tool', tipo: 'single', bloqueado: true, valorFijo: 'RK-1' },
+                { label: 'Pulling Tool', tipo: 'single', bloqueado: true, valorFijo: '1 5/8" JDS' },
+                { label: 'Latch Type', tipo: 'single', bloqueado: true, valorFijo: 'RK/RKP' },
+                { label: 'API Validations', tipo: 'single', bloqueado: true, valorFijo: '19G1, V3, E3, F3, Q3' }
+            ],
+            material: [
+                { label: 'Material Grade', ejemplo: '', bloqueado: true, valorFijo: '4130 LHT 18-22HRC 80KSI' }
+            ],
+            ratings: [
+                { label: 'Temperature (°F-°C)', ejemplo: '' },
+                { label: 'Pressure Mandrel Burst (Psi)', ejemplo: '' },
+                { label: 'Pressure Mandrel Collapse (Psi)', ejemplo: '' },
+                { label: 'Max Working Pressure', ejemplo: '' },
+                { label: 'Tensile', ejemplo: '' }
+            ]
+        },
+        'Válvulas Gas Lift': {
+            dimensiones: [
+                { label: 'Valve Size (in)', tipo: 'dual', ejemploImp: 'Tamaño de la valvula', ejemploMet: '364.49' },
+                { label: 'Major Diamater OD (in)', tipo: 'dual', ejemploImp: '', ejemploMet: '364.49' },
+                { label: 'Size Pocket (seal bore) (in)', tipo: 'dual', ejemploImp: 'Tamaño del Bolsillo', ejemploMet: '364.49' },
+                { label: 'Overall Length (in)', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'Port Size (in)', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'Device Type', tipo: 'single', ejemplo: 'IPO, Dummy, Orifice, Circulations, Pilot Valves' },
+                { label: 'Top Thread Connection', tipo: 'single', ejemplo: 'Conexión que une el Candado con la Valvula' },
+                { label: 'Size Pocket (seal bore) (in)', tipo: 'dual', ejemploImp: '1.5', ejemploMet: '364.49' },
+                { label: 'Conveyance Method', tipo: 'single', bloqueado: true, valorFijo: 'Kickover tool (Deploying through wireline KOT)' },
+                { label: 'Kickover Tool', tipo: 'single', bloqueado: true, valorFijo: 'OM-1/KOT-2' },
+                { label: 'Running Tool', tipo: 'single', bloqueado: true, valorFijo: 'RK-1' },
+                { label: 'Pulling Tool', tipo: 'single', bloqueado: true, valorFijo: '1 5/8" JDS' },
+                { label: 'Latch Type', tipo: 'single', bloqueado: true, valorFijo: 'RK' },
+                { label: 'Retrieval Method', tipo: 'single', bloqueado: true, valorFijo: 'RK LATCH' }
+            ],
+            material: [
+                { label: 'Metallic Materials', ejemplo: '', bloqueado: true, valorFijo: 'SS 316L, Monel 400 for Check Dart, Tungsten Carbide for Seat, Beryllium Copper for Tru Arc Ring' },
+                { label: 'Non-metallic Materials', ejemplo: '', bloqueado: true, valorFijo: 'Viton for V-Packing, PTFE(Teflon) for CenterRing, Viton for O-Rings & Check Seat Pad' }
+            ],
+            ratings: [
+                { label: 'Temperature (°F)', ejemplo: '' },
+                { label: 'Rated Pressure (Psi)', ejemplo: '' },
+                { label: 'Tensile (Lbsf-Kg)', ejemplo: '' }
+            ]
+        },
+        'Candados Gas Lift': {
+            dimensiones: [
+                { label: 'RK Size (in)', tipo: 'dual', ejemploImp: 'Tamaño del Candado', ejemploMet: '364.49' },
+                { label: 'Pulling Neck OD (in)', tipo: 'dual', ejemploImp: '', ejemploMet: '364.49' },
+                { label: 'Running Neck OD (in)', tipo: 'dual', ejemploImp: 'Tamaño del Bolsillo', ejemploMet: '364.49' },
+                { label: 'Max OD', tipo: 'dual', ejemploImp: '', ejemploMet: '' },
+                { label: 'Overall Length (in)', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'Side Pocket Accesory OD (in)', tipo: 'dual', ejemploImp: '12.60', ejemploMet: '320.00' },
+                { label: 'Device Type', tipo: 'single', bloqueado: true, valorFijo: 'RK-1, RKP etc' },
+                { label: 'Bottom Thread Connection', tipo: 'single', ejemplo: 'Conexión que une el Candado con la Valvula' },
+                { label: 'Conveyance Method', tipo: 'single', bloqueado: true, valorFijo: 'Kickover tool (Deploying through wireline KOT)' },
+                { label: 'Kickover Tool', tipo: 'single', bloqueado: true, valorFijo: 'OM-1/KOT-2' },
+                { label: 'Running Tool', tipo: 'single', bloqueado: true, valorFijo: 'RK-1' },
+                { label: 'Pulling Tool', tipo: 'single', bloqueado: true, valorFijo: '1 5/8" JDS' },
+                { label: 'Latch Type', tipo: 'single', bloqueado: true, valorFijo: 'RK' },
+                { label: 'Retrieval Method', tipo: 'single', bloqueado: true, valorFijo: 'RK LATCH' }
+            ],
+            material: [
+                { label: 'Metallic Materials', ejemplo: '', bloqueado: true, valorFijo: 'SS 316L, Monel 400 for Check Dart, Tungsten Carbide for Seat, Beryllium Copper for Tru Arc Ring' }
+            ],
+            ratings: [
+                { label: 'Temperature (°F)', ejemplo: '' },
+                { label: 'Tensile (Lbsf-Kg)', ejemplo: '' }
+            ]
+        }
+        // Las demás subcategorías se agregan aquí después.
+        };
+
+        function renderizarCamposTecnicos(subcategoria) {
+            const config = configuracionCampos[subcategoria];
+
+            if (!config) {
+                ['dimensiones', 'material', 'ratings'].forEach(seccion => {
+                document.getElementById(`filas-${seccion}`).innerHTML =
+                    `<p class="text-sm text-slate-400 italic">Aún no se ha configurado el formulario para "${subcategoria}".</p>`;
+                });
+                return;
+            }
+
+            document.getElementById('filas-dimensiones').innerHTML = config.dimensiones.map((campo, i) => {
+                const fondo = i % 2 === 0 ? 'bg-slate-50/60' : 'bg-white';
+                if (campo.tipo === 'dual') {
+                return `
+                    <div class="grid grid-cols-[2fr_1fr_1fr] gap-2 items-center fila-fija rounded-lg px-2 py-1.5 ${fondo}" data-label="${campo.label}">
+                    <span class="text-sm font-semibold text-slate-600">${campo.label}</span>
+                    <div class="relative">
+                        <input type="text" placeholder="${campo.ejemploImp}" class="w-full border border-slate-200 rounded-lg pl-3 pr-8 py-2 text-sm focus:outline-none focus:border-[#e31e24] campo-imperial" oninput="convertirInAmm(this)">
+                        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none">in</span>
+                    </div>
+                    <div class="relative">
+                        <input type="text" placeholder="${campo.ejemploMet}" class="w-full border border-slate-200 rounded-lg pl-3 pr-9 py-2 text-sm focus:outline-none focus:border-[#e31e24] campo-metric">
+                        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none">mm</span>
+                    </div>
+                    </div>`;
+                }
+                if (campo.bloqueado) {
+                return `
+                    <div class="grid grid-cols-[2fr_1fr_1fr] gap-2 items-center fila-fija rounded-lg px-2 py-1.5 ${fondo}" data-label="${campo.label}">
+                    <span class="text-sm font-semibold text-slate-600">${campo.label}</span>
+                    <div class="col-span-2 flex flex-col gap-1">
+                        <label class="flex items-center gap-1 text-xs font-medium text-amber-600 cursor-pointer w-fit">
+                        <input type="checkbox" class="campo-editar-toggle" onchange="this.closest('.fila-fija').querySelector('.campo-valor').disabled = !this.checked">
+                        Editar campo
+                        </label>
+                        <input type="text" value="${campo.valorFijo}" disabled class="border border-amber-300 bg-amber-50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#e31e24] campo-valor">
+                    </div>
+                    </div>`;
+                }
+                return `
+                <div class="grid grid-cols-[2fr_1fr_1fr] gap-2 items-center fila-fija rounded-lg px-2 py-1.5 ${fondo}" data-label="${campo.label}">
+                    <span class="text-sm font-semibold text-slate-600">${campo.label}</span>
+                    <input type="text" placeholder="${campo.ejemplo}" class="col-span-2 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#e31e24] campo-valor">
+                </div>`;
+            }).join('');
+
+            ['material', 'ratings'].forEach(seccion => {
+                document.getElementById(`filas-${seccion}`).innerHTML = config[seccion].map((campo, i) => {
+                const fondo = i % 2 === 0 ? 'bg-slate-50/60' : 'bg-white';
+                if (campo.bloqueado) {
+                    return `
+                    <div class="grid grid-cols-[2fr_3fr] gap-2 items-center fila-fija rounded-lg px-2 py-1.5 ${fondo}" data-label="${campo.label}">
+                        <span class="text-sm font-semibold text-slate-600">${campo.label}</span>
+                        <div class="flex flex-col gap-1">
+                        <label class="flex items-center gap-1 text-xs font-medium text-amber-600 cursor-pointer w-fit">
+                            <input type="checkbox" class="campo-editar-toggle" onchange="this.closest('.fila-fija').querySelector('.campo-valor').disabled = !this.checked">
+                            Editar campo
+                        </label>
+                        <input type="text" value="${campo.valorFijo}" disabled class="border border-amber-300 bg-amber-50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#e31e24] campo-valor">
+                        </div>
+                    </div>`;
+                }
+                return `
+                <div class="grid grid-cols-[2fr_3fr] gap-2 items-center fila-fija rounded-lg px-2 py-1.5 ${fondo}" data-label="${campo.label}">
+                    <span class="text-sm font-semibold text-slate-600">${campo.label}</span>
+                    <input type="text" placeholder="${campo.ejemplo}" class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#e31e24] campo-valor">
+                </div>`;
+                }).join('');
+            });
         }
 
         function leerSeccionDimensiones() {
-            return [...document.querySelectorAll('#filas-dimensiones .fila-dinamica')].map(fila => ({
-                label: fila.querySelector('.campo-label').value.trim(),
-                metric: fila.querySelector('.campo-metric').value.trim(),
-                imperial: fila.querySelector('.campo-imperial').value.trim()
-            })).filter(f => f.label);
+            return [...document.querySelectorAll('#filas-dimensiones .fila-fija')].map(fila => {
+                const campoValor = fila.querySelector('.campo-valor');
+                if (campoValor) {
+                return { label: fila.dataset.label, imperial: campoValor.value.trim(), metric: '' };
+                }
+                return {
+                label: fila.dataset.label,
+                imperial: fila.querySelector('.campo-imperial').value.trim(),
+                metric: fila.querySelector('.campo-metric').value.trim()
+                };
+            });
         }
 
         function leerSeccionSimple(seccion) {
-            return [...document.querySelectorAll(`#filas-${seccion} .fila-dinamica`)].map(fila => ({
-                label: fila.querySelector('.campo-label').value.trim(),
+            return [...document.querySelectorAll(`#filas-${seccion} .fila-fija`)].map(fila => ({
+                label: fila.dataset.label,
                 valor: fila.querySelector('.campo-valor').value.trim()
-            })).filter(f => f.label);
+            }));
         }
 
         // ── Guardar ficha ──
@@ -415,26 +898,27 @@
                     imagenUrl = urlPublica.publicUrl;
                 }
 
-                // 2. Insertar la ficha
-                const { error } = await supabaseClient.from('fichas_tecnicas').insert({
+                const fichaData = {
                     titulo: document.getElementById('f-titulo').value.trim(),
                     codigo: document.getElementById('f-codigo').value.trim() || null,
                     categoria: document.getElementById('f-categoria').value.trim() || null,
+                    subcategoria: document.getElementById('f-subcategoria').value.trim() || null,
                     descripcion: document.getElementById('f-descripcion').value.trim() || null,
+                    part_number: document.getElementById('f-part-number').value.trim() || null,
                     imagen_url: imagenUrl,
                     dimensiones: leerSeccionDimensiones(),
                     material_specs: leerSeccionSimple('material'),
                     ratings: leerSeccionSimple('ratings'),
-                    realizo: document.getElementById('f-realizo').value.trim() || null,
-                    aprobo: document.getElementById('f-aprobo').value.trim() || null,
-                    version: document.getElementById('f-version').value.trim() || '1',
-                    fecha: document.getElementById('f-fecha').value || null
-                });
+                    realizo: 'María Gabriela Moreno – Coordinadora de Calidad',
+                    aprobo: 'Antonio Rodríguez – Gerente de Operaciones',
+                    version: '1',
+                    fecha: new Date().toISOString().split('T')[0]
+                };
 
+                const { error } = await supabaseClient.from('fichas_tecnicas').insert(fichaData);
                 if (error) throw error;
 
                 document.getElementById('form-ficha').reset();
-                document.querySelectorAll('.fila-dinamica').forEach(f => f.remove());
                 mostrarVista('dashboard');
 
             } catch (err) {

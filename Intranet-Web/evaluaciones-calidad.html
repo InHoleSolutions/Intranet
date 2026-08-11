@@ -17,7 +17,7 @@
     }
 
     .tab-btn { color: #64748b; transition: all 0.15s; }
-    .tab-btn.active { background: white; color: #e31e24; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+    .tab-btn.active { background: white; color: #2563eb; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
 
     .kpi-card, .kpi-card-mini { transition: box-shadow 0.2s, transform 0.2s; }
     .kpi-card:hover, .kpi-card-mini:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
@@ -64,7 +64,7 @@
   <main class="w-full max-w-7xl mx-auto px-4 py-8 flex-1 pt-24 lg:pt-36 3xl:pt-40">
     <!-- ── Breadcrumb ── -->
     <div class="flex items-center gap-2 text-sm text-slate-400 mb-4">
-      <a href="dashboard.html" class="hover:text-[#e31e24] transition-colors">
+      <a href="dashboard.html" class="hover:text-[#2563eb] transition-colors">
         <i class="fas fa-house"></i>
       </a>
       <span class="text-slate-300">/</span>
@@ -114,9 +114,20 @@
         <canvas id="grafica-criterios"></canvas>
       </div>
       <div class="kpi-card">
-        <p id="titulo-tendencia" class="text-sm font-bold text-slate-700 mb-4">Evolución del Promedio</p>
-        <canvas id="grafica-tendencia"></canvas>
-      </div>
+          <div class="flex items-center justify-between mb-4">
+            <p id="titulo-tendencia" class="text-sm font-bold text-slate-700">Evolución del Promedio</p>
+            <div id="nav-mes-campo" class="hidden items-center gap-2">
+              <button id="btn-prev-campo" onclick="cambiarOffsetMes('campo', -1)" class="w-7 h-7 flex items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50">
+                <i class="fas fa-chevron-left text-xs"></i>
+              </button>
+              <span id="label-offset-campo" class="text-xs font-semibold text-slate-500 min-w-[90px] text-center"></span>
+              <button id="btn-next-campo" onclick="cambiarOffsetMes('campo', 1)" class="w-7 h-7 flex items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50">
+                <i class="fas fa-chevron-right text-xs"></i>
+              </button>
+            </div>
+          </div>
+          <canvas id="grafica-tendencia"></canvas>
+        </div>
     </div>
     <!-- Modal Detalle de Evaluación -->
     <div id="modal-detalle-evaluacion" class="hidden fixed inset-0 bg-black/40 z-[9999] flex items-center justify-center p-4" onclick="cerrarModalDetalle(event)">
@@ -131,7 +142,7 @@
         <div id="modal-detalle-criterios" class="space-y-3"></div>
         <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
           <span class="text-sm font-bold text-slate-700">Promedio General</span>
-          <span id="modal-detalle-promedio" class="text-lg font-black text-[#e31e24]"></span>
+          <span id="modal-detalle-promedio" class="text-lg font-black text-[#2563eb]"></span>
         </div>
       </div>
     </div>
@@ -141,7 +152,7 @@
         <p class="text-sm font-bold text-slate-700">Detalle por Operación</p>
         <i id="icono-detalle-operacion" class="fas fa-chevron-up text-slate-400 text-xs transition-transform"></i>
       </button>
-      <div id="contenido-detalle-operacion">
+      <div id="contenido-detalle-operacion" class="max-h-[520px] overflow-y-auto">
       <table class="w-full text-sm">
         <thead>
           <tr class="text-left text-xs font-bold uppercase text-slate-400 border-b border-slate-100">
@@ -183,19 +194,19 @@
         <div class="kpi-card">
           <p class="text-sm font-bold text-slate-700 mb-1">Servicio en Campo</p>
           <p class="text-[10px] text-slate-400 mb-3">Promedio del periodo</p>
-          <p id="gral-promedio-campo" class="text-3xl font-black text-[#e31e24]">—</p>
+          <p id="gral-promedio-campo" class="text-3xl font-black text-[#2563eb]">—</p>
           <p id="gral-cantidad-campo" class="text-xs text-slate-400 mt-1">—</p>
         </div>
         <div class="kpi-card">
           <p class="text-sm font-bold text-slate-700 mb-1">Servicio en Taller</p>
           <p class="text-[10px] text-slate-400 mb-3">Promedio del periodo</p>
-          <p id="gral-promedio-taller" class="text-3xl font-black text-[#e31e24]">—</p>
+          <p id="gral-promedio-taller" class="text-3xl font-black text-[#2563eb]">—</p>
           <p id="gral-cantidad-taller" class="text-xs text-slate-400 mt-1">—</p>
         </div>
         <div class="kpi-card">
           <p class="text-sm font-bold text-slate-700 mb-1">Combinado</p>
           <p class="text-[10px] text-slate-400 mb-3">Promedio del periodo</p>
-          <p id="gral-promedio-combinado" class="text-3xl font-black text-[#e31e24]">—</p>
+          <p id="gral-promedio-combinado" class="text-3xl font-black text-[#2563eb]">—</p>
           <p id="gral-cantidad-combinado" class="text-xs text-slate-400 mt-1">—</p>
         </div>
       </div>
@@ -206,7 +217,18 @@
           <canvas id="grafica-criterios-general"></canvas>
         </div>
         <div class="kpi-card">
-          <p id="titulo-tendencia-general" class="text-sm font-bold text-slate-700 mb-4">Evolución del Promedio</p>
+          <div class="flex items-center justify-between mb-4">
+            <p id="titulo-tendencia-general" class="text-sm font-bold text-slate-700">Evolución del Promedio</p>
+            <div id="nav-mes-general" class="hidden items-center gap-2">
+              <button id="btn-prev-general" onclick="cambiarOffsetMes('general', -1)" class="w-7 h-7 flex items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50">
+                <i class="fas fa-chevron-left text-xs"></i>
+              </button>
+              <span id="label-offset-general" class="text-xs font-semibold text-slate-500 min-w-[90px] text-center"></span>
+              <button id="btn-next-general" onclick="cambiarOffsetMes('general', 1)" class="w-7 h-7 flex items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50">
+                <i class="fas fa-chevron-right text-xs"></i>
+              </button>
+            </div>
+          </div>
           <canvas id="grafica-tendencia-general"></canvas>
         </div>
       </div>
@@ -216,7 +238,7 @@
           <p class="text-sm font-bold text-slate-700">Detalle por Operación</p>
           <i id="icono-detalle-operacion-general" class="fas fa-chevron-up text-slate-400 text-xs transition-transform"></i>
         </button>
-        <div id="contenido-detalle-operacion-general">
+        <div id="contenido-detalle-operacion-general" class="max-h-[520px] overflow-y-auto">
         <table class="w-full text-sm">
           <thead>
             <tr class="text-left text-xs font-bold uppercase text-slate-400 border-b border-slate-100">
@@ -246,7 +268,7 @@
             <button id="btn-taller-trimestre" onclick="cambiarVistaGlobalTaller('trimestre')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Trimestre</button>
             <button id="btn-taller-anual" onclick="cambiarVistaGlobalTaller('anual')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Anual</button>
           </div>
-          <button onclick="abrirModalAgregarTaller()" class="bg-[#e31e24] hover:bg-[#c11a1f] text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors flex items-center gap-2">
+          <button onclick="abrirModalAgregarTaller()" class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors flex items-center gap-2">
             <i class="fas fa-plus"></i> Agregar Evaluación
           </button>
         </div>
@@ -265,7 +287,18 @@
           <canvas id="grafica-criterios-taller"></canvas>
         </div>
         <div class="kpi-card">
-          <p id="titulo-tendencia-taller" class="text-sm font-bold text-slate-700 mb-4">Evolución del Promedio</p>
+          <div class="flex items-center justify-between mb-4">
+            <p id="titulo-tendencia-taller" class="text-sm font-bold text-slate-700">Evolución del Promedio</p>
+            <div id="nav-mes-taller" class="hidden items-center gap-2">
+              <button id="btn-prev-taller" onclick="cambiarOffsetMes('taller', -1)" class="w-7 h-7 flex items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50">
+                <i class="fas fa-chevron-left text-xs"></i>
+              </button>
+              <span id="label-offset-taller" class="text-xs font-semibold text-slate-500 min-w-[90px] text-center"></span>
+              <button id="btn-next-taller" onclick="cambiarOffsetMes('taller', 1)" class="w-7 h-7 flex items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50">
+                <i class="fas fa-chevron-right text-xs"></i>
+              </button>
+            </div>
+          </div>
           <canvas id="grafica-tendencia-taller"></canvas>
         </div>
       </div>
@@ -275,7 +308,7 @@
           <p class="text-sm font-bold text-slate-700">Detalle por Operación</p>
           <i id="icono-detalle-operacion-taller" class="fas fa-chevron-up text-slate-400 text-xs transition-transform"></i>
         </button>
-        <div id="contenido-detalle-operacion-taller">
+        <div id="contenido-detalle-operacion-taller" class="max-h-[520px] overflow-y-auto">
         <table class="w-full text-sm">
           <thead>
             <tr class="text-left text-xs font-bold uppercase text-slate-400 border-b border-slate-100">
@@ -305,14 +338,14 @@
           <div id="modal-detalle-criterios-taller" class="space-y-3"></div>
           <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
             <span class="text-sm font-bold text-slate-700">Promedio General</span>
-            <span id="modal-detalle-promedio-taller" class="text-lg font-black text-[#e31e24]"></span>
+            <span id="modal-detalle-promedio-taller" class="text-lg font-black text-[#2563eb]"></span>
           </div>
           <div id="modal-detalle-observaciones-taller" class="hidden mt-4 pt-4 border-t border-slate-100">
             <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Observaciones</span>
             <p class="text-sm text-slate-600 mt-1"></p>
           </div>
           <div id="modal-detalle-pdf-taller" class="hidden mt-4 pt-4 border-t border-slate-100">
-            <a href="#" target="_blank" class="inline-flex items-center gap-2 text-sm font-bold text-[#e31e24] hover:underline">
+            <a href="#" target="_blank" class="inline-flex items-center gap-2 text-sm font-bold text-[#2563eb] hover:underline">
               <i class="fas fa-file-pdf"></i> Ver documento PDF
             </a>
           </div>
@@ -385,7 +418,7 @@
               <textarea id="taller-observaciones" rows="3" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm resize-none"></textarea>
             </div>
 
-            <button type="submit" class="w-full bg-[#e31e24] hover:bg-[#c11a1f] text-white text-sm font-bold py-2.5 rounded-lg transition-colors">
+            <button type="submit" class="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-sm font-bold py-2.5 rounded-lg transition-colors">
               Guardar Evaluación
             </button>
           </form>
@@ -418,6 +451,16 @@
         document.getElementById('footer-componente').innerHTML = html;
         document.getElementById('footer-year').textContent = new Date().getFullYear();
       });
+
+    // Formatea una fecha guardada (ej. "2026-07-07T00:00:00.000Z") SIN aplicar
+    // conversión de zona horaria, para que no se recorra un día hacia atrás.
+    function formatFecha(fechaStr, opciones = {}) {
+      if (!fechaStr) return '—';
+      const soloFecha = fechaStr.split('T')[0];
+      const [anio, mes, dia] = soloFecha.split('-').map(Number);
+      const fechaLocal = new Date(anio, mes - 1, dia);
+      return fechaLocal.toLocaleDateString('es-MX', opciones);
+    }
 
     // ── Funciones que el header necesita ──
     async function cerrarSesion() {
@@ -515,6 +558,7 @@
   <script>
     let operacionesEvaluadas = [];
     let operacionesDelMesGlobal = [];
+    let offsetMesCampo = 0;
     let operacionesTrimestreGlobal = [];
     let operacionesAnualGlobal = [];
     let vistaCriterios = 'mes';
@@ -552,7 +596,7 @@
         .from('perfiles').select('id, nombre_completo').eq('id', session.user.id).single();
       const welcomeEl = document.getElementById('user-welcome');
       if (perfil && welcomeEl) {
-        welcomeEl.innerHTML = `${obtenerSaludo()}, <span class="text-[#e31e24]">${perfil.nombre_completo}</span>`;
+        welcomeEl.innerHTML = `${obtenerSaludo()}, <span class="text-[#2563eb]">${perfil.nombre_completo}</span>`;
       }
 
       // ── Latido: marcar que este usuario está activo ──
@@ -668,10 +712,14 @@
       const mesActual = fechaActual.getMonth();
       const anioActual = fechaActual.getFullYear();
 
+      const fechaMesNavegado = new Date(anioActual, mesActual + offsetMesCampo, 1);
+      const mesNavegado = fechaMesNavegado.getMonth();
+      const anioNavegado = fechaMesNavegado.getFullYear();
+
       const operacionesDelMes = operacionesEvaluadas.filter(op => {
         if (!op.created_at) return false;
         const fechaOp = new Date(op.created_at);
-        return fechaOp.getMonth() === mesActual && fechaOp.getFullYear() === anioActual;
+        return fechaOp.getMonth() === mesNavegado && fechaOp.getFullYear() === anioNavegado;
       });
       operacionesDelMesGlobal = operacionesDelMes;
 
@@ -800,7 +848,7 @@
 
         <div class="kpi-card-mini">
           <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">${promedioLabel}</p>
-          <p class="text-lg font-bold text-[#e31e24]" id="valor-promedio">0.00 / 5</p>
+          <p class="text-lg font-bold text-[#2563eb]" id="valor-promedio">0.00 / 5</p>
           ${tendenciaHtml}
         </div>
 
@@ -837,6 +885,7 @@
       vistaKPIs = vista;
       vistaCriterios = vista;
       vistaTendencia = vista;
+      actualizarNavMes();
       vistaTabla = vista;
       renderKPIs();
       renderGraficaCriterios();
@@ -859,14 +908,152 @@
 
   </script>
 
+
   <script>
     let chartCriterios = null;
     let chartTendencia = null;
 
-    function renderGraficas() {
-      renderGraficaCriterios();
-      renderGraficaTendencia();
-      actualizarBotonesTabs();
+    function clavesMesConDatos(operaciones) {
+      const claves = new Set();
+      operaciones.forEach(op => {
+        if (!op.created_at) return;
+        const f = new Date(op.created_at);
+        claves.add(`${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}`);
+      });
+      return [...claves].sort();
+    }
+
+    function offsetDeClaveMes(clave) {
+      const [anio, mes] = clave.split('-').map(Number);
+      const hoy = new Date();
+      return (anio - hoy.getFullYear()) * 12 + (mes - 1 - hoy.getMonth());
+    }
+
+    function nombreMesOffset(offset) {
+      const fechaActual = new Date();
+      const fecha = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + offset, 1);
+      const texto = fecha.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+      return texto.charAt(0).toUpperCase() + texto.slice(1);
+    }
+
+    function cambiarOffsetMes(seccion, delta) {
+      let operacionesFuente;
+      if (seccion === 'campo') operacionesFuente = operacionesEvaluadas;
+      else if (seccion === 'taller') operacionesFuente = operacionesTaller;
+      else operacionesFuente = [...operacionesEvaluadas, ...operacionesTaller];
+
+      const claves = clavesMesConDatos(operacionesFuente);
+      if (!claves.length) return;
+      const offsets = claves.map(offsetDeClaveMes).sort((a,b) => a-b);
+
+      const offsetActual = seccion === 'campo' ? offsetMesCampo
+        : seccion === 'taller' ? offsetMesTaller
+        : offsetMesGeneral;
+
+      const idx = offsets.indexOf(offsetActual);
+      let nuevoIdx = idx === -1 ? offsets.length - 1 : idx + delta;
+      nuevoIdx = Math.max(0, Math.min(offsets.length - 1, nuevoIdx));
+      const nuevoOffset = offsets[nuevoIdx];
+
+      if (seccion === 'campo') {
+        offsetMesCampo = nuevoOffset;
+        renderKPIs();
+        renderGraficaCriterios();
+        renderGraficaTendencia();
+        renderTablaEvaluaciones();
+      } else if (seccion === 'taller') {
+        offsetMesTaller = nuevoOffset;
+        renderKPIsTaller();
+        renderGraficaCriteriosTaller();
+        renderGraficaTendenciaTaller();
+        renderTablaEvaluacionesTaller();
+      } else {
+        offsetMesGeneral = nuevoOffset;
+        renderGeneral();
+      }
+      actualizarNavMes();
+    }
+
+    function actualizarNavMes() {
+      const configurar = (seccion, idNav, idLabel, idBtnPrev, idBtnNext, offset, vista, operacionesFuente) => {
+        const nav = document.getElementById(idNav);
+        const label = document.getElementById(idLabel);
+        const btnPrev = document.getElementById(idBtnPrev);
+        const btnNext = document.getElementById(idBtnNext);
+        if (!nav || !label) return;
+
+        const mostrar = vista === 'mes';
+        nav.classList.toggle('hidden', !mostrar);
+        nav.classList.toggle('flex', mostrar);
+        label.textContent = nombreMesOffset(offset);
+
+        if (!mostrar) return;
+        const claves = clavesMesConDatos(operacionesFuente);
+        const offsets = claves.map(offsetDeClaveMes).sort((a,b) => a-b);
+        const idx = offsets.indexOf(offset);
+
+        if (btnPrev) btnPrev.disabled = idx <= 0;
+        if (btnNext) btnNext.disabled = idx === -1 || idx >= offsets.length - 1;
+        [btnPrev, btnNext].forEach(b => {
+          if (!b) return;
+          b.classList.toggle('opacity-30', b.disabled);
+          b.classList.toggle('cursor-not-allowed', b.disabled);
+        });
+      };
+      configurar('campo', 'nav-mes-campo', 'label-offset-campo', 'btn-prev-campo', 'btn-next-campo', offsetMesCampo, vistaTendencia, operacionesEvaluadas);
+      configurar('taller', 'nav-mes-taller', 'label-offset-taller', 'btn-prev-taller', 'btn-next-taller', offsetMesTaller, vistaTendenciaTaller, operacionesTaller);
+      configurar('general', 'nav-mes-general', 'label-offset-general', 'btn-prev-general', 'btn-next-general', offsetMesGeneral, vistaGeneral, [...operacionesEvaluadas, ...operacionesTaller]);
+    }
+
+    function agruparPorMesSiAnual(dataset, vista) {
+      const ordenCronologico = [...dataset].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+
+      if (vista !== 'anual' && vista !== 'trimestre') {
+        return {
+          etiquetas: ordenCronologico.map(op => formatFecha(op.created_at, { day: '2-digit', month: 'short' })),
+          promedios: ordenCronologico.map(promedioOperacion)
+        };
+      }
+
+      const grupos = new Map();
+      ordenCronologico.forEach(op => {
+        const fecha = new Date(op.created_at);
+        const clave = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
+        if (!grupos.has(clave)) grupos.set(clave, []);
+        grupos.get(clave).push(op);
+      });
+
+      let clavesOrdenadas;
+      if (vista === 'trimestre') {
+        const hoy = new Date();
+        const anioActual = hoy.getFullYear();
+        const inicioQ = Math.floor(hoy.getMonth() / 3) * 3; // 0, 3, 6 o 9
+        clavesOrdenadas = [0, 1, 2].map(i => {
+          const mes = inicioQ + i + 1; // 1-indexado
+          return `${anioActual}-${String(mes).padStart(2, '0')}`;
+        });
+      } else if (vista === 'anual') {
+        const anioActual = new Date().getFullYear();
+        clavesOrdenadas = Array.from({ length: 12 }, (_, i) =>
+          `${anioActual}-${String(i + 1).padStart(2, '0')}`
+        );
+      } else {
+        clavesOrdenadas = [...grupos.keys()].sort();
+      }
+
+      const etiquetas = clavesOrdenadas.map(clave => {
+        const [anio, mes] = clave.split('-');
+        const fechaMes = new Date(Number(anio), Number(mes) - 1, 1);
+        return fechaMes.toLocaleDateString('es-MX', { month: 'long' })
+          .replace(/^./, c => c.toUpperCase());
+      });
+      const promedios = clavesOrdenadas.map(clave => {
+        const ops = grupos.get(clave) || [];
+        const valores = ops.map(promedioOperacion).filter(v => v !== null && v !== undefined);
+        return valores.length ? valores.reduce((a,b)=>a+b,0) / valores.length : 0;
+      });
+
+      return { etiquetas, promedios };
     }
 
     function renderGraficaCriterios() {
@@ -890,11 +1077,17 @@
           datasets: [{
             label: 'Promedio',
             data: promediosPorCriterio,
-            backgroundColor: '#e31e24'
+            backgroundColor: '#2563eb'
           }]
         },
         options: { scales: { y: { min: 0, max: 5 } }, plugins: { legend: { display: false } } }
       });
+    }
+
+    function renderGraficas() {
+      renderGraficaCriterios();
+      renderGraficaTendencia();
+      actualizarBotonesTabs();
     }
 
     function renderGraficaTendencia() {
@@ -910,9 +1103,7 @@
           ? 'Evolución del Promedio — Trimestre en Curso'
           : 'Evolución del Promedio — Año en Curso';
       }
-      const ordenCronologico = [...dataset].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
-      const etiquetasFecha = ordenCronologico.map(op => new Date(op.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }));
-      const promediosOperacion = ordenCronologico.map(promedioOperacion);
+      const { etiquetas: etiquetasFecha, promedios: promediosOperacion } = agruparPorMesSiAnual(dataset, vistaTendencia);
 
       const ctx2 = document.getElementById('grafica-tendencia').getContext('2d');
       if (chartTendencia) chartTendencia.destroy();
@@ -923,8 +1114,8 @@
           datasets: [{
             label: 'Promedio por operación',
             data: promediosOperacion,
-            borderColor: '#e31e24',
-            backgroundColor: 'rgba(227,30,36,0.1)',
+            borderColor: '#2563eb',
+            backgroundColor: 'rgba(37,99,235,0.1)',
             fill: true,
             tension: 0.3
           }]
@@ -945,7 +1136,7 @@
 
       document.getElementById('modal-detalle-titulo').textContent = op.job_id || 'Evaluación';
       document.getElementById('modal-detalle-subtitulo').textContent =
-        `${op.cliente || '—'} · ${op.nombre_pozo || '—'} · ${new Date(op.created_at).toLocaleDateString('es-MX')}`;
+        `${op.cliente || '—'} · ${op.nombre_pozo || '—'} · ${formatFecha(op.created_at)}`;
 
       const cont = document.getElementById('modal-detalle-criterios');
       cont.innerHTML = CRITERIOS_CALIDAD.map(c => {
@@ -998,7 +1189,7 @@
             <td class="py-2 pr-4 font-mono text-xs">${op.job_id || '—'}</td>
             <td class="py-2 pr-4">${op.cliente || '—'}</td>
             <td class="py-2 pr-4">${op.nombre_pozo || '—'}</td>
-            <td class="py-2 pr-4">${new Date(op.created_at).toLocaleDateString('es-MX')}</td>
+            <td class="py-2 pr-4">${formatFecha(op.created_at)}</td>
             <td class="py-2 pr-4">
               <span class="px-2 py-1 rounded-full text-xs font-bold" style="background:${color}20; color:${color};">
                 ${prom ? prom.toFixed(2) : '—'} / 5
@@ -1025,6 +1216,7 @@
     // ══════════════════════════════════════════
     let operacionesTaller = [];
     let operacionesTallerMesGlobal = [];
+    let offsetMesTaller = 0;
     let operacionesTallerTrimestreGlobal = [];
     let operacionesTallerAnualGlobal = [];
     let vistaKPIsTaller = 'mes';
@@ -1064,10 +1256,14 @@
       const mesActual = fechaActual.getMonth();
       const anioActual = fechaActual.getFullYear();
 
+      const fechaMesNavegadoTaller = new Date(anioActual, mesActual + offsetMesTaller, 1);
+      const mesNavegadoTaller = fechaMesNavegadoTaller.getMonth();
+      const anioNavegadoTaller = fechaMesNavegadoTaller.getFullYear();
+
       const operacionesMes = operacionesTaller.filter(op => {
         if (!op.created_at) return false;
         const f = new Date(op.created_at);
-        return f.getMonth() === mesActual && f.getFullYear() === anioActual;
+        return f.getMonth() === mesNavegadoTaller && f.getFullYear() === anioNavegadoTaller;
       });
       operacionesTallerMesGlobal = operacionesMes;
 
@@ -1133,7 +1329,7 @@
         </div>
         <div class="kpi-card-mini">
           <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">${promedioLabel}</p>
-          <p class="text-3xl font-black text-[#e31e24]">${promedio.toFixed(2)} / 5</p>
+          <p class="text-3xl font-black text-[#2563eb]">${promedio.toFixed(2)} / 5</p>
         </div>
         <div class="kpi-card-mini">
           <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Criterios Bajos (≤3)</p>
@@ -1162,7 +1358,7 @@
         type: 'bar',
         data: {
           labels: CRITERIOS_CALIDAD.map(c => c.nombre),
-          datasets: [{ label: 'Promedio', data: promedios, backgroundColor: '#e31e24' }]
+          datasets: [{ label: 'Promedio', data: promedios, backgroundColor: '#2563eb' }]
         },
         options: { scales: { y: { min: 0, max: 5 } }, plugins: { legend: { display: false } } }
       });
@@ -1182,9 +1378,7 @@
           : 'Evolución del Promedio — Año en Curso';
       }
 
-      const orden = [...dataset].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
-      const etiquetas = orden.map(op => new Date(op.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }));
-      const promedios = orden.map(promedioOperacion);
+      const { etiquetas, promedios } = agruparPorMesSiAnual(dataset, vistaTendenciaTaller);
 
       const ctx = document.getElementById('grafica-tendencia-taller').getContext('2d');
       if (chartTendenciaTaller) chartTendenciaTaller.destroy();
@@ -1195,8 +1389,8 @@
           datasets: [{
             label: 'Promedio por operación',
             data: promedios,
-            borderColor: '#e31e24',
-            backgroundColor: 'rgba(227,30,36,0.1)',
+            borderColor: '#2563eb',
+            backgroundColor: 'rgba(37,99,235,0.1)',
             fill: true,
             tension: 0.3
           }]
@@ -1221,7 +1415,7 @@
             <td class="py-2 pr-4 font-mono text-xs cursor-pointer" onclick="abrirModalDetalleTaller('${op.id}')">${op.job_id || '—'}</td>
             <td class="py-2 pr-4 cursor-pointer" onclick="abrirModalDetalleTaller('${op.id}')">${op.servicio_proporcionado || '—'}</td>
             <td class="py-2 pr-4 cursor-pointer" onclick="abrirModalDetalleTaller('${op.id}')">${op.sublinea || '—'}</td>
-            <td class="py-2 pr-4 cursor-pointer" onclick="abrirModalDetalleTaller('${op.id}')">${new Date(op.created_at).toLocaleDateString('es-MX')}</td>
+            <td class="py-2 pr-4 cursor-pointer" onclick="abrirModalDetalleTaller('${op.id}')">${formatFecha(op.created_at)}</td>
             <td class="py-2 pr-4 cursor-pointer" onclick="abrirModalDetalleTaller('${op.id}')">
               <span class="px-2 py-1 rounded-full text-xs font-bold" style="background:${color}20; color:${color};">
                 ${prom ? prom.toFixed(2) : '—'} / 5
@@ -1229,7 +1423,7 @@
             </td>
             <td class="py-2 pr-4">
               <div class="flex items-center gap-3">
-                <button onclick="event.stopPropagation(); abrirModalEditarTaller('${op.id}')" class="text-slate-400 hover:text-[#e31e24]" title="Editar">
+                <button onclick="event.stopPropagation(); abrirModalEditarTaller('${op.id}')" class="text-slate-400 hover:text-[#2563eb]" title="Editar">
                   <i class="fas fa-pen text-xs"></i>
                 </button>
                 <button onclick="event.stopPropagation(); eliminarEvaluacionTaller('${op.id}')" class="text-slate-400 hover:text-red-600" title="Eliminar">
@@ -1246,6 +1440,7 @@
       vistaKPIsTaller = vista;
       vistaCriteriosTaller = vista;
       vistaTendenciaTaller = vista;
+      actualizarNavMes();
       vistaTablaTaller = vista;
       renderKPIsTaller();
       renderGraficaCriteriosTaller();
@@ -1274,7 +1469,7 @@
 
       document.getElementById('modal-detalle-titulo-taller').textContent = op.job_id || 'Evaluación';
       document.getElementById('modal-detalle-subtitulo-taller').textContent =
-        `${op.servicio_proporcionado || '—'} · ${op.sublinea || '—'} · ${new Date(op.created_at).toLocaleDateString('es-MX')}`;
+        `${op.servicio_proporcionado || '—'} · ${op.sublinea || '—'} · ${formatFecha(op.created_at)}`;
 
       const cont = document.getElementById('modal-detalle-criterios-taller');
       cont.innerHTML = CRITERIOS_CALIDAD.map(c => {
@@ -1569,6 +1764,7 @@
     //  GENERAL (concentrado Campo + Taller)
     // ══════════════════════════════════════════
     let vistaGeneral = 'mes';
+    let offsetMesGeneral = 0;
     let chartCriteriosGeneral = null;
     let chartTendenciaGeneral = null;
 
@@ -1578,10 +1774,13 @@
       const anioActual = fechaActual.getFullYear();
 
       if (vista === 'mes') {
+        const fechaMesNavegadoGeneral = new Date(anioActual, mesActual + offsetMesGeneral, 1);
+        const mesNavegadoGeneral = fechaMesNavegadoGeneral.getMonth();
+        const anioNavegadoGeneral = fechaMesNavegadoGeneral.getFullYear();
         return operaciones.filter(op => {
           if (!op.created_at) return false;
           const f = new Date(op.created_at);
-          return f.getMonth() === mesActual && f.getFullYear() === anioActual;
+          return f.getMonth() === mesNavegadoGeneral && f.getFullYear() === anioNavegadoGeneral;
         });
       }
       if (vista === 'trimestre') {
@@ -1642,7 +1841,7 @@
         </div>
         <div class="kpi-card-mini">
           <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Promedio Combinado</p>
-          <p class="text-3xl font-black text-[#e31e24]">${promCombinado.toFixed(2)} / 5</p>
+          <p class="text-3xl font-black text-[#2563eb]">${promCombinado.toFixed(2)} / 5</p>
         </div>
         <div class="kpi-card-mini">
           <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Criterios Bajos (≤3)</p>
@@ -1664,7 +1863,7 @@
         type: 'bar',
         data: {
           labels: CRITERIOS_CALIDAD.map(c => c.nombre),
-          datasets: [{ label: 'Promedio', data: promediosCriterios, backgroundColor: '#e31e24' }]
+          datasets: [{ label: 'Promedio', data: promediosCriterios, backgroundColor: '#2563eb' }]
         },
         options: { scales: { y: { min: 0, max: 5 } }, plugins: { legend: { display: false } } }
       });
@@ -1677,9 +1876,7 @@
           ? 'Evolución del Promedio — Trimestre en Curso'
           : 'Evolución del Promedio — Año en Curso';
       }
-      const orden = [...combinado].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
-      const etiquetas = orden.map(op => new Date(op.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }));
-      const promediosOrden = orden.map(promedioOperacion);
+      const { etiquetas, promedios: promediosOrden } = agruparPorMesSiAnual(combinado, vistaGeneral);
       const ctxT = document.getElementById('grafica-tendencia-general').getContext('2d');
       if (chartTendenciaGeneral) chartTendenciaGeneral.destroy();
       chartTendenciaGeneral = new Chart(ctxT, {
@@ -1689,8 +1886,8 @@
           datasets: [{
             label: 'Promedio por operación',
             data: promediosOrden,
-            borderColor: '#e31e24',
-            backgroundColor: 'rgba(227,30,36,0.1)',
+            borderColor: '#2563eb',
+            backgroundColor: 'rgba(37,99,235,0.1)',
             fill: true,
             tension: 0.3
           }]
@@ -1710,7 +1907,7 @@
           <tr class="border-b border-slate-50" style="background:${bgFila};">
             <td class="py-2 pr-4 font-mono text-xs">${op.job_id || '—'}</td>
             <td class="py-2 pr-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${badgeOrigen}">${op.origen}</span></td>
-            <td class="py-2 pr-4">${new Date(op.created_at).toLocaleDateString('es-MX')}</td>
+            <td class="py-2 pr-4">${formatFecha(op.created_at)}</td>
             <td class="py-2 pr-4">
               <span class="px-2 py-1 rounded-full text-xs font-bold" style="background:${color}20; color:${color};">
                 ${prom ? prom.toFixed(2) : '—'} / 5
@@ -1723,6 +1920,7 @@
 
     function cambiarVistaGeneral(vista) {
       vistaGeneral = vista;
+      actualizarNavMes();
       renderGeneral();
       document.getElementById('btn-gral-mes').classList.toggle('active', vista === 'mes');
       document.getElementById('btn-gral-trimestre').classList.toggle('active', vista === 'trimestre');
