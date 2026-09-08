@@ -2,7 +2,17 @@
 // 1. CSS
 // ═══════════════════════════════════════════════════════════
 const REVISTA_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700;1,900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700;1,900&family=Dancing+Script:wght@600;700&display=swap');
+
+  .firma-cursiva {
+    font-family: 'Dancing Script', cursive;
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(255,255,255,.92);
+    line-height: 1;
+    white-space: nowrap;
+    text-align: right;
+  }
 
   .magazine-wrap { max-width: 80%; margin: 0 auto; }
 
@@ -16,7 +26,7 @@ const REVISTA_CSS = `
   .prev-msg-box { border-radius: 14px; padding: 20px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); }
 
   /* Section card */
-  .prev-section { background: white; border-radius: 16px; margin-bottom: 16px; overflow: hidden; box-shadow: 0 2px 16px rgba(10,22,40,.07); }
+  .prev-section { background: var(--rv-card-bg); border-radius: 16px; margin-bottom: 16px; overflow: hidden; box-shadow: 0 2px 16px rgba(10,22,40,.07); }
   .prev-section-header { padding: 16px 22px; display: flex; align-items: center; gap: 12px; }
   .prev-section-body { padding: 20px 22px; }
   .prev-section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 900; font-style: italic; color: white; margin: 0; }
@@ -32,13 +42,13 @@ const REVISTA_CSS = `
 
   /* EPP */
   .prev-epp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; }
-  .prev-epp-item { background: #f0f4f8; border-radius: 10px; padding: 10px 6px; text-align: center; }
+  .prev-epp-item { background: var(--rv-fondo-seccion); border-radius: 10px; padding: 10px 6px; text-align: center; }
   .prev-epp-icon { font-size: 22px; display: block; margin-bottom: 4px; }
-  .prev-epp-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #0e2044; }
+  .prev-epp-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--rv-texto); }
 
   /* QR */
   .prev-qr-box { background: #0a1628; border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 12px; margin-top: 10px; }
-  .prev-qr-placeholder { width: 60px; height: 60px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 22px; overflow: hidden; }
+  .prev-qr-placeholder { width: 60px; height: 60px; background: var(--rv-card-bg); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 22px; overflow: hidden; }
 
   @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
   .fade-in { animation: fadeIn .3s ease both; }
@@ -53,23 +63,23 @@ const REVISTA_CSS = `
   }
   .epp-modal-overlay.hidden { display: none; }
   .epp-modal-box {
-    background: white; border-radius: 18px; padding: 28px 24px;
+    background: var(--rv-card-bg); border-radius: 18px; padding: 28px 24px;
     max-width: 320px; width: 100%; text-align: center; position: relative;
     animation: eppModalIn .2s ease;
   }
   @keyframes eppModalIn { from { opacity:0; transform:scale(.94); } to { opacity:1; transform:scale(1); } }
   .epp-modal-cerrar {
     position: absolute; top: 12px; right: 12px; width: 28px; height: 28px;
-    border-radius: 50%; border: none; background: #f1f5f9; color: #64748b;
+    border-radius: 50%; border: none; background: var(--rv-fondo-seccion); color: var(--rv-texto-sec);
     cursor: pointer; font-size: 12px;
   }
   .epp-modal-cerrar:hover { background: #e2e8f0; }
   .epp-modal-emoji { font-size: 48px; margin-bottom: 12px; }
   .epp-modal-label {
     font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 18px;
-    text-transform: uppercase; color: #0e2044; margin-bottom: 10px; letter-spacing: .02em;
+    text-transform: uppercase; color: var(--rv-texto); margin-bottom: 10px; letter-spacing: .02em;
   }
-  .epp-modal-desc { font-size: 13px; color: #475569; line-height: 1.6; }
+  .epp-modal-desc { font-size: 13px; color: var(--rv-texto-sec); line-height: 1.6; }
 `;
 
 // ═══════════════════════════════════════════════════════════
@@ -103,6 +113,10 @@ const REVISTA_HTML = `
           <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.1);">
             <p id="pv-director" style="font-size:10px;font-weight:800;color:rgba(255,255,255,.9);text-transform:uppercase;letter-spacing:.06em">Ing. —</p>
             <p style="font-size:9px;color:rgba(255,255,255,.45);margin-top:2px">Gerente de Operaciones — In Hole Solutions</p>
+            <div style="text-align:right;margin-top:10px;">
+              <img id="pv-firma-img" src="" alt="Firma" style="display:none;max-height:26px;max-width:100px;object-fit:contain;filter:brightness(0) invert(1);opacity:.9;margin-left:auto;">
+              <p id="pv-firma-texto" class="firma-cursiva" style="display:none;"></p>
+            </div>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;">
@@ -156,23 +170,23 @@ const REVISTA_HTML = `
         </div>
         <!-- RIGHT: Near Miss -->
         <div>
-          <p style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-bottom:8px;display:flex;align-items:center;gap:6px"><i class="fas fa-triangle-exclamation text-red-500"></i>Lección Aprendida — Near Miss</p>
+          <p style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--rv-fijo-gris);margin-bottom:8px;display:flex;align-items:center;gap:6px"><i class="fas fa-triangle-exclamation text-red-500"></i>Lección Aprendida — Near Miss</p>
           <div style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:100px;background:#fef2f2;border:1px solid #fecaca;margin-bottom:10px">
             <i class="fas fa-circle text-red-500" style="font-size:6px"></i>
             <span id="pv-nm-area" style="font-size:10px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.06em">—</span>
           </div>
           <div style="border-left:4px solid #e31e24;background:#fff5f5;border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:10px">
-            <p id="pv-nm-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:#1e293b;text-transform:uppercase;margin-bottom:6px">—</p>
-            <p id="pv-nm-desc" style="font-size:11px;color:#64748b;line-height:1.6"></p>
+            <p id="pv-nm-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:var(--rv-fijo-oscuro);text-transform:uppercase;margin-bottom:6px">—</p>
+            <p id="pv-nm-desc" style="font-size:11px;color:var(--rv-fijo-gris);line-height:1.6"></p>
           </div>
           <div style="display:grid;gap:8px">
-            <div style="border-radius:10px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0">
+            <div style="border-radius:10px;padding:10px 12px;background:var(--rv-fijo-fondo-claro);border:1px solid var(--rv-fijo-borde)">
               <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:4px"><i class="fas fa-magnifying-glass mr-1 text-blue-400"></i>Causa Raíz</p>
-              <p id="pv-nm-causa" style="font-size:12px;color:#475569">—</p>
+              <p id="pv-nm-causa" style="font-size:12px;color:var(--rv-fijo-gris)">—</p>
             </div>
             <div style="border-radius:10px;padding:10px 12px;background:#f0fdf4;border:1px solid #bbf7d0">
               <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#15803d;margin-bottom:4px"><i class="fas fa-wrench mr-1"></i>Acción Correctiva</p>
-              <p id="pv-nm-accion" style="font-size:12px;color:#475569">—</p>
+              <p id="pv-nm-accion" style="font-size:12px;color:var(--rv-fijo-gris)">—</p>
             </div>
           </div>
         </div>
@@ -196,7 +210,7 @@ const REVISTA_HTML = `
         <div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
             <span style="font-size:18px">🔗</span>
-            <h3 id="pv-quality-left-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:#1e293b;text-transform:uppercase;letter-spacing:.04em">INTEGRIDAD DE CONEXIONES</h3>
+            <h3 id="pv-quality-left-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:var(--rv-texto);text-transform:uppercase;letter-spacing:.04em">INTEGRIDAD DE CONEXIONES</h3>
           </div>
           <div id="pv-quality-tabla-wrap" style="margin-bottom:14px"></div>
           <div id="pv-quality-alerta-wrap" style="display:none">
@@ -210,7 +224,7 @@ const REVISTA_HTML = `
         <div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
             <span style="font-size:18px">⚙️</span>
-            <h3 id="pv-quality-right-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:#1e293b;text-transform:uppercase;letter-spacing:.04em">MÁQUINA DE TORQUE</h3>
+            <h3 id="pv-quality-right-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:var(--rv-texto);text-transform:uppercase;letter-spacing:.04em">MÁQUINA DE TORQUE</h3>
           </div>
           <div id="pv-quality-pasos-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>
           <div id="pv-epp-quality" style="border:2px dashed rgba(30,136,229,.25);border-radius:12px;padding:12px;background:#f0f7ff;margin-bottom:14px">
@@ -247,7 +261,7 @@ const REVISTA_HTML = `
         <!-- LEFT: Ruido -->
         <div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-            <h3 id="pv-health-left-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:#1e293b;text-transform:uppercase;letter-spacing:.04em">PROTECCIÓN RUIDO Y VIBRACIÓN</h3>
+            <h3 id="pv-health-left-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:var(--rv-texto);text-transform:uppercase;letter-spacing:.04em">PROTECCIÓN RUIDO Y VIBRACIÓN</h3>
           </div>
           <div id="pv-health-ruido-box" style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:10px;padding:12px;margin-bottom:10px">
             <p id="pv-health-ruido-titulo" style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#92400e;margin-bottom:10px;display:flex;align-items:center;gap:5px">
@@ -261,20 +275,20 @@ const REVISTA_HTML = `
         <div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
             <span style="font-size:18px">🚶</span>
-            <h3 id="pv-health-right-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:#1e293b;text-transform:uppercase;letter-spacing:.04em">ERGONOMÍA EN CAMPO Y TALLER</h3>
+            <h3 id="pv-health-right-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:var(--rv-texto);text-transform:uppercase;letter-spacing:.04em">ERGONOMÍA EN CAMPO Y TALLER</h3>
           </div>
-          <div style="border:1.5px solid #e2e8f0;border-radius:10px;overflow:hidden;margin-bottom:10px">
-            <div id="pv-health-ergo-subtitulo" style="background:#f8fafc;padding:7px 12px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#64748b;border-bottom:1px solid #e2e8f0">POSTURAS CORRECTAS</div>
+          <div style="border:1.5px solid var(--rv-borde);border-radius:10px;overflow:hidden;margin-bottom:10px">
+            <div id="pv-health-ergo-subtitulo" style="background:var(--rv-fondo-seccion);padding:7px 12px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--rv-texto-sec);border-bottom:1px solid var(--rv-borde)">POSTURAS CORRECTAS</div>
             <div style="display:grid;grid-template-columns:1fr 1fr">
-              <div style="padding:14px;text-align:center;border-right:1px solid #e2e8f0">
+              <div style="padding:14px;text-align:center;border-right:1px solid var(--rv-borde)">
                 <div style="width:36px;height:36px;border-radius:50%;background:#22c55e;margin:0 auto 8px;display:flex;align-items:center;justify-content:center"><i class="fas fa-check" style="color:white;font-size:14px"></i></div>
                 <p style="font-size:9px;font-weight:800;color:#15803d;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Correcto</p>
-                <p id="pv-health-ergo-correcto" style="font-size:11px;color:#475569;line-height:1.5">—</p>
+                <p id="pv-health-ergo-correcto" style="font-size:11px;color:var(--rv-texto-sec);line-height:1.5">—</p>
               </div>
               <div style="padding:14px;text-align:center">
                 <div style="width:36px;height:36px;border-radius:50%;background:#ef4444;margin:0 auto 8px;display:flex;align-items:center;justify-content:center"><i class="fas fa-times" style="color:white;font-size:14px"></i></div>
                 <p style="font-size:9px;font-weight:800;color:#dc2626;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Incorrecto</p>
-                <p id="pv-health-ergo-incorrecto" style="font-size:11px;color:#475569;line-height:1.5">—</p>
+                <p id="pv-health-ergo-incorrecto" style="font-size:11px;color:var(--rv-texto-sec);line-height:1.5">—</p>
               </div>
             </div>
           </div>
@@ -310,7 +324,7 @@ const REVISTA_HTML = `
         <div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
             <span style="font-size:16px">💧</span>
-            <h3 id="pv-env-left-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:#1e293b;text-transform:uppercase;letter-spacing:.04em">CONTROL Y CONTENCIÓN DE FLUIDOS</h3>
+            <h3 id="pv-env-left-titulo" style="font-family:'Barlow Condensed';font-size:15px;font-weight:900;color:var(--rv-texto);text-transform:uppercase;letter-spacing:.04em">CONTROL Y CONTENCIÓN DE FLUIDOS</h3>
           </div>
           <div id="pv-env-fluidos" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px"></div>
           <div id="pv-env-protocolo-wrap">
@@ -413,6 +427,21 @@ function aplicarEdicionARevista(data) {
   set('pv-volumen',  data.volumen || 'Vol. 1');
   set('pv-director', data.nombre_director ? `Ing. ${data.nombre_director}` : 'Ing. —');
   set('pv-mensaje',  data.mensaje_director || '—');
+
+  // Firma del director: imagen subida, o cursiva generada con el nombre
+  const firmaImgEl = pv('pv-firma-img');
+  const firmaTextoEl = pv('pv-firma-texto');
+  if (firmaImgEl && firmaTextoEl) {
+    if (data.firma_director_url) {
+      firmaImgEl.src = data.firma_director_url;
+      firmaImgEl.style.display = 'block';
+      firmaTextoEl.style.display = 'none';
+    } else {
+      firmaImgEl.style.display = 'none';
+      firmaTextoEl.textContent = data.nombre_director || '';
+      firmaTextoEl.style.display = data.nombre_director ? 'block' : 'none';
+    }
+  }
   set('pv-stat-dias', data.stat_dias ?? 0);
   set('pv-stat-obs',  data.stat_obs  ?? 0);
   set('pv-stat-acc',  data.stat_acc  ?? 0);
@@ -430,9 +459,9 @@ function aplicarEdicionARevista(data) {
     const items = Array.isArray(data.epp_safety) ? data.epp_safety : [];
     epSGrid.innerHTML = items.length
       ? items.map(e => `
-          <div class="epp-item" data-emoji="${escapeHtmlEpp(e.emoji||'🔧')}" data-label="${escapeHtmlEpp(e.label||'')}" data-desc="${escapeHtmlEpp(e.descripcion||'')}" style="background:#f0f4f8;border-radius:10px;padding:10px 6px;text-align:center">
+          <div class="epp-item" data-emoji="${escapeHtmlEpp(e.emoji||'🔧')}" data-label="${escapeHtmlEpp(e.label||'')}" data-desc="${escapeHtmlEpp(e.descripcion||'')}" style="background:var(--rv-fondo-seccion);border-radius:10px;padding:10px 6px;text-align:center">
             <span style="font-size:26px;display:block;margin-bottom:4px">${e.emoji || '🔧'}</span>
-            <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#0e2044;line-height:1.2;display:block">${e.label || ''}</span>
+            <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--rv-texto);line-height:1.2;display:block">${e.label || ''}</span>
           </div>`).join('')
       : '<p style="font-size:11px;color:#94a3b8;padding:6px;grid-column:1/-1">Sin EPP registrado</p>';
   }
@@ -448,7 +477,7 @@ function aplicarEdicionARevista(data) {
       const col = tipColorMap[t.icon] || 'green';
       return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:10px;background:${tipBgMap[col]};border-left:4px solid ${tipBdrMap[col]}">
         <span style="font-size:16px;flex-shrink:0;margin-top:1px">${t.icon}</span>
-        <p style="font-size:12px;color:#475569;line-height:1.6;margin:0">${t.text || t.texto}</p>
+        <p style="font-size:12px;color:var(--rv-texto-sec);line-height:1.6;margin:0">${t.text || t.texto}</p>
       </div>`;
     }).join('');
   }
@@ -459,7 +488,7 @@ function aplicarEdicionARevista(data) {
     const qrs = Array.isArray(data.qrs_safety) ? data.qrs_safety : [];
     qrSafetyEl.innerHTML = qrs.map(qr => `
       <div style="background:#0a1628;border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;margin-top:8px">
-        <div style="width:60px;height:60px;background:white;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;overflow:hidden">
+        <div style="width:60px;height:60px;background:var(--rv-card-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;overflow:hidden">
           ${qr.img ? `<img src="${qr.img}" style="width:56px;height:56px;object-fit:contain;border-radius:6px;">` : '📋'}
         </div>
         <div>
@@ -519,11 +548,11 @@ function aplicarEdicionARevista(data) {
   if (pasosEl) {
     const pasos = Array.isArray(data.quality_pasos) ? data.quality_pasos : [];
     pasosEl.innerHTML = pasos.map((p,i) => `
-      <div style="display:flex;gap:10px;align-items:flex-start;background:#f8fafc;border-radius:10px;padding:10px 12px;border:1px solid #e2e8f0">
+      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--rv-fondo-seccion);border-radius:10px;padding:10px 12px;border:1px solid var(--rv-borde)">
         <div style="width:24px;height:24px;border-radius:50%;background:#1e88e5;color:white;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
         <div>
-          <p style="font-size:12px;font-weight:700;color:#1e293b;margin-bottom:2px">${p.titulo||''}</p>
-          <p style="font-size:11px;color:#64748b;line-height:1.5">${p.desc||''}</p>
+          <p style="font-size:12px;font-weight:700;color:var(--rv-texto);margin-bottom:2px">${p.titulo||''}</p>
+          <p style="font-size:11px;color:var(--rv-texto-sec);line-height:1.5">${p.desc||''}</p>
         </div>
       </div>`).join('');
   }
@@ -536,9 +565,9 @@ function aplicarEdicionARevista(data) {
     const items = Array.isArray(data.epp_quality) ? data.epp_quality : [];
     epQGrid.innerHTML = items.length
       ? items.map(e => `
-          <div class="epp-item" data-emoji="${escapeHtmlEpp(e.emoji||'🔧')}" data-label="${escapeHtmlEpp(e.label||'')}" data-desc="${escapeHtmlEpp(e.descripcion||'')}" style="background:white;border-radius:10px;padding:10px 6px;text-align:center;border:1px solid #e2e8f0">
+          <div class="epp-item" data-emoji="${escapeHtmlEpp(e.emoji||'🔧')}" data-label="${escapeHtmlEpp(e.label||'')}" data-desc="${escapeHtmlEpp(e.descripcion||'')}" style="background:var(--rv-card-bg);border-radius:10px;padding:10px 6px;text-align:center;border:1px solid var(--rv-borde)">
             <span style="font-size:26px;display:block;margin-bottom:4px">${e.emoji||'🔧'}</span>
-            <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#0e2044;line-height:1.2;display:block">${e.label||''}</span>
+            <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--rv-texto);line-height:1.2;display:block">${e.label||''}</span>
           </div>`).join('')
       : '';
   }
@@ -570,7 +599,7 @@ function aplicarEdicionARevista(data) {
     barrasEl.innerHTML = barras.map(b => `
       <div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-          <span style="font-size:11px;color:#1e293b;font-weight:500">${b.label||'—'}</span>
+          <span style="font-size:11px;color:var(--rv-texto);font-weight:500">${b.label||'—'}</span>
           <span style="font-size:11px;font-weight:700;color:${colorHex[b.color]||'#ef4444'}">${b.valor||''}</span>
         </div>
         <div style="height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden">
@@ -588,7 +617,7 @@ function aplicarEdicionARevista(data) {
     htipsEl.innerHTML = htips.filter(t => t.texto || t.text).map(t => `
       <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:9px;background:${tipBg[t.icon]||tipBg.default};border-left:3px solid ${tipBdr[t.icon]||tipBdr.default}">
         <span style="font-size:15px;flex-shrink:0;margin-top:1px">${t.icon}</span>
-        <p style="font-size:11px;color:#475569;line-height:1.6;margin:0">${t.texto||t.text}</p>
+        <p style="font-size:11px;color:var(--rv-texto-sec);line-height:1.6;margin:0">${t.texto||t.text}</p>
       </div>`).join('');
   }
 

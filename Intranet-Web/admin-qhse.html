@@ -535,6 +535,20 @@
             <label class="field-label">Mensaje</label>
             <textarea id="f-mensaje" class="field-input field-textarea" placeholder="Escribe el mensaje de gerencia..." oninput="livePreview()"></textarea>
           </div>
+          <div class="field-group">
+            <label class="field-label">Firma del Director (opcional)</label>
+            <div class="qr-upload-zone" id="zone-firma" onclick="triggerQrUpload('firma')"
+              ondragover="event.preventDefault();this.classList.add('dragover')"
+              ondragleave="this.classList.remove('dragover')"
+              ondrop="handleQrDrop(event,'firma')">
+              <input type="file" id="file-qr-firma" accept="image/*" onchange="handleQrFile(event,'firma');livePreview()" onclick="event.stopPropagation()">
+              <div id="qr-preview-firma">
+                <i class="fas fa-signature text-slate-300 text-3xl mb-2"></i>
+                <p style="font-size:12px;font-weight:600;color:#94a3b8">Sube una firma escaneada (PNG con fondo transparente da mejor resultado)</p>
+                <p style="font-size:10px;color:#cbd5e1;margin-top:2px">Si no subes nada, se genera una firma en cursiva con el nombre</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- ── TAB SAFETY ── -->
@@ -1322,12 +1336,15 @@
     _setVal('f-qr-ambiental-titulo', qrs.ambiental_titulo || '');
     _setVal('f-qr-ambiental-desc',   qrs.ambiental_desc   || '');
     // Load existing QR images (solo para las zonas que existen en el HTML)
-    qrImages = { ats: null, torque: null, ergo: null, ambiental: null };
+    qrImages = { ats: null, torque: null, ergo: null, ambiental: null, firma: null };
     ['torque','ergo','ambiental'].forEach(k => {
       const img = qrs[k + '_img'];
       if (img) { qrImages[k] = img; showQrPreview(k, img); }
       else clearQrPreview(k);
     });
+    // Firma del director (vive aparte de qr_urls, es su propio campo)
+    if (ed.firma_director_url) { qrImages.firma = ed.firma_director_url; showQrPreview('firma', ed.firma_director_url); }
+    else clearQrPreview('firma');
 
     // EPP
     eppSafety  = Array.isArray(ed.epp_safety)  ? ed.epp_safety  : [];
@@ -1377,16 +1394,25 @@
     const { data: perfiles } = await sb.from('perfiles').select('id');
     if (!perfiles || perfiles.length === 0) return;
 
-    const notifs = perfiles.map(p => ({
-      usuario_id: p.id,
-      tipo: 'edicion_nueva',
-      titulo: '📰 Nueva edición publicada',
-      mensaje: tituloEdicion,
-      link: 'alertas-qhse.html',
-      clave_unica: `edicion-${edicionId}`,
-    }));
+    // insert() normal en vez de upsert(): el upsert con onConflict tropieza con RLS
+    // cuando el admin escribe para OTRO usuario, porque Postgres necesita "ver" la fila
+    // en conflicto para resolverlo, y la política de SELECT solo deja ver las propias.
+    // En vez de eso, dejamos que el índice único rechace duplicados (error 23505) y lo ignoramos.
+    for (const p of perfiles) {
+      const { error: notifError } = await sb.from('notificaciones').insert({
+        usuario_id: p.id,
+        tipo: 'edicion_nueva',
+        titulo: '📰 Nueva edición publicada',
+        mensaje: tituloEdicion,
+        link: 'alertas-qhse.html',
+        clave_unica: `edicion-${edicionId}`,
+      });
 
-    await sb.from('notificaciones').upsert(notifs, { onConflict: 'usuario_id,clave_unica', ignoreDuplicates: true });
+      const yaExistia = notifError?.code === '23505'; // duplicado por clave_unica: ya se había notificado
+      if (notifError && !yaExistia) {
+        console.error(`Error notificando a ${p.id}:`, notifError);
+      }
+    }
   }
 
   // ── GUARDAR ──
@@ -1449,6 +1475,25 @@
       qrs_safety_saved.push(qr);
     }
 
+    // Firma del director (independiente de los QRs)
+    let firma_director_url = typeof qrImages.firma === 'string' ? qrImages.firma : '';
+    if (qrImages.firma && typeof qrImages.firma !== 'string') {
+      try {
+        const file = qrImages.firma;
+        const ext  = file.name.split('.').pop();
+        const path = `qr-images/${Date.now()}-firma.${ext}`;
+        const { error: upErr } = await sb.storage.from('qhse-assets').upload(path, file, { upsert: true });
+        if (!upErr) {
+          const { data: urlData } = sb.storage.from('qhse-assets').getPublicUrl(path);
+          firma_director_url = urlData.publicUrl;
+        } else {
+          firma_director_url = await fileToBase64(file);
+        }
+      } catch (e) {
+        try { firma_director_url = await fileToBase64(qrImages.firma); } catch (_) {}
+      }
+    }
+
     const payload = {
       titulo, edicion,
       volumen:           document.getElementById('f-volumen').value.trim() || 'Vol. 1',
@@ -1491,6 +1536,7 @@
       guardian_badges:   guardianBadges,
       epp_safety:        eppSafety,
       epp_quality:       eppQuality,
+      firma_director_url,
       qr_urls,
       publicada:         publicar,
       autor_id:          currentUser?.id,
@@ -2123,6 +2169,20 @@
     pv('pv-volumen').textContent = v('f-volumen') || 'Vol. 1';
     pv('pv-director').textContent = v('f-director') ? `Ing. ${v('f-director')}` : 'Ing. —';
     pv('pv-mensaje').textContent = v('f-mensaje') || 'Ingresa el mensaje del gerente de operaciones en el panel izquierdo...';
+
+    const pvFirmaImg = pv('pv-firma-img');
+    const pvFirmaTexto = pv('pv-firma-texto');
+    if (pvFirmaImg && pvFirmaTexto) {
+      if (qrImages.firma) {
+        pvFirmaImg.src = typeof qrImages.firma === 'string' ? qrImages.firma : URL.createObjectURL(qrImages.firma);
+        pvFirmaImg.style.display = 'block';
+        pvFirmaTexto.style.display = 'none';
+      } else {
+        pvFirmaImg.style.display = 'none';
+        pvFirmaTexto.textContent = v('f-director') || '';
+        pvFirmaTexto.style.display = v('f-director') ? 'block' : 'none';
+      }
+    }
     // Stats automáticos desde safety_alerts
     const edicionTexto = v('f-edicion') || '';
     const mesesES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -2455,7 +2515,7 @@
   }
 
   // ── QR IMAGE STATE ──
-  let qrImages = { torque: null, ergo: null, ambiental: null };
+  let qrImages = { torque: null, ergo: null, ambiental: null, firma: null };
 
   // Helper: file → base64
   function fileToBase64(file) {

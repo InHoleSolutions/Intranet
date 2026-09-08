@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Captura de Datos | PreDix Forecast</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#f4f6fb',
+            panel: '#ffffff',
+            border: '#e2e6f0',
+            accent: '#2563eb',
+            accent2: '#0891b2',
+          },
+          fontFamily: {
+            sans: ['Calibri', 'Carlito', 'Segoe UI', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: Calibri, 'Carlito', 'Segoe UI', system-ui, sans-serif; }
+  </style>
+</head>
+<body class="bg-bg text-gray-800 min-h-screen flex flex-col">
+
+  <!-- Pantalla de acceso denegado (oculta por defecto) -->
+  <div id="overlayAccesoDenegado" class="hidden fixed inset-0 z-[100] bg-white flex items-center justify-center px-6">
+    <div class="max-w-md w-full text-center">
+      <div class="w-16 h-16 mx-auto mb-5 rounded-full bg-red-50 flex items-center justify-center">
+        <i class="fas fa-lock text-2xl text-red-500"></i>
+      </div>
+      <h1 class="text-xl font-bold text-gray-900 mb-2">Acceso restringido</h1>
+      <p class="text-sm text-gray-500 mb-6">No tienes permisos para acceder a la captura de datos de Forecast. Si crees que esto es un error, contacta al administrador de la intranet.</p>
+      <a href="dashboard.html" class="inline-flex items-center gap-2 bg-accent text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-blue-700 transition">
+        <i class="fas fa-arrow-left"></i> Volver al Dashboard
+      </a>
+    </div>
+  </div>
+
+  <div id="header-slot"></div>
+
+  <main class="flex-1 pt-16 sm:pt-20 lg:pt-32 xl:pt-[140px] 3xl:pt-[156px] w-full px-6 space-y-6">
+    <div class="max-w-[1200px] mx-auto space-y-6">
+
+      <!-- Encabezado del panel -->
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Captura de Datos</h1>
+          <p class="text-sm text-gray-400 mt-1">Aquí se alimentan los datos que ve el dashboard</p>
+          <p id="ultimaActualizacion" class="text-xs text-gray-400 mt-0.5"></p>
+        </div>
+        <a href="forecast.html"
+          class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 bg-white border border-border rounded-lg px-4 py-2 shadow-sm hover:bg-gray-50 hover:border-accent hover:text-accent transition">
+          <i class="fas fa-arrow-left text-xs"></i> Volver
+        </a>
+      </div>
+
+      <!-- FORMULARIO: Registro mensual de Forecast / Real -->
+      <section class="bg-panel border border-border rounded-2xl p-6 shadow-sm">
+        <h2 class="text-lg font-semibold text-gray-900 mb-1">Ventas Reales Mensuales</h2>
+        <p class="text-sm text-gray-500 mb-4">Captura la venta real cerrada de cada mes. El Forecast de los meses futuros se calcula solo, con base en este histórico.</p>
+
+                <form id="formRegistro" class="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-3">
+
+          <!-- Periodo -->
+          <div>
+            <label class="text-xs font-medium text-gray-600">Año</label>
+            <select id="reg_anio" required class="w-full mt-1 bg-white border border-border rounded-lg px-3 py-2 text-sm">
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026" selected>2026</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-xs font-medium text-gray-600">Quarter</label>
+            <select id="reg_quarter" required class="w-full mt-1 bg-white border border-border rounded-lg px-3 py-2 text-sm">
+              <option value="">Selecciona...</option>
+              <option value="1">Q1 (Ene - Mar)</option>
+              <option value="2">Q2 (Abr - Jun)</option>
+              <option value="3">Q3 (Jul - Sep)</option>
+              <option value="4">Q4 (Oct - Dic)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-xs font-medium text-gray-600">Mes</label>
+            <select id="reg_mes" required disabled class="w-full mt-1 bg-white border border-border rounded-lg px-3 py-2 text-sm disabled:bg-gray-100 disabled:text-gray-400">
+              <option value="">Elige un Quarter primero</option>
+            </select>
+          </div>
+
+          <div class="md:col-span-3 border-t border-border mt-1 pt-3"></div>
+
+          <!-- Cliente y producto -->
+          <div class="md:col-span-2">
+            <label class="text-xs font-medium text-gray-600">Cliente</label>
+            <input id="reg_cliente" list="listaClientes" required
+              placeholder="Escribe para buscar o agregar un cliente..."
+              class="w-full mt-1 bg-white border border-border rounded-lg px-3 py-2 text-sm"
+              autocomplete="off">
+            <datalist id="listaClientes"></datalist>
+          </div>
+
+          <div>
+            <label class="text-xs font-medium text-gray-600">Línea de Producto</label>
+            <select id="reg_linea" required class="w-full mt-1 bg-white border border-border rounded-lg px-3 py-2 text-sm">
+              <option value="">Selecciona...</option>
+              <option>Cementing</option>
+              <option>CHC</option>
+              <option>Gas Lift</option>
+              <option>Safety System</option>
+              <option>Sand Control</option>
+              <option>Servicios de Taller</option>
+            </select>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="text-xs font-medium text-gray-600">Servicio</label>
+            <input id="reg_servicio" list="listaServicios" required disabled
+              placeholder="Elige una línea primero"
+              class="w-full mt-1 bg-white border border-border rounded-lg px-3 py-2 text-sm disabled:bg-gray-100 disabled:text-gray-400"
+              autocomplete="off">
+            <datalist id="listaServicios"></datalist>
+            <p id="reg_servicio_hint" class="text-xs text-gray-400 mt-1"></p>
+          </div>
+
+          <div>
+            <label class="text-xs font-medium text-gray-600">Pozo / Relación <span class="text-gray-400">— opcional</span></label>
+            <input id="reg_pozo" type="text" placeholder="Ej. Pozo Ayin-1..."
+              class="w-full mt-1 bg-white border border-border rounded-lg px-3 py-2 text-sm">
+          </div>
+
+          <div class="md:col-span-3 border-t border-border mt-1 pt-3"></div>
+
+          <!-- Montos y probabilidad -->
+          <div>
+            <label class="text-xs font-medium text-gray-600">
+              Forecast Sugerido (USD) <span class="text-accent">✎ editable</span>
+            </label>
+            <input id="reg_forecast" type="number" step="0.01" placeholder="Se sugiere al elegir Cliente + Línea"
+              class="w-full mt-1 bg-white border border-border rounded-lg px-3 py-2 text-sm">
+            <p id="reg_forecast_hint" class="text-xs text-gray-400 mt-1">Promedio de últimos meses.</p>
+          </div>
+
+          <div>
+            <label class="text-xs font-medium text-gray-600">Probabilidad de Cumplimiento <span class="text-gray-400">— opcional</span></label>
+            <div class="mt-1 border border-border rounded-lg p-2 bg-gray-50">
+              <div class="grid grid-cols-3 gap-2" id="grupoConfianza">
+                <button type="button" data-nivel="P50"
+                  class="btn-confianza border border-border rounded-lg px-2 py-1.5 text-sm font-medium bg-white text-gray-500 hover:bg-amber-50">
+                  P50 <span class="block text-[10px] font-normal">50%</span>
+                </button>
+                <button type="button" data-nivel="P70"
+                  class="btn-confianza border border-border rounded-lg px-2 py-1.5 text-sm font-medium bg-white text-gray-500 hover:bg-cyan-50">
+                  P70 <span class="block text-[10px] font-normal">70%</span>
+                </button>
+                <button type="button" data-nivel="P90"
+                  class="btn-confianza border border-border rounded-lg px-2 py-1.5 text-sm font-medium bg-white text-gray-500 hover:bg-purple-50">
+                  P90 <span class="block text-[10px] font-normal">100%</span>
+                </button>
+              </div>
+              <input type="hidden" id="reg_confianza" value="">
+            </div>
+          </div>
+
+          <div class="md:col-span-3 flex items-center gap-3 pt-3">
+            <button type="submit" class="bg-accent text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-blue-700 transition">
+              <i class="fas fa-save mr-1"></i> Guardar Registro
+            </button>
+            <span id="reg_status" class="text-sm"></span>
+          </div>
+        </form>
+      </section>
+
+      <!-- CIERRE DE VENTA REAL MENSUAL -->
+      <section class="bg-panel border border-border rounded-2xl p-6 shadow-sm">
+        <h2 class="text-lg font-semibold text-gray-900 mb-1">Cierre de Venta Real Mensual</h2>
+        <p class="text-sm text-gray-500 mb-4">Cuando un mes ya cerró, captura aquí el monto total realmente vendido. Este concentrado es el que se compara contra el Forecast en el dashboard.</p>
+
+        <div id="alertaMesesPendientes" class="hidden mb-4 flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <i class="fas fa-triangle-exclamation text-amber-500 mt-0.5"></i>
+          <div class="text-sm text-amber-800">
+            <p class="font-medium">Tienes meses sin venta real capturada:</p>
+            <p id="listaMesesPendientes" class="mt-1"></p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-3 items-end">
+          <div>
+            <label class="text-xs font-medium text-gray-600">Año</label>
+            <select id="cierre_anio" class="w-full mt-1 bg-white border border-border rounded-lg px-3 py-2 text-sm">
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026" selected>2026</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-medium text-gray-600">Mes</label>
+            <select id="cierre_mes" class="w-full mt-1 bg-white border border-border rounded-lg px-3 py-2 text-sm">
+              <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+              <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+              <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+              <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+            </select>
+          </div>
+          <div>
+            <button id="btnVerRegistrosMes" type="button" class="w-full bg-white border border-border rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+              <i class="fas fa-eye mr-1"></i> Ver registros de ese mes
+            </button>
+          </div>
+        </div>
+
+        <div id="contenedorRegistrosMes" class="hidden mt-4">
+          <div class="overflow-x-auto max-h-[300px] overflow-y-auto border border-border rounded-xl">
+            <table class="w-full text-xs">
+              <thead class="sticky top-0 bg-gray-50">
+                <tr class="text-left text-gray-500 border-b border-border">
+                  <th class="py-2 px-3 font-medium">Cliente</th>
+                  <th class="py-2 px-3 font-medium">Línea</th>
+                  <th class="py-2 px-3 font-medium">Servicio</th>
+                  <th class="py-2 px-3 font-medium">Forecast</th>
+                </tr>
+              </thead>
+              <tbody id="registrosMesBody" class="divide-y divide-border"></tbody>
+            </table>
+          </div>
+
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-3 items-end">
+            <div class="md:col-span-2">
+              <label class="text-xs font-medium text-gray-600">Venta Real Total del Mes (USD)</label>
+              <input id="cierre_monto" type="number" step="0.01" placeholder="Monto total cerrado ese mes"
+                class="w-full mt-1 bg-white border border-border rounded-lg px-3 py-2 text-sm">
+            </div>
+            <div>
+              <button id="btnGuardarCierre" type="button" class="w-full bg-accent text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-blue-700 transition">
+                <i class="fas fa-save mr-1"></i> Guardar Venta Real
+              </button>
+            </div>
+          </div>
+          <span id="cierre_status" class="text-sm mt-2 block"></span>
+        </div>
+      </section>
+
+      <!-- IMPORTAR EXCEL -->
+      <section class="bg-panel border border-border rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-1">
+          <h2 class="text-lg font-semibold text-gray-900">Importar Registros desde Excel</h2>
+          <button id="btnDescargarPlantilla" type="button"
+            class="text-sm font-medium text-accent hover:underline flex items-center gap-1">
+            <i class="fas fa-download"></i> Descargar plantilla
+          </button>
+        </div>
+        <p class="text-sm text-gray-500 mb-4">Sube el Excel de ventas reales del mes. El Forecast se calcula automáticamente si lo dejas vacío.</p>
+
+        <label id="zonaDropExcel" class="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border rounded-xl py-8 cursor-pointer hover:bg-gray-50 transition">
+          <i class="fas fa-file-excel text-3xl text-green-600"></i>
+          <span class="text-sm text-gray-600 font-medium">Haz clic para elegir tu archivo Excel (.xlsx)</span>
+          <span class="text-xs text-gray-400">o arrástralo aquí</span>
+          <input id="inputExcel" type="file" accept=".xlsx,.xls" class="hidden">
+        </label>
+
+        <div id="resumenImportacion" class="hidden mt-4 flex items-center gap-4 text-sm"></div>
+
+        <div id="contenedorVistaPrevia" class="hidden mt-4">
+          <div class="overflow-x-auto max-h-[400px] overflow-y-auto border border-border rounded-xl">
+            <table class="w-full text-xs">
+              <thead class="sticky top-0 bg-gray-50">
+                <tr class="text-left text-gray-500 border-b border-border">
+                  <th class="py-2 px-3 font-medium">Estado</th>
+                  <th class="py-2 px-3 font-medium">Año</th>
+                  <th class="py-2 px-3 font-medium">Mes</th>
+                  <th class="py-2 px-3 font-medium">Cliente</th>
+                  <th class="py-2 px-3 font-medium">Línea</th>
+                  <th class="py-2 px-3 font-medium">Servicio</th>
+                  <th class="py-2 px-3 font-medium">Pozo</th>
+                  <th class="py-2 px-3 font-medium">Forecast</th>
+                  <th class="py-2 px-3 font-medium">Confianza</th>
+                  <th class="py-2 px-3 font-medium">Detalle</th>
+                </tr>
+              </thead>
+              <tbody id="vistaPreviaBody" class="divide-y divide-border"></tbody>
+            </table>
+          </div>
+
+          <button id="btnConfirmarImportacion" type="button" disabled
+            class="mt-4 bg-accent text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-blue-700 transition disabled:opacity-40 disabled:cursor-not-allowed">
+            <i class="fas fa-upload mr-1"></i> Confirmar Importación
+          </button>
+          <span id="importStatus" class="text-sm ml-3"></span>
+        </div>
+
+      </section>
+
+      <!-- HISTORIAL DE IMPORTACIONES (colapsable) -->
+      <section class="bg-panel border border-border rounded-2xl p-6 shadow-sm">
+        <button id="btnToggleHistorial" type="button" class="w-full flex items-center justify-between text-left">
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900 mb-1">Historial de Cargas</h2>
+            <p class="text-sm text-gray-500">Meses ya importados, quién los subió y cuántos registros trajo cada carga.</p>
+          </div>
+          <i id="iconoToggleHistorial" class="fas fa-chevron-down text-gray-400 transition-transform ml-4"></i>
+        </button>
+
+        <div id="contenidoHistorial" class="hidden mt-4 overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left text-gray-500 border-b border-border">
+                <th class="py-2 pr-4 font-medium">Período</th>
+                <th class="py-2 pr-4 font-medium">Subido por</th>
+                <th class="py-2 pr-4 font-medium">Registros</th>
+                <th class="py-2 pr-4 font-medium">Fecha de carga</th>
+              </tr>
+            </thead>
+            <tbody id="historialBody" class="divide-y divide-border"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- STOCK DE HERRAMIENTAS (colapsable) -->
+      <section class="bg-panel border border-border rounded-2xl p-6 shadow-sm">
+        <button id="btnToggleStock" type="button" class="w-full flex items-center justify-between text-left">
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900 mb-1">Stock de Servicio</h2>
+            <p class="text-sm text-gray-500">Captura la cantidad disponible de cada servicio/herramienta del catálogo. Se guarda al salir del campo.</p>
+          </div>
+          <i id="iconoToggleStock" class="fas fa-chevron-down text-gray-400 transition-transform ml-4"></i>
+        </button>
+
+        <div id="contenidoStock" class="hidden mt-4">
+          <div class="mb-4">
+            <select id="filtroStockLinea" class="bg-white border border-border rounded-lg px-3 py-2 text-sm">
+              <option value="todas">Todas las líneas</option>
+            </select>
+          </div>
+
+          <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
+            <table class="w-full text-sm">
+              <thead class="sticky top-0 bg-white">
+                <tr class="text-left text-gray-500 border-b border-border">
+                  <th class="py-2 pr-4 font-medium">Línea de Producto</th>
+                  <th class="py-2 pr-4 font-medium">Servicio/Herramienta</th>
+                  <th class="py-2 pr-4 font-medium w-32">Stock</th>
+                </tr>
+              </thead>
+              <tbody id="stockBody" class="divide-y divide-border"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <div id="footer-slot"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module">
+    import { supabaseClient } from './Js/supabase-config.js';
+    window.supabaseClient = supabaseClient;
+    document.dispatchEvent(new Event('supabaseListo'));
+  </script>
+
+  <script>
+    function cargarComponente(url, contenedorId) {
+      return fetch(url)
+        .then(r => r.text())
+        .then(html => {
+          const contenedor = document.getElementById(contenedorId);
+          contenedor.innerHTML = html;
+          contenedor.querySelectorAll('script').forEach(oldScript => {
+            const newScript = document.createElement('script');
+            if (oldScript.src) newScript.src = oldScript.src;
+            else newScript.textContent = oldScript.textContent;
+            oldScript.replaceWith(newScript);
+          });
+        })
+        .catch(err => console.error(err));
+    }
+
+    document.addEventListener('supabaseListo', () => {
+      cargarComponente('header.html', 'header-slot');
+      verificarSesion();
+      cargarCatalogo();
+      cargarClientes();
+      cargarHistorialImportaciones();
+      mostrarUltimaActualizacion();
+      revisarMesesPendientes();
+    });
+    cargarComponente('footer.html', 'footer-slot');
+
+    async function verificarSesion() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) {
+        window.location.href = 'intranet-login.html';
+        return;
+      }
+
+      const { data: perfil, error } = await supabaseClient
+        .from('perfiles')
+        .select('rol')
+        .eq('id', session.user.id)
+        .single();
+
+      const rolesAutorizados = ['Administrador', 'Ingeniería y Ventas'];
+      if (error || !perfil || !rolesAutorizados.includes(perfil.rol)) {
+        document.getElementById('overlayAccesoDenegado').classList.remove('hidden');
+        document.getElementById('overlayAccesoDenegado').classList.add('flex');
+        return;
+      }
+
+      console.log('Acceso autorizado:', session.user.email, '- Rol:', perfil.rol);
+      window.usuarioActual = session.user.email;
+    }
+
+    // Quarter → Mes en cascada
+    const mesesPorQuarter = {
+      '1': [['1','Enero'],['2','Febrero'],['3','Marzo']],
+      '2': [['4','Abril'],['5','Mayo'],['6','Junio']],
+      '3': [['7','Julio'],['8','Agosto'],['9','Septiembre']],
+      '4': [['10','Octubre'],['11','Noviembre'],['12','Diciembre']],
+    };
+
+    document.getElementById('reg_quarter').addEventListener('change', (e) => {
+      const selectMes = document.getElementById('reg_mes');
+      const meses = mesesPorQuarter[e.target.value];
+
+      if (!meses) {
+        selectMes.innerHTML = '<option value="">Elige un Quarter primero</option>';
+        selectMes.disabled = true;
+        return;
+      }
+
+      selectMes.innerHTML = meses.map(([valor, nombre]) => `<option value="${valor}">${nombre}</option>`).join('');
+      selectMes.disabled = false;
+    });
+
+    // Línea de producto → Servicio con autocompletar (consulta forecast_servicios)
+    async function cargarServiciosDeLinea(linea) {
+      const inputServicio = document.getElementById('reg_servicio');
+      const hint = document.getElementById('reg_servicio_hint');
+      const datalist = document.getElementById('listaServicios');
+
+      if (!linea) {
+        inputServicio.disabled = true;
+        inputServicio.placeholder = 'Elige una línea primero';
+        inputServicio.value = '';
+        datalist.innerHTML = '';
+        hint.textContent = '';
+        return;
+      }
+
+      inputServicio.disabled = false;
+      inputServicio.placeholder = 'Escribe para buscar o agregar un servicio...';
+      inputServicio.value = '';
+
+      const { data, error } = await supabaseClient
+        .from('forecast_servicios')
+        .select('nombre')
+        .eq('linea_producto', linea)
+        .order('nombre');
+
+      if (error) { console.error(error); return; }
+
+      datalist.innerHTML = data.map(s => `<option value="${s.nombre}"></option>`).join('');
+      hint.textContent = `${data.length} servicio(s) registrados en ${linea}. Si escribes uno nuevo, se agregará a la lista al guardar.`;
+    }
+
+        // ─────────────────────────────────────────────
+    // Cliente con autocompletar (consulta forecast_clientes)
+    // ─────────────────────────────────────────────
+    async function cargarClientes() {
+      const { data, error } = await supabaseClient
+        .from('forecast_clientes')
+        .select('nombre')
+        .order('nombre');
+
+      if (error) { console.error(error); return; }
+
+      document.getElementById('listaClientes').innerHTML =
+        data.map(c => `<option value="${c.nombre}"></option>`).join('');
+    }
+
+    document.getElementById('reg_linea').addEventListener('change', (e) => {
+      cargarServiciosDeLinea(e.target.value);
+    });
+
+    // ─────────────────────────────────────────────
+    // Forecast sugerido = promedio de los últimos 3 registros
+    // de este mismo Cliente + Línea (regla del documento)
+    // ─────────────────────────────────────────────
+    // Forecast estacional: promedio de TODA la empresa (todos los clientes) para
+    // esa Línea de Producto, en ese mismo mes calendario, considerando TODOS los años anteriores disponibles.
+    async function calcularForecastEstacional(linea, mes, anioObjetivo) {
+      const { data, error } = await supabaseClient
+        .from('forecast_registros')
+        .select('monto_real_usd, anio')
+        .eq('linea_producto', linea)
+        .eq('mes', mes)
+        .lt('anio', anioObjetivo)
+        .not('monto_real_usd', 'is', null);
+
+      if (error) { console.error(error); return { promedio: null, anios: [] }; }
+      if (!data || data.length === 0) return { promedio: null, anios: [] };
+
+      // Sumamos todo lo vendido ese mes por año (todos los clientes juntos), luego promediamos entre años
+      const totalesPorAnio = {};
+      data.forEach(r => {
+        totalesPorAnio[r.anio] = (totalesPorAnio[r.anio] || 0) + Number(r.monto_real_usd);
+      });
+
+      const anios = Object.keys(totalesPorAnio).sort();
+      const promedio = anios.reduce((a, y) => a + totalesPorAnio[y], 0) / anios.length;
+
+      return { promedio, anios };
+    }
+
+    async function sugerirForecast() {
+      const linea = document.getElementById('reg_linea').value;
+      const mes = document.getElementById('reg_mes').value;
+      const anio = document.getElementById('reg_anio').value;
+      const inputForecast = document.getElementById('reg_forecast');
+      const hint = document.getElementById('reg_forecast_hint');
+
+      if (!linea || !mes || !anio) return;
+
+      const { promedio, anios } = await calcularForecastEstacional(linea, Number(mes), Number(anio));
+
+      if (promedio === null) {
+        hint.textContent = `Sin historial previo de ${nombreMes[Number(mes)]} en años anteriores para esta línea — captura el forecast manualmente.`;
+        return;
+      }
+
+      inputForecast.value = promedio.toFixed(2);
+      hint.textContent = `Forecast estacional: promedio de ${nombreMes[Number(mes)]} (toda la empresa) de ${anios.join(', ')}. Puedes editarlo.`;
+    }
+
+    document.getElementById('reg_linea').addEventListener('change', sugerirForecast);
+    document.getElementById('reg_mes').addEventListener('change', sugerirForecast);
+
+    document.querySelectorAll('.btn-confianza').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const nivel = btn.dataset.nivel;
+        const actual = document.getElementById('reg_confianza').value;
+        const nuevoValor = actual === nivel ? '' : nivel; // click de nuevo = deseleccionar
+        document.getElementById('reg_confianza').value = nuevoValor;
+
+        document.querySelectorAll('.btn-confianza').forEach(b => {
+          b.classList.remove('bg-amber-500', 'bg-cyan-500', 'bg-purple-500', 'text-white', 'border-transparent');
+          b.classList.add('bg-white', 'text-gray-500');
+        });
+
+        if (nuevoValor) {
+          const colorMap = { P50: 'bg-amber-500', P70: 'bg-cyan-500', P90: 'bg-purple-500' };
+          btn.classList.remove('bg-white', 'text-gray-500');
+          btn.classList.add(colorMap[nuevoValor], 'text-white', 'border-transparent');
+        }
+      });
+    });
+
+    // ─────────────────────────────────────────────
+    // Guardar el registro en Supabase
+    // ─────────────────────────────────────────────
+    // Busca si ya existe un registro con el mismo Cliente + Línea + Mes + Año
+    async function buscarRegistroExistente({ anio, mes, cliente, linea_producto }) {
+      const { data, error } = await supabaseClient
+        .from('forecast_registros')
+        .select('id')
+        .eq('anio', anio)
+        .eq('mes', mes)
+        .eq('cliente', cliente)
+        .eq('linea_producto', linea_producto)
+        .limit(1);
+
+      if (error) { console.error(error); return null; }
+      return (data && data.length > 0) ? data[0].id : null;
+    }
+
+    document.getElementById('formRegistro').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = document.getElementById('reg_status');
+
+      status.textContent = 'Guardando...';
+      status.className = 'text-sm text-gray-500';
+
+      const linea = document.getElementById('reg_linea').value;
+      const servicio = document.getElementById('reg_servicio').value.trim();
+
+      const payload = {
+        anio: Number(document.getElementById('reg_anio').value),
+        quarter: Number(document.getElementById('reg_quarter').value),
+        mes: Number(document.getElementById('reg_mes').value),
+        cliente: document.getElementById('reg_cliente').value,
+        linea_producto: linea,
+        servicio: servicio,
+        pozo_relacion_venta: document.getElementById('reg_pozo').value || null,
+        monto_forecast: document.getElementById('reg_forecast').value
+          ? Number(document.getElementById('reg_forecast').value) : null,
+        confianza: document.getElementById('reg_confianza').value || null,
+        monto_p50: document.getElementById('reg_confianza').value === 'P50' ? Number(document.getElementById('reg_forecast').value) : null,
+        monto_p70: document.getElementById('reg_confianza').value === 'P70' ? Number(document.getElementById('reg_forecast').value) : null,
+        monto_p90: document.getElementById('reg_confianza').value === 'P90' ? Number(document.getElementById('reg_forecast').value) : null,
+      };
+
+      // Si el cliente escrito no existía, lo agregamos como nuevo cliente activo
+      await supabaseClient
+        .from('forecast_clientes')
+        .insert({ nombre: payload.cliente, estado: 'activo', anio: payload.anio })
+        .select();
+
+      // Si el servicio escrito no existía para esta línea, lo agregamos al catálogo
+      // (el "unique" de la tabla evita duplicados si ya existía)
+      await supabaseClient
+        .from('forecast_servicios')
+        .insert({ linea_producto: linea, nombre: servicio })
+        .select();
+
+      // Revisamos si ya existe un registro para este Cliente + Línea + Mes + Año
+      const idExistente = await buscarRegistroExistente(payload);
+
+      if (idExistente) {
+        const confirmar = window.confirm(
+          `Ya existe un registro para ${payload.cliente} · ${payload.linea_producto} · ${nombreMes[payload.mes]} ${payload.anio}.\n\n¿Deseas actualizarlo con estos nuevos valores?`
+        );
+        if (!confirmar) {
+          status.textContent = 'Guardado cancelado — el registro existente no se modificó.';
+          status.className = 'text-sm text-gray-500';
+          return;
+        }
+      }
+
+      const { error } = idExistente
+        ? await supabaseClient.from('forecast_registros').update(payload).eq('id', idExistente)
+        : await supabaseClient.from('forecast_registros').insert(payload);
+
+      if (error) {
+        console.error(error);
+        status.textContent = 'Error al guardar: ' + error.message;
+        status.className = 'text-sm text-red-600';
+        return;
+      }
+
+      status.textContent = idExistente ? '✓ Registro actualizado correctamente' : '✓ Registro guardado correctamente';
+      status.className = 'text-sm text-green-600';
+      document.getElementById('formRegistro').reset();
+      document.getElementById('reg_servicio').innerHTML = '<option value="">Elige una línea primero</option>';
+      document.getElementById('reg_servicio').disabled = true;
+      document.getElementById('reg_mes').innerHTML = '<option value="">Elige un Quarter primero</option>';
+      document.getElementById('reg_mes').disabled = true;
+    });
+
+    // ─────────────────────────────────────────────
+    // Cierre de Venta Real Mensual (concentrado por mes)
+    // ─────────────────────────────────────────────
+
+    // Revisa qué meses ya transcurrieron (anteriores al mes actual) y no tienen
+    // venta real capturada en forecast_venta_real_mensual, para mostrar la alerta.
+    async function revisarMesesPendientes() {
+      const hoy = new Date();
+      const anioActual = hoy.getFullYear();
+      const mesActual = hoy.getMonth() + 1; // 1-12
+
+      // Meses "cerrables": todos los meses anteriores al actual, del año en curso
+      // (del 1 hasta mesActual - 1). Si mesActual es 1 (enero), no hay meses pendientes aún.
+      const mesesPosibles = [];
+      for (let m = 1; m < mesActual; m++) {
+        mesesPosibles.push({ anio: anioActual, mes: m });
+      }
+
+      if (mesesPosibles.length === 0) return;
+
+      const { data: capturados, error } = await supabaseClient
+        .from('forecast_venta_real_mensual')
+        .select('anio, mes')
+        .eq('anio', anioActual);
+
+      if (error) { console.error(error); return; }
+
+      const yaCapturados = new Set((capturados || []).map(r => `${r.anio}-${r.mes}`));
+      const pendientes = mesesPosibles.filter(m => !yaCapturados.has(`${m.anio}-${m.mes}`));
+
+      if (pendientes.length === 0) return;
+
+      const alerta = document.getElementById('alertaMesesPendientes');
+      const lista = document.getElementById('listaMesesPendientes');
+      lista.textContent = pendientes.map(m => `${nombreMes[m.mes]} ${m.anio}`).join(', ');
+      alerta.classList.remove('hidden');
+      alerta.classList.add('flex');
+    }
+
+    // Trae los registros guardados de forecast_registros para el Año/Mes elegido,
+    // como referencia para saber cuánto se vendió realmente ese mes.
+    document.getElementById('btnVerRegistrosMes').addEventListener('click', async () => {
+      const anio = Number(document.getElementById('cierre_anio').value);
+      const mes = Number(document.getElementById('cierre_mes').value);
+
+      const { data, error } = await supabaseClient
+        .from('forecast_registros')
+        .select('cliente, linea_producto, servicio, monto_forecast')
+        .eq('anio', anio)
+        .eq('mes', mes)
+        .order('cliente');
+
+      if (error) { console.error(error); return; }
+
+      const tbody = document.getElementById('registrosMesBody');
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="py-3 px-3 text-gray-400 text-center">No hay registros guardados para ${nombreMes[mes]} ${anio}.</td></tr>`;
+      } else {
+        tbody.innerHTML = data.map(r => `
+          <tr>
+            <td class="py-2 px-3">${r.cliente}</td>
+            <td class="py-2 px-3">${r.linea_producto}</td>
+            <td class="py-2 px-3">${r.servicio}</td>
+            <td class="py-2 px-3">${r.monto_forecast != null ? Number(r.monto_forecast).toLocaleString('en-US') : '—'}</td>
+          </tr>`).join('');
+      }
+
+      // Si ya existe un monto capturado para ese mes, lo precargamos para poder editarlo
+      const { data: existente } = await supabaseClient
+        .from('forecast_venta_real_mensual')
+        .select('monto_real_usd')
+        .eq('anio', anio)
+        .eq('mes', mes)
+        .maybeSingle();
+
+      document.getElementById('cierre_monto').value = existente ? existente.monto_real_usd : '';
+      document.getElementById('cierre_status').textContent = '';
+      document.getElementById('contenedorRegistrosMes').classList.remove('hidden');
+    });
+
+    // Guarda (o actualiza) el concentrado de Venta Real del mes elegido
+    document.getElementById('btnGuardarCierre').addEventListener('click', async () => {
+      const anio = Number(document.getElementById('cierre_anio').value);
+      const mes = Number(document.getElementById('cierre_mes').value);
+      const monto = document.getElementById('cierre_monto').value;
+      const status = document.getElementById('cierre_status');
+
+      if (monto === '' || isNaN(Number(monto))) {
+        status.textContent = 'Ingresa un monto válido.';
+        status.className = 'text-sm mt-2 block text-red-600';
+        return;
+      }
+
+      status.textContent = 'Guardando...';
+      status.className = 'text-sm mt-2 block text-gray-500';
+
+      const { error } = await supabaseClient
+        .from('forecast_venta_real_mensual')
+        .upsert({
+          anio, mes,
+          monto_real_usd: Number(monto),
+          capturado_por: window.usuarioActual || null,
+          capturado_en: new Date().toISOString(),
+        }, { onConflict: 'anio,mes' });
+
+      if (error) {
+        console.error(error);
+        status.textContent = 'Error al guardar: ' + error.message;
+        status.className = 'text-sm mt-2 block text-red-600';
+        return;
+      }
+
+      status.textContent = `✓ Venta Real de ${nombreMes[mes]} ${anio} guardada correctamente.`;
+      status.className = 'text-sm mt-2 block text-green-600';
+
+      // Refresca la alerta por si este mes era uno de los pendientes
+      document.getElementById('alertaMesesPendientes').classList.add('hidden');
+      revisarMesesPendientes();
+    });
+
+    // ─────────────────────────────────────────────
+    // Stock de servicios (forecast_servicios)
+    // ─────────────────────────────────────────────
+    let serviciosCompletos = [];
+
+    async function cargarCatalogo() {
+      const { data, error } = await supabaseClient
+        .from('forecast_servicios')
+        .select('id, linea_producto, nombre, stock_disponible')
+        .order('linea_producto')
+        .order('nombre');
+
+      if (error) { console.error(error); return; }
+      serviciosCompletos = data || [];
+
+      const lineas = [...new Set(serviciosCompletos.map(s => s.linea_producto))];
+      const selectLinea = document.getElementById('filtroStockLinea');
+      selectLinea.innerHTML = '<option value="todas">Todas las líneas</option>' +
+        lineas.map(l => `<option>${l}</option>`).join('');
+
+      pintarTablaStock('todas');
+    }
+
+    function pintarTablaStock(lineaFiltro) {
+      const tbody = document.getElementById('stockBody');
+      const lista = lineaFiltro === 'todas'
+        ? serviciosCompletos
+        : serviciosCompletos.filter(s => s.linea_producto === lineaFiltro);
+
+      tbody.innerHTML = lista.map(s => `
+        <tr>
+          <td class="py-2 pr-4 text-gray-500">${s.linea_producto}</td>
+          <td class="py-2 pr-4">${s.nombre}</td>
+          <td class="py-2 pr-4">
+            <input type="number" min="0" value="${s.stock_disponible}"
+              data-id="${s.id}"
+              class="stock-input w-24 bg-white border border-border rounded-lg px-2 py-1.5 text-sm">
+          </td>
+        </tr>`).join('');
+
+      document.querySelectorAll('.stock-input').forEach(input => {
+        input.addEventListener('change', async (e) => {
+          const id = e.target.dataset.id;
+          const nuevoStock = Number(e.target.value);
+          e.target.classList.add('opacity-50');
+
+          const { error } = await supabaseClient
+            .from('forecast_servicios')
+            .update({ stock_disponible: nuevoStock })
+            .eq('id', id);
+
+          e.target.classList.remove('opacity-50');
+          if (error) {
+            console.error(error);
+            e.target.classList.add('border-red-400');
+          } else {
+            e.target.classList.remove('border-red-400');
+            e.target.classList.add('border-green-400');
+            setTimeout(() => e.target.classList.remove('border-green-400'), 1000);
+          }
+        });
+      });
+    }
+
+    // Acordeón: la sección de Stock empieza colapsada, solo título y subtítulo visibles
+    document.getElementById('btnToggleStock').addEventListener('click', () => {
+      const contenido = document.getElementById('contenidoStock');
+      const icono = document.getElementById('iconoToggleStock');
+      contenido.classList.toggle('hidden');
+      icono.classList.toggle('rotate-180');
+    });
+
+    // Acordeón: la sección de Historial de Cargas empieza colapsada
+    document.getElementById('btnToggleHistorial').addEventListener('click', () => {
+      const contenido = document.getElementById('contenidoHistorial');
+      const icono = document.getElementById('iconoToggleHistorial');
+      contenido.classList.toggle('hidden');
+      icono.classList.toggle('rotate-180');
+    });
+
+    document.getElementById('filtroStockLinea').addEventListener('change', (e) => {
+      pintarTablaStock(e.target.value);
+    });
+
+    // ─────────────────────────────────────────────
+    // Descargar plantilla de Excel para importación masiva
+    // ─────────────────────────────────────────────
+        document.getElementById('btnDescargarPlantilla').addEventListener('click', async () => {
+      const libro = new ExcelJS.Workbook();
+      libro.creator = 'In Hole Solutions';
+      libro.created = new Date();
+
+      // Pestaña de instrucciones (guía de llenado)
+      const hojaGuia = libro.addWorksheet('Instrucciones', { views: [{ showGridLines: false }] });
+      hojaGuia.columns = [{ width: 28 }, { width: 70 }];
+
+      hojaGuia.mergeCells('A1:B1');
+      const guiaTitulo = hojaGuia.getCell('A1');
+      guiaTitulo.value = 'CÓMO LLENAR ESTA PLANTILLA';
+      guiaTitulo.font = { size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+      guiaTitulo.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F3864' } };
+      guiaTitulo.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+      hojaGuia.getRow(1).height = 26;
+
+      const filasGuia = [
+        ['Campo', 'Qué debes escribir'],
+        ['Año', 'El año del registro, por ejemplo 2026. Escríbelo como número, sin puntos ni comas.'],
+        ['Mes', 'Elige el mes del menú desplegable (no lo escribas a mano). Es obligatorio.'],
+        ['Cliente', 'Elige el cliente del menú desplegable. Si el cliente es nuevo y no aparece en la lista, escríbelo tal cual (respetando mayúsculas y el nombre completo de la razón social) — Excel te mostrará una advertencia amarilla, pero puedes continuar. Se agregará automáticamente a la lista oficial al importar, y aparecerá disponible para los siguientes meses.'],
+        ['Línea de Producto', 'Elige la línea de producto del menú desplegable. Este campo SÍ debe coincidir exactamente con una de las 6 líneas oficiales (Cementing, CHC, Gas Lift, Safety System, Sand Control, Servicios de Taller) — no se permiten líneas nuevas desde aquí.'],
+        ['Servicio', 'Elige el servicio del menú desplegable, o escribe uno nuevo si no aparece en la lista (verás una advertencia amarilla, puedes continuar). Debe describir el servicio específico dentro de la línea de producto elegida. Se agregará automáticamente a la lista al importar.'],
+        ['Pozo / Relación de Venta', 'Nombre del pozo, contrato o referencia de la venta. Déjalo en blanco si no aplica — es opcional.'],
+        ['Forecast (USD)', 'Normalmente déjalo en blanco: el sistema calcula la predicción automáticamente con base en el historial de meses/años anteriores de esa línea. Solo escribe un monto aquí si quieres forzar un valor manual (por ejemplo, ya sabes que viene un pedido especial). Solo el número, sin signo de $ ni comas (ej. 45000).'],
+      ];
+
+      const CARACTERES_POR_LINEA = 62; // recalibrado: Excel ajusta por palabra completa, no por letra
+      const ALTO_POR_LINEA = 15;
+      const ALTO_MINIMO = 20;
+      const MARGEN_SEGURIDAD = 1; // una línea extra de colchón, para no volver a cortar texto
+
+      filasGuia.forEach((fila, i) => {
+        const renglon = hojaGuia.getRow(i + 3);
+        renglon.values = fila;
+
+        const textoLargo = fila[1] || '';
+        const lineasEstimadas = Math.max(1, Math.ceil(textoLargo.length / CARACTERES_POR_LINEA)) + MARGEN_SEGURIDAD;
+        renglon.height = Math.max(ALTO_MINIMO, lineasEstimadas * ALTO_POR_LINEA);
+        if (i === 0) {
+          renglon.eachCell(celda => {
+            celda.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+            celda.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } };
+            celda.alignment = { vertical: 'middle', indent: 1 };
+          });
+        } else {
+          renglon.getCell(1).font = { bold: true };
+          renglon.getCell(1).alignment = { vertical: 'top', wrapText: true };
+          renglon.getCell(2).alignment = { vertical: 'top', wrapText: true };
+          if (i % 2 === 0) {
+            renglon.eachCell(c => c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF2F2F2' } });
+          }
+        }
+      });
+
+      const filaNota = 3 + filasGuia.length + 1;
+      hojaGuia.mergeCells(`A${filaNota}:B${filaNota}`);
+      const notaFinal = hojaGuia.getCell(`A${filaNota}`);
+      notaFinal.value = '⚠️ No cambies los nombres de las columnas ni su orden en la pestaña "Plantilla Forecast". Borra la fila de ejemplo antes de importar.';
+      notaFinal.font = { italic: true, size: 10, color: { argb: 'FFC00000' } };
+      notaFinal.alignment = { wrapText: true, vertical: 'top' };
+      hojaGuia.getRow(filaNota).height = 30;
+
+      const hoja = libro.addWorksheet('Plantilla Forecast', {
+        views: [{ state: 'frozen', ySplit: 4 }]
+      });
+
+      // Ancho de columnas
+      hoja.columns = [
+        { width: 8 }, { width: 12 }, { width: 42 }, { width: 18 },
+        { width: 30 }, { width: 22 }, { width: 16 },
+        { width: 20 }, { width: 20 }
+      ];
+
+      // Barra de título con marca (fila 1)
+      hoja.mergeCells('A1:H1');
+      const titulo = hoja.getCell('A1');
+      titulo.value = 'PLANTILLA DE CARGA · FORECAST IN HOLE SOLUTIONS';
+      titulo.font = { name: 'Calibri', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+      titulo.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F3864' } };
+      titulo.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+      hoja.getRow(1).height = 28;
+
+      // Instrucciones (fila 2)
+      hoja.mergeCells('A2:H2');
+      const instrucciones = hoja.getCell('A2');
+      instrucciones.value = 'Completa una fila por registro. No cambies los nombres ni el orden de las columnas. Borra la fila de ejemplo antes de importar.';
+      instrucciones.font = { italic: true, size: 10, color: { argb: 'FF595959' } };
+      hoja.getRow(2).height = 18;
+
+      hoja.getRow(3).height = 6; // respiro visual
+
+      // Etiqueta de grupo "PROBABILIDAD" encima de la columna H
+      hoja.mergeCells('H3:H3');
+      const grupoProbabilidad = hoja.getCell('H3');
+      grupoProbabilidad.value = 'PROBABILIDAD';
+      grupoProbabilidad.font = { bold: true, size: 9, color: { argb: 'FFFFFFFF' } };
+      grupoProbabilidad.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } };
+      grupoProbabilidad.alignment = { vertical: 'middle', horizontal: 'center' };
+      hoja.getRow(3).height = 16;
+
+      // Tabla nativa de Excel: encabezado, bandeado de colores y filtro los pone Excel solo
+      hoja.addTable({
+        name: 'TablaForecast',
+        ref: 'A4',
+        headerRow: true,
+        totalsRow: false,
+        style: { theme: 'TableStyleMedium9', showRowStripes: true },
+        columns: [
+          { name: 'Año' }, { name: 'Mes' }, { name: 'Cliente' }, { name: 'Línea de Producto' },
+          { name: 'Servicio' }, { name: 'Pozo / Relación de Venta' },
+          { name: 'Forecast (USD)' },
+          { name: 'Nivel de Confianza' }
+        ],
+        rows: [
+          [2026, 'Enero', 'BAKER HUGHES DE MEXICO S. DE R.L. DE C.V.', 'Cementing',
+          'Centradores de Cementación', 'Pozo Ayin-1', 45000, 'P70']
+        ]
+      });
+      hoja.getRow(4).height = 24;
+      hoja.getRow(5).font = { italic: true, color: { argb: 'FF808080' } };
+
+      // Hoja oculta con las listas oficiales, para los menús desplegables
+      const hojaListas = libro.addWorksheet('Listas');
+      hojaListas.state = 'hidden';
+      const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+      meses.forEach((m, i) => hojaListas.getCell(`A${i + 1}`).value = m);
+      clientesValidos.forEach((c, i) => hojaListas.getCell(`B${i + 1}`).value = c);
+      lineasValidas.forEach((l, i) => hojaListas.getCell(`C${i + 1}`).value = l);
+
+      const { data: serviciosData } = await supabaseClient.from('forecast_servicios').select('nombre').order('nombre');
+      const serviciosValidos = [...new Set((serviciosData || []).map(s => s.nombre))];
+      serviciosValidos.forEach((s, i) => hojaListas.getCell(`D${i + 1}`).value = s);
+
+      // Formato de moneda y menús desplegables (bordes y color alternado ya los pone la tabla)
+      for (let i = 5; i <= 200; i++) {
+        hoja.getCell(`G${i}`).numFmt = '$#,##0.00';
+
+        hoja.getCell(`H${i}`).dataValidation = {
+          type: 'list', allowBlank: true, formulae: ['"P50,P70,P90"'],
+          showErrorMessage: true, errorStyle: 'stop',
+          errorTitle: 'Nivel no válido', error: 'Elige P50, P70 o P90 de la lista.'
+        };
+
+        hoja.getCell(`A${i}`).dataValidation = {
+          type: 'whole', operator: 'between', allowBlank: true, formulae: [2000, 2100],
+          showErrorMessage: true, errorStyle: 'stop',
+          errorTitle: 'Año no válido', error: 'Ingresa un año entre 2000 y 2100.'
+        };
+        hoja.getCell(`B${i}`).dataValidation = {
+          type: 'list', allowBlank: true, formulae: ['Listas!$A$1:$A$12'],
+          showErrorMessage: true, errorStyle: 'stop',
+          errorTitle: 'Mes no válido', error: 'Elige un mes de la lista.'
+        };
+        hoja.getCell(`C${i}`).dataValidation = {
+          type: 'list', allowBlank: true, formulae: [`Listas!$B$1:$B$${clientesValidos.length}`],
+          showErrorMessage: true, errorStyle: 'warning',
+          errorTitle: 'Cliente nuevo', error: 'Este cliente no está en la lista oficial. Si es un cliente nuevo, puedes continuar — se agregará automáticamente al importar.'
+        };
+        hoja.getCell(`D${i}`).dataValidation = {
+          type: 'list', allowBlank: true, formulae: [`Listas!$C$1:$C$${lineasValidas.length}`],
+          showErrorMessage: true, errorStyle: 'stop',
+          errorTitle: 'Línea no válida', error: 'Elige una línea de producto de la lista.'
+        };
+        hoja.getCell(`E${i}`).dataValidation = {
+          type: 'list', allowBlank: true, formulae: [`Listas!$D$1:$D$${serviciosValidos.length}`],
+          showErrorMessage: true, errorStyle: 'warning',
+          errorTitle: 'Servicio nuevo', error: 'Este servicio no está en la lista conocida. Si es un servicio nuevo, puedes continuar — se agregará automáticamente al importar.'
+        };
+      }
+
+      // Desbloquear solo las celdas donde se captura información
+      for (let i = 5; i <= 200; i++) {
+        ['A','B','C','D','E','F','G','H'].forEach(col => {
+          hoja.getCell(`${col}${i}`).protection = { locked: false };
+        });
+      }
+
+      // Proteger la hoja: nadie puede tocar título, instrucciones ni encabezados,
+      // pero sí puede escribir, ordenar y usar el autofiltro en el área de captura
+      await hoja.protect('', {
+        selectLockedCells: false,
+        selectUnlockedCells: true,
+        formatCells: false,
+        formatColumns: false,
+        formatRows: false,
+        insertRows: false,
+        deleteRows: false,
+        sort: true,
+        autoFilter: true
+      });
+
+      // Generar y descargar el archivo
+      const buffer = await libro.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+      const enlace = document.createElement('a');
+      enlace.href = URL.createObjectURL(blob);
+      enlace.download = 'Plantilla_Forecast_InHoleSolutions.xlsx';
+      document.body.appendChild(enlace);
+      enlace.click();
+      document.body.removeChild(enlace);
+      URL.revokeObjectURL(enlace.href);
+    });
+
+    // ─────────────────────────────────────────────
+    // Importar Excel: leer, validar y mostrar vista previa
+    // ─────────────────────────────────────────────
+    const clientesValidos = [
+      'PETROLEOS MEXICANOS',
+      'DOWELL SCHLUMBERGER DE MEXICO S.A. DE C.V.',
+      'WEATHERFORD DE MEXICO S DE RL DE CV.',
+      'OPEX PERFORADORA, S.A de C.V.',
+      'CARSO INFRAESTRUCTURA Y CONSTRUCCION S.A.B. de C.V.',
+      'BAKER HUGHES DE MEXICO S. DE R.L. DE C.V.',
+      'ENERGY DRILLING MARINE SERVICES S.A.P.I de C.V.',
+      'WELL SOLUTIONS EQUIPMENT S.A. de C.V.',
+    ];
+
+    const lineasValidas = ['Cementing', 'CHC', 'Gas Lift', 'Safety System', 'Sand Control', 'Servicios de Taller'];
+
+    const nombreAMes = {
+      'enero':1,'febrero':2,'marzo':3,'abril':4,'mayo':5,'junio':6,
+      'julio':7,'agosto':8,'septiembre':9,'octubre':10,'noviembre':11,'diciembre':12
+    };
+
+    const nombreMes = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+    let filasImportacion = []; // guarda las filas ya validadas, listas para insertar
+
+    function validarFila(fila) {
+      const errores = [];
+      const advertencias = [];
+
+      const anio = Number(fila['Año']);
+      if (!anio || anio < 2000 || anio > 2100) errores.push('Año inválido');
+
+      const mesTexto = String(fila['Mes'] || '').trim().toLowerCase();
+      const mes = nombreAMes[mesTexto];
+      if (!mes) errores.push('Mes no reconocido (usa Enero, Febrero, etc.)');
+
+      const cliente = String(fila['Cliente'] || '').trim();
+      if (!cliente) errores.push('Falta el Cliente');
+      else if (!clientesValidos.includes(cliente)) advertencias.push('Cliente no está en la lista oficial, se guardará tal cual');
+
+      const linea = String(fila['Línea de Producto'] || '').trim();
+      if (!linea) errores.push('Falta la Línea de Producto');
+      else if (!lineasValidas.includes(linea)) advertencias.push('Línea no coincide exactamente con las 6 oficiales');
+
+      const servicio = String(fila['Servicio'] || '').trim();
+      if (!servicio) errores.push('Falta el Servicio');
+
+      const forecast = fila['Forecast (USD)'] !== undefined && fila['Forecast (USD)'] !== '' ? Number(fila['Forecast (USD)']) : null;
+
+      // Nivel de confianza único: P50, P70 o P90
+      const confianzaTexto = String(fila['Nivel de Confianza (P50/P70/P90)'] || '').trim().toUpperCase();
+      const confianza = ['P50', 'P70', 'P90'].includes(confianzaTexto) ? confianzaTexto : null;
+      if (confianzaTexto && !confianza) errores.push('Nivel de Confianza debe ser P50, P70 o P90');
+
+      if (fila['Forecast (USD)'] && isNaN(forecast)) errores.push('Forecast no es un número válido');
+
+      return {
+        anio, mes, quarter: mes ? Math.ceil(mes / 3) : null,
+        cliente, linea, servicio,
+        pozo: String(fila['Pozo / Relación de Venta'] || '').trim() || null,
+        forecast, confianza,
+        errores, advertencias,
+        estado: errores.length > 0 ? 'error' : (advertencias.length > 0 ? 'advertencia' : 'valido'),
+      };
+    }
+
+    function badgeEstado(estado) {
+      if (estado === 'valido') return '<span class="text-green-600"><i class="fas fa-circle-check"></i></span>';
+      if (estado === 'advertencia') return '<span class="text-amber-500"><i class="fas fa-triangle-exclamation"></i></span>';
+      return '<span class="text-red-500"><i class="fas fa-circle-xmark"></i></span>';
+    }
+
+    // Drag & drop: evita que el navegador abra/descargue el archivo,
+    // y en su lugar lo entrega al mismo flujo que usa el input de clic.
+    const zonaDropExcel = document.getElementById('zonaDropExcel');
+
+    ['dragenter', 'dragover'].forEach(evento => {
+      zonaDropExcel.addEventListener(evento, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        zonaDropExcel.classList.add('bg-blue-50', 'border-accent');
+      });
+    });
+
+    ['dragleave', 'dragend'].forEach(evento => {
+      zonaDropExcel.addEventListener(evento, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        zonaDropExcel.classList.remove('bg-blue-50', 'border-accent');
+      });
+    });
+
+    zonaDropExcel.addEventListener('drop', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      zonaDropExcel.classList.remove('bg-blue-50', 'border-accent');
+
+      const archivos = e.dataTransfer.files;
+      if (!archivos || archivos.length === 0) return;
+
+      // Asignamos el archivo soltado al mismo <input>, y disparamos
+      // manualmente su evento 'change' para reutilizar toda la lógica que ya existe.
+      document.getElementById('inputExcel').files = archivos;
+      document.getElementById('inputExcel').dispatchEvent(new Event('change'));
+    });
+
+    document.getElementById('inputExcel').addEventListener('change', (e) => {
+      const archivo = e.target.files[0];
+      if (!archivo) return;
+
+      const lector = new FileReader();
+      lector.onload = async (evento) => {
+        const datos = new Uint8Array(evento.target.result);
+        const libro = XLSX.read(datos, { type: 'array' });
+        const nombreHojaDatos = libro.SheetNames.includes('Plantilla Forecast')
+          ? 'Plantilla Forecast'
+          : libro.SheetNames[0];
+        const hoja = libro.Sheets[nombreHojaDatos];
+
+        const todasLasFilas = XLSX.utils.sheet_to_json(hoja, { header: 1, defval: '' });
+        const indiceEncabezado = todasLasFilas.findIndex(fila => fila.includes('Año'));
+
+        if (indiceEncabezado === -1) {
+          alert('No se encontró la fila de encabezados (debe existir una columna llamada exactamente "Año"). Revisa que no hayas renombrado esa columna.');
+          return;
+        }
+
+        const filasCrudas = XLSX.utils.sheet_to_json(hoja, { defval: '', range: indiceEncabezado });
+
+        // Descarta filas completamente vacías (celdas con formato pero sin datos,
+        // típico de las filas 5-200 que llevan validación/color pero el usuario no llenó).
+        const filasConDatos = filasCrudas.filter(fila =>
+          Object.values(fila).some(valor => String(valor).trim() !== '')
+        );
+
+        // Descarta la fila de ejemplo que viene precargada en la plantilla,
+        // por si el usuario olvidó borrarla antes de importar.
+        const filasSinEjemplo = filasConDatos.filter(fila => !(
+          String(fila['Año']) === '2026' &&
+          String(fila['Mes']).trim().toLowerCase() === 'enero' &&
+          String(fila['Cliente']).trim() === 'BAKER HUGHES DE MEXICO S. DE R.L. DE C.V.' &&
+          Number(fila['Forecast (USD)']) === 45000
+        ));
+
+        filasImportacion = filasSinEjemplo.map(validarFila);
+        await marcarDuplicados(filasImportacion);
+        mostrarVistaPrevia();
+      };
+      lector.readAsArrayBuffer(archivo);
+    });
+
+    // Revisa, contra forecast_registros y forecast_importaciones, si ya existe
+    // algo para los mismos Año+Mes presentes en el archivo que se está subiendo.
+    async function marcarDuplicados(filas) {
+      const paresAnioMes = [...new Set(
+        filas.filter(f => f.anio && f.mes).map(f => `${f.anio}-${f.mes}`)
+      )];
+
+      if (paresAnioMes.length === 0) return;
+
+      // 1) ¿Ese Año+Mes ya aparece en el historial de importaciones?
+      const { data: importacionesPrevias } = await supabaseClient
+        .from('forecast_importaciones')
+        .select('anio, mes, usuario_email, created_at');
+
+      const yaImportado = new Set(
+        (importacionesPrevias || [])
+          .filter(imp => paresAnioMes.includes(`${imp.anio}-${imp.mes}`))
+          .map(imp => `${imp.anio}-${imp.mes}`)
+      );
+
+      // 2) Además, por seguridad extra, revisamos si ya existen registros reales para esas combinaciones
+      const condiciones = paresAnioMes.map(par => {
+        const [anio, mes] = par.split('-');
+        return `and(anio.eq.${anio},mes.eq.${mes})`;
+      }).join(',');
+
+      const { data: registrosExistentes } = await supabaseClient
+        .from('forecast_registros')
+        .select('id, anio, mes, cliente, linea_producto, servicio')
+        .or(condiciones);
+
+      const idsExistentes = new Map(
+        (registrosExistentes || []).map(r => [`${r.anio}-${r.mes}-${r.cliente}-${r.linea_producto}-${r.servicio}`, r.id])
+      );
+
+      filas.forEach(f => {
+        if (!f.anio || !f.mes) return;
+
+        // Aviso a nivel de todo el período (ya se subió antes ese mes completo)
+        if (yaImportado.has(`${f.anio}-${f.mes}`)) {
+          f.advertencias.push(`${nombreMes[f.mes]} ${f.anio} ya fue importado antes — revisa si esto es intencional`);
+          if (f.estado === 'valido') f.estado = 'advertencia';
+        }
+
+        // Aviso a nivel de fila exacta (esa combinación específica ya existe)
+        const clave = `${f.anio}-${f.mes}-${f.cliente}-${f.linea}-${f.servicio}`;
+        if (idsExistentes.has(clave)) {
+          f.idExistente = idsExistentes.get(clave);
+          f.advertencias.push('Ya existe un registro idéntico — se actualizará en vez de duplicarse');
+          if (f.estado === 'valido') f.estado = 'advertencia';
+        }
+      });
+    }
+
+    function mostrarVistaPrevia() {
+      const validas = filasImportacion.filter(f => f.estado === 'valido').length;
+      const advertencia = filasImportacion.filter(f => f.estado === 'advertencia').length;
+      const errores = filasImportacion.filter(f => f.estado === 'error').length;
+
+      const resumen = document.getElementById('resumenImportacion');
+      resumen.classList.remove('hidden');
+      resumen.innerHTML = `
+        <span class="text-green-600"><i class="fas fa-circle-check mr-1"></i>${validas} listas</span>
+        <span class="text-amber-500"><i class="fas fa-triangle-exclamation mr-1"></i>${advertencia} con advertencia</span>
+        <span class="text-red-500"><i class="fas fa-circle-xmark mr-1"></i>${errores} con error (no se importarán)</span>
+      `;
+
+      const tbody = document.getElementById('vistaPreviaBody');
+      tbody.innerHTML = filasImportacion.map(f => `
+        <tr>
+          <td class="py-2 px-3">${badgeEstado(f.estado)}</td>
+          <td class="py-2 px-3">${f.anio || '—'}</td>
+          <td class="py-2 px-3">${f.mes ? nombreMes[f.mes] : '—'}</td>
+          <td class="py-2 px-3">${f.cliente || '—'}</td>
+          <td class="py-2 px-3">${f.linea || '—'}</td>
+          <td class="py-2 px-3">${f.servicio || '—'}</td>
+          <td class="py-2 px-3">${f.pozo || '—'}</td>
+          <td class="py-2 px-3">${f.forecast != null ? f.forecast.toLocaleString('en-US') : '(auto)'}</td>
+          <td class="py-2 px-3">${f.confianza || '—'}</td>
+          <td class="py-2 px-3 text-gray-500">${[...f.errores, ...f.advertencias].join('; ') || '—'}</td>
+        </tr>`).join('');
+
+      document.getElementById('contenedorVistaPrevia').classList.remove('hidden');
+      document.getElementById('btnConfirmarImportacion').disabled = validas + advertencia === 0;
+    }
+
+        // ─────────────────────────────────────────────
+    // Calcula el Forecast automático para una fila sin forecast manual
+    // (mismo criterio que sugerirForecast(): promedio de los últimos 3 reales de Cliente+Línea)
+    // ─────────────────────────────────────────────
+    async function calcularForecastAutomatico(linea, mes, anio) {
+      const { promedio } = await calcularForecastEstacional(linea, mes, anio);
+      return promedio !== null ? Number(promedio.toFixed(2)) : null;
+    }
+
+    // ─────────────────────────────────────────────
+    // Confirmar Importación: inserta a Supabase las filas válidas/con advertencia
+    // ─────────────────────────────────────────────
+    document.getElementById('btnConfirmarImportacion').addEventListener('click', async () => {
+      const boton = document.getElementById('btnConfirmarImportacion');
+      const status = document.getElementById('importStatus');
+
+      const filasAImportar = filasImportacion.filter(f => f.estado !== 'error');
+      if (filasAImportar.length === 0) return;
+
+      const filasConAdvertencia = filasAImportar.filter(f => f.estado === 'advertencia');
+      if (filasConAdvertencia.length > 0) {
+        const confirmar = window.confirm(
+          `${filasConAdvertencia.length} de ${filasAImportar.length} fila(s) tienen advertencia de posible duplicado ` +
+          `(mismo Cliente+Línea+Servicio+Mes+Año, o ese período ya fue importado antes).\n\n` +
+          `Si continúas, esas filas se agregarán como registros NUEVOS (no reemplazan a los existentes).\n\n` +
+          `¿Deseas continuar con la importación de todas formas?`
+        );
+        if (!confirmar) {
+          status.textContent = 'Importación cancelada — revisa las filas marcadas con advertencia.';
+          status.className = 'text-sm ml-3 text-amber-600';
+          return;
+        }
+      }
+
+      boton.disabled = true;
+      let exitosas = 0;
+      let fallidas = 0;
+
+      for (let i = 0; i < filasAImportar.length; i++) {
+        const f = filasAImportar[i];
+        status.textContent = `Importando ${i + 1} de ${filasAImportar.length}...`;
+        status.className = 'text-sm ml-3 text-gray-500';
+
+        // Si el Cliente o Servicio son nuevos, se agregan a su catálogo.
+        // Usamos upsert con ignoreDuplicates para que, si ya existían,
+        // Supabase simplemente no haga nada (sin lanzar error 409 en consola).
+        await supabaseClient.from('forecast_clientes')
+          .upsert({ nombre: f.cliente, estado: 'activo', anio: f.anio }, {
+            onConflict: 'nombre', ignoreDuplicates: true
+          });
+        await supabaseClient.from('forecast_servicios')
+          .upsert({ linea_producto: f.linea, nombre: f.servicio }, {
+            onConflict: 'linea_producto,nombre', ignoreDuplicates: true
+          });
+        // Si la fila no trajo Forecast manual, lo calculamos con el historial estacional
+        let forecast = f.forecast;
+        if (forecast === null) {
+          forecast = await calcularForecastAutomatico(f.linea, f.mes, f.anio);
+        }
+
+        const payload = {
+          anio: f.anio,
+          quarter: f.quarter,
+          mes: f.mes,
+          cliente: f.cliente,
+          linea_producto: f.linea,
+          servicio: f.servicio,
+          pozo_relacion_venta: f.pozo,
+          monto_forecast: forecast,
+          confianza: f.confianza,
+          monto_p50: f.confianza === 'P50' ? forecast : null,
+          monto_p70: f.confianza === 'P70' ? forecast : null,
+          monto_p90: f.confianza === 'P90' ? forecast : null,
+        };
+
+        const { error } = f.idExistente
+          ? await supabaseClient.from('forecast_registros').update(payload).eq('id', f.idExistente)
+          : await supabaseClient.from('forecast_registros').insert(payload);
+
+        if (error) {
+          console.error('Error importando fila:', f, error);
+          fallidas++;
+        } else {
+          exitosas++;
+        }
+      }
+
+      status.textContent = `✓ Importación terminada: ${exitosas} registros guardados` + (fallidas > 0 ? `, ${fallidas} fallaron (revisa la consola)` : '.');
+      status.className = 'text-sm ml-3 ' + (fallidas > 0 ? 'text-amber-600' : 'text-green-600');
+      boton.disabled = false;
+      boton.innerHTML = '<i class="fas fa-upload mr-1"></i> Confirmar Importación';
+
+      // Registramos en el historial cada Año+Mes distinto que trajo este archivo
+      const paresAnioMes = [...new Set(filasAImportar.map(f => `${f.anio}-${f.mes}`))];
+      for (const par of paresAnioMes) {
+        const [anio, mes] = par.split('-').map(Number);
+        const cantidad = filasAImportar.filter(f => f.anio === anio && f.mes === mes).length;
+        await supabaseClient.from('forecast_importaciones').insert({
+          anio, mes,
+          usuario_email: window.usuarioActual || 'desconocido',
+          cantidad_registros: cantidad,
+        });
+      }
+      cargarHistorialImportaciones();
+      mostrarUltimaActualizacion();
+
+      // Limpiamos el input para permitir subir otro archivo después
+      document.getElementById('inputExcel').value = '';
+    });
+
+    // ─────────────────────────────────────────────
+    // Historial de importaciones
+    // ─────────────────────────────────────────────
+    async function mostrarUltimaActualizacion() {
+      const { data, error } = await supabaseClient
+        .from('forecast_importaciones')
+        .select('created_at')
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      const el = document.getElementById('ultimaActualizacion');
+      if (!el) return;
+
+      if (error || !data || data.length === 0) {
+        el.textContent = 'Datos: sin información de carga aún.';
+        return;
+      }
+
+      const fecha = new Date(data[0].created_at).toLocaleString('es-MX', {
+        day: 'numeric', month: 'short', year: 'numeric',
+        hour: 'numeric', minute: '2-digit', hour12: true
+      });
+      el.textContent = `Datos al ${fecha}`;
+    }
+
+    async function cargarHistorialImportaciones() {
+      const { data, error } = await supabaseClient
+        .from('forecast_importaciones')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) { console.error(error); return; }
+
+      const tbody = document.getElementById('historialBody');
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-400 text-sm">Aún no se ha importado ningún archivo.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.map(imp => `
+        <tr class="text-gray-700">
+          <td class="py-2.5 pr-4 font-medium">${nombreMes[imp.mes]} ${imp.anio}</td>
+          <td class="py-2.5 pr-4">${imp.usuario_email}</td>
+          <td class="py-2.5 pr-4">${imp.cantidad_registros}</td>
+          <td class="py-2.5 pr-4 text-gray-500">${new Date(imp.created_at).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })}</td>
+        </tr>`).join('');
+    }
+
+  </script>
+
+</body>
+</html>

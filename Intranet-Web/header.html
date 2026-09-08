@@ -230,6 +230,47 @@
         </div>
       </div><!-- /dropdown -->
 
+      <!-- Dropdown Ingeniería -->
+      <div id="nav-ingenieria-wrapper" class="hidden relative dropdown lg:h-full flex-col lg:flex-row lg:items-center w-full lg:w-auto">
+
+        <button onclick="toggleSubmenu(this); event.stopPropagation();"
+                class="w-full lg:w-auto px-4 sm:px-5 py-3 lg:py-0 lg:h-full
+                       text-[11px] md:text-xs font-bold
+                       text-white/90 hover:text-white
+                       lg:hover:bg-white/10
+                       transition-all uppercase tracking-widest
+                       flex items-center justify-between lg:justify-center gap-2">
+          Ingeniería y Ventas
+          <i class="fas fa-chevron-down text-[9px] opacity-70 transition-transform duration-200"></i>
+        </button>
+
+        <!-- Dropdown panel -->
+        <div class="dropdown-menu hidden
+                    w-full lg:absolute lg:top-full lg:left-0 lg:w-56 xl:w-64
+                    bg-white lg:shadow-2xl z-[80]
+                    lg:rounded-b-xl lg:border lg:border-slate-100
+                    py-2 lg:py-3 mt-0 shadow-lg border-t-2 border-white/20 lg:border-none">
+
+          <a href="forecast.html"
+             class="flex items-center gap-3
+                    px-4 sm:px-5 py-2.5 sm:py-3
+                    text-xs sm:text-sm text-slate-600
+                    hover:bg-red-50 hover:text-[#e31e24]
+                    transition-colors font-medium">
+            <i class="fas fa-chart-line w-4 sm:w-5 text-sm"></i> PreDix · Forecast Comercial
+          </a>
+
+          <a href="fichas_tecnicas.html"
+             class="flex items-center gap-3
+                    px-4 sm:px-5 py-2.5 sm:py-3
+                    text-xs sm:text-sm text-slate-600
+                    hover:bg-red-50 hover:text-[#e31e24]
+                    transition-colors font-medium">
+            <i class="fas fa-file-lines w-4 sm:w-5 text-sm"></i> Fichas Técnicas
+          </a>
+        </div>
+      </div><!-- /dropdown -->
+
     </div>
   </div>
 </nav>
@@ -242,7 +283,9 @@
       'dashboard.html': 'nav-inicio',
       'politicas.html': 'nav-politicas',
       'alertas-qhse.html': 'nav-alertas',
-      'mantto.html': 'nav-mantto'
+      'mantto.html': 'nav-mantto',
+      'forecast.html': 'nav-ingenieria-wrapper',
+      'fichas_tecnicas.html': 'nav-ingenieria-wrapper'
     };
     const idActivo = mapa[pagina];
     if (idActivo) {
@@ -253,6 +296,31 @@
       }
     }
   })();
+
+  // Abre/cierra el menú móvil
+  function toggleMenu(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('hidden');
+    el.classList.toggle('block');
+  }
+
+  // Abre/cierra los dropdowns y submenús
+  function toggleSubmenu(btn) {
+    const menu = btn.nextElementSibling;
+    menu.classList.toggle('hidden');
+    const icon = btn.querySelector('.fa-chevron-down, .fa-chevron-right');
+    if (icon) icon.classList.toggle('rotate-180');
+  }
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 1024) {
+      const nav = document.getElementById('mobile-nav');
+      if (nav) {
+        nav.classList.remove('hidden');
+        nav.classList.add('block');
+      }
+    }
+  });
 </script>
 
 <!-- ── MODAL MI PERFIL ── -->
@@ -314,6 +382,54 @@
   if (!dbHeader) {
     console.error('header.html: no se encontró ni "sb" ni "supabaseClient" en esta página.');
   }
+
+  // Muestra la sección "Ingeniería" solo para roles autorizados
+  async function aplicarVisibilidadNavPorRol() {
+    const wrapper = document.getElementById('nav-ingenieria-wrapper');
+    if (!wrapper) return;
+
+    const { data: { session } } = await dbHeader.auth.getSession();
+    if (!session) return;
+
+    const { data: perfil } = await dbHeader
+      .from('perfiles')
+      .select('rol')
+      .eq('id', session.user.id)
+      .single();
+
+    const rolesPermitidos = ['Ingeniería y Ventas', 'Administrador'];
+
+    if (perfil && rolesPermitidos.includes(perfil.rol)) {
+      wrapper.classList.remove('hidden');
+      wrapper.classList.add('lg:flex');
+    }
+  }
+
+  aplicarVisibilidadNavPorRol();
+
+  // Pone el saludo con el nombre del usuario logueado
+  async function cargarSaludoUsuario() {
+    const elSaludo = document.getElementById('user-welcome');
+    if (!elSaludo || !dbHeader) return;
+
+    const { data: { session } } = await dbHeader.auth.getSession();
+    if (!session) return;
+
+    const { data: perfil } = await dbHeader
+      .from('perfiles')
+      .select('nombre_completo')
+      .eq('id', session.user.id)
+      .single();
+
+    const nombre = perfil?.nombre_completo || session.user.email || 'Usuario';
+    const hora = new Date().getHours();
+    const saludo = hora < 12 ? 'Buenos días'
+      : hora < 19 ? 'Buenas tardes'
+      : 'Buenas noches';
+    elSaludo.textContent = `${saludo}, ${nombre}`;
+  }
+
+  cargarSaludoUsuario();
 
   async function abrirMiPerfil() {
     const modal = document.getElementById('modal-mi-perfil');

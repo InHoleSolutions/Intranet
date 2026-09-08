@@ -1471,13 +1471,20 @@
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY },
           body: JSON.stringify({ message: mensajeIA, history: [] })
         });
-        const data = await res.json();
-        const resumen = data.reply || 'No se pudo generar el resumen de hoy.';
+        const data = await res.json().catch(() => null);
+
+        if (!res.ok) {
+          console.error('Error de la función chat-assistant:', res.status, data);
+          throw new Error(data?.error || `La función respondió con estado ${res.status}`);
+        }
+
+        const resumen = data?.reply || 'No se pudo generar el resumen de hoy.';
 
         const resumenLimpio = resumen.replace(/\n+/g, ' ').replace(/\s{2,}/g, ' ').trim();
         elTexto.innerHTML = resumenLimpio;
 
       } catch (err) {
+        console.error('Error generando resumen diario:', err);
         elTexto.textContent = 'No se pudo generar el resumen del día. Intenta más tarde.';
       }
     }

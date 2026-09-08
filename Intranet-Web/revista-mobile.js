@@ -115,7 +115,7 @@ const MOBILE_CSS = `
     width: 100%;
     height: 100%;
     max-height: calc(100vh - 48px - 72px - 24px);
-    background: white;
+    background: var(--rv-card-bg);
     border-radius: 12px;
     overflow-y: auto;
     overflow-x: hidden;
@@ -355,7 +355,7 @@ function obtenerHojas() {
       dark: false,
       render: () => `
         <div>
-          <p style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+          <p style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--rv-fijo-gris);margin-bottom:12px;display:flex;align-items:center;gap:6px;">
             <i class="fas fa-triangle-exclamation" style="color:#e31e24"></i>Lección Aprendida — Near Miss
           </p>
           <div style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:100px;background:#fef2f2;border:1px solid #fecaca;margin-bottom:12px">
@@ -365,21 +365,21 @@ function obtenerHojas() {
             </span>
           </div>
           <div style="border-left:4px solid #e31e24;background:#fff5f5;border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:12px">
-            <p style="font-family:'Barlow Condensed';font-size:16px;font-weight:900;color:#1e293b;text-transform:uppercase;margin-bottom:6px">
+            <p style="font-family:'Barlow Condensed';font-size:16px;font-weight:900;color:var(--rv-fijo-oscuro);text-transform:uppercase;margin-bottom:6px">
               ${document.getElementById('pv-nm-titulo')?.textContent || '—'}
             </p>
-            <p style="font-size:11px;color:#64748b;line-height:1.6">
+            <p style="font-size:11px;color:var(--rv-fijo-gris);line-height:1.6">
               ${document.getElementById('pv-nm-desc')?.textContent || ''}
             </p>
           </div>
           <div style="display:grid;gap:10px;">
-            <div style="border-radius:10px;padding:12px;background:#f8fafc;border:1px solid #e2e8f0">
+            <div style="border-radius:10px;padding:12px;background:var(--rv-fijo-fondo-claro);border:1px solid var(--rv-fijo-borde)">
               <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:4px"><i class="fas fa-magnifying-glass mr-1" style="color:#60a5fa"></i>Causa Raíz</p>
-              <p style="font-size:12px;color:#475569">${document.getElementById('pv-nm-causa')?.textContent || '—'}</p>
+              <p style="font-size:12px;color:var(--rv-fijo-gris)">${document.getElementById('pv-nm-causa')?.textContent || '—'}</p>
             </div>
             <div style="border-radius:10px;padding:12px;background:#f0fdf4;border:1px solid #bbf7d0">
               <p style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#15803d;margin-bottom:4px"><i class="fas fa-wrench mr-1"></i>Acción Correctiva</p>
-              <p style="font-size:12px;color:#475569">${document.getElementById('pv-nm-accion')?.textContent || '—'}</p>
+              <p style="font-size:12px;color:var(--rv-fijo-gris)">${document.getElementById('pv-nm-accion')?.textContent || '—'}</p>
             </div>
           </div>
         </div>

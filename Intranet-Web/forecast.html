@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PreDix | Forecast Comercial</title>
+
+  <!-- Tailwind CSS vía CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome (iconos del header/footer) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <!-- Chart.js para las gráficas -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#f4f6fb',
+            panel: '#ffffff',
+            border: '#e2e6f0',
+            accent: '#2563eb',
+            accent2: '#0891b2',
+          },
+          fontFamily: {
+            sans: ['Calibri', 'Carlito', 'Segoe UI', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: Calibri, 'Carlito', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #f4f6fb; }
+    ::-webkit-scrollbar-thumb { background: #cbd3e1; border-radius: 8px; }
+
+    /* Encabezado tipo hoja membretada — solo aparece al imprimir/exportar a PDF */
+    #encabezadoReporte { display: none; }
+
+    @media print {
+      #header-slot, #footer-slot, #btnExportarReporte, #btnCapturarDatos,
+      #filtrosContenedor {
+        display: none !important;
+      }
+
+      #encabezadoReporte {
+        display: flex !important;
+        align-items: center;
+        gap: 16px;
+        margin: 0 0 20px 0;
+        padding-bottom: 16px;
+        border-bottom: 3px solid #2563eb;
+      }
+      #encabezadoReporte img { height: 56px; width: auto; }
+      #encabezadoReporte .textos h1 { font-size: 20px; font-weight: 700; color: #111827; margin: 0; }
+      #encabezadoReporte .textos p { font-size: 11px; color: #6b7280; margin: 2px 0 0 0; }
+
+      main { padding-top: 0 !important; }
+      body { background: white !important; }
+      .shadow-sm { box-shadow: none !important; }
+
+      /* Cada tarjeta (KPI, gráfica o tabla) no se corta entre páginas */
+      .print-card { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Reacomodamos las KPIs en una fila más ordenada al imprimir */
+      #kpiSection { grid-template-columns: repeat(4, 1fr) !important; gap: 10px !important; }
+    }
+  </style>
+</head>
+<body class="bg-bg text-gray-800 min-h-screen flex flex-col">
+
+  <!-- Aquí se inyecta header.html -->
+  <div id="header-slot"></div>
+
+  <main class="flex-1 pt-16 sm:pt-20 lg:pt-32 xl:pt-[140px] 3xl:pt-[156px] w-full px-6 space-y-6">
+    <div class="max-w-[1600px] mx-auto space-y-6">
+
+      <!-- ENCABEZADO DEL DASHBOARD -->
+      <header class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">PreDix · Forecast Comercial</h1>
+          <p class="text-sm text-gray-400 mt-1">Dashboard ejecutivo de proyección y resultados</p>
+          <div id="encabezadoReporte">
+            <img src="Intranet-Web/assets/Imagenes/Logo.svg" alt="Logo de la empresa">
+            <div class="textos">
+              <h1>PreDix · Reporte de Forecast Comercial</h1>
+              <p id="encabezadoReporteTexto"></p>
+            </div>
+          </div>
+          <p id="ultimaActualizacion" class="text-xs text-gray-400 mt-0.5"></p>
+        </div>
+
+        <!-- FILTROS -->
+        <div id="filtrosContenedor" class="flex flex-wrap gap-3 bg-panel border border-border rounded-2xl p-3 shadow-sm">
+          <select id="filtroAnio" class="bg-white border border-border text-sm rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-accent">
+            <option value="2024">Año: 2024</option>
+            <option value="2025">Año: 2025</option>
+            <option value="2026" selected>Año: 2026</option>
+          </select>
+
+          <select id="filtroQuarter" class="bg-white border border-border text-sm rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-accent">
+            <option value="todos" selected>Quarter: Todos</option>
+            <option value="Q1">Q1</option>
+            <option value="Q2">Q2</option>
+            <option value="Q3">Q3</option>
+            <option value="Q4">Q4</option>
+          </select>
+
+          <select id="filtroMes" class="bg-white border border-border text-sm rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-accent">
+            <option value="todos" selected>Mes: Todos</option>
+            <option value="Enero">Enero</option>
+            <option value="Febrero">Febrero</option>
+            <option value="Marzo">Marzo</option>
+            <option value="Abril">Abril</option>
+            <option value="Mayo">Mayo</option>
+            <option value="Junio">Junio</option>
+            <option value="Julio">Julio</option>
+            <option value="Agosto">Agosto</option>
+            <option value="Septiembre">Septiembre</option>
+            <option value="Octubre">Octubre</option>
+            <option value="Noviembre">Noviembre</option>
+            <option value="Diciembre">Diciembre</option>
+          </select>
+
+          <select id="filtroCliente" class="bg-white border border-border text-sm rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-accent">
+            <option value="todos" selected>Cliente: Todos</option>
+          </select>
+
+          <select id="filtroLinea" class="bg-white border border-border text-sm rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-accent">
+            <option value="todos" selected>Línea: Todas</option>
+            <option value="Cementing">Cementing</option>
+            <option value="CHC">CHC</option>
+            <option value="Gas Lift">Gas Lift</option>
+            <option value="Safety System">Safety System</option>
+            <option value="Sand Control">Sand Control</option>
+            <option value="Servicios de Taller">Servicios de Taller</option>
+          </select>
+
+          <button id="btnExportarReporte" type="button"
+             class="flex items-center gap-2 bg-accent2 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-cyan-700 transition">
+            <i class="fas fa-file-pdf"></i> Exportar Reporte
+          </button>
+
+          <a id="btnCapturarDatos" href="forecast-admin.html"
+             class="hidden items-center gap-2 bg-accent text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+            <i class="fas fa-database"></i> Capturar Datos
+          </a>
+        </div>
+      </header>
+
+      <!-- KPIs -->
+      <section id="kpiSection" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-4">
+
+        <div class="print-card bg-panel border border-border rounded-2xl p-4 flex flex-col gap-2 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-gray-400 font-medium">Cierre (Forecast Año)</span>
+            <span class="text-lg">📈</span>
+          </div>
+          <p id="kpiProyectado" class="text-2xl font-bold text-gray-900">$0</p>
+          <span class="text-xs text-gray-500">Suma proyectada de los 12 meses del año</span>
+        </div>
+
+        <div class="print-card bg-panel border border-border rounded-2xl p-4 flex flex-col gap-2 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-gray-400 font-medium">Resultado Actual</span>
+            <span class="text-lg">💰</span>
+          </div>
+          <p id="kpiReal" class="text-2xl font-bold text-gray-900">$0</p>
+          <span class="text-xs text-gray-500">Venta real acumulada hasta la fecha</span>
+        </div>
+
+        <div class="print-card bg-panel border border-border rounded-2xl p-4 flex flex-col gap-2 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-gray-400 font-medium">Cumplimiento</span>
+            <span class="text-lg">🎯</span>
+          </div>
+          <p id="kpiCumplimiento" class="text-2xl font-bold text-accent2">0%</p>
+          <span class="text-xs text-gray-500">Real vs Proyectado</span>
+        </div>
+
+        <div class="print-card bg-panel border border-border rounded-2xl p-4 flex flex-col gap-2 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-gray-400 font-medium">Crecimiento YoY</span>
+            <span class="text-lg">📊</span>
+          </div>
+          <p id="kpiCrecimiento" class="text-2xl font-bold text-green-500">0%</p>
+          <span class="text-xs text-gray-500">Vs. mismo período año anterior</span>
+        </div>
+
+        <div class="print-card bg-panel border border-border rounded-2xl p-4 flex flex-col gap-2 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-gray-400 font-medium">Retención de Clientes</span>
+            <span class="text-lg">🤝</span>
+          </div>
+          <p id="kpiRetencion" class="text-2xl font-bold text-gray-900">0%</p>
+          <span class="text-xs text-gray-500">Clientes activos recurrentes</span>
+        </div>
+
+        <div class="print-card bg-panel border border-border rounded-2xl p-4 flex flex-col gap-2 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-gray-400 font-medium">Nuevos Clientes</span>
+            <span class="text-lg">🆕</span>
+          </div>
+          <p id="kpiNuevos" class="text-2xl font-bold text-gray-900">0</p>
+          <span class="text-xs text-gray-500">Desde enero del año en curso</span>
+        </div>
+
+        <div class="print-card bg-panel border border-border rounded-2xl p-4 flex flex-col gap-2 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-gray-400 font-medium">Forecast por Nivel de Confianza</span>
+            <span class="text-lg">🎲</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 mt-1">
+            <div>
+              <p id="kpiP50" class="text-base font-bold" style="color:#f59e0b">$0</p>
+              <span class="text-[10px] text-gray-400">P50</span>
+            </div>
+            <div>
+              <p id="kpiP70" class="text-base font-bold" style="color:#0891b2">$0</p>
+              <span class="text-[10px] text-gray-400">P70</span>
+            </div>
+            <div>
+              <p id="kpiP90" class="text-base font-bold" style="color:#a855f7">$0</p>
+              <span class="text-[10px] text-gray-400">P90</span>
+            </div>
+          </div>
+          <span class="text-xs text-gray-500">Forecast agrupado por P50/P70/P90</span>
+        </div>
+
+      </section>
+
+      <!-- GRÁFICAS -->
+      <section class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+
+        <div class="xl:col-span-2 bg-panel border border-border rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between mb-1">
+            <div>
+              <h2 id="tituloGraficoForecast" class="text-sm font-semibold text-gray-800">Forecast vs Resultado Real</h2>
+              <p id="subtituloGraficoForecast" class="text-xs text-gray-500">Tendencia mensual — Azul: Forecast · Verde: Real</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button id="btnGraficoAnterior" type="button" title="Ver gráfica anterior"
+                class="w-7 h-7 flex items-center justify-center rounded-full border border-border text-gray-400 hover:bg-gray-50 hover:text-gray-600 transition">
+                <i class="fas fa-chevron-left text-xs"></i>
+              </button>
+              <span id="indicadorGrafico" class="text-xs text-gray-400 w-8 text-center">1/2</span>
+              <button id="btnGraficoSiguiente" type="button" title="Ver gráfica siguiente"
+                class="w-7 h-7 flex items-center justify-center rounded-full border border-border text-gray-400 hover:bg-gray-50 hover:text-gray-600 transition">
+                <i class="fas fa-chevron-right text-xs"></i>
+              </button>
+            </div>
+          </div>
+          <div class="h-72 relative">
+            <div id="wrapChartForecastReal" class="absolute inset-0">
+              <canvas id="chartForecastReal"></canvas>
+            </div>
+            <div id="wrapChartForecastProbabilidad" class="absolute inset-0 hidden">
+              <canvas id="chartForecastProbabilidad"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="print-card bg-panel border border-border rounded-2xl p-5 shadow-sm">
+          <h2 class="text-sm font-semibold text-gray-800">Ventas por Línea de Producto</h2>
+          <p class="text-xs text-gray-500 mb-3">Distribución % y monto</p>
+          <div class="h-72">
+            <canvas id="chartLineaProducto"></canvas>
+          </div>
+        </div>
+
+        <div class="print-card bg-panel border border-border rounded-2xl p-5 shadow-sm">
+          <h2 class="text-sm font-semibold text-gray-800">Clientes Principales (Pareto)</h2>
+          <p class="text-xs text-gray-500 mb-3">Monto proyectado y participación %</p>
+          <div class="h-64">
+            <canvas id="chartPareto"></canvas>
+          </div>
+        </div>
+
+        <div class="print-card bg-panel border border-border rounded-2xl p-5 shadow-sm">
+          <h2 class="text-sm font-semibold text-gray-800">Retención y Nuevos Clientes</h2>
+          <p class="text-xs text-gray-500 mb-3">Activos · Retenidos · Nuevos · Perdidos</p>
+          <div class="h-64">
+            <canvas id="chartRetencion"></canvas>
+          </div>
+        </div>
+
+        <div class="print-card bg-panel border border-border rounded-2xl p-5 shadow-sm">
+          <h2 class="text-sm font-semibold text-gray-800">Crecimiento Anual (2024–2026)</h2>
+          <p class="text-xs text-gray-500 mb-3">Comparativo de ventas y % de crecimiento</p>
+          <div class="h-64">
+            <canvas id="chartCrecimiento"></canvas>
+          </div>
+        </div>
+
+        <div class="print-card xl:col-span-3 bg-panel border border-border rounded-2xl p-5 shadow-sm">
+          <h2 class="text-sm font-semibold text-gray-800">Composición del Forecast por Cliente</h2>
+          <p class="text-xs text-gray-500 mb-3">100% del monto proyectado de cada cliente, segmentado por línea de producto</p>
+          <div id="composicionAltura" style="height: 280px;">
+            <canvas id="chartComposicion"></canvas>
+          </div>
+        </div>
+
+        <div class="print-card xl:col-span-3 bg-panel border border-border rounded-2xl p-5 shadow-sm">
+          <h2 class="text-sm font-semibold text-gray-800">Inventario por Línea</h2>
+          <p class="text-xs text-gray-500 mb-3">Relación entre ventas esperadas y disponibilidad de stock</p>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-left text-gray-500 border-b border-border">
+                  <th class="py-2 pr-4 font-medium">Línea</th>
+                  <th class="py-2 pr-4 font-medium">Stock Disponible</th>
+                  <th class="py-2 pr-4 font-medium">Forecast (USD)</th>
+                  <th class="py-2 pr-4 font-medium">Nivel</th>
+                </tr>
+              </thead>
+              <tbody id="tablaInventarioBody" class="divide-y divide-border"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Aquí se inyecta footer.html -->
+  <div id="footer-slot"></div>
+
+  <script>
+    function cargarComponente(url, contenedorId) {
+      return fetch(url)
+        .then(r => r.text())
+        .then(html => {
+          const contenedor = document.getElementById(contenedorId);
+          contenedor.innerHTML = html;
+          contenedor.querySelectorAll('script').forEach(oldScript => {
+            const newScript = document.createElement('script');
+            if (oldScript.src) {
+              newScript.src = oldScript.src;
+            } else {
+              newScript.textContent = oldScript.textContent;
+            }
+            oldScript.replaceWith(newScript);
+          });
+        })
+        .catch(err => console.error(err));
+    }
+
+    document.addEventListener('supabaseListo', () => {
+      cargarComponente('header.html', 'header-slot');
+      verificarSesion();
+    });
+    cargarComponente('footer.html', 'footer-slot');
+
+    async function verificarSesion() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) {
+        window.location.href = 'intranet-login.html';
+        return;
+      }
+      // Sesión válida — a partir de aquí podemos cargar los datos reales de Supabase
+      console.log('Sesión activa:', session.user.email);
+
+      // Consultamos el rol del usuario para decidir si mostramos "Capturar Datos"
+      const { data: perfil, error } = await supabaseClient
+        .from('perfiles')
+        .select('rol')
+        .eq('id', session.user.id)
+        .single();
+
+      if (error) {
+        console.error('No se pudo leer el perfil:', error);
+        return;
+      }
+
+      const rolesAutorizados = ['Administrador', 'Ingeniería y Ventas'];
+      if (perfil && rolesAutorizados.includes(perfil.rol)) {
+        const boton = document.getElementById('btnCapturarDatos');
+        boton.classList.remove('hidden');
+        boton.classList.add('flex');
+      }
+
+      cargarDashboard();
+    }
+
+    // ─────────────────────────────────────────────
+    // Utilidades de formato
+    // ─────────────────────────────────────────────
+    const fmtUSD = (n) => '$' + Math.round(n).toLocaleString('en-US');
+    const fmtPct = (n) => Math.round(n * 10) / 10 + '%';
+
+    const nombreMes = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const abrevMes = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const quarterDeMes = (mes) => Math.ceil(mes / 3);
+
+    if (typeof Chart === 'undefined') {
+      console.error('Chart.js no cargó. Revisa tu conexión, firewall o bloqueador de anuncios.');
+    } else {
+      Chart.defaults.font.family = "Calibri, 'Carlito', 'Segoe UI', sans-serif";
+      Chart.defaults.color = '#6b7280';
+    }
+
+    // Guardamos las instancias de Chart.js para poder destruirlas y redibujarlas al cambiar filtros
+    let charts = {};
+
+    // ─────────────────────────────────────────────
+    // Trae TODOS los registros del año seleccionado (una sola consulta,
+    // filtramos el resto en el navegador para que los filtros se sientan instantáneos)
+    // ─────────────────────────────────────────────
+    async function traerRegistros(anio) {
+      const { data, error } = await supabaseClient
+        .from('forecast_registros')
+        .select('*')
+        .eq('anio', anio);
+
+      if (error) {
+        console.error('Error al traer registros:', error);
+        return [];
+      }
+      return data || [];
+    }
+
+    // También traemos el año anterior completo, para poder calcular Crecimiento YoY y Retención
+    async function traerRegistrosAnioAnterior(anio) {
+      const { data, error } = await supabaseClient
+        .from('forecast_registros')
+        .select('*')
+        .eq('anio', anio - 1);
+
+      if (error) {
+        console.error('Error al traer año anterior:', error);
+        return [];
+      }
+      return data || [];
+    }
+
+    // Venta Real concentrada por mes (capturada manualmente al cierre de cada mes).
+    // Devuelve un array de 13 posiciones (índice 1-12 = mes), con null donde no se ha capturado.
+    async function traerVentaRealMensual(anio) {
+      const { data, error } = await supabaseClient
+        .from('forecast_venta_real_mensual')
+        .select('mes, monto_real_usd')
+        .eq('anio', anio);
+
+      if (error) {
+        console.error('Error al traer venta real mensual:', error);
+        return Array(13).fill(null);
+      }
+
+      const porMes = Array(13).fill(null);
+      (data || []).forEach(r => { porMes[r.mes] = Number(r.monto_real_usd); });
+      return porMes;
+    }
+
+    // ─────────────────────────────────────────────
+    // Aplica los filtros de pantalla (Quarter/Mes/Cliente/Línea) sobre un arreglo de registros
+    // ─────────────────────────────────────────────
+    function aplicarFiltros(registros) {
+      const quarter = document.getElementById('filtroQuarter').value;
+      const mes = document.getElementById('filtroMes').value;
+      const cliente = document.getElementById('filtroCliente').value;
+      const linea = document.getElementById('filtroLinea').value;
+
+      return registros.filter(r => {
+        if (quarter !== 'todos' && quarterDeMes(r.mes) !== Number(quarter.replace('Q', ''))) return false;
+        if (mes !== 'todos' && nombreMes[r.mes] !== mes) return false;
+        if (cliente !== 'todos' && r.cliente !== cliente) return false;
+        if (linea !== 'todos' && r.linea_producto !== linea) return false;
+        return true;
+      });
+    }
+
+    // ─────────────────────────────────────────────
+    // Punto de entrada: carga todo el dashboard según filtros actuales
+    // ─────────────────────────────────────────────
+    let filtroClienteCargado = false;
+
+    async function cargarOpcionesCliente() {
+      if (filtroClienteCargado) return; // solo se carga una vez, no cada vez que cambian filtros
+      const { data, error } = await supabaseClient.from('forecast_clientes').select('nombre').order('nombre');
+      if (error) { console.error(error); return; }
+
+      const select = document.getElementById('filtroCliente');
+      const valorActual = select.value;
+      data.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.nombre;
+        opt.textContent = c.nombre;
+        select.appendChild(opt);
+      });
+      select.value = valorActual;
+      filtroClienteCargado = true;
+    }
+
+    async function mostrarUltimaActualizacion() {
+      const { data, error } = await supabaseClient
+        .from('forecast_importaciones')
+        .select('created_at')
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      const el = document.getElementById('ultimaActualizacion');
+      if (!el) return;
+
+      if (error || !data || data.length === 0) {
+        el.textContent = 'Datos: sin información de carga aún.';
+        return;
+      }
+
+      const fecha = new Date(data[0].created_at).toLocaleString('es-MX', {
+        day: 'numeric', month: 'short', year: 'numeric',
+        hour: 'numeric', minute: '2-digit', hour12: true
+      });
+      el.textContent = `Datos al ${fecha}`;
+    }
+
+    async function cargarDashboard() {
+      await cargarOpcionesCliente();
+      mostrarUltimaActualizacion();
+      const anio = Number(document.getElementById('filtroAnio').value);
+
+      const [registrosAnio, registrosAnterior, ventaRealMensual, ventaRealMensualAnterior] = await Promise.all([
+        traerRegistros(anio),
+        traerRegistrosAnioAnterior(anio),
+        traerVentaRealMensual(anio),
+        traerVentaRealMensual(anio - 1)
+      ]);
+
+      const filtrados = aplicarFiltros(registrosAnio);
+
+      pintarKPIs(filtrados, registrosAnterior, anio, registrosAnio, ventaRealMensual, ventaRealMensualAnterior);
+      dibujarChartForecastReal(filtrados, ventaRealMensual);
+      dibujarChartForecastProbabilidad(filtrados);
+      dibujarChartLineaProducto(filtrados);
+      dibujarChartPareto(filtrados);
+      dibujarChartRetencion(filtrados, registrosAnterior);
+      await dibujarChartCrecimiento(anio);
+      dibujarChartComposicion(filtrados);
+      await pintarTablaInventario(filtrados);
+    }
+
+    // ─────────────────────────────────────────────
+    // KPIs
+    // ─────────────────────────────────────────────
+    // Cuántos meses del año ya "transcurrieron" — determina qué cuenta como "hasta la fecha"
+    function mesesTranscurridos(anio) {
+      const hoy = new Date();
+      const anioActual = hoy.getFullYear();
+      if (anio < anioActual) return 12;              // año ya cerrado por completo
+      if (anio > anioActual) return 0;                // año futuro, nada ha transcurrido
+      return hoy.getMonth() + 1;                       // año en curso: mes actual (1-12)
+    }
+
+    function pintarKPIs(filtrados, registrosAnterior, anio, registrosAnioSinFiltroPeriodo, ventaRealMensual, ventaRealMensualAnterior) {
+      const transcurridos = mesesTranscurridos(anio);
+
+      // "Resultado Actual" = suma del concentrado de Venta Real Mensual, solo de meses ya transcurridos.
+      // Nota: el concentrado es un total de TODA la empresa por mes (no distingue Cliente/Línea),
+      // así que este KPI ya no responde a los filtros de Cliente/Línea.
+      let totalRealHastaFecha = 0;
+      for (let m = 1; m <= transcurridos; m++) {
+        totalRealHastaFecha += ventaRealMensual[m] || 0;
+      }
+
+      // "Cierre" = Forecast del año COMPLETO (12 meses), respetando Cliente/Línea pero ignorando Quarter/Mes
+      const cliente = document.getElementById('filtroCliente').value;
+      const linea = document.getElementById('filtroLinea').value;
+      const baseCierre = registrosAnioSinFiltroPeriodo.filter(r => {
+        if (cliente !== 'todos' && r.cliente !== cliente) return false;
+        if (linea !== 'todos' && r.linea_producto !== linea) return false;
+        return true;
+      });
+      const totalCierre = baseCierre.reduce((a, r) => a + (Number(r.monto_forecast) || 0), 0);
+
+      const cumplimiento = totalCierre ? (totalRealHastaFecha / totalCierre) * 100 : 0;
+
+      // Crecimiento acumulado: mismos meses transcurridos, este año vs año anterior
+      let totalAnteriorMismoRango = 0;
+      for (let m = 1; m <= transcurridos; m++) {
+        totalAnteriorMismoRango += ventaRealMensualAnterior[m] || 0;
+      }
+      const crecimientoYoY = totalAnteriorMismoRango ? ((totalRealHastaFecha - totalAnteriorMismoRango) / totalAnteriorMismoRango) * 100 : 0;
+
+      // Nuevos clientes (sin cambio: cliente que compra este año y no compró el año pasado)
+      const clientesEsteAnio = new Set(filtrados.filter(r => r.monto_real_usd != null).map(r => r.cliente));
+      const clientesAnioAnterior = new Set(registrosAnterior.filter(r => r.monto_real_usd != null).map(r => r.cliente));
+      const nuevos = [...clientesEsteAnio].filter(c => !clientesAnioAnterior.has(c));
+
+      // Retención por frecuencia: de los clientes del año pasado, ¿en qué % de los meses transcurridos
+      // de ESTE año han vuelto a comprar? Se promedia entre todos esos clientes.
+      let retencionPct = 0;
+      if (clientesAnioAnterior.size > 0 && transcurridos > 0) {
+        const frecuencias = [...clientesAnioAnterior].map(cli => {
+          const mesesConCompra = new Set(
+            filtrados.filter(r => r.cliente === cli && r.monto_real_usd != null && r.mes <= transcurridos).map(r => r.mes)
+          );
+          return mesesConCompra.size / transcurridos;
+        });
+        retencionPct = (frecuencias.reduce((a, b) => a + b, 0) / frecuencias.length) * 100;
+      }
+
+      // Totales de Probabilidad (P50/P70/P90) del período ya filtrado (año/quarter/mes/cliente/línea)
+      const totalP50 = filtrados.reduce((a, r) => a + (Number(r.monto_p50) || 0), 0);
+      const totalP70 = filtrados.reduce((a, r) => a + (Number(r.monto_p70) || 0), 0);
+      const totalP90 = filtrados.reduce((a, r) => a + (Number(r.monto_p90) || 0), 0);
+
+      document.getElementById('kpiProyectado').textContent = fmtUSD(totalCierre);
+      document.getElementById('kpiReal').textContent = fmtUSD(totalRealHastaFecha);
+      document.getElementById('kpiCumplimiento').textContent = fmtPct(cumplimiento);
+      document.getElementById('kpiCrecimiento').textContent = fmtPct(crecimientoYoY);
+      document.getElementById('kpiRetencion').textContent = fmtPct(retencionPct);
+      document.getElementById('kpiNuevos').textContent = nuevos.length;
+      document.getElementById('kpiP50').textContent = fmtUSD(totalP50);
+      document.getElementById('kpiP70').textContent = fmtUSD(totalP70);
+      document.getElementById('kpiP90').textContent = fmtUSD(totalP90);
+    }
+
+    // ─────────────────────────────────────────────
+    // Gráfico 1: Forecast vs Real (líneas, por mes)
+    // ─────────────────────────────────────────────
+    // Nota: "Real" ahora viene del concentrado mensual (ventaRealMensual), capturado manualmente
+    // al cierre de cada mes. No distingue Cliente/Línea, así que la línea "Real" de esta gráfica
+    // representa siempre el total de la empresa, aunque el Forecast sí respete los filtros activos.
+    function dibujarChartForecastReal(filtrados, ventaRealMensual) {
+      const forecastPorMes = Array(12).fill(0);
+      const realPorMes = Array(12).fill(null);
+
+      filtrados.forEach(r => {
+        const idx = r.mes - 1;
+        forecastPorMes[idx] = (forecastPorMes[idx] || 0) + (Number(r.monto_forecast) || 0);
+      });
+
+      for (let m = 1; m <= 12; m++) {
+        if (ventaRealMensual[m] != null) {
+          realPorMes[m - 1] = ventaRealMensual[m];
+        }
+      }
+
+      if (charts.forecastReal) charts.forecastReal.destroy();
+      charts.forecastReal = new Chart(document.getElementById('chartForecastReal'), {
+        type: 'line',
+        data: {
+          labels: abrevMes.slice(1),
+          datasets: [
+            { label: 'Forecast', data: forecastPorMes, borderColor: '#2563eb', backgroundColor: '#2563eb20', tension: 0.35, fill: false, pointRadius: 3 },
+            { label: 'Real', data: realPorMes, borderColor: '#22c55e', backgroundColor: '#22c55e20', tension: 0.35, fill: false, pointRadius: 3, spanGaps: false }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } },
+            tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${fmtUSD(ctx.parsed.y)}` } }
+          },
+          scales: {
+            y: { grid: { color: '#eef1f6' }, ticks: { callback: (v) => '$' + (v/1000) + 'k' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    // ─────────────────────────────────────────────
+    // Gráfico 1b: Forecast por Nivel de Confianza (P50/P70/P90), por mes
+    // ─────────────────────────────────────────────
+    function dibujarChartForecastProbabilidad(filtrados) {
+      const p50PorMes = Array(12).fill(0);
+      const p70PorMes = Array(12).fill(0);
+      const p90PorMes = Array(12).fill(0);
+
+      filtrados.forEach(r => {
+        const idx = r.mes - 1;
+        p50PorMes[idx] = (p50PorMes[idx] || 0) + (Number(r.monto_p50) || 0);
+        p70PorMes[idx] = (p70PorMes[idx] || 0) + (Number(r.monto_p70) || 0);
+        p90PorMes[idx] = (p90PorMes[idx] || 0) + (Number(r.monto_p90) || 0);
+      });
+
+      if (charts.forecastProbabilidad) charts.forecastProbabilidad.destroy();
+      charts.forecastProbabilidad = new Chart(document.getElementById('chartForecastProbabilidad'), {
+        type: 'line',
+        data: {
+          labels: abrevMes.slice(1),
+          datasets: [
+            { label: 'P50', data: p50PorMes, borderColor: '#f59e0b', backgroundColor: '#f59e0b20', borderDash: [5, 5], tension: 0.35, fill: false, pointRadius: 3 },
+            { label: 'P70', data: p70PorMes, borderColor: '#0891b2', backgroundColor: '#0891b220', borderDash: [5, 5], tension: 0.35, fill: false, pointRadius: 3 },
+            { label: 'P90', data: p90PorMes, borderColor: '#a855f7', backgroundColor: '#a855f720', borderDash: [5, 5], tension: 0.35, fill: false, pointRadius: 3 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } },
+            tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${fmtUSD(ctx.parsed.y)}` } }
+          },
+          scales: {
+            y: { grid: { color: '#eef1f6' }, ticks: { callback: (v) => '$' + (v/1000) + 'k' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    // ─────────────────────────────────────────────
+    // Alternar entre "Forecast vs Real" y "Forecast por Confianza"
+    // ─────────────────────────────────────────────
+    const vistasGraficoForecast = [
+      {
+        wrapper: 'wrapChartForecastReal',
+        titulo: 'Forecast vs Resultado Real',
+        subtitulo: 'Tendencia mensual — Azul: Forecast · Verde: Real'
+      },
+      {
+        wrapper: 'wrapChartForecastProbabilidad',
+        titulo: 'Forecast por Probabilidad',
+        subtitulo: 'Nivel de confianza asignado — P50 (50%) · P70 (70%) · P90 (100%)'
+      }
+    ];
+    let vistaGraficoActual = 0;
+
+    function mostrarVistaGrafico(indice) {
+      vistaGraficoActual = (indice + vistasGraficoForecast.length) % vistasGraficoForecast.length;
+      vistasGraficoForecast.forEach((vista, i) => {
+        document.getElementById(vista.wrapper).classList.toggle('hidden', i !== vistaGraficoActual);
+      });
+      const actual = vistasGraficoForecast[vistaGraficoActual];
+      document.getElementById('tituloGraficoForecast').textContent = actual.titulo;
+      document.getElementById('subtituloGraficoForecast').textContent = actual.subtitulo;
+      document.getElementById('indicadorGrafico').textContent = `${vistaGraficoActual + 1}/${vistasGraficoForecast.length}`;
+
+      // Chart.js necesita que le avisemos que el contenedor cambió de tamaño/visibilidad
+      if (charts.forecastReal) charts.forecastReal.resize();
+      if (charts.forecastProbabilidad) charts.forecastProbabilidad.resize();
+    }
+
+    document.getElementById('btnGraficoAnterior').addEventListener('click', () => mostrarVistaGrafico(vistaGraficoActual - 1));
+    document.getElementById('btnGraficoSiguiente').addEventListener('click', () => mostrarVistaGrafico(vistaGraficoActual + 1));
+
+    mostrarVistaGrafico(0); // fuerza el estado inicial correcto
+
+    // ─────────────────────────────────────────────
+    // Gráfico 2: Dona — Ventas por línea de producto
+    // ─────────────────────────────────────────────
+    function dibujarChartLineaProducto(filtrados) {
+      const porLinea = {};
+      filtrados.forEach(r => {
+        const monto = Number(r.monto_real_usd) || 0;
+        porLinea[r.linea_producto] = (porLinea[r.linea_producto] || 0) + monto;
+      });
+
+      const paleta = ['#2563eb','#0891b2','#22c55e','#f59e0b','#a855f7','#64748b'];
+      const labels = Object.keys(porLinea);
+      const montos = Object.values(porLinea);
+
+      if (charts.lineaProducto) charts.lineaProducto.destroy();
+      charts.lineaProducto = new Chart(document.getElementById('chartLineaProducto'), {
+        type: 'doughnut',
+        data: { labels, datasets: [{ data: montos, backgroundColor: paleta, borderColor: '#ffffff', borderWidth: 2 }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '65%',
+          plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { size: 11 } } },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                  const pct = total ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
+                  return `${ctx.label}: ${fmtUSD(ctx.parsed)} (${pct}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // ─────────────────────────────────────────────
+    // Gráfico 3: Pareto de clientes (barras horizontales)
+    // ─────────────────────────────────────────────
+    function dibujarChartPareto(filtrados) {
+      const porCliente = {};
+      filtrados.forEach(r => {
+        const monto = Number(r.monto_forecast) || 0;
+        porCliente[r.cliente] = (porCliente[r.cliente] || 0) + monto;
+      });
+
+      const ordenado = Object.entries(porCliente).sort((a, b) => b[1] - a[1]).slice(0, 6);
+      const labels = ordenado.map(([nombre]) => nombre.length > 28 ? nombre.slice(0, 28) + '…' : nombre);
+      const montos = ordenado.map(([, monto]) => monto);
+
+      if (charts.pareto) charts.pareto.destroy();
+      charts.pareto = new Chart(document.getElementById('chartPareto'), {
+        type: 'bar',
+        data: { labels, datasets: [{ label: 'Monto proyectado', data: montos, backgroundColor: '#2563eb', borderRadius: 6, barThickness: 16 }] },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const total = montos.reduce((a, b) => a + b, 0);
+                  const pct = total ? ((ctx.parsed.x / total) * 100).toFixed(1) : 0;
+                  return `${fmtUSD(ctx.parsed.x)} (${pct}%)`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: { grid: { color: '#eef1f6' }, ticks: { callback: (v) => '$' + (v/1000) + 'k' } },
+            y: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    // ─────────────────────────────────────────────
+    // Gráfico 4: Retención y Nuevos Clientes (columnas)
+    // ─────────────────────────────────────────────
+    function dibujarChartRetencion(filtrados, registrosAnterior) {
+      const clientesEsteAnio = new Set(filtrados.filter(r => r.monto_real_usd != null).map(r => r.cliente));
+      const clientesAnioAnterior = new Set(registrosAnterior.filter(r => r.monto_real_usd != null).map(r => r.cliente));
+
+      const nuevos = [...clientesEsteAnio].filter(c => !clientesAnioAnterior.has(c)).length;
+      const retenidos = [...clientesEsteAnio].filter(c => clientesAnioAnterior.has(c)).length;
+      const perdidos = [...clientesAnioAnterior].filter(c => !clientesEsteAnio.has(c)).length;
+      const activos = clientesEsteAnio.size;
+
+      if (charts.retencion) charts.retencion.destroy();
+      charts.retencion = new Chart(document.getElementById('chartRetencion'), {
+        type: 'bar',
+        data: {
+          labels: ['Activos','Retenidos','Nuevos','Perdidos'],
+          datasets: [{ data: [activos, retenidos, nuevos, perdidos], backgroundColor: ['#2563eb','#0891b2','#22c55e','#ef4444'], borderRadius: 8 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { grid: { color: '#eef1f6' }, beginAtZero: true }, x: { grid: { display: false } } }
+        }
+      });
+    }
+
+    // ─────────────────────────────────────────────
+    // Gráfico 5: Crecimiento Anual (2024, 2025, 2026 — sin filtros, siempre los 3 años)
+    // ─────────────────────────────────────────────
+    async function dibujarChartCrecimiento(anioActual) {
+      const anios = [2024, 2025, 2026];
+      const totales = await Promise.all(anios.map(async (a) => {
+        const { data } = await supabaseClient.from('forecast_venta_real_mensual').select('monto_real_usd').eq('anio', a);
+        return (data || []).reduce((sum, r) => sum + (Number(r.monto_real_usd) || 0), 0);
+      }));
+
+      const crecimientos = totales.map((v, i) => i === 0 ? null : (totales[i-1] ? ((v - totales[i-1]) / totales[i-1]) * 100 : null));
+
+      if (charts.crecimiento) charts.crecimiento.destroy();
+      charts.crecimiento = new Chart(document.getElementById('chartCrecimiento'), {
+        type: 'bar',
+        data: { labels: anios.map(String), datasets: [{ label: 'Ventas', data: totales, backgroundColor: '#2563eb', borderRadius: 8, barThickness: 40 }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const idx = ctx.dataIndex;
+                  const base = `Ventas: ${fmtUSD(ctx.parsed.y)}`;
+                  if (crecimientos[idx] === null) return base;
+                  return [base, `Crecimiento: ${fmtPct(crecimientos[idx])}`];
+                }
+              }
+            }
+          },
+          scales: {
+            y: { grid: { color: '#eef1f6' }, ticks: { callback: (v) => '$' + (v/1000000).toFixed(1) + 'M' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    // ─────────────────────────────────────────────
+    // Gráfico 6: Composición 100% — Cliente × Línea de Producto
+    // ─────────────────────────────────────────────
+    function dibujarChartComposicion(filtrados) {
+      const paletaLinea = {
+        'Cementing': '#2563eb',
+        'CHC': '#0891b2',
+        'Gas Lift': '#22c55e',
+        'Safety System': '#f59e0b',
+        'Sand Control': '#a855f7',
+        'Servicios de Taller': '#64748b',
+      };
+      const lineas = Object.keys(paletaLinea);
+
+      // Total de forecast por cliente (para ordenar de mayor a menor)
+      const totalPorCliente = {};
+      filtrados.forEach(r => {
+        const monto = Number(r.monto_forecast) || 0;
+        totalPorCliente[r.cliente] = (totalPorCliente[r.cliente] || 0) + monto;
+      });
+      const clientesOrdenados = Object.entries(totalPorCliente)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8)
+        .map(([nombre]) => nombre);
+
+      // Matriz cliente -> línea -> monto
+      const matriz = {};
+      clientesOrdenados.forEach(c => { matriz[c] = {}; lineas.forEach(l => matriz[c][l] = 0); });
+      filtrados.forEach(r => {
+        if (!matriz[r.cliente]) return;
+        matriz[r.cliente][r.linea_producto] = (matriz[r.cliente][r.linea_producto] || 0) + (Number(r.monto_forecast) || 0);
+      });
+
+      // Convertimos cada fila a %
+      const datasets = lineas.map(linea => ({
+        label: linea,
+        data: clientesOrdenados.map(c => {
+          const total = lineas.reduce((s, l) => s + matriz[c][l], 0);
+          return total ? (matriz[c][linea] / total) * 100 : 0;
+        }),
+        backgroundColor: paletaLinea[linea],
+      }));
+
+      const etiquetasClientes = clientesOrdenados.map(c => c.length > 24 ? c.slice(0, 24) + '…' : c);
+
+      if (charts.composicion) charts.composicion.destroy();
+      charts.composicion = new Chart(document.getElementById('chartComposicion'), {
+        type: 'bar',
+        data: { labels: etiquetasClientes, datasets },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { size: 10 } } },
+            tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${fmtPct(ctx.parsed.x)}` } }
+          },
+          scales: {
+            x: { stacked: true, max: 100, grid: { color: '#eef1f6' }, ticks: { callback: (v) => v + '%' } },
+            y: { stacked: true, grid: { display: false } }
+          }
+        }
+      });
+    }
+
+        // ─────────────────────────────────────────────
+    // Inventario real — catalogo_herramientas agrupado por línea de Forecast
+    // ─────────────────────────────────────────────
+    function nivelStock(total) {
+      if (total < 20) return { texto: 'Stock bajo', clase: 'bg-red-50 text-red-600' };
+      if (total < 50) return { texto: 'Stock medio', clase: 'bg-amber-50 text-amber-600' };
+      return { texto: 'Stock alto', clase: 'bg-green-50 text-green-600' };
+    }
+
+    async function pintarTablaInventario(filtrados) {
+      const tbody = document.getElementById('tablaInventarioBody');
+      tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-400 text-sm">Cargando inventario...</td></tr>`;
+
+      const { data: servicios, error } = await supabaseClient
+        .from('forecast_servicios')
+        .select('linea_producto, stock_disponible');
+
+      if (error) {
+        console.error(error);
+        tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-red-500 text-sm">Error al cargar inventario</td></tr>`;
+        return;
+      }
+
+      // Agrupamos: stock total y número de servicios distintos, por línea
+      const porLinea = {};
+      servicios.forEach(s => {
+        const linea = s.linea_producto;
+        if (!porLinea[linea]) porLinea[linea] = { stock: 0, tipos: 0 };
+        porLinea[linea].stock += Number(s.stock_disponible) || 0;
+        porLinea[linea].tipos += 1;
+      });
+
+      // Forecast en USD por línea (respetando los filtros activos)
+      const forecastPorLinea = {};
+      filtrados.forEach(r => {
+        forecastPorLinea[r.linea_producto] = (forecastPorLinea[r.linea_producto] || 0) + (Number(r.monto_forecast) || 0);
+      });
+
+      const lineas = Object.keys(porLinea).sort((a, b) => a.localeCompare(b));
+
+      tbody.innerHTML = lineas.map(linea => {
+        const { stock, tipos } = porLinea[linea];
+        const forecast = forecastPorLinea[linea] || 0;
+        const nivel = nivelStock(stock);
+        return `
+          <tr class="text-gray-700">
+            <td class="py-2.5 pr-4 font-medium">${linea}</td>
+            <td class="py-2.5 pr-4">${stock.toLocaleString('en-US')} u. <span class="text-gray-400 text-xs">(${tipos} servicios)</span></td>
+            <td class="py-2.5 pr-4">${fmtUSD(forecast)}</td>
+            <td class="py-2.5 pr-4">
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${nivel.clase}">${nivel.texto}</span>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    // ─────────────────────────────────────────────
+    // Filtros: cada vez que cambian, recargamos el dashboard
+    // ─────────────────────────────────────────────
+    ['filtroAnio','filtroQuarter','filtroMes','filtroCliente','filtroLinea'].forEach(id => {
+      document.getElementById(id).addEventListener('change', cargarDashboard);
+    });
+
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module">
+    function exportarReporte() {
+      const anio = document.getElementById('filtroAnio').value;
+      const cliente = document.getElementById('filtroCliente').selectedOptions[0]?.textContent || 'Todos';
+      const linea = document.getElementById('filtroLinea').selectedOptions[0]?.textContent || 'Todas';
+      const generado = new Date().toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' });
+
+      document.getElementById('encabezadoReporteTexto').textContent =
+        `Generado el ${generado} · Filtros: Año ${anio} · ${cliente} · ${linea}`;
+
+      window.print();
+    }
+
+    document.getElementById('btnExportarReporte').addEventListener('click', exportarReporte);
+
+    import { supabaseClient } from './Js/supabase-config.js';
+    window.supabaseClient = supabaseClient;
+    document.dispatchEvent(new Event('supabaseListo'));
+  </script>
+
+</body>
+</html>

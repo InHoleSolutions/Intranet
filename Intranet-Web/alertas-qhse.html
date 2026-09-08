@@ -15,8 +15,31 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
   <style>
+    :root {
+      --rv-page-bg: #e8edf4;
+      --rv-card-bg: #ffffff;
+      --rv-fondo-seccion: #f1f5f9;
+      --rv-texto: #0e2044;
+      --rv-texto-sec: #64748b;
+      --rv-borde: #e2e8f0;
+      /* Fijos: usados SOLO dentro del cuadro de Near Miss, nunca cambian con el modo */
+      --rv-fijo-oscuro: #1e293b;
+      --rv-fijo-gris: #64748b;
+      --rv-fijo-fondo-claro: #f8fafc;
+      --rv-fijo-borde: #e2e8f0;
+    }
+    body.dark-mode {
+      --rv-page-bg: #060b16;
+      --rv-card-bg: #101d33;
+      --rv-fondo-seccion: rgba(255,255,255,.05);
+      --rv-texto: #e8edf4;
+      --rv-texto-sec: rgba(232,237,244,.65);
+      --rv-borde: rgba(255,255,255,.12);
+    }
     body {
       font-family: 'Barlow', sans-serif;
+      background: var(--rv-page-bg);
+      transition: background .3s ease;
     }
     /* Gradientes complejos */
     .qhse-topbar {
@@ -99,12 +122,12 @@
       flex-shrink: 0;
       font-size: 12px;
       font-weight: 700;
-      color: #0e2044;
+      color: var(--rv-texto);
     }
     .heatmap-barra-bg {
       flex: 1;
       height: 22px;
-      background: #f1f5f9;
+      background: var(--rv-fondo-seccion);
       border-radius: 6px;
       overflow: hidden;
     }
@@ -128,7 +151,7 @@
       justify-content: space-between;
       gap: 10px;
       margin-bottom: 12px;
-      color: #0e2044;
+      color: var(--rv-texto);
       font-family: 'Barlow Condensed', sans-serif;
       font-weight: 800;
       font-size: 14px;
@@ -713,6 +736,10 @@
           class="hidden px-4 py-2 rounded-lg text-[12px] font-bold uppercase tracking-wider border border-[#1e88e5]/40 text-[#00c8ff] hover:bg-[#1e88e5]/20 transition-all inline-block no-underline">
           <i class="fas fa-sliders mr-1.5"></i>Panel Admin
       </a>
+      <button onclick="toggleDarkMode()" id="btn-dark-mode" title="Modo oscuro"
+          class="px-4 py-2 rounded-lg text-[12px] font-bold uppercase tracking-wider border border-[#1e88e5]/40 text-[#00c8ff] hover:bg-[#1e88e5]/20 transition-all">
+          <i class="fas fa-moon mr-1.5"></i>Modo Oscuro
+      </button>
       <button onclick="toggleModoLectura()" title="Modo lectura / Pantalla completa"
           class="px-4 py-2 rounded-lg text-[12px] font-bold uppercase tracking-wider border border-[#1e88e5]/40 text-[#00c8ff] hover:bg-[#1e88e5]/20 transition-all">
           <i class="fas fa-expand mr-1.5"></i>Pantalla Completa
@@ -752,7 +779,7 @@
       <div class="hemeroteca-titulo">
         <span class="hemeroteca-titulo-texto"><i class="fas fa-fire"></i> Reportes por Locación — Año en curso</span>
       </div>
-      <div id="heatmap-locacion-body" style="background:white;border-radius:14px;padding:18px 20px;border:1px solid #e2e8f0;">
+      <div id="heatmap-locacion-body" style="background:var(--rv-card-bg);border-radius:14px;padding:18px 20px;border:1px solid var(--rv-borde);">
         <p style="text-align:center;color:#94a3b8;font-size:12px;">Cargando...</p>
       </div>
     </div>
@@ -765,7 +792,7 @@
       <button onclick="irAIndice('guardian')" class="indice-btn"><i class="fas fa-star"></i> Guardián del Mes</button>
     </div>
 
-    <div id="revista-container" style="padding: 8px 16px; background: #e8edf4; min-height: 100vh; overflow-x: auto;"></div>
+    <div id="revista-container" style="padding: 8px 16px; background: var(--rv-page-bg); min-height: 100vh; overflow-x: auto;"></div>
   </main>
 
   <button id="btn-salir-lectura" onclick="toggleModoLectura()" class="hidden">
@@ -939,14 +966,14 @@
       setEl('issue-counter', data.id ? `ED-${String(data.id).padStart(3, '0')}` : '— — —');
 
       // Cargar Near Miss de esta edición
-      const { data: nm } = await sb
+      const { data: nmArr } = await sb
         .from('qhse_near_miss')
         .select('*')
         .eq('edition_id', data.id)
         .eq('visible_revista', true)
         .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+        .limit(1);
+      const nm = nmArr?.[0] ?? null;
 
       if (nm) {
         const pv = id => document.getElementById(id);
@@ -1316,6 +1343,27 @@
     function toggleMenu(id) { 
       document.getElementById(id).classList.toggle('hidden'); 
     }
+
+    // ── MODO OSCURO ──
+    function toggleDarkMode() {
+      const activo = document.body.classList.toggle('dark-mode');
+      localStorage.setItem('sentinel_dark_mode', activo ? '1' : '0');
+      actualizarBotonDarkMode(activo);
+    }
+
+    function actualizarBotonDarkMode(activo) {
+      const btn = document.getElementById('btn-dark-mode');
+      if (!btn) return;
+      btn.innerHTML = activo
+        ? '<i class="fas fa-sun mr-1.5"></i>Modo Claro'
+        : '<i class="fas fa-moon mr-1.5"></i>Modo Oscuro';
+    }
+
+    (function aplicarPreferenciaDarkMode() {
+      const activo = localStorage.getItem('sentinel_dark_mode') === '1';
+      if (activo) document.body.classList.add('dark-mode');
+      actualizarBotonDarkMode(activo);
+    })();
 
     // ── MODO LECTURA / PANTALLA COMPLETA ──
     let autoAvanceInterval = null;

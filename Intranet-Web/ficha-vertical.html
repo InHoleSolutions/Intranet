@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ficha Técnica - In Hole Solutions</title>
+    <style>
+        @page {
+            size: letter portrait;
+            margin: 0;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #525659;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* HOJA CARTA VERTICAL */
+        .page-sheet {
+            width: 215.9mm;
+            height: 279.4mm;
+            background: white;
+            position: relative;
+            box-shadow: 0 0 12px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        /* BARRA LATERAL ROJA IZQUIERDA */
+        .red-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50px;
+            height: 100%;
+            background-color: #e91a47;
+            z-index: 2;
+        }
+
+        /* TEXTO EN LA PARTE SUPERIOR DE LA BARRA ROJA */
+        .red-bar-text {
+            transform: rotate(90deg);
+            transform-origin: left top;
+            white-space: nowrap;
+            color: white;
+            font-weight: bold;
+            font-size: 23px;
+            letter-spacing: 2px;
+            position: absolute;
+            top: 130px; /* Posiciona el texto en el área superior vertical */
+            left: 38px;
+            display: block;
+        }
+
+        /* BARRA HORIZONTAL GRIS SUPERIOR */
+        .gray-bar {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            height: 16px;
+            background-color: #6D6E71;
+            z-index: 1;
+        }
+
+        /* CONTENEDOR INTERNO */
+        .main-container {
+            margin-left: 55px;
+            margin-right: 25px;
+            padding-top: 70px;
+            height: calc(100% - 20px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* SECCIÓN DESCRIPCIÓN */
+        .desc-title {
+            font-weight: bold;
+            font-size: 11px;
+            color: #000;
+            margin-bottom: 10px;
+        }
+
+        /* BLOQUE CENTRAL */
+        .middle-content {
+            display: flex;
+            justify-content: flex-end;
+            flex-grow: 1;
+            margin-bottom: 10px;
+        }
+
+        /* CONTENEDOR TABLA TÉCNICA (DERECHA) */
+        .tech-container {
+            width: 260px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tech-title {
+            font-weight: bold;
+            font-size: 11px;
+            color: #808285;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .tech-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 7px;
+            background: #fff;
+        }
+
+        .tech-table th, .tech-table td {
+            border: 1px solid #6D6E71;
+            padding: 1px 3px;
+            text-align: center;
+            height: 13px;
+        }
+
+        .tech-table .header-row {
+            font-weight: bold;
+            text-transform: uppercase;
+            background-color: #fff;
+        }
+
+        /* TABLA INFERIOR DE REGISTRO / FIRMAS */
+        .bottom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 7.5px;
+            margin-bottom: 8px;
+            background: #fff;
+        }
+
+        .bottom-table th, .bottom-table td {
+            border: 1px solid #6D6E71;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .bottom-table th {
+            font-weight: bold;
+            height: 14px;
+        }
+
+        .bottom-table td {
+            height: 24px;
+            padding: 2px;
+        }
+
+        /* PIE DE PÁGINA */
+        .footer-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 7px;
+            color: #939598;
+            padding-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-sheet">
+    <div class="red-bar">
+        <span class="red-bar-text">IN HOLE SOLUTIONS - </span>
+    </div>
+
+    <div class="gray-bar"></div>
+
+    <div class="main-container">
+        <div class="desc-title">DESCRIPCIÓN:</div>
+
+        <div class="middle-content">
+            <div class="tech-container">
+                <div class="tech-title">INFORMACIÓN TÉCNICA</div>
+                <table class="tech-table">
+                    <thead>
+                        <tr>
+                            <td style="width: 40%; font-weight: bold;">PN</td>
+                            <td colspan="2" style="font-weight: bold;">DIMENSIONS</td>
+                        </tr>
+                        <tr style="font-weight: bold;">
+                            <td></td>
+                            <td style="width: 30%;">Imperial</td>
+                            <td style="width: 30%;">Metric</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td></td><td></td><td></td></tr>
+                        <tr><td></td><td></td><td></td></tr>
+                        <tr><td></td><td></td><td></td></tr>
+                        <tr><td></td><td></td><td></td></tr>
+                        <tr><td></td><td></td><td></td></tr>
+                        <tr><td></td><td></td><td></td></tr>
+                        <tr><td></td><td></td><td></td></tr>
+                        <tr><td></td><td></td><td></td></tr>
+                        <tr><td></td><td></td><td></td></tr>
+                        <tr><td></td><td></td><td></td></tr>
+                        <tr><td></td><td></td><td></td></tr>
+                        <tr><td></td><td></td><td></td></tr>
+                        <tr>
+                            <td colspan="3" class="header-row">MATERIAL SPECIFICATIONS</td>
+                        </tr>
+                        <tr><td colspan="3"></td></tr>
+                        <tr><td colspan="3"></td></tr>
+                        <tr><td colspan="3"></td></tr>
+                        <tr><td colspan="3"></td></tr>
+                        <tr>
+                            <td colspan="3" class="header-row">RATINGS</td>
+                        </tr>
+                        <tr><td colspan="3"></td></tr>
+                        <tr><td colspan="3"></td></tr>
+                        <tr><td colspan="3"></td></tr>
+                        <tr><td colspan="3"></td></tr>
+                        <tr><td colspan="3"></td></tr>
+                        <tr><td colspan="3"></td></tr>
+                        <tr><td colspan="3"></td></tr>
+                        <tr><td colspan="3"></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <table class="bottom-table">
+            <thead>
+                <tr>
+                    <th style="width: 30%;">Realizó</th>
+                    <th style="width: 34%;">Aprobó</th>
+                    <th style="width: 12%;"></th>
+                    <th style="width: 12%;">Versión</th>
+                    <th style="width: 12%;">Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Maria Gabriela Moreno - Coordinadora de Calidad</td>
+                    <td>Antonio Rodriguez - Gerente de Operaciones</td>
+                    <td>FT-IN-IHS-01</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="footer-info">
+            <div>© 2026 In Hole Solutions<br>Todos los derechos reservados</div>
+            <div>www.inholesolutions.com</div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

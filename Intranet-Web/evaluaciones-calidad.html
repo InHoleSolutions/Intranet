@@ -9,6 +9,12 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="icon" href="data:,">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <script>
+  if (window.ChartDataLabels) {
+    Chart.register(ChartDataLabels);
+  }
+</script>
   <style>
     body { font-family: 'Calibri', 'Carlito', 'Segoe UI', sans-serif; }
     .kpi-card {
@@ -73,9 +79,26 @@
 
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h2 class="text-2xl font-bold text-slate-800">Evaluaciones de Calidad</h2>
-        <p class="text-slate-500 mt-1">Resultados de evaluación de servicio generados en Completions.</p>
+        <h2 class="text-2xl font-bold text-slate-800">Indicadores de calidad en el servicio</h2>
+        <p class="text-slate-500 mt-1">Análisis de desempeño por tipo de servicio y periodo.</p>
       </div>
+    </div>
+
+    <div class="flex items-center justify-between mb-6 text-justify">
+      <div>
+        <p class="text-slate-500 mt-1">Las gráficas presentan los resultados de las evaluaciones de calidad en el servicio obtenidas a partir de las encuestas de satisfacción aplicadas al finalizar cada servicio. La información está segmentada por servicios de campo y servicios de taller, y puede consultarse por los criterios de personal, equipo, comunicación, HSE y percepción general, con visualización por periodo mensual, trimestral y anual, lo que permite monitorear el desempeño del servicio, identificar tendencias y oportunidades de mejora.</p>
+      </div>
+    </div>
+    <div class="mb-6 flex items-center gap-2">
+      <div class="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-300 rounded-lg px-4 py-2">
+        <span class="text-emerald-600 font-bold">🎯</span>
+        <p id="texto-meta-indicador" class="text-sm font-semibold text-emerald-800">
+          Meta del indicador: Mantener un índice de calidad ≥ 96% en las evaluaciones post-servicio de campo y taller.
+        </p>
+      </div>
+      <button id="btn-editar-meta" onclick="activarEdicionMeta()" class="text-[#f8fafc] hover:text-black transition-colors" title="Editar meta">
+        <i class="fa-solid fa-pencil"></i>
+      </button>
     </div>
 
     <!-- ── Pestañas principales ── -->
@@ -110,7 +133,7 @@
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <div class="kpi-card">
-        <p class="text-sm font-bold text-slate-700 mb-4">Promedio por Criterio</p>
+        <p class="text-sm font-bold text-slate-700 mb-4">DESEMPEÑO POR CRITERIO DE EVALUACIÓN</p>
         <canvas id="grafica-criterios"></canvas>
       </div>
       <div class="kpi-card">
@@ -127,7 +150,33 @@
             </div>
           </div>
           <canvas id="grafica-tendencia"></canvas>
+          <div id="indicador-tendencia-campo" class="hidden flex-col items-center justify-center py-1">
+            <div style="width: 100%; max-width: 380px; height: 210px;">
+              <canvas id="grafica-gauge-campo"></canvas>
+            </div>
+            <p id="texto-gauge-campo" class="text-lg font-semibold text-slate-700 mt-7 text-center"></p>
+          </div>
         </div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <div class="kpi-card">
+        <p class="text-sm font-bold text-slate-700 mb-4">Servicios Realizados por Categoría</p>
+        <div class="flex justify-center">
+          <div style="width: 100%; max-width: 260px;">
+            <canvas id="grafica-categorias"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <p class="text-sm font-bold text-slate-700 mb-1">Pozos con Menor Evaluación</p>
+        <p class="text-xs text-slate-400 mb-4">Ordenados de menor a mayor promedio en el periodo</p>
+        <div id="ranking-pozos-campo" class="space-y-2"></div>
+      </div>
+      <div class="kpi-card flex flex-col">
+        <p class="text-sm font-bold text-slate-700 mb-1">Racha de Cumplimiento</p>
+        <p class="text-xs text-slate-400 mb-4">Evaluaciones consecutivas en Excelente — periodo activo</p>
+        <div id="racha-campo" class="flex-1 flex flex-col items-center justify-center"></div>
+      </div>
     </div>
     <!-- Modal Detalle de Evaluación -->
     <div id="modal-detalle-evaluacion" class="hidden fixed inset-0 bg-black/40 z-[9999] flex items-center justify-center p-4" onclick="cerrarModalDetalle(event)">
@@ -152,6 +201,12 @@
         <p class="text-sm font-bold text-slate-700">Detalle por Operación</p>
         <i id="icono-detalle-operacion" class="fas fa-chevron-up text-slate-400 text-xs transition-transform"></i>
       </button>
+      <div class="flex gap-1 bg-slate-100 rounded-lg p-1 mb-4 w-fit">
+        <button id="btn-linea-CEM" onclick="cambiarLineaProducto('CEM')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">CEM</button>
+        <button id="btn-linea-CHC" onclick="cambiarLineaProducto('CHC')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">CHC</button>
+        <button id="btn-linea-FCG" onclick="cambiarLineaProducto('FCG')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">FCG</button>
+        <button id="btn-linea-SER" onclick="cambiarLineaProducto('SER')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">SER</button>
+      </div>
       <div id="contenido-detalle-operacion" class="max-h-[520px] overflow-y-auto">
       <table class="w-full text-sm">
         <thead>
@@ -213,7 +268,7 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <div class="kpi-card">
-          <p class="text-sm font-bold text-slate-700 mb-4">Promedio por Criterio (Campo + Taller)</p>
+          <p class="text-sm font-bold text-slate-700 mb-4">DESEMPEÑO POR CRITERIO DE EVALUACIÓN (Campo + Taller)</p>
           <canvas id="grafica-criterios-general"></canvas>
         </div>
         <div class="kpi-card">
@@ -230,6 +285,22 @@
             </div>
           </div>
           <canvas id="grafica-tendencia-general"></canvas>
+          <div id="indicador-tendencia-general" class="hidden flex-col items-center justify-center py-1">
+            <div style="width: 100%; max-width: 380px; height: 210px;">
+              <canvas id="grafica-gauge-general"></canvas>
+            </div>
+            <p id="texto-gauge-general" class="text-lg font-semibold text-slate-700 mt-7 text-center"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-6 mb-8">
+        <div class="kpi-card">
+          <p class="text-sm font-bold text-slate-700 mb-1">Comparativa Campo vs Taller</p>
+          <p class="text-xs text-slate-400 mb-4">Promedio por criterio, lado a lado</p>
+          <div style="height: 320px;">
+            <canvas id="grafica-comparativa-general"></canvas>
+          </div>
         </div>
       </div>
 
@@ -283,7 +354,7 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <div class="kpi-card">
-          <p class="text-sm font-bold text-slate-700 mb-4">Promedio por Criterio</p>
+          <p class="text-sm font-bold text-slate-700 mb-4">DESEMPEÑO POR CRITERIO DE EVALUACIÓN</p>
           <canvas id="grafica-criterios-taller"></canvas>
         </div>
         <div class="kpi-card">
@@ -300,6 +371,20 @@
             </div>
           </div>
           <canvas id="grafica-tendencia-taller"></canvas>
+          <div id="indicador-tendencia-taller" class="hidden flex-col items-center justify-center py-1">
+            <div style="width: 100%; max-width: 380px; height: 210px;">
+              <canvas id="grafica-gauge-taller"></canvas>
+            </div>
+            <p id="texto-gauge-taller" class="text-lg font-semibold text-slate-700 mt-7 text-center"></p>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="kpi-card">
+          <p class="text-sm font-bold text-slate-700 mb-4">Servicios Realizados por Categoría</p>
+          <div class="max-w-xs mx-auto">
+            <canvas id="grafica-categorias-taller"></canvas>
+          </div>
         </div>
       </div>
 
@@ -389,7 +474,7 @@
               <label class="text-xs font-bold text-slate-500 mb-1 block">Sublínea</label>
               <select id="taller-sublinea" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white">
                 <option value="" disabled selected>Selecciona una opción</option>
-                <option value="Apriete">Apriete</option>
+                <option value="Máquina de Torque">Máquina de Torque</option>
                 <option value="Pruebas Hidrostáticas">Pruebas Hidrostáticas</option>
                 <option value="Soldadura">Soldadura</option>
               </select>
@@ -703,9 +788,17 @@
       return valores.reduce((a, b) => a + b, 0) / valores.length;
     }
 
+    function fechaLocalDesde(fechaStr) {
+      if (!fechaStr) return null;
+      const soloFecha = fechaStr.split('T')[0];
+      const [anio, mes, dia] = soloFecha.split('-').map(Number);
+      return new Date(anio, mes - 1, dia);
+    }
+
     function renderKPIs() {
       const cont = document.getElementById('contenedor-kpis');
       const total = operacionesEvaluadas.length;
+
 
       // ── Filtrar operaciones del mes actual ──
       const fechaActual = new Date();
@@ -718,9 +811,10 @@
 
       const operacionesDelMes = operacionesEvaluadas.filter(op => {
         if (!op.created_at) return false;
-        const fechaOp = new Date(op.created_at);
+        const fechaOp = fechaLocalDesde(op.created_at);
         return fechaOp.getMonth() === mesNavegado && fechaOp.getFullYear() === anioNavegado;
       });
+
       operacionesDelMesGlobal = operacionesDelMes;
 
       const evaluacionesDelMes = operacionesDelMes.length;
@@ -729,7 +823,7 @@
       const inicioTrimestre = new Date(anioActual, mesActual - 2, 1);
       const operacionesTrimestre = operacionesEvaluadas.filter(op => {
         if (!op.created_at) return false;
-        const fechaOp = new Date(op.created_at);
+        const fechaOp = fechaLocalDesde(op.created_at);
         return fechaOp >= inicioTrimestre && fechaOp <= fechaActual;
       });
       operacionesTrimestreGlobal = operacionesTrimestre;
@@ -748,7 +842,7 @@
       // ── Filtrar operaciones del año actual ──
       const operacionesAnual = operacionesEvaluadas.filter(op => {
         if (!op.created_at) return false;
-        const fechaOp = new Date(op.created_at);
+        const fechaOp = fechaLocalDesde(op.created_at);
         return fechaOp.getFullYear() === anioActual;
       });
       operacionesAnualGlobal = operacionesAnual;
@@ -790,7 +884,7 @@
       const mesAnteriorFecha = new Date(anioActual, mesActual - 1, 1);
       const operacionesMesAnterior = operacionesEvaluadas.filter(op => {
         if (!op.created_at) return false;
-        const fechaOp = new Date(op.created_at);
+        const fechaOp = fechaLocalDesde(op.created_at);
         return fechaOp.getMonth() === mesAnteriorFecha.getMonth() && fechaOp.getFullYear() === mesAnteriorFecha.getFullYear();
       });
       const promediosMesAnterior = operacionesMesAnterior.map(promedioOperacion).filter(v => v !== null);
@@ -848,7 +942,7 @@
 
         <div class="kpi-card-mini">
           <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">${promedioLabel}</p>
-          <p class="text-lg font-bold text-[#2563eb]" id="valor-promedio">0.00 / 5</p>
+          <p class="text-lg font-bold text-[#2563eb]" id="valor-promedio">0%</p>
           ${tendenciaHtml}
         </div>
 
@@ -874,7 +968,7 @@
         const inicio = performance.now();
         function tick(ahora) {
           const progreso = Math.min((ahora - inicio) / duracion, 1);
-          elProm.textContent = (promedio * progreso).toFixed(2) + ' / 5';
+          elProm.textContent = Math.round((promedio * progreso / 5) * 100) + '%';
           if (progreso < 1) requestAnimationFrame(tick);
         }
         requestAnimationFrame(tick);
@@ -890,6 +984,12 @@
       renderKPIs();
       renderGraficaCriterios();
       renderGraficaTendencia();
+      renderGraficaCategorias();
+      const datasetPeriodoV = vista === 'mes' ? operacionesDelMesGlobal
+        : vista === 'trimestre' ? operacionesTrimestreGlobal
+        : operacionesAnualGlobal;
+      renderRankingPozosCampo(datasetPeriodoV);
+      renderRachaCampo(datasetPeriodoV);
       renderTablaEvaluaciones();
       actualizarBotonesTabs();
     }
@@ -912,12 +1012,214 @@
   <script>
     let chartCriterios = null;
     let chartTendencia = null;
+    let chartCategorias = null;
+
+    const CATEGORIAS_CAMPO = {
+      CEM: 'Cementing',
+      CHC: 'Cased Hole Completions',
+      FCG: 'Flow Control & Gas Lift',
+      SER: 'Servicios'
+    };
+    const COLORES_CATEGORIAS = ['#2563eb', '#f59e0b', '#10b981', '#a855f7', '#ef4444', '#0ea5e9'];
+
+    const pluginTextoCentral = {
+      id: 'textoCentral',
+      afterDatasetsDraw(chart) {
+        if (chart.config.type !== 'pie' || !chart.config._mostrarTotalCentral) return;
+        const { ctx, chartArea: { left, right, top, bottom } } = chart;
+        const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+        const x = (left + right) / 2;
+        const y = (top + bottom) / 2;
+        const radioBase = Math.min(right - left, bottom - top) / 2;
+        const radioCirculo = radioBase * 0.22;
+
+        ctx.save();
+
+        // Círculo de fondo con sombra sutil
+        ctx.beginPath();
+        ctx.arc(x, y, radioCirculo, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = 'rgba(15, 23, 42, 0.18)';
+        ctx.shadowBlur = 12;
+        ctx.shadowOffsetY = 2;
+        ctx.fill();
+        ctx.shadowColor = 'transparent';
+
+        // Borde fino del círculo
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.stroke();
+
+        // Texto: número total (centrado)
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = '800 30px sans-serif';
+        ctx.fillStyle = '#1e293b';
+        ctx.fillText(total, x, y);
+
+        ctx.restore();
+      }
+    };
+
+    let chartGaugeCampo = null;
+
+    const META_PORCENTAJE = 96;
+    const META_VALOR = (META_PORCENTAJE / 100) * 5;
+
+    const pluginLineaMeta = {
+      id: 'lineaMeta',
+      afterDraw(chart) {
+        if (chart.config.type !== 'bar' && chart.config.type !== 'line') return;
+        const { ctx, chartArea: { left, right }, scales: { y } } = chart;
+        const yPix = y.getPixelForValue(META_VALOR);
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.setLineDash([6, 4]);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#ef4444';
+        ctx.moveTo(left, yPix);
+        ctx.lineTo(right, yPix);
+        ctx.stroke();
+
+        ctx.setLineDash([]);
+
+        const texto = `Meta ${META_PORCENTAJE}%`;
+        ctx.font = '700 11px sans-serif';
+        const anchoTexto = ctx.measureText(texto).width;
+        const padX = 6;
+        const padY = 4;
+        const cajaAncho = anchoTexto + padX * 2;
+        const cajaAlto = 16;
+        const cajaX = right - cajaAncho;
+        const cajaY = yPix + 6;
+
+        ctx.fillStyle = '#f1f5f9';
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(cajaX, cajaY, cajaAncho, cajaAlto, 4);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#ef4444';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(texto, right - padX, cajaY + cajaAlto / 2 + 1);
+        ctx.restore();
+      }
+    };
+
+    const pluginSinDatos = {
+      id: 'sinDatos',
+      afterDraw(chart) {
+        if (chart.config.type !== 'line') return;
+        if (!chart.config._mostrarSinDatos) return;
+        const dataset = chart.data.datasets[0];
+        if (!dataset) return;
+        const { ctx, scales: { x }, chartArea: { top } } = chart;
+
+        dataset.data.forEach((valor, i) => {
+          if (valor === null || valor === undefined) {
+            const xPix = x.getPixelForValue(i);
+            const texto = 'Sin datos';
+            ctx.save();
+            ctx.font = '700 10px sans-serif';
+            const anchoTexto = ctx.measureText(texto).width;
+            const padX = 6, padY = 3;
+            const cajaAncho = anchoTexto + padX * 2;
+            const cajaAlto = 16;
+            const cajaX = xPix - cajaAncho / 2;
+            const { bottom } = chart.chartArea;
+            const cajaY = bottom - (bottom - top) * 0.10 - cajaAlto / 2;
+
+            ctx.fillStyle = '#eff6ff';
+            ctx.strokeStyle = '#bfdbfe';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(cajaX, cajaY, cajaAncho, cajaAlto, 4);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#2563eb';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(texto, xPix, cajaY + cajaAlto / 2 + 1);
+            ctx.restore();
+          }
+        });
+      }
+    };
+
+    const pluginTextoGauge = {
+      id: 'textoGauge',
+      afterDraw(chart) {
+        if (chart.config._porcentajeGauge === undefined) return;
+        const { ctx, chartArea: { left, right, bottom } } = chart;
+        const x = (left + right) / 2;
+        const y = bottom - 30;
+        const pct = chart.config._porcentajeGauge;
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = '800 44px sans-serif';
+        ctx.fillStyle = pct >= 90 ? '#10b981' : pct >= 70 ? '#f59e0b' : '#ef4444';
+        ctx.fillText(`${pct.toFixed(0)}%`, x, y);
+        ctx.restore();
+      }
+    };
+
+    function renderIndicadorTendenciaCampo(dataset) {
+      const promediosPorCriterio = CRITERIOS_CALIDAD.map(c => {
+        const valores = dataset.map(op => op.evaluacion_calidad[c.id]).filter(v => v !== null && v !== undefined);
+        return valores.length ? valores.reduce((a,b)=>a+b,0) / valores.length : 0;
+      });
+      const promedioGeneral = promediosPorCriterio.length
+        ? promediosPorCriterio.reduce((a,b)=>a+b,0) / promediosPorCriterio.length
+        : 0;
+      const porcentaje = (promedioGeneral / 5) * 100;
+      const color = porcentaje >= 90 ? '#10b981' : porcentaje >= 70 ? '#f59e0b' : '#ef4444';
+
+      const ctxG = document.getElementById('grafica-gauge-campo').getContext('2d');
+      if (chartGaugeCampo) chartGaugeCampo.destroy();
+      chartGaugeCampo = new Chart(ctxG, {
+        type: 'doughnut',
+        plugins: [pluginTextoGauge],
+        data: {
+          datasets: [{
+            data: [porcentaje, 100 - porcentaje],
+            backgroundColor: [color, '#e2e8f0'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          rotation: -90,
+          circumference: 180,
+          cutout: '68%',
+          layout: { padding: { top: 10 } },
+          plugins: { legend: { display: false }, tooltip: { enabled: false }, datalabels: { display: false } }
+        }
+      });
+      chartGaugeCampo.config._porcentajeGauge = porcentaje;
+      chartGaugeCampo.update();
+
+      const textoEl = document.getElementById('texto-gauge-campo');
+      if (textoEl) textoEl.textContent = `Nivel de cumplimiento`;
+    }
+
+    function clasificarPorJobId(jobId, mapa) {
+      if (!jobId) return 'Sin clasificar';
+      const prefijo = jobId.trim().substring(0, 3).toUpperCase();
+      return mapa[prefijo] || 'Sin clasificar';
+    }
 
     function clavesMesConDatos(operaciones) {
       const claves = new Set();
       operaciones.forEach(op => {
         if (!op.created_at) return;
-        const f = new Date(op.created_at);
+        const f = fechaLocalDesde(op.created_at);
         claves.add(`${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}`);
       });
       return [...claves].sort();
@@ -960,12 +1262,16 @@
         renderKPIs();
         renderGraficaCriterios();
         renderGraficaTendencia();
+        renderGraficaCategorias();
+        renderRankingPozosCampo(operacionesDelMesGlobal);
+        renderRachaCampo(operacionesDelMesGlobal);
         renderTablaEvaluaciones();
       } else if (seccion === 'taller') {
         offsetMesTaller = nuevoOffset;
         renderKPIsTaller();
         renderGraficaCriteriosTaller();
         renderGraficaTendenciaTaller();
+        renderGraficaCategoriasTaller();
         renderTablaEvaluacionesTaller();
       } else {
         offsetMesGeneral = nuevoOffset;
@@ -990,10 +1296,11 @@
         if (!mostrar) return;
         const claves = clavesMesConDatos(operacionesFuente);
         const offsets = claves.map(offsetDeClaveMes).sort((a,b) => a-b);
-        const idx = offsets.indexOf(offset);
+        const hayAnterior = offsets.some(o => o < offset);
+        const haySiguiente = offsets.some(o => o > offset);
 
-        if (btnPrev) btnPrev.disabled = idx <= 0;
-        if (btnNext) btnNext.disabled = idx === -1 || idx >= offsets.length - 1;
+        if (btnPrev) btnPrev.disabled = !hayAnterior;
+        if (btnNext) btnNext.disabled = !haySiguiente;
         [btnPrev, btnNext].forEach(b => {
           if (!b) return;
           b.classList.toggle('opacity-30', b.disabled);
@@ -1017,7 +1324,7 @@
 
       const grupos = new Map();
       ordenCronologico.forEach(op => {
-        const fecha = new Date(op.created_at);
+        const fecha = fechaLocalDesde(op.created_at);
         const clave = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
         if (!grupos.has(clave)) grupos.set(clave, []);
         grupos.get(clave).push(op);
@@ -1050,7 +1357,7 @@
       const promedios = clavesOrdenadas.map(clave => {
         const ops = grupos.get(clave) || [];
         const valores = ops.map(promedioOperacion).filter(v => v !== null && v !== undefined);
-        return valores.length ? valores.reduce((a,b)=>a+b,0) / valores.length : 0;
+        return valores.length ? valores.reduce((a,b)=>a+b,0) / valores.length : null;
       });
 
       return { etiquetas, promedios };
@@ -1070,8 +1377,9 @@
 
       const ctx1 = document.getElementById('grafica-criterios').getContext('2d');
       if (chartCriterios) chartCriterios.destroy();
-      chartCriterios = new Chart(ctx1, {
+            chartCriterios = new Chart(ctx1, {
         type: 'bar',
+        plugins: [pluginLineaMeta],
         data: {
           labels: CRITERIOS_CALIDAD.map(c => c.nombre),
           datasets: [{
@@ -1080,13 +1388,158 @@
             backgroundColor: '#2563eb'
           }]
         },
-        options: { scales: { y: { min: 0, max: 5 } }, plugins: { legend: { display: false } } }
+                options: {
+          scales: {
+            y: {
+              min: 0,
+              max: 5,
+              ticks: {
+                stepSize: 0.5,
+                callback: (valor) => `${Math.round((valor / 5) * 100)}%`
+              }
+            }
+          },
+          plugins: { legend: { display: false }, datalabels: { display: false } }
+        }
       });
+    }
+
+    function renderRankingPozosCampo(dataset) {
+      const cont = document.getElementById('ranking-pozos-campo');
+      if (!cont) return;
+
+      const conProm = dataset
+        .map(op => ({ op, prom: promedioOperacion(op) }))
+        .filter(x => x.prom !== null)
+        .sort((a, b) => a.prom - b.prom)
+        .slice(0, 4);
+
+      if (!conProm.length) {
+        cont.innerHTML = `<p class="text-sm text-slate-400 text-center py-6">Sin evaluaciones en este periodo.</p>`;
+        return;
+      }
+
+      cont.innerHTML = conProm.map(({ op, prom }) => {
+        const color = prom >= 4.5 ? '#22c55e' : prom >= 3.5 ? '#84cc16' : prom >= 2.5 ? '#eab308' : prom >= 1.5 ? '#f97316' : '#ef4444';
+        return `
+          <div onclick="abrirModalDetalle('${op.id}')" class="flex items-center justify-between px-3 py-2 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer transition">
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-slate-700 truncate">${op.nombre_pozo || op.job_id || '—'}</p>
+              <p class="text-xs text-slate-400 truncate">${op.cliente || '—'} · ${formatFecha(op.created_at)}</p>
+            </div>
+            <span class="text-sm font-bold px-2 py-1 rounded-md flex-shrink-0 ml-3" style="color:${color}; background:${color}1a;">
+              ${prom.toFixed(2)} / 5
+            </span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderRachaCampo(dataset) {
+      const cont = document.getElementById('racha-campo');
+      if (!cont) return;
+
+      // Ordenamos las operaciones del PERIODO ACTIVO de más reciente a más antiguo
+      const historico = [...dataset]
+        .filter(op => promedioOperacion(op) !== null)
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+      let racha = 0;
+      for (const op of historico) {
+        const prom = promedioOperacion(op);
+        if (prom >= 4.5) racha++;
+        else break;
+      }
+
+      if (!historico.length) {
+        cont.innerHTML = `<p class="text-sm text-slate-400 text-center">Sin evaluaciones en este periodo.</p>`;
+        return;
+      }
+
+      if (racha === 0) {
+        cont.innerHTML = `
+          <div class="w-24 h-24 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #fef3c7, #fde68a);">
+            <i class="fas fa-triangle-exclamation text-3xl text-amber-500"></i>
+          </div>
+          <p class="text-sm font-bold text-amber-600 mt-4 text-center">La racha se rompió</p>
+          <p class="text-xs text-slate-400 mt-1 text-center max-w-[220px]">La última evaluación no alcanzó nivel Excelente</p>
+        `;
+        return;
+      }
+
+      const nivelTexto = racha >= 10 ? 'Racha excepcional' : racha >= 5 ? 'Racha sólida' : 'En construcción';
+      const nivelColor = racha >= 10 ? 'text-emerald-600' : racha >= 5 ? 'text-blue-600' : 'text-slate-500';
+
+      cont.innerHTML = `
+        <div class="relative w-28 h-28 rounded-full flex items-center justify-center shadow-lg" style="background: linear-gradient(135deg, #f97316, #ef4444); box-shadow: 0 8px 20px -4px rgba(239,68,68,0.4);">
+          <i class="fas fa-fire text-lg text-white/70 absolute top-3"></i>
+          <span class="text-4xl font-black text-white">${racha}</span>
+        </div>
+        <p class="text-xs font-bold uppercase tracking-widest ${nivelColor} mt-4">${nivelTexto}</p>
+        <p class="text-xs text-slate-400 mt-1 text-center max-w-[200px]">evaluaciones consecutivas en Excelente</p>
+      `;
+    }
+
+    function renderGraficaCategorias() {
+      const dataset = vistaCriterios === 'mes' ? operacionesDelMesGlobal
+        : vistaCriterios === 'trimestre' ? operacionesTrimestreGlobal
+        : operacionesAnualGlobal;
+
+      const conteos = {};
+      dataset.forEach(op => {
+        const cat = clasificarPorJobId(op.job_id, CATEGORIAS_CAMPO);
+        conteos[cat] = (conteos[cat] || 0) + 1;
+      });
+
+      const etiquetas = Object.keys(conteos);
+      const valores = Object.values(conteos);
+      const total = valores.reduce((a, b) => a + b, 0);
+
+      const ctx3 = document.getElementById('grafica-categorias').getContext('2d');
+      if (chartCategorias) chartCategorias.destroy();
+      chartCategorias = new Chart(ctx3, {
+        type: 'pie',
+        plugins: [pluginTextoCentral],
+        data: {
+          labels: etiquetas,
+          datasets: [{ data: valores, backgroundColor: COLORES_CATEGORIAS }]
+        },
+        options: {
+          plugins: {
+            legend: { position: 'bottom' },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const valor = ctx.raw;
+                  const pct = total ? ((valor / total) * 100).toFixed(1) : 0;
+                  return `${ctx.label}: ${valor} (${pct}%)`;
+                }
+              }
+            },
+            datalabels: {
+              color: '#fff',
+              font: { weight: '700', size: 13 },
+              formatter: (valor) => {
+                const pct = total ? ((valor / total) * 100).toFixed(1) : 0;
+                return pct > 4 ? `${pct}%` : '';
+              }
+            }
+          }
+        }
+      });
+      chartCategorias.config._mostrarTotalCentral = true;
+      chartCategorias.update();
     }
 
     function renderGraficas() {
       renderGraficaCriterios();
       renderGraficaTendencia();
+      renderGraficaCategorias();
+      const datasetPeriodo = vistaCriterios === 'mes' ? operacionesDelMesGlobal
+        : vistaCriterios === 'trimestre' ? operacionesTrimestreGlobal
+        : operacionesAnualGlobal;
+      renderRankingPozosCampo(datasetPeriodo);
+      renderRachaCampo(datasetPeriodo);
       actualizarBotonesTabs();
     }
 
@@ -1098,30 +1551,73 @@
       const tituloEl = document.getElementById('titulo-tendencia');
       if (tituloEl) {
         tituloEl.textContent = vistaTendencia === 'mes'
-          ? 'Evolución del Promedio — Mes en Curso'
+          ? 'DESEMPEÑO DE LAS OPERACIONES — MENSUAL'
           : vistaTendencia === 'trimestre'
-          ? 'Evolución del Promedio — Trimestre en Curso'
-          : 'Evolución del Promedio — Año en Curso';
+          ? 'DESEMPEÑO DE LAS OPERACIONES — TRIMESTRE'
+          : 'DESEMPEÑO DE LAS OPERACIONES — ANUAL';
       }
+
+      const contCanvas = document.getElementById('grafica-tendencia');
+      const contGauge = document.getElementById('indicador-tendencia-campo');
+
+      if (vistaTendencia === 'mes') {
+        if (chartTendencia) {
+          chartTendencia.destroy();
+          chartTendencia = null;
+        }
+        contCanvas.classList.add('hidden');
+        contCanvas.style.display = 'none';
+        contGauge.classList.remove('hidden');
+        contGauge.classList.add('flex');
+        contGauge.style.display = 'flex';
+        renderIndicadorTendenciaCampo(dataset);
+        return;
+      }
+
+      if (chartGaugeCampo) {
+        chartGaugeCampo.destroy();
+        chartGaugeCampo = null;
+      }
+      contGauge.classList.add('hidden');
+      contGauge.classList.remove('flex');
+      contGauge.style.display = 'none';
+      contCanvas.classList.remove('hidden');
+      contCanvas.style.display = 'block';
+
       const { etiquetas: etiquetasFecha, promedios: promediosOperacion } = agruparPorMesSiAnual(dataset, vistaTendencia);
 
-      const ctx2 = document.getElementById('grafica-tendencia').getContext('2d');
+      const ctx2 = contCanvas.getContext('2d');
       if (chartTendencia) chartTendencia.destroy();
       chartTendencia = new Chart(ctx2, {
         type: 'line',
+        plugins: [pluginLineaMeta, pluginSinDatos],
         data: {
           labels: etiquetasFecha,
           datasets: [{
-            label: 'Promedio por operación',
+            label: 'ÍNDICE DE DESEMPEÑO (%)',
             data: promediosOperacion,
             borderColor: '#2563eb',
             backgroundColor: 'rgba(37,99,235,0.1)',
             fill: true,
-            tension: 0.3
+            tension: 0.3,
+            spanGaps: vistaTendencia !== 'trimestre'
           }]
         },
-        options: { scales: { y: { min: 0, max: 5 } } }
+        options: {
+          scales: {
+            y: {
+              min: 0,
+              max: 5,
+              ticks: {
+                stepSize: 0.5,
+                callback: (valor) => `${Math.round((valor / 5) * 100)}%`
+              }
+            }
+          },
+          plugins: { datalabels: { display: false } }
+        }
       });
+      chartTendencia.config._mostrarSinDatos = true;
     }
 
     function actualizarBotonesTabs() {
@@ -1174,10 +1670,29 @@
   </script>
 
   <script>
+    let lineaProductoActiva = 'CEM';
+
+    function cambiarLineaProducto(linea) {
+      lineaProductoActiva = linea;
+      ['CEM', 'CHC', 'FCG', 'SER'].forEach(l => {
+        document.getElementById(`btn-linea-${l}`).classList.toggle('active', l === linea);
+      });
+      renderTablaEvaluaciones();
+    }
+
     function renderTablaEvaluaciones() {
-      const dataset = vistaTabla === 'mes' ? operacionesDelMesGlobal
+      const datasetCompleto = vistaTabla === 'mes' ? operacionesDelMesGlobal
         : vistaTabla === 'trimestre' ? operacionesTrimestreGlobal
         : operacionesAnualGlobal;
+
+      const dataset = datasetCompleto
+        .filter(op => String(op.job_id || '').startsWith(lineaProductoActiva))
+        .sort((a, b) => {
+          const numA = parseInt(String(a.job_id || '').replace(/\D/g, ''), 10) || 0;
+          const numB = parseInt(String(b.job_id || '').replace(/\D/g, ''), 10) || 0;
+          return numB - numA;
+        });
+
       const tbody = document.getElementById('tabla-evaluaciones-body');
       tbody.innerHTML = dataset.map(op => {
         const prom = promedioOperacion(op);
@@ -1245,6 +1760,7 @@
       renderKPIsTaller();
       renderGraficaCriteriosTaller();
       renderGraficaTendenciaTaller();
+      renderGraficaCategoriasTaller();
       renderTablaEvaluacionesTaller();
     }
 
@@ -1262,7 +1778,7 @@
 
       const operacionesMes = operacionesTaller.filter(op => {
         if (!op.created_at) return false;
-        const f = new Date(op.created_at);
+        const f = fechaLocalDesde(op.created_at);
         return f.getMonth() === mesNavegadoTaller && f.getFullYear() === anioNavegadoTaller;
       });
       operacionesTallerMesGlobal = operacionesMes;
@@ -1270,14 +1786,14 @@
       const inicioTrimestre = new Date(anioActual, mesActual - 2, 1);
       const operacionesTrimestre = operacionesTaller.filter(op => {
         if (!op.created_at) return false;
-        const fechaOp = new Date(op.created_at);
+        const fechaOp = fechaLocalDesde(op.created_at);
         return fechaOp >= inicioTrimestre && fechaOp <= fechaActual;
       });
       operacionesTallerTrimestreGlobal = operacionesTrimestre;
 
       const operacionesAnual = operacionesTaller.filter(op => {
         if (!op.created_at) return false;
-        return new Date(op.created_at).getFullYear() === anioActual;
+        return fechaLocalDesde(op.created_at).getFullYear() === anioActual;
       });
       operacionesTallerAnualGlobal = operacionesAnual;
 
@@ -1329,7 +1845,7 @@
         </div>
         <div class="kpi-card-mini">
           <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">${promedioLabel}</p>
-          <p class="text-3xl font-black text-[#2563eb]">${promedio.toFixed(2)} / 5</p>
+          <p class="text-3xl font-black text-[#2563eb]">${Math.round((promedio / 5) * 100)}%</p>
         </div>
         <div class="kpi-card-mini">
           <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Criterios Bajos (≤3)</p>
@@ -1340,6 +1856,59 @@
           <p class="text-lg font-bold text-slate-800">${NIVEL_TEXTO[Math.round(promedio) - 1] || '—'}</p>
         </div>
       `;
+    }
+
+    let chartCategoriasTaller = null;
+
+    function renderGraficaCategoriasTaller() {
+      const dataset = vistaCriteriosTaller === 'mes' ? operacionesTallerMesGlobal
+        : vistaCriteriosTaller === 'trimestre' ? operacionesTallerTrimestreGlobal
+        : operacionesTallerAnualGlobal;
+
+      const conteos = {};
+      dataset.forEach(op => {
+        const cat = op.sublinea || 'Sin clasificar';
+        conteos[cat] = (conteos[cat] || 0) + 1;
+      });
+
+      const etiquetas = Object.keys(conteos);
+      const valores = Object.values(conteos);
+      const total = valores.reduce((a, b) => a + b, 0);
+
+      const ctxCat = document.getElementById('grafica-categorias-taller').getContext('2d');
+      if (chartCategoriasTaller) chartCategoriasTaller.destroy();
+      chartCategoriasTaller = new Chart(ctxCat, {
+        type: 'pie',
+        plugins: [pluginTextoCentral],
+        data: {
+          labels: etiquetas,
+          datasets: [{ data: valores, backgroundColor: COLORES_CATEGORIAS }]
+        },
+        options: {
+          plugins: {
+            legend: { position: 'bottom' },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const valor = ctx.raw;
+                  const pct = total ? ((valor / total) * 100).toFixed(1) : 0;
+                  return `${ctx.label}: ${valor} (${pct}%)`;
+                }
+              }
+            },
+            datalabels: {
+              color: '#fff',
+              font: { weight: '700', size: 13 },
+              formatter: (valor) => {
+                const pct = total ? ((valor / total) * 100).toFixed(1) : 0;
+                return pct > 4 ? `${pct}%` : '';
+              }
+            }
+          }
+        }
+      });
+      chartCategoriasTaller.config._mostrarTotalCentral = true;
+      chartCategoriasTaller.update();
     }
 
     function renderGraficaCriteriosTaller() {
@@ -1354,14 +1923,69 @@
 
       const ctx = document.getElementById('grafica-criterios-taller').getContext('2d');
       if (chartCriteriosTaller) chartCriteriosTaller.destroy();
-      chartCriteriosTaller = new Chart(ctx, {
+            chartCriteriosTaller = new Chart(ctx, {
         type: 'bar',
+        plugins: [pluginLineaMeta],
         data: {
           labels: CRITERIOS_CALIDAD.map(c => c.nombre),
           datasets: [{ label: 'Promedio', data: promedios, backgroundColor: '#2563eb' }]
         },
-        options: { scales: { y: { min: 0, max: 5 } }, plugins: { legend: { display: false } } }
+                options: {
+          scales: {
+            y: {
+              min: 0,
+              max: 5,
+              ticks: {
+                stepSize: 0.5,
+                callback: (valor) => `${Math.round((valor / 5) * 100)}%`
+              }
+            }
+          },
+          plugins: { legend: { display: false }, datalabels: { display: false } }
+        }
       });
+    }
+
+    let chartGaugeTaller = null;
+
+    function renderIndicadorTendenciaTaller(dataset) {
+      const promediosPorCriterio = CRITERIOS_CALIDAD.map(c => {
+        const valores = dataset.map(op => op.evaluacion_calidad[c.id]).filter(v => v !== null && v !== undefined);
+        return valores.length ? valores.reduce((a,b)=>a+b,0) / valores.length : 0;
+      });
+      const promedioGeneral = promediosPorCriterio.length
+        ? promediosPorCriterio.reduce((a,b)=>a+b,0) / promediosPorCriterio.length
+        : 0;
+      const porcentaje = (promedioGeneral / 5) * 100;
+      const color = porcentaje >= 90 ? '#10b981' : porcentaje >= 70 ? '#f59e0b' : '#ef4444';
+
+      const ctxG = document.getElementById('grafica-gauge-taller').getContext('2d');
+      if (chartGaugeTaller) chartGaugeTaller.destroy();
+      chartGaugeTaller = new Chart(ctxG, {
+        type: 'doughnut',
+        plugins: [pluginTextoGauge],
+        data: {
+          datasets: [{
+            data: [porcentaje, 100 - porcentaje],
+            backgroundColor: [color, '#e2e8f0'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          rotation: -90,
+          circumference: 180,
+          cutout: '68%',
+          layout: { padding: { top: 10 } },
+          plugins: { legend: { display: false }, tooltip: { enabled: false }, datalabels: { display: false } }
+        }
+      });
+      chartGaugeTaller.config._porcentajeGauge = porcentaje;
+      chartGaugeTaller.update();
+
+      const textoEl = document.getElementById('texto-gauge-taller');
+      if (textoEl) textoEl.textContent = `Nivel de cumplimiento`;
     }
 
     function renderGraficaTendenciaTaller() {
@@ -1372,37 +1996,74 @@
       const tituloEl = document.getElementById('titulo-tendencia-taller');
       if (tituloEl) {
         tituloEl.textContent = vistaTendenciaTaller === 'mes'
-          ? 'Evolución del Promedio — Mes en Curso'
+          ? 'DESEMPEÑO DE LAS OPERACIONES — MENSUAL'
           : vistaTendenciaTaller === 'trimestre'
-          ? 'Evolución del Promedio — Trimestre en Curso'
-          : 'Evolución del Promedio — Año en Curso';
+          ? 'DESEMPEÑO DE LAS OPERACIONES — TRIMESTRE'
+          : 'DESEMPEÑO DE LAS OPERACIONES — ANUAL';
       }
+
+      const contCanvasT = document.getElementById('grafica-tendencia-taller');
+      const contGaugeT = document.getElementById('indicador-tendencia-taller');
+
+      if (vistaTendenciaTaller === 'mes') {
+        if (chartTendenciaTaller) { chartTendenciaTaller.destroy(); chartTendenciaTaller = null; }
+        contCanvasT.classList.add('hidden');
+        contCanvasT.style.display = 'none';
+        contGaugeT.classList.remove('hidden');
+        contGaugeT.classList.add('flex');
+        contGaugeT.style.display = 'flex';
+        renderIndicadorTendenciaTaller(dataset);
+        return;
+      }
+
+      if (chartGaugeTaller) { chartGaugeTaller.destroy(); chartGaugeTaller = null; }
+      contGaugeT.classList.add('hidden');
+      contGaugeT.classList.remove('flex');
+      contGaugeT.style.display = 'none';
+      contCanvasT.classList.remove('hidden');
+      contCanvasT.style.display = 'block';
 
       const { etiquetas, promedios } = agruparPorMesSiAnual(dataset, vistaTendenciaTaller);
 
-      const ctx = document.getElementById('grafica-tendencia-taller').getContext('2d');
+      const ctx = contCanvasT.getContext('2d');
       if (chartTendenciaTaller) chartTendenciaTaller.destroy();
       chartTendenciaTaller = new Chart(ctx, {
         type: 'line',
+        plugins: [pluginLineaMeta, pluginSinDatos],
         data: {
           labels: etiquetas,
           datasets: [{
-            label: 'Promedio por operación',
+            label: 'ÍNDICE DE DESEMPEÑO (%)',
             data: promedios,
             borderColor: '#2563eb',
             backgroundColor: 'rgba(37,99,235,0.1)',
             fill: true,
-            tension: 0.3
+            tension: 0.3,
+            spanGaps: vistaTendenciaTaller !== 'trimestre'
           }]
         },
-        options: { scales: { y: { min: 0, max: 5 } } }
+        options: {
+          scales: {
+            y: {
+              min: 0,
+              max: 5,
+              ticks: {
+                stepSize: 0.5,
+                callback: (valor) => `${Math.round((valor / 5) * 100)}%`
+              }
+            }
+          },
+          plugins: { datalabels: { display: false } }
+        }
       });
+      chartTendenciaTaller.config._mostrarSinDatos = true;
     }
 
     function renderTablaEvaluacionesTaller() {
-      const dataset = vistaTablaTaller === 'mes' ? operacionesTallerMesGlobal
+      const dataset = (vistaTablaTaller === 'mes' ? operacionesTallerMesGlobal
         : vistaTablaTaller === 'trimestre' ? operacionesTallerTrimestreGlobal
-        : operacionesTallerAnualGlobal;
+        : operacionesTallerAnualGlobal
+      ).slice().sort((a, b) => (b.job_id || 0) - (a.job_id || 0));
 
       const tbody = document.getElementById('tabla-evaluaciones-taller-body');
       tbody.innerHTML = dataset.map(op => {
@@ -1445,6 +2106,7 @@
       renderKPIsTaller();
       renderGraficaCriteriosTaller();
       renderGraficaTendenciaTaller();
+      renderGraficaCategoriasTaller();
       renderTablaEvaluacionesTaller();
       actualizarBotonesTabsTaller();
     }
@@ -1617,7 +2279,7 @@
       document.getElementById('taller-servicio').value = op.servicio_proporcionado || '';
       document.getElementById('taller-sublinea').value = op.sublinea || '';
       document.getElementById('taller-job-id').value = op.job_id || '';
-      document.getElementById('taller-fecha').value = new Date(op.created_at).toISOString().split('T')[0];
+      document.getElementById('taller-fecha').value = op.created_at.split('T')[0];
       document.getElementById('taller-observaciones').value = op.observaciones || '';
       document.getElementById('taller-pdf-nombre').textContent = op.pdf_url ? 'Ya existe un PDF adjunto (sube uno nuevo para reemplazarlo)' : '';
 
@@ -1767,6 +2429,47 @@
     let offsetMesGeneral = 0;
     let chartCriteriosGeneral = null;
     let chartTendenciaGeneral = null;
+    let chartGaugeGeneral = null;
+
+    function renderIndicadorTendenciaGeneral(dataset) {
+      const promediosPorCriterio = CRITERIOS_CALIDAD.map(c => {
+        const valores = dataset.map(op => op.evaluacion_calidad[c.id]).filter(v => v !== null && v !== undefined);
+        return valores.length ? valores.reduce((a,b)=>a+b,0) / valores.length : 0;
+      });
+      const promedioGeneral = promediosPorCriterio.length
+        ? promediosPorCriterio.reduce((a,b)=>a+b,0) / promediosPorCriterio.length
+        : 0;
+      const porcentaje = (promedioGeneral / 5) * 100;
+      const color = porcentaje >= 90 ? '#10b981' : porcentaje >= 70 ? '#f59e0b' : '#ef4444';
+
+      const ctxG = document.getElementById('grafica-gauge-general').getContext('2d');
+      if (chartGaugeGeneral) chartGaugeGeneral.destroy();
+      chartGaugeGeneral = new Chart(ctxG, {
+        type: 'doughnut',
+        plugins: [pluginTextoGauge],
+        data: {
+          datasets: [{
+            data: [porcentaje, 100 - porcentaje],
+            backgroundColor: [color, '#e2e8f0'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          rotation: -90,
+          circumference: 180,
+          cutout: '68%',
+          layout: { padding: { top: 10 } },
+          plugins: { legend: { display: false }, tooltip: { enabled: false }, datalabels: { display: false } }
+        }
+      });
+      chartGaugeGeneral.config._porcentajeGauge = porcentaje;
+      chartGaugeGeneral.update();
+
+      const textoEl = document.getElementById('texto-gauge-general');
+      if (textoEl) textoEl.textContent = `Nivel de cumplimiento`;
+    }
 
     function obtenerDatasetPorVista(operaciones, vista) {
       const fechaActual = new Date();
@@ -1779,7 +2482,7 @@
         const anioNavegadoGeneral = fechaMesNavegadoGeneral.getFullYear();
         return operaciones.filter(op => {
           if (!op.created_at) return false;
-          const f = new Date(op.created_at);
+          const f = fechaLocalDesde(op.created_at);
           return f.getMonth() === mesNavegadoGeneral && f.getFullYear() === anioNavegadoGeneral;
         });
       }
@@ -1787,19 +2490,64 @@
         const inicioTrimestre = new Date(anioActual, mesActual - 2, 1);
         return operaciones.filter(op => {
           if (!op.created_at) return false;
-          const f = new Date(op.created_at);
+          const f = fechaLocalDesde(op.created_at);
           return f >= inicioTrimestre && f <= fechaActual;
         });
       }
       return operaciones.filter(op => {
         if (!op.created_at) return false;
-        return new Date(op.created_at).getFullYear() === anioActual;
+        return fechaLocalDesde(op.created_at).getFullYear() === anioActual;
       });
     }
 
     function promedioDeLista(lista) {
       const vals = lista.map(promedioOperacion).filter(v => v !== null);
       return vals.length ? vals.reduce((a,b) => a+b, 0) / vals.length : 0;
+    }
+
+    let chartComparativaGeneral = null;
+
+    function renderComparativaGeneral(campo, taller) {
+      const promediosCampo = CRITERIOS_CALIDAD.map(c => {
+        const valores = campo.map(op => op.evaluacion_calidad[c.id]).filter(v => v !== null && v !== undefined);
+        return valores.length ? valores.reduce((a,b) => a+b, 0) / valores.length : 0;
+      });
+      const promediosTaller = CRITERIOS_CALIDAD.map(c => {
+        const valores = taller.map(op => op.evaluacion_calidad[c.id]).filter(v => v !== null && v !== undefined);
+        return valores.length ? valores.reduce((a,b) => a+b, 0) / valores.length : 0;
+      });
+
+      const ctxComp = document.getElementById('grafica-comparativa-general').getContext('2d');
+      if (chartComparativaGeneral) chartComparativaGeneral.destroy();
+      chartComparativaGeneral = new Chart(ctxComp, {
+        type: 'bar',
+        plugins: [pluginLineaMeta],
+        data: {
+          labels: CRITERIOS_CALIDAD.map(c => c.nombre),
+          datasets: [
+            { label: 'Servicio en Campo', data: promediosCampo, backgroundColor: '#2563eb', borderRadius: 4 },
+            { label: 'Servicio en Taller', data: promediosTaller, backgroundColor: '#f59e0b', borderRadius: 4 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              min: 0,
+              max: 5,
+              ticks: {
+                stepSize: 0.5,
+                callback: (valor) => `${Math.round((valor / 5) * 100)}%`
+              }
+            }
+          },
+          plugins: {
+            legend: { position: 'bottom' },
+            datalabels: { display: false }
+          }
+        }
+      });
     }
 
     function renderGeneral() {
@@ -1813,11 +2561,13 @@
       const promTaller = promedioDeLista(taller);
       const promCombinado = promedioDeLista(combinado);
 
-      document.getElementById('gral-promedio-campo').textContent = campo.length ? `${promCampo.toFixed(2)} / 5` : '—';
+      renderComparativaGeneral(campo, taller);
+
+      document.getElementById('gral-promedio-campo').textContent = campo.length ? `${Math.round((promCampo / 5) * 100)}%` : '—';
       document.getElementById('gral-cantidad-campo').textContent = `${campo.length} evaluación(es)`;
-      document.getElementById('gral-promedio-taller').textContent = taller.length ? `${promTaller.toFixed(2)} / 5` : '—';
+      document.getElementById('gral-promedio-taller').textContent = taller.length ? `${Math.round((promTaller / 5) * 100)}%` : '—';
       document.getElementById('gral-cantidad-taller').textContent = `${taller.length} evaluación(es)`;
-      document.getElementById('gral-promedio-combinado').textContent = combinado.length ? `${promCombinado.toFixed(2)} / 5` : '—';
+      document.getElementById('gral-promedio-combinado').textContent = combinado.length ? `${Math.round((promCombinado / 5) * 100)}%` : '—';
       document.getElementById('gral-cantidad-combinado').textContent = `${combinado.length} evaluación(es)`;
 
       const bajos = combinado.reduce((acc, op) => {
@@ -1841,7 +2591,7 @@
         </div>
         <div class="kpi-card-mini">
           <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Promedio Combinado</p>
-          <p class="text-3xl font-black text-[#2563eb]">${promCombinado.toFixed(2)} / 5</p>
+          <p class="text-3xl font-black text-[#2563eb]">${Math.round((promCombinado / 5) * 100)}%</p>
         </div>
         <div class="kpi-card-mini">
           <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Criterios Bajos (≤3)</p>
@@ -1859,43 +2609,103 @@
       });
       const ctxC = document.getElementById('grafica-criterios-general').getContext('2d');
       if (chartCriteriosGeneral) chartCriteriosGeneral.destroy();
-      chartCriteriosGeneral = new Chart(ctxC, {
+            chartCriteriosGeneral = new Chart(ctxC, {
         type: 'bar',
+        plugins: [pluginLineaMeta],
         data: {
           labels: CRITERIOS_CALIDAD.map(c => c.nombre),
           datasets: [{ label: 'Promedio', data: promediosCriterios, backgroundColor: '#2563eb' }]
         },
-        options: { scales: { y: { min: 0, max: 5 } }, plugins: { legend: { display: false } } }
+                options: {
+          scales: {
+            y: {
+              min: 0,
+              max: 5,
+              ticks: {
+                stepSize: 0.5,
+                callback: (valor) => `${Math.round((valor / 5) * 100)}%`
+              }
+            }
+          },
+          plugins: { legend: { display: false }, datalabels: { display: false } }
+        }
       });
 
       const tituloEl = document.getElementById('titulo-tendencia-general');
       if (tituloEl) {
         tituloEl.textContent = vistaGeneral === 'mes'
-          ? 'Evolución del Promedio — Mes en Curso'
+          ? 'DESEMPEÑO DE LAS OPERACIONES — MENSUAL'
           : vistaGeneral === 'trimestre'
-          ? 'Evolución del Promedio — Trimestre en Curso'
-          : 'Evolución del Promedio — Año en Curso';
+          ? 'DESEMPEÑO DE LAS OPERACIONES — TRIMESTRE'
+          : 'DESEMPEÑO DE LAS OPERACIONES — ANUAL';
       }
-      const { etiquetas, promedios: promediosOrden } = agruparPorMesSiAnual(combinado, vistaGeneral);
-      const ctxT = document.getElementById('grafica-tendencia-general').getContext('2d');
-      if (chartTendenciaGeneral) chartTendenciaGeneral.destroy();
-      chartTendenciaGeneral = new Chart(ctxT, {
-        type: 'line',
-        data: {
-          labels: etiquetas,
-          datasets: [{
-            label: 'Promedio por operación',
-            data: promediosOrden,
-            borderColor: '#2563eb',
-            backgroundColor: 'rgba(37,99,235,0.1)',
-            fill: true,
-            tension: 0.3
-          }]
-        },
-        options: { scales: { y: { min: 0, max: 5 } } }
-      });
 
-      const ordenDesc = [...combinado].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+      const contCanvasG = document.getElementById('grafica-tendencia-general');
+      const contGaugeG = document.getElementById('indicador-tendencia-general');
+
+      if (vistaGeneral === 'mes') {
+        if (chartTendenciaGeneral) { chartTendenciaGeneral.destroy(); chartTendenciaGeneral = null; }
+        contCanvasG.classList.add('hidden');
+        contCanvasG.style.display = 'none';
+        contGaugeG.classList.remove('hidden');
+        contGaugeG.classList.add('flex');
+        contGaugeG.style.display = 'flex';
+        renderIndicadorTendenciaGeneral(combinado);
+      } else {
+        if (chartGaugeGeneral) { chartGaugeGeneral.destroy(); chartGaugeGeneral = null; }
+        contGaugeG.classList.add('hidden');
+        contGaugeG.classList.remove('flex');
+        contGaugeG.style.display = 'none';
+        contCanvasG.classList.remove('hidden');
+        contCanvasG.style.display = 'block';
+
+        const { etiquetas, promedios: promediosOrden } = agruparPorMesSiAnual(combinado, vistaGeneral);
+        const ctxT = contCanvasG.getContext('2d');
+        if (chartTendenciaGeneral) chartTendenciaGeneral.destroy();
+        chartTendenciaGeneral = new Chart(ctxT, {
+          type: 'line',
+          plugins: [pluginLineaMeta, pluginSinDatos],
+          data: {
+            labels: etiquetas,
+            datasets: [{
+              label: 'ÍNDICE DE DESEMPEÑO (%)',
+              data: promediosOrden,
+              borderColor: '#2563eb',
+              backgroundColor: 'rgba(37,99,235,0.1)',
+              fill: true,
+              tension: 0.3,
+              spanGaps: vistaGeneral !== 'trimestre'
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                min: 0,
+                max: 5,
+                ticks: {
+                  stepSize: 0.5,
+                  callback: (valor) => `${Math.round((valor / 5) * 100)}%`
+                }
+              }
+            },
+            plugins: { datalabels: { display: false } }
+          }
+        });
+        chartTendenciaGeneral.config._mostrarSinDatos = true;
+      }
+
+      const ordenDesc = [...combinado].sort((a,b) => {
+        const idA = String(a.job_id || '');
+        const idB = String(b.job_id || '');
+        const numA = parseFloat(idA);
+        const numB = parseFloat(idB);
+        const esNumA = !isNaN(numA) && /^\d+$/.test(idA);
+        const esNumB = !isNaN(numB) && /^\d+$/.test(idB);
+        if (esNumA && esNumB) return numB - numA;
+        if (esNumA) return -1;
+        if (esNumB) return 1;
+        return idB.localeCompare(idA);
+      });
       const tbody = document.getElementById('tabla-evaluaciones-general-body');
       tbody.innerHTML = ordenDesc.map(op => {
         const prom = promedioOperacion(op);
@@ -1934,6 +2744,99 @@
       icono.classList.toggle('fa-chevron-up');
       icono.classList.toggle('fa-chevron-down');
     }
+
+    // ── Edición de la Meta del indicador (guardado en Supabase) ──
+    function activarEdicionMeta() {
+      const p = document.getElementById('texto-meta-indicador');
+      const btnEditar = document.getElementById('btn-editar-meta');
+      const textoActual = p.textContent.trim();
+
+      const input = document.createElement('textarea');
+      input.id = 'input-meta-indicador';
+      input.value = textoActual;
+      input.rows = 2;
+      input.className = 'text-sm font-semibold text-emerald-800 bg-white border border-emerald-300 rounded px-2 py-1 w-[420px]';
+
+      p.replaceWith(input);
+      btnEditar.classList.add('hidden');
+
+      const btnGuardar = document.createElement('button');
+      btnGuardar.id = 'btn-guardar-meta';
+      btnGuardar.textContent = '✅';
+      btnGuardar.title = 'Guardar';
+      btnGuardar.className = 'ml-2 hover:opacity-70';
+      btnGuardar.onclick = guardarMeta;
+
+      const btnCancelar = document.createElement('button');
+      btnCancelar.id = 'btn-cancelar-meta';
+      btnCancelar.textContent = '❌';
+      btnCancelar.title = 'Cancelar';
+      btnCancelar.className = 'ml-1 hover:opacity-70';
+      btnCancelar.onclick = function () { cancelarEdicionMeta(textoActual); };
+
+      btnEditar.after(btnGuardar, btnCancelar);
+      input.focus();
+    }
+
+    async function guardarMeta() {
+      const input = document.getElementById('input-meta-indicador');
+      const nuevoTexto = input.value.trim();
+      const btnGuardar = document.getElementById('btn-guardar-meta');
+
+      btnGuardar.textContent = '⏳';
+      btnGuardar.disabled = true;
+
+      const { error } = await supabaseClient
+        .from('configuraciones')
+        .update({ valor: nuevoTexto, actualizado_en: new Date().toISOString() })
+        .eq('clave', 'meta_indicador_texto');
+
+      if (error) {
+        console.error(error);
+        alert('No se pudo guardar el cambio. Intenta de nuevo.');
+        btnGuardar.textContent = '✅';
+        btnGuardar.disabled = false;
+        return;
+      }
+
+      restaurarVistaMeta(nuevoTexto);
+    }
+
+    function cancelarEdicionMeta(textoOriginal) {
+      restaurarVistaMeta(textoOriginal);
+    }
+
+    function restaurarVistaMeta(texto) {
+      const input = document.getElementById('input-meta-indicador');
+      const p = document.createElement('p');
+      p.id = 'texto-meta-indicador';
+      p.className = 'text-sm font-semibold text-emerald-800';
+      p.textContent = texto;
+      input.replaceWith(p);
+
+      document.getElementById('btn-guardar-meta')?.remove();
+      document.getElementById('btn-cancelar-meta')?.remove();
+      document.getElementById('btn-editar-meta').classList.remove('hidden');
+    }
+
+    async function cargarMeta() {
+      const { data, error } = await supabaseClient
+        .from('configuraciones')
+        .select('valor')
+        .eq('clave', 'meta_indicador_texto')
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error al cargar la meta:', error);
+        return;
+      }
+
+      if (data) {
+        document.getElementById('texto-meta-indicador').textContent = data.valor;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', cargarMeta);
   </script>
 
 </body>
