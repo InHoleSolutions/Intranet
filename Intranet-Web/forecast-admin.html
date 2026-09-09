@@ -501,24 +501,24 @@
     // Forecast sugerido = promedio de los últimos 3 registros
     // de este mismo Cliente + Línea (regla del documento)
     // ─────────────────────────────────────────────
-    // Forecast estacional: promedio de TODA la empresa (todos los clientes) para
-    // esa Línea de Producto, en ese mismo mes calendario, considerando TODOS los años anteriores disponibles.
+    // Forecast estacional: promedio del concentrado de Venta Real Mensual de TODA la empresa
+    // para ese mismo mes calendario (ej. todos los "agostos" anteriores), considerando TODOS
+    // los años ya cerrados y capturados en forecast_venta_real_mensual. Entre más meses
+    // captures con el tiempo, más preciso se vuelve este promedio automáticamente.
     async function calcularForecastEstacional(linea, mes, anioObjetivo) {
       const { data, error } = await supabaseClient
-        .from('forecast_registros')
+        .from('forecast_venta_real_mensual')
         .select('monto_real_usd, anio')
-        .eq('linea_producto', linea)
         .eq('mes', mes)
-        .lt('anio', anioObjetivo)
-        .not('monto_real_usd', 'is', null);
+        .lt('anio', anioObjetivo);
 
       if (error) { console.error(error); return { promedio: null, anios: [] }; }
       if (!data || data.length === 0) return { promedio: null, anios: [] };
 
-      // Sumamos todo lo vendido ese mes por año (todos los clientes juntos), luego promediamos entre años
+      // Un solo total por año para ese mes (ya viene concentrado, no hace falta sumar por cliente)
       const totalesPorAnio = {};
       data.forEach(r => {
-        totalesPorAnio[r.anio] = (totalesPorAnio[r.anio] || 0) + Number(r.monto_real_usd);
+        totalesPorAnio[r.anio] = Number(r.monto_real_usd);
       });
 
       const anios = Object.keys(totalesPorAnio).sort();
@@ -539,12 +539,12 @@
       const { promedio, anios } = await calcularForecastEstacional(linea, Number(mes), Number(anio));
 
       if (promedio === null) {
-        hint.textContent = `Sin historial previo de ${nombreMes[Number(mes)]} en años anteriores para esta línea — captura el forecast manualmente.`;
+        hint.textContent = `Sin historial previo de ${nombreMes[Number(mes)]} en años anteriores — captura el forecast manualmente.`;
         return;
       }
 
       inputForecast.value = promedio.toFixed(2);
-      hint.textContent = `Forecast estacional: promedio de ${nombreMes[Number(mes)]} (toda la empresa) de ${anios.join(', ')}. Puedes editarlo.`;
+      hint.textContent = `Forecast estacional: promedio de ${nombreMes[Number(mes)]} (toda la empresa) de ${anios.join(', ')}. Es un estimado general, no específico de este cliente/línea — puedes editarlo.`;
     }
 
     document.getElementById('reg_linea').addEventListener('change', sugerirForecast);
@@ -614,13 +614,11 @@
         monto_p90: document.getElementById('reg_confianza').value === 'P90' ? Number(document.getElementById('reg_forecast').value) : null,
       };
 
-      // Si el cliente escrito no existía, lo agregamos como nuevo cliente activo
-      await supabaseClient
-        .from('forecast_clientes')
-        .insert({ nombre: payload.cliente, estado: 'activo', anio: payload.anio })
-        .select();
+      // Registra o actualiza este cliente en la tabla 'clientes' (para Nuevos/Activos/Retenidos/Perdidos)
+      await registrarCliente(payload.cliente);
 
       // Si el servicio escrito no existía para esta línea, lo agregamos al catálogo
+
       // (el "unique" de la tabla evita duplicados si ya existía)
       await supabaseClient
         .from('forecast_servicios')
@@ -652,7 +650,9 @@
         return;
       }
 
-      status.textContent = idExistente ? '✓ Registro actualizado correctamente' : '✓ Registro guardado correctamente';
+      status.textContent = idExistente
+        ? '✓ Registro actualizado correctamente'
+        : `✓ Registro guardado correctamente (${payload.cliente} registrado en el historial de clientes)`;
       status.className = 'text-sm text-green-600';
       document.getElementById('formRegistro').reset();
       document.getElementById('reg_servicio').innerHTML = '<option value="">Elige una línea primero</option>';
@@ -661,9 +661,48 @@
       document.getElementById('reg_mes').disabled = true;
     });
 
+    const nombreMes = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
     // ─────────────────────────────────────────────
-    // Cierre de Venta Real Mensual (concentrado por mes)
+    // Registro de Clientes (para Nuevos / Activos / Retenidos / Perdidos)
     // ─────────────────────────────────────────────
+
+    // Registra o actualiza UN cliente. Si es la primera vez que se ve, crea su
+    // primera_aparicion = hoy. Si ya existía, solo mueve su ultima_aparicion a hoy.
+    async function registrarCliente(nombreCliente) {
+      if (!nombreCliente) return;
+      const hoy = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
+      const { data: existente, error: errBusqueda } = await supabaseClient
+        .from('clientes')
+        .select('nombre')
+        .eq('nombre', nombreCliente)
+        .maybeSingle();
+
+      if (errBusqueda) { console.error('Error al buscar cliente:', errBusqueda); return; }
+
+      if (!existente) {
+        const { error } = await supabaseClient
+          .from('clientes')
+          .insert({ nombre: nombreCliente, primera_aparicion: hoy, ultima_aparicion: hoy });
+        if (error) console.error('Error al registrar cliente nuevo:', error);
+      } else {
+        const { error } = await supabaseClient
+          .from('clientes')
+          .update({ ultima_aparicion: hoy })
+          .eq('nombre', nombreCliente);
+        if (error) console.error('Error al actualizar cliente:', error);
+      }
+    }
+
+    // Registra o actualiza VARIOS clientes de una sola vez (para importaciones masivas).
+    // Internamente llama a registrarCliente por cada nombre único de la lista.
+    async function registrarClientesEnLote(nombresClientes) {
+      const unicos = [...new Set(nombresClientes.filter(Boolean))];
+      for (const nombre of unicos) {
+        await registrarCliente(nombre);
+      }
+    }
 
     // Revisa qué meses ya transcurrieron (anteriores al mes actual) y no tienen
     // venta real capturada en forecast_venta_real_mensual, para mostrar la alerta.
@@ -1096,8 +1135,6 @@
       'julio':7,'agosto':8,'septiembre':9,'octubre':10,'noviembre':11,'diciembre':12
     };
 
-    const nombreMes = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-
     let filasImportacion = []; // guarda las filas ya validadas, listas para insertar
 
     function validarFila(fila) {
@@ -1312,9 +1349,9 @@
       document.getElementById('btnConfirmarImportacion').disabled = validas + advertencia === 0;
     }
 
-        // ─────────────────────────────────────────────
+    // ─────────────────────────────────────────────
     // Calcula el Forecast automático para una fila sin forecast manual
-    // (mismo criterio que sugerirForecast(): promedio de los últimos 3 reales de Cliente+Línea)
+    // (mismo criterio que sugerirForecast(): promedio estacional de la Venta Real Mensual)
     // ─────────────────────────────────────────────
     async function calcularForecastAutomatico(linea, mes, anio) {
       const { promedio } = await calcularForecastEstacional(linea, mes, anio);
