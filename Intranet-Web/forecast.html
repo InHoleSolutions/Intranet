@@ -269,8 +269,8 @@
         </div>
 
         <div class="print-card bg-panel border border-border rounded-2xl p-5 shadow-sm">
-          <h2 class="text-sm font-semibold text-gray-800">Ventas por Línea de Producto</h2>
-          <p class="text-xs text-gray-500 mb-3">Distribución % y monto</p>
+          <h2 class="text-sm font-semibold text-gray-800">Servicios por Línea de Producto</h2>
+          <p class="text-xs text-gray-500 mb-3">Distribución % de servicios registrados</p>
           <div class="h-72">
             <canvas id="chartLineaProducto"></canvas>
           </div>
@@ -442,6 +442,20 @@
       return data || [];
     }
 
+    // Trae la tabla de clientes (nombre, primera_aparicion, ultima_aparicion) para
+    // clasificar Nuevos / Activos / Retenidos / Perdidos según cuándo se registraron.
+    async function traerClientes() {
+      const { data, error } = await supabaseClient
+        .from('clientes')
+        .select('nombre, primera_aparicion, ultima_aparicion');
+
+      if (error) {
+        console.error('Error al traer clientes:', error);
+        return [];
+      }
+      return data || [];
+    }
+
     // Venta Real concentrada por mes (capturada manualmente al cierre de cada mes).
     // Devuelve un array de 13 posiciones (índice 1-12 = mes), con null donde no se ha capturado.
     async function traerVentaRealMensual(anio) {
@@ -485,7 +499,7 @@
 
     async function cargarOpcionesCliente() {
       if (filtroClienteCargado) return; // solo se carga una vez, no cada vez que cambian filtros
-      const { data, error } = await supabaseClient.from('forecast_clientes').select('nombre').order('nombre');
+      const { data, error } = await supabaseClient.from('clientes').select('nombre').order('nombre');
       if (error) { console.error(error); return; }
 
       const select = document.getElementById('filtroCliente');
@@ -527,21 +541,22 @@
       mostrarUltimaActualizacion();
       const anio = Number(document.getElementById('filtroAnio').value);
 
-      const [registrosAnio, registrosAnterior, ventaRealMensual, ventaRealMensualAnterior] = await Promise.all([
+      const [registrosAnio, registrosAnterior, ventaRealMensual, ventaRealMensualAnterior, clientes] = await Promise.all([
         traerRegistros(anio),
         traerRegistrosAnioAnterior(anio),
         traerVentaRealMensual(anio),
-        traerVentaRealMensual(anio - 1)
+        traerVentaRealMensual(anio - 1),
+        traerClientes()
       ]);
 
       const filtrados = aplicarFiltros(registrosAnio);
 
-      pintarKPIs(filtrados, registrosAnterior, anio, registrosAnio, ventaRealMensual, ventaRealMensualAnterior);
+      await pintarKPIs(filtrados, registrosAnterior, anio, registrosAnio, ventaRealMensual, ventaRealMensualAnterior, clientes);
       dibujarChartForecastReal(filtrados, ventaRealMensual);
       dibujarChartForecastProbabilidad(filtrados);
       dibujarChartLineaProducto(filtrados);
       dibujarChartPareto(filtrados);
-      dibujarChartRetencion(filtrados, registrosAnterior);
+      dibujarChartRetencion(clientes, anio);
       await dibujarChartCrecimiento(anio);
       dibujarChartComposicion(filtrados);
       await pintarTablaInventario(filtrados);
@@ -559,7 +574,7 @@
       return hoy.getMonth() + 1;                       // año en curso: mes actual (1-12)
     }
 
-    function pintarKPIs(filtrados, registrosAnterior, anio, registrosAnioSinFiltroPeriodo, ventaRealMensual, ventaRealMensualAnterior) {
+    async function pintarKPIs(filtrados, registrosAnterior, anio, registrosAnioSinFiltroPeriodo, ventaRealMensual, ventaRealMensualAnterior, clientes) {
       const transcurridos = mesesTranscurridos(anio);
 
       // "Resultado Actual" = suma del concentrado de Venta Real Mensual, solo de meses ya transcurridos.
@@ -589,23 +604,38 @@
       }
       const crecimientoYoY = totalAnteriorMismoRango ? ((totalRealHastaFecha - totalAnteriorMismoRango) / totalAnteriorMismoRango) * 100 : 0;
 
-      // Nuevos clientes (sin cambio: cliente que compra este año y no compró el año pasado)
-      const clientesEsteAnio = new Set(filtrados.filter(r => r.monto_real_usd != null).map(r => r.cliente));
-      const clientesAnioAnterior = new Set(registrosAnterior.filter(r => r.monto_real_usd != null).map(r => r.cliente));
-      const nuevos = [...clientesEsteAnio].filter(c => !clientesAnioAnterior.has(c));
+      // Nuevos / Activos / Retenidos / Perdidos: basado en cuándo se registró cada cliente
+      // en la tabla 'clientes' (primera_aparicion / ultima_aparicion), NO en si tuvo venta real.
+      // - Nuevo: su primera_aparicion cae dentro del Año/mes que se está viendo en el dashboard.
+      // - Perdido: han pasado 4 o más meses desde su ultima_aparicion (respecto a hoy).
+      // - Retenido: ya existía antes de este período y no está perdido.
+      const hoy = new Date();
+      const mesFiltrado = Number(document.getElementById('filtroMes')?.value) || null; // null = todo el año
 
-      // Retención por frecuencia: de los clientes del año pasado, ¿en qué % de los meses transcurridos
-      // de ESTE año han vuelto a comprar? Se promedia entre todos esos clientes.
-      let retencionPct = 0;
-      if (clientesAnioAnterior.size > 0 && transcurridos > 0) {
-        const frecuencias = [...clientesAnioAnterior].map(cli => {
-          const mesesConCompra = new Set(
-            filtrados.filter(r => r.cliente === cli && r.monto_real_usd != null && r.mes <= transcurridos).map(r => r.mes)
-          );
-          return mesesConCompra.size / transcurridos;
-        });
-        retencionPct = (frecuencias.reduce((a, b) => a + b, 0) / frecuencias.length) * 100;
+      function diferenciaEnMeses(fechaTexto, referencia) {
+        const f = new Date(fechaTexto + 'T00:00:00');
+        return (referencia.getFullYear() - f.getFullYear()) * 12 + (referencia.getMonth() - f.getMonth());
       }
+
+      const nuevosLista = clientes.filter(c => {
+        const f = new Date(c.primera_aparicion + 'T00:00:00');
+        const mismoAnio = f.getFullYear() === anio;
+        const mismoMes = mesFiltrado ? (f.getMonth() + 1) === mesFiltrado : true;
+        return mismoAnio && mismoMes;
+      });
+
+      const perdidos = clientes.filter(c => diferenciaEnMeses(c.ultima_aparicion, hoy) >= 4);
+      const perdidosSet = new Set(perdidos.map(c => c.nombre));
+
+      const retenidos = clientes.filter(c => {
+        const esNuevo = nuevosLista.some(n => n.nombre === c.nombre);
+        return !esNuevo && !perdidosSet.has(c.nombre);
+      });
+
+      const activos = clientes.filter(c => !perdidosSet.has(c.nombre));
+
+      const nuevos = nuevosLista; // se mantiene el nombre "nuevos" para no romper las líneas de abajo
+      const retencionPct = clientes.length > 0 ? (retenidos.length / clientes.length) * 100 : 0;
 
       // Totales de Probabilidad (P50/P70/P90) del período ya filtrado (año/quarter/mes/cliente/línea)
       const totalP50 = filtrados.reduce((a, r) => a + (Number(r.monto_p50) || 0), 0);
@@ -777,7 +807,8 @@
                 label: (ctx) => {
                   const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
                   const pct = total ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
-                  return `${ctx.label}: ${fmtUSD(ctx.parsed)} (${pct}%)`;
+                  const servicios = ctx.parsed === 1 ? 'servicio' : 'servicios';
+                  return `${ctx.label}: ${ctx.parsed} ${servicios} (${pct}%)`;
                 }
               }
             }
@@ -831,14 +862,36 @@
     // ─────────────────────────────────────────────
     // Gráfico 4: Retención y Nuevos Clientes (columnas)
     // ─────────────────────────────────────────────
-    function dibujarChartRetencion(filtrados, registrosAnterior) {
-      const clientesEsteAnio = new Set(filtrados.filter(r => r.monto_real_usd != null).map(r => r.cliente));
-      const clientesAnioAnterior = new Set(registrosAnterior.filter(r => r.monto_real_usd != null).map(r => r.cliente));
+    // Nota: ya no usa monto_real_usd. Clasifica según la tabla 'clientes'
+    // (primera_aparicion / ultima_aparicion), igual que en pintarKPIs.
+    function dibujarChartRetencion(clientes, anio) {
+      const hoy = new Date();
+      const mesFiltrado = Number(document.getElementById('filtroMes')?.value) || null;
 
-      const nuevos = [...clientesEsteAnio].filter(c => !clientesAnioAnterior.has(c)).length;
-      const retenidos = [...clientesEsteAnio].filter(c => clientesAnioAnterior.has(c)).length;
-      const perdidos = [...clientesAnioAnterior].filter(c => !clientesEsteAnio.has(c)).length;
-      const activos = clientesEsteAnio.size;
+      function diferenciaEnMeses(fechaTexto, referencia) {
+        const f = new Date(fechaTexto + 'T00:00:00');
+        return (referencia.getFullYear() - f.getFullYear()) * 12 + (referencia.getMonth() - f.getMonth());
+      }
+
+      const nuevosLista = clientes.filter(c => {
+        const f = new Date(c.primera_aparicion + 'T00:00:00');
+        const mismoAnio = f.getFullYear() === anio;
+        const mismoMes = mesFiltrado ? (f.getMonth() + 1) === mesFiltrado : true;
+        return mismoAnio && mismoMes;
+      });
+
+      const perdidosLista = clientes.filter(c => diferenciaEnMeses(c.ultima_aparicion, hoy) >= 4);
+      const perdidosSet = new Set(perdidosLista.map(c => c.nombre));
+
+      const retenidosLista = clientes.filter(c => {
+        const esNuevo = nuevosLista.some(n => n.nombre === c.nombre);
+        return !esNuevo && !perdidosSet.has(c.nombre);
+      });
+
+      const nuevos = nuevosLista.length;
+      const retenidos = retenidosLista.length;
+      const perdidos = perdidosLista.length;
+      const activos = clientes.length - perdidos;
 
       if (charts.retencion) charts.retencion.destroy();
       charts.retencion = new Chart(document.getElementById('chartRetencion'), {

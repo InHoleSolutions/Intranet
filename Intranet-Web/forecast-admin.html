@@ -478,12 +478,12 @@
       hint.textContent = `${data.length} servicio(s) registrados en ${linea}. Si escribes uno nuevo, se agregará a la lista al guardar.`;
     }
 
-        // ─────────────────────────────────────────────
-    // Cliente con autocompletar (consulta forecast_clientes)
+    // ─────────────────────────────────────────────
+    // Cliente con autocompletar (consulta la tabla 'clientes')
     // ─────────────────────────────────────────────
     async function cargarClientes() {
       const { data, error } = await supabaseClient
-        .from('forecast_clientes')
+        .from('clientes')
         .select('nombre')
         .order('nombre');
 
@@ -1392,13 +1392,11 @@
         status.textContent = `Importando ${i + 1} de ${filasAImportar.length}...`;
         status.className = 'text-sm ml-3 text-gray-500';
 
-        // Si el Cliente o Servicio son nuevos, se agregan a su catálogo.
-        // Usamos upsert con ignoreDuplicates para que, si ya existían,
-        // Supabase simplemente no haga nada (sin lanzar error 409 en consola).
-        await supabaseClient.from('forecast_clientes')
-          .upsert({ nombre: f.cliente, estado: 'activo', anio: f.anio }, {
-            onConflict: 'nombre', ignoreDuplicates: true
-          });
+        // Registra o actualiza este cliente en la tabla 'clientes' (para Nuevos/Activos/Retenidos/Perdidos)
+        await registrarCliente(f.cliente);
+
+        // Si el Servicio es nuevo, se agrega a su catálogo. Usamos upsert con
+        // ignoreDuplicates para que, si ya existía, Supabase no lance error 409 en consola.
         await supabaseClient.from('forecast_servicios')
           .upsert({ linea_producto: f.linea, nombre: f.servicio }, {
             onConflict: 'linea_producto,nombre', ignoreDuplicates: true
