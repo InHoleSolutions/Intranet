@@ -295,7 +295,6 @@
               <th class="px-3 py-3" rowspan="2">Capacidad (WLL)</th>
               <th class="px-3 py-3 text-center" colspan="3">Carga Límite de Trabajo (Kg)</th>
               <th class="px-3 py-3" rowspan="2">N.° Serie</th>
-              <th class="px-3 py-3 col-fecha-restringida hidden" rowspan="2">Fecha de Fabricación</th>
               <th class="px-3 py-3 col-fecha-restringida hidden" rowspan="2">Fecha de Puesta en Servicio</th>
               <th class="px-3 py-3" rowspan="2">Último Servicio</th>
               <th class="px-3 py-3" rowspan="2">Próximo Servicio</th>
@@ -313,7 +312,7 @@
             </tr>
           </thead>
           <tbody id="tbody-izaje" class="divide-y divide-slate-100">
-            <tr><td colspan="18" class="text-center text-slate-400 py-6">Cargando...</td></tr>
+            <tr><td colspan="17" class="text-center text-slate-400 py-6">Cargando...</td></tr>
           </tbody>
         </table>
       </div>
@@ -350,7 +349,6 @@
               <th class="px-3 py-3" rowspan="2">Capacidad (WLL)</th>
               <th class="px-3 py-3 text-center" colspan="3">Carga Límite de Trabajo (Kg)</th>
               <th class="px-3 py-3" rowspan="2">N.° Serie</th>
-              <th class="px-3 py-3 col-fecha-restringida hidden" rowspan="2">Fecha de Fabricación</th>
               <th class="px-3 py-3 col-fecha-restringida hidden" rowspan="2">Fecha de Puesta en Servicio</th>
               <th class="px-3 py-3" rowspan="2">Último Servicio</th>
               <th class="px-3 py-3" rowspan="2">Próximo Servicio</th>
@@ -812,11 +810,10 @@
         tabla: 'mantto_izaje',
         tbody: 'tbody-izaje',
         numerada: true,
-        columnas: ['tipo_accesorio', 'capacidad_wll', 'longitud', 'vertical', 'enlazada', 'en_u', 'no_serie', 'fecha_fabricacion', 'fecha_puesta_servicio', 'ultimo_servicio', 'proximo_servicio', 'tipo_servicio', 'estado', 'certificado', 'observaciones', 'trazabilidad'],
-        columnasFecha: ['fecha_fabricacion', 'fecha_puesta_servicio', 'ultimo_servicio', 'proximo_servicio'],
-        columnasRestringidas: ['fecha_fabricacion', 'fecha_puesta_servicio'],
+        columnas: ['tipo_accesorio', 'capacidad_wll', 'longitud', 'vertical', 'enlazada', 'en_u', 'no_serie', 'fecha_puesta_servicio', 'ultimo_servicio', 'proximo_servicio', 'tipo_servicio', 'estado', 'certificado', 'observaciones', 'trazabilidad'],
+        columnasRestringidas: ['fecha_puesta_servicio'],
         columnaObservacionesCondicional: true,
-        columnasFecha: ['fecha_fabricacion', 'fecha_puesta_servicio', 'ultimo_servicio', 'proximo_servicio'],
+        columnasFecha: ['fecha_puesta_servicio', 'ultimo_servicio', 'proximo_servicio'],
         columnaVencimiento: 'proximo_servicio',
         campoFechaBase: 'ultimo_servicio',
         campoVencimiento: 'proximo_servicio',
@@ -828,10 +825,10 @@
         tabla: 'mantto_izaje_cable',
         tbody: 'tbody-izajeCable',
         numerada: true,
-        columnas: ['tipo_accesorio', 'longitud', 'capacidad_wll', 'vertical', 'enlazada', 'en_u', 'no_serie', 'fecha_fabricacion', 'fecha_puesta_servicio', 'ultimo_servicio', 'proximo_servicio', 'tipo_servicio', 'estado', 'certificado', 'observaciones', 'trazabilidad'],
-        columnasRestringidas: ['fecha_fabricacion', 'fecha_puesta_servicio'],
+        columnas: ['tipo_accesorio', 'longitud', 'capacidad_wll', 'vertical', 'enlazada', 'en_u', 'no_serie', 'fecha_puesta_servicio', 'ultimo_servicio', 'proximo_servicio', 'tipo_servicio', 'estado', 'certificado', 'observaciones', 'trazabilidad'],
+        columnasRestringidas: ['fecha_puesta_servicio'],
         columnaObservacionesCondicional: true,
-        columnasFecha: ['fecha_fabricacion', 'fecha_puesta_servicio', 'ultimo_servicio', 'proximo_servicio'],
+        columnasFecha: ['fecha_puesta_servicio', 'ultimo_servicio', 'proximo_servicio'],
         columnaVencimiento: 'proximo_servicio',
         campoFechaBase: 'ultimo_servicio',
         campoVencimiento: 'proximo_servicio',
