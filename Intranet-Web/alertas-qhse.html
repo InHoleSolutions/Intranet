@@ -687,6 +687,7 @@
       letter-spacing: .04em; display: flex; align-items: center; gap: 8px;
       backdrop-filter: blur(6px); transition: opacity .3s;
     }
+    #indicador-auto.hidden { display: none; }
     .indicador-auto-dot {
       width: 8px; height: 8px; border-radius: 50%; background: #00c8ff;
       animation: pulso-indicador 1.6s ease-in-out infinite;
@@ -861,7 +862,7 @@
       currentUser = session.user;
       iniciarLatido(session.user.id);
 
-      const { data: perfil } = await sb.from('perfiles').select('*').eq('id', session.user.id).single();
+      const { data: perfil } = await sb.from('perfiles').select('*').eq('id', session.user.id).maybeSingle();
       if (perfil) {
         const saludo = getGreeting();
         document.getElementById('user-welcome').innerText = `${saludo}, ${perfil.nombre_completo}`;
@@ -943,11 +944,38 @@
         .eq('activa', true)
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (error || !data) {
-        document.getElementById('revista-container').innerHTML =
-          '<p style="text-align:center;padding:60px;color:#64748b;font-size:14px;">No hay edición publicada actualmente.</p>';
+        const hayError = !!error;
+
+        // Detener el "cargando" de la barra superior
+        document.getElementById('edition-tag').textContent = 'Sin edición publicada';
+        document.getElementById('issue-counter').textContent = 'ED-—';
+
+        // Ocultar los botones de índice (no tienen a dónde llevar)
+        document.querySelector('.indice-revista').style.display = 'none';
+        document.getElementById('heatmap-locacion-wrap').style.display = 'none';
+        document.getElementById('indicador-auto').classList.add('hidden');
+        window.sinEdicion = true;
+
+        // Aviso visible en lugar del espacio en blanco
+        document.getElementById('revista-container').innerHTML = `
+          <div style="max-width:560px;margin:40px auto;text-align:center;padding:40px 28px;background:var(--rv-card-bg,#fff);border:1px solid var(--rv-borde,#e2e8f0);border-radius:16px;">
+            <i class="fas ${hayError ? 'fa-triangle-exclamation' : 'fa-book-open'}"
+               style="font-size:38px;color:${hayError ? '#e53935' : '#1e88e5'};margin-bottom:16px;"></i>
+            <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#1e88e5;margin:0 0 8px;">
+              ${hayError ? 'No se pudo cargar la edición' : 'Aún no hay una edición publicada'}
+            </h3>
+            <p style="font-size:14px;color:#64748b;margin:0;">
+              ${hayError
+                ? 'Ocurrió un problema al conectar con el servidor. Intenta recargar la página.'
+                : 'Cuando el equipo QHSE publique la próxima edición, aparecerá aquí.'}
+            </p>
+          </div>`;
+
+        // Reemplaza los skeletons: muestra ediciones anteriores o oculta la hemeroteca si no hay
+        cargarHemeroteca();
         return;
       }
 
@@ -957,6 +985,9 @@
 
     // ── PINTA cualquier edición (activa o del historial) en el contenedor de la revista ──
     async function pintarEdicionEnRevista(data) {
+      document.querySelector('.indice-revista').style.display = 'flex';
+      document.getElementById('heatmap-locacion-wrap').style.display = '';
+      window.sinEdicion = false;
       montarRevista('revista-container');
       aplicarEdicionARevista(data);
 
@@ -1045,7 +1076,7 @@
         .from('qhse_editions')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       if (error || !data) { showToast('❌ No se pudo cargar esa edición', 'error'); return; }
 
@@ -1388,6 +1419,7 @@
 
     // ── AUTO-AVANCE (flip automático o auto-scroll) ──
     function iniciarAutoAvance() {
+      if (window.sinEdicion) return; // sin edición no hay nada que reproducir
       detenerAutoAvance();
       document.getElementById('indicador-auto').classList.remove('hidden');
       autoAvanceInterval = setInterval(() => {
