@@ -23,7 +23,7 @@
     }
 
     .tab-btn { color: #64748b; transition: all 0.15s; }
-    .tab-btn.active { background: white; color: #2563eb; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+    .tab-btn.active { background: white; color: #C41E43; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
 
     .kpi-card, .kpi-card-mini { transition: box-shadow 0.2s, transform 0.2s; }
     .kpi-card:hover, .kpi-card-mini:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
@@ -47,6 +47,13 @@
       height: 110px;
       display: flex; flex-direction: column; justify-content: center;
       text-align: center;
+    }
+
+    .kpi-card-mini.kpi-row {
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      text-align: left;
     }
 
     /* ── Necesario para header.html ── */
@@ -80,15 +87,10 @@
     <div class="flex items-center justify-between mb-6">
       <div>
         <h2 class="text-2xl font-bold text-slate-800">Indicadores de calidad en el servicio</h2>
-        <p class="text-slate-500 mt-1">Análisis de desempeño por tipo de servicio y periodo.</p>
+        <p class="text-slate-500 mt-1">Monitoreo del desempeño y cumplimiento de criterios de calidad.</p>
       </div>
     </div>
 
-    <div class="flex items-center justify-between mb-6 text-justify">
-      <div>
-        <p class="text-slate-500 mt-1">Las gráficas presentan los resultados de las evaluaciones de calidad en el servicio obtenidas a partir de las encuestas de satisfacción aplicadas al finalizar cada servicio. La información está segmentada por servicios de campo y servicios de taller, y puede consultarse por los criterios de personal, equipo, comunicación, HSE y percepción general, con visualización por periodo mensual, trimestral y anual, lo que permite monitorear el desempeño del servicio, identificar tendencias y oportunidades de mejora.</p>
-      </div>
-    </div>
     <div class="mb-6 flex items-center gap-2">
       <div class="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-300 rounded-lg px-4 py-2">
         <span class="text-emerald-600 font-bold">🎯</span>
@@ -103,9 +105,15 @@
 
     <!-- ── Pestañas principales ── -->
     <div class="flex gap-1 bg-slate-100 rounded-lg p-1 mb-6 w-fit">
-      <button id="btn-seccion-general" onclick="cambiarSeccion('general')" class="tab-btn px-4 py-2 text-sm font-bold rounded-md">General</button>
-      <button id="btn-seccion-campo" onclick="cambiarSeccion('campo')" class="tab-btn px-4 py-2 text-sm font-bold rounded-md">Servicio en Campo</button>
-      <button id="btn-seccion-taller" onclick="cambiarSeccion('taller')" class="tab-btn px-4 py-2 text-sm font-bold rounded-md">Servicio en Taller</button>
+      <button id="btn-seccion-general" onclick="cambiarSeccion('general')" class="tab-btn px-4 py-2 text-sm font-bold rounded-md flex items-center gap-2">
+        <i class="fa-solid fa-border-all"></i> General
+      </button>
+      <button id="btn-seccion-campo" onclick="cambiarSeccion('campo')" class="tab-btn px-4 py-2 text-sm font-bold rounded-md flex items-center gap-2">
+        <i class="fa-solid fa-oil-well"></i> Servicio en Campo
+      </button>
+      <button id="btn-seccion-taller" onclick="cambiarSeccion('taller')" class="tab-btn px-4 py-2 text-sm font-bold rounded-md flex items-center gap-2">
+        <i class="fa-solid fa-screwdriver-wrench"></i> Servicio en Taller
+      </button>
     </div>
 
     <div id="banner-alertas" class="hidden mb-6"></div>
@@ -119,10 +127,36 @@
         <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Periodo a Mostrar</p>
         <span id="fecha-hoy" class="text-[11px] text-slate-400">· </span>
       </div>
-      <div class="flex gap-1 bg-slate-100 rounded-lg p-1">
-        <button id="btn-global-mes" onclick="cambiarVistaGlobal('mes')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Mes</button>
-        <button id="btn-global-trimestre" onclick="cambiarVistaGlobal('trimestre')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Trimestre</button>
-        <button id="btn-global-anual" onclick="cambiarVistaGlobal('anual')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Anual</button>
+      <div class="flex flex-col items-end gap-2">
+        <div class="relative">
+          <button onclick="togglePeriodoCampo()" class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2 hover:border-slate-300 transition-colors">
+            <i class="fa-regular fa-calendar text-slate-400"></i>
+            <div class="flex flex-col leading-tight text-left">
+              <span class="text-[10px] text-slate-400">Periodo seleccionado</span>
+              <span id="label-periodo-campo" class="text-sm font-bold text-slate-700">Septiembre de 2026</span>
+            </div>
+            <i class="fas fa-chevron-down text-slate-400 text-xs ml-1"></i>
+          </button>
+
+          <div id="dropdown-periodo-campo" class="hidden absolute z-50 top-full mt-2 right-0 bg-white border border-slate-200 rounded-lg shadow-lg p-3 w-64">
+            <div class="flex items-center justify-between mb-2">
+              <button onclick="cambiarAnioPeriodoCampo(-1)" class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-500">
+                <i class="fas fa-chevron-left text-xs"></i>
+              </button>
+              <span id="label-anio-periodo-campo" class="text-sm font-bold text-slate-700"></span>
+              <button onclick="cambiarAnioPeriodoCampo(1)" class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-500">
+                <i class="fas fa-chevron-right text-xs"></i>
+              </button>
+            </div>
+            <div id="grid-meses-periodo-campo" class="grid grid-cols-3 gap-1"></div>
+          </div>
+        </div>
+
+        <div class="flex gap-1 bg-slate-100 rounded-lg p-1">
+          <button id="btn-global-mes" onclick="cambiarVistaGlobal('mes')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Mes</button>
+          <button id="btn-global-trimestre" onclick="cambiarVistaGlobal('trimestre')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Trimestre</button>
+          <button id="btn-global-anual" onclick="cambiarVistaGlobal('anual')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Anual</button>
+        </div>
       </div>
     </div>
     <div id="contenedor-kpis" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -131,32 +165,64 @@
       <div class="kpi-card-mini skeleton-card"></div>
       <div class="kpi-card-mini skeleton-card"></div>
     </div>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <div class="kpi-card">
-        <p class="text-sm font-bold text-slate-700 mb-4">DESEMPEÑO POR CRITERIO DE EVALUACIÓN</p>
-        <canvas id="grafica-criterios"></canvas>
+    <div class="kpi-card mb-8">
+      <div class="flex items-center gap-3 mb-6 pb-4">
+        <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+          <i class="fas fa-gauge-high text-blue-500 text-lg"></i>
+        </div>
+        <div>
+          <p class="text-sm font-bold text-blue-900">DESEMPEÑO GLOBAL DEL SERVICIO EN CAMPO</p>
+          <p class="text-[11px] text-slate-400">Resumen del cumplimiento de los criterios de evaluación</p>
+        </div>
       </div>
-      <div class="kpi-card">
-          <div class="flex items-center justify-between mb-4">
-            <p id="titulo-tendencia" class="text-sm font-bold text-slate-700">Evolución del Promedio</p>
-            <div id="nav-mes-campo" class="hidden items-center gap-2">
-              <button id="btn-prev-campo" onclick="cambiarOffsetMes('campo', -1)" class="w-7 h-7 flex items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50">
-                <i class="fas fa-chevron-left text-xs"></i>
-              </button>
-              <span id="label-offset-campo" class="text-xs font-semibold text-slate-500 min-w-[90px] text-center"></span>
-              <button id="btn-next-campo" onclick="cambiarOffsetMes('campo', 1)" class="w-7 h-7 flex items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50">
-                <i class="fas fa-chevron-right text-xs"></i>
-              </button>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="relative border border-slate-200 rounded-xl p-4">
+          <i class="fas fa-circle-info absolute top-4 right-4 text-slate-300"></i>
+          <p class="text-sm font-bold text-blue-900">DESEMPEÑO POR CRITERIO DE EVALUACIÓN</p>
+          <canvas id="grafica-criterios"></canvas>
+          <div class="flex items-center justify-center gap-6 mt-3">
+            <div class="flex items-center gap-2">
+              <span class="w-4 h-2.5 rounded-sm" style="background:#1d4ed8;"></span>
+              <span class="text-[11px] text-slate-500 font-semibold">Cumplimiento alcanzado</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-4 h-0 border-t-2 border-dashed" style="border-color:#ef4444;"></span>
+              <span class="text-[11px] text-slate-500 font-semibold">Meta de cumplimiento</span>
             </div>
           </div>
+        </div>
+        <div class="border border-slate-200 rounded-xl p-4">
+          <div class="flex items-center mb-1">
+            <p id="titulo-tendencia" class="text-sm font-bold text-blue-900">EVOLUCIÓN DEL PROMEDIO</p>
+          </div>
+          <p class="text-[11px] text-slate-400 mb-4">Resultado general del período</p>
           <canvas id="grafica-tendencia"></canvas>
           <div id="indicador-tendencia-campo" class="hidden flex-col items-center justify-center py-1">
             <div style="width: 100%; max-width: 380px; height: 210px;">
               <canvas id="grafica-gauge-campo"></canvas>
             </div>
             <p id="texto-gauge-campo" class="text-lg font-semibold text-slate-700 mt-7 text-center"></p>
+            <span id="badge-gauge-campo" class="hidden items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold">
+              <i class="fas fa-star"></i>
+              <span id="badge-gauge-campo-texto"></span>
+            </span>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-4 bg-slate-50 border border-t-0 border-slate-200 rounded-b-xl px-4 py-3 -mt-8 mb-8 text-xs text-slate-600">
+      <div class="flex items-center gap-2">
+        <i class="fas fa-circle-info text-slate-400"></i>
+        <span>Los resultados reflejan el promedio de las evaluaciones realizadas en el período seleccionado.</span>
+      </div>
+      <div class="flex items-center gap-4 lg:ml-auto flex-wrap">
+        <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#10b981;"></span>Excelente (&ge; 96%)</span>
+        <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#3b82f6;"></span>Bueno (95% - 91%)</span>
+        <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b;"></span>Regular (90% - 88%)</span>
+        <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#ef4444;"></span>Deficiente (&lt; 87%)</span>
+      </div>
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
       <div class="kpi-card">
@@ -231,10 +297,36 @@
 
       <div class="flex items-center justify-between mb-3">
         <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Periodo a Mostrar</p>
-        <div class="flex gap-1 bg-slate-100 rounded-lg p-1">
-          <button id="btn-gral-mes" onclick="cambiarVistaGeneral('mes')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Mes</button>
-          <button id="btn-gral-trimestre" onclick="cambiarVistaGeneral('trimestre')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Trimestre</button>
-          <button id="btn-gral-anual" onclick="cambiarVistaGeneral('anual')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Anual</button>
+        <div class="flex flex-col items-end gap-2">
+          <div class="relative">
+            <button onclick="togglePeriodoGeneral()" class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2 hover:border-slate-300 transition-colors">
+              <i class="fa-regular fa-calendar text-slate-400"></i>
+              <div class="flex flex-col leading-tight text-left">
+                <span class="text-[10px] text-slate-400">Periodo seleccionado</span>
+                <span id="label-periodo-general" class="text-sm font-bold text-slate-700">Septiembre de 2026</span>
+              </div>
+              <i class="fas fa-chevron-down text-slate-400 text-xs ml-1"></i>
+            </button>
+
+            <div id="dropdown-periodo-general" class="hidden absolute z-50 top-full mt-2 right-0 bg-white border border-slate-200 rounded-lg shadow-lg p-3 w-64">
+              <div class="flex items-center justify-between mb-2">
+                <button onclick="cambiarAnioPeriodoGeneral(-1)" class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-500">
+                  <i class="fas fa-chevron-left text-xs"></i>
+                </button>
+                <span id="label-anio-periodo-general" class="text-sm font-bold text-slate-700"></span>
+                <button onclick="cambiarAnioPeriodoGeneral(1)" class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-500">
+                  <i class="fas fa-chevron-right text-xs"></i>
+                </button>
+              </div>
+              <div id="grid-meses-periodo-general" class="grid grid-cols-3 gap-1"></div>
+            </div>
+          </div>
+
+          <div class="flex gap-1 bg-slate-100 rounded-lg p-1">
+            <button id="btn-gral-mes" onclick="cambiarVistaGeneral('mes')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Mes</button>
+            <button id="btn-gral-trimestre" onclick="cambiarVistaGeneral('trimestre')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Trimestre</button>
+            <button id="btn-gral-anual" onclick="cambiarVistaGeneral('anual')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Anual</button>
+          </div>
         </div>
       </div>
 
@@ -266,31 +358,63 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div class="kpi-card">
-          <p class="text-sm font-bold text-slate-700 mb-4">DESEMPEÑO POR CRITERIO DE EVALUACIÓN (Campo + Taller)</p>
-          <canvas id="grafica-criterios-general"></canvas>
+      <div class="kpi-card mb-8">
+        <div class="flex items-center gap-3 mb-6 pb-4">
+          <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-gauge-high text-blue-500 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-blue-900">DESEMPEÑO GLOBAL DEL SERVICIO (CAMPO + TALLER)</p>
+            <p class="text-[11px] text-slate-400">Resumen del cumplimiento de los criterios de evaluación</p>
+          </div>
         </div>
-        <div class="kpi-card">
-          <div class="flex items-center justify-between mb-4">
-            <p id="titulo-tendencia-general" class="text-sm font-bold text-slate-700">Evolución del Promedio</p>
-            <div id="nav-mes-general" class="hidden items-center gap-2">
-              <button id="btn-prev-general" onclick="cambiarOffsetMes('general', -1)" class="w-7 h-7 flex items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50">
-                <i class="fas fa-chevron-left text-xs"></i>
-              </button>
-              <span id="label-offset-general" class="text-xs font-semibold text-slate-500 min-w-[90px] text-center"></span>
-              <button id="btn-next-general" onclick="cambiarOffsetMes('general', 1)" class="w-7 h-7 flex items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50">
-                <i class="fas fa-chevron-right text-xs"></i>
-              </button>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="relative border border-slate-200 rounded-xl p-4">
+            <i class="fas fa-circle-info absolute top-4 right-4 text-slate-300"></i>
+            <p class="text-sm font-bold text-blue-900">DESEMPEÑO POR CRITERIO DE EVALUACIÓN</p>
+            <canvas id="grafica-criterios-general"></canvas>
+            <div class="flex items-center justify-center gap-6 mt-3">
+              <div class="flex items-center gap-2">
+                <span class="w-4 h-2.5 rounded-sm" style="background:#1d4ed8;"></span>
+                <span class="text-[11px] text-slate-500 font-semibold">Cumplimiento alcanzado</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-4 h-0 border-t-2 border-dashed" style="border-color:#ef4444;"></span>
+                <span class="text-[11px] text-slate-500 font-semibold">Meta de cumplimiento</span>
+              </div>
             </div>
           </div>
-          <canvas id="grafica-tendencia-general"></canvas>
-          <div id="indicador-tendencia-general" class="hidden flex-col items-center justify-center py-1">
-            <div style="width: 100%; max-width: 380px; height: 210px;">
-              <canvas id="grafica-gauge-general"></canvas>
+          <div class="border border-slate-200 rounded-xl p-4">
+            <div class="flex items-center mb-1">
+              <p id="titulo-tendencia-general" class="text-sm font-bold text-blue-900">EVOLUCIÓN DEL PROMEDIO</p>
             </div>
-            <p id="texto-gauge-general" class="text-lg font-semibold text-slate-700 mt-7 text-center"></p>
+            <p class="text-[11px] text-slate-400 mb-4">Resultado general del período</p>
+            <canvas id="grafica-tendencia-general"></canvas>
+            <div id="indicador-tendencia-general" class="hidden flex-col items-center justify-center py-1">
+              <div style="width: 100%; max-width: 380px; height: 210px;">
+                <canvas id="grafica-gauge-general"></canvas>
+              </div>
+              <p id="texto-gauge-general" class="text-lg font-semibold text-slate-700 mt-7 text-center"></p>
+              <span id="badge-gauge-general" class="hidden items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold">
+                <i class="fas fa-star"></i>
+                <span id="badge-gauge-general-texto"></span>
+              </span>
+            </div>
           </div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-4 bg-slate-50 border border-t-0 border-slate-200 rounded-b-xl px-4 py-3 -mt-8 mb-8 text-xs text-slate-600">
+        <div class="flex items-center gap-2">
+          <i class="fas fa-circle-info text-slate-400"></i>
+          <span>Los resultados reflejan el promedio de las evaluaciones realizadas en el período seleccionado.</span>
+        </div>
+        <div class="flex items-center gap-4 lg:ml-auto flex-wrap">
+          <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#10b981;"></span>Excelente (&ge; 96%)</span>
+          <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#3b82f6;"></span>Bueno (95% - 91%)</span>
+          <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b;"></span>Regular (90% - 88%)</span>
+          <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#ef4444;"></span>Deficiente (&lt; 87%)</span>
         </div>
       </div>
 
@@ -333,15 +457,41 @@
         <div class="flex items-center gap-2">
           <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Periodo a Mostrar</p>
         </div>
-        <div class="flex items-center gap-3">
-          <div class="flex gap-1 bg-slate-100 rounded-lg p-1">
-            <button id="btn-taller-mes" onclick="cambiarVistaGlobalTaller('mes')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Mes</button>
-            <button id="btn-taller-trimestre" onclick="cambiarVistaGlobalTaller('trimestre')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Trimestre</button>
-            <button id="btn-taller-anual" onclick="cambiarVistaGlobalTaller('anual')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Anual</button>
+        <div class="flex flex-col items-end gap-2">
+          <div class="relative">
+            <button onclick="togglePeriodoTaller()" class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2 hover:border-slate-300 transition-colors">
+              <i class="fa-regular fa-calendar text-slate-400"></i>
+              <div class="flex flex-col leading-tight text-left">
+                <span class="text-[10px] text-slate-400">Periodo seleccionado</span>
+                <span id="label-periodo-taller" class="text-sm font-bold text-slate-700">Septiembre de 2026</span>
+              </div>
+              <i class="fas fa-chevron-down text-slate-400 text-xs ml-1"></i>
+            </button>
+
+            <div id="dropdown-periodo-taller" class="hidden absolute z-50 top-full mt-2 right-0 bg-white border border-slate-200 rounded-lg shadow-lg p-3 w-64">
+              <div class="flex items-center justify-between mb-2">
+                <button onclick="cambiarAnioPeriodoTaller(-1)" class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-500">
+                  <i class="fas fa-chevron-left text-xs"></i>
+                </button>
+                <span id="label-anio-periodo-taller" class="text-sm font-bold text-slate-700"></span>
+                <button onclick="cambiarAnioPeriodoTaller(1)" class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-500">
+                  <i class="fas fa-chevron-right text-xs"></i>
+                </button>
+              </div>
+              <div id="grid-meses-periodo-taller" class="grid grid-cols-3 gap-1"></div>
+            </div>
           </div>
-          <button onclick="abrirModalAgregarTaller()" class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors flex items-center gap-2">
-            <i class="fas fa-plus"></i> Agregar Evaluación
-          </button>
+
+          <div class="flex items-center gap-3">
+            <div class="flex gap-1 bg-slate-100 rounded-lg p-1">
+              <button id="btn-taller-mes" onclick="cambiarVistaGlobalTaller('mes')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Mes</button>
+              <button id="btn-taller-trimestre" onclick="cambiarVistaGlobalTaller('trimestre')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Trimestre</button>
+              <button id="btn-taller-anual" onclick="cambiarVistaGlobalTaller('anual')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Anual</button>
+            </div>
+            <button onclick="abrirModalAgregarTaller()" class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors flex items-center gap-2">
+              <i class="fas fa-plus"></i> Agregar Evaluación
+            </button>
+          </div>
         </div>
       </div>
 
@@ -352,39 +502,77 @@
         <div class="kpi-card-mini skeleton-card"></div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div class="kpi-card">
-          <p class="text-sm font-bold text-slate-700 mb-4">DESEMPEÑO POR CRITERIO DE EVALUACIÓN</p>
-          <canvas id="grafica-criterios-taller"></canvas>
+      <div class="kpi-card mb-8">
+        <div class="flex items-center gap-3 mb-6 pb-4">
+          <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-gauge-high text-blue-500 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-blue-900">DESEMPEÑO GLOBAL DEL SERVICIO EN TALLER</p>
+            <p class="text-[11px] text-slate-400">Resumen del cumplimiento de los criterios de evaluación</p>
+          </div>
         </div>
-        <div class="kpi-card">
-          <div class="flex items-center justify-between mb-4">
-            <p id="titulo-tendencia-taller" class="text-sm font-bold text-slate-700">Evolución del Promedio</p>
-            <div id="nav-mes-taller" class="hidden items-center gap-2">
-              <button id="btn-prev-taller" onclick="cambiarOffsetMes('taller', -1)" class="w-7 h-7 flex items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50">
-                <i class="fas fa-chevron-left text-xs"></i>
-              </button>
-              <span id="label-offset-taller" class="text-xs font-semibold text-slate-500 min-w-[90px] text-center"></span>
-              <button id="btn-next-taller" onclick="cambiarOffsetMes('taller', 1)" class="w-7 h-7 flex items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50">
-                <i class="fas fa-chevron-right text-xs"></i>
-              </button>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="relative border border-slate-200 rounded-xl p-4">
+            <i class="fas fa-circle-info absolute top-4 right-4 text-slate-300"></i>
+            <p class="text-sm font-bold text-blue-900">CUMPLIMIENTO POR CRITERIO DE EVALUACIÓN</p>
+            <p class="text-[11px] text-slate-400 mb-4">Porcentaje de cumplimiento alcanzado en cada criterio</p>
+            <canvas id="grafica-criterios-taller"></canvas>
+            <div class="flex items-center justify-center gap-6 mt-3">
+              <div class="flex items-center gap-2">
+                <span class="w-4 h-2.5 rounded-sm" style="background:#1d4ed8;"></span>
+                <span class="text-[11px] text-slate-500 font-semibold">Cumplimiento alcanzado</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-4 h-0 border-t-2 border-dashed" style="border-color:#ef4444;"></span>
+                <span class="text-[11px] text-slate-500 font-semibold">Meta de cumplimiento</span>
+              </div>
             </div>
           </div>
-          <canvas id="grafica-tendencia-taller"></canvas>
-          <div id="indicador-tendencia-taller" class="hidden flex-col items-center justify-center py-1">
-            <div style="width: 100%; max-width: 380px; height: 210px;">
-              <canvas id="grafica-gauge-taller"></canvas>
+          <div class="border border-slate-200 rounded-xl p-4">
+            <p id="titulo-tendencia-taller" class="text-sm font-bold text-blue-900 mb-1">EVOLUCIÓN DEL PROMEDIO</p>
+            <p class="text-[11px] text-slate-400 mb-4">Resultado general del período</p>
+            <canvas id="grafica-tendencia-taller"></canvas>
+            <div id="indicador-tendencia-taller" class="hidden flex-col items-center justify-center py-1">
+              <div style="width: 100%; max-width: 380px; height: 210px;">
+                <canvas id="grafica-gauge-taller"></canvas>
+              </div>
+              <p id="texto-gauge-taller" class="text-lg font-semibold text-slate-700 mt-7 text-center"></p>
+              <span id="badge-gauge-taller" class="hidden items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold">
+                <i class="fas fa-star"></i>
+                <span id="badge-gauge-taller-texto"></span>
+              </span>
             </div>
-            <p id="texto-gauge-taller" class="text-lg font-semibold text-slate-700 mt-7 text-center"></p>
           </div>
         </div>
       </div>
+
+      <div class="flex flex-wrap items-center gap-4 bg-slate-50 border border-t-0 border-slate-200 rounded-b-xl px-4 py-3 -mt-8 mb-8 text-xs text-slate-600">
+        <div class="flex items-center gap-2">
+          <i class="fas fa-circle-info text-slate-400"></i>
+          <span>Los resultados reflejan el promedio de las evaluaciones realizadas en el período seleccionado.</span>
+        </div>
+        <div class="flex items-center gap-4 lg:ml-auto flex-wrap">
+          <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#10b981;"></span>Excelente (&ge; 96%)</span>
+          <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#3b82f6;"></span>Bueno (95% - 91%)</span>
+          <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b;"></span>Regular (90% - 88%)</span>
+          <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#ef4444;"></span>Deficiente (&lt; 87%)</span>
+        </div>
+      </div>
+
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <div class="kpi-card">
           <p class="text-sm font-bold text-slate-700 mb-4">Servicios Realizados por Categoría</p>
           <div class="max-w-xs mx-auto">
             <canvas id="grafica-categorias-taller"></canvas>
           </div>
+        </div>
+        <div id="bloque-observaciones-taller" class="kpi-card hidden">
+          <p class="text-sm font-bold text-slate-700 mb-4">
+            <i class="fas fa-comment-dots text-slate-400 mr-1"></i> Observaciones
+          </p>
+          <div id="lista-observaciones-taller" class="space-y-3 max-h-72 overflow-y-auto"></div>
         </div>
       </div>
 
@@ -819,12 +1007,14 @@
 
       const evaluacionesDelMes = operacionesDelMes.length;
 
-      // ── Filtrar operaciones del trimestre actual (últimos 3 meses) ──
-      const inicioTrimestre = new Date(anioActual, mesActual - 2, 1);
+      // ── Filtrar operaciones del trimestre calendario (1Q/2Q/3Q/4Q) que contiene el mes seleccionado ──
+      const inicioQCampo = Math.floor(mesNavegado / 3) * 3;
+      const inicioTrimestre = new Date(anioNavegado, inicioQCampo, 1);
+      const finTrimestre = new Date(anioNavegado, inicioQCampo + 3, 0, 23, 59, 59, 999);
       const operacionesTrimestre = operacionesEvaluadas.filter(op => {
         if (!op.created_at) return false;
         const fechaOp = fechaLocalDesde(op.created_at);
-        return fechaOp >= inicioTrimestre && fechaOp <= fechaActual;
+        return fechaOp >= inicioTrimestre && fechaOp <= finTrimestre;
       });
       operacionesTrimestreGlobal = operacionesTrimestre;
 
@@ -901,7 +1091,10 @@
       if (esMes) {
         cantidad = evaluacionesDelMes;
         cantidadLabel = 'Evaluaciones del Mes';
-        cantidadSub = obtenerMesAnioActual();
+        cantidadSub = (() => {
+          const t = fechaMesNavegado.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+          return t.charAt(0).toUpperCase() + t.slice(1);
+        })();
         promedio = promedioMensual;
         promedioLabel = 'Promedio Mensual';
         bajos = criteriosBajosMensual;
@@ -934,29 +1127,49 @@
       }
 
       cont.innerHTML = `
-        <div class="kpi-card-mini">
-          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">${cantidadLabel}</p>
-          <p class="text-lg font-bold text-slate-800" id="valor-cantidad">0</p>
-          <p class="text-[10px] text-slate-400 mt-0.5">${cantidadSub}</p>
+        <div class="kpi-card-mini kpi-row gap-3">
+          <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-clipboard-list text-blue-500 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-blue-500 mb-0.5">${cantidadLabel}</p>
+            <p class="text-2xl font-black text-slate-800" id="valor-cantidad">0</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">${cantidadSub}</p>
+          </div>
         </div>
 
-        <div class="kpi-card-mini">
-          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">${promedioLabel}</p>
-          <p class="text-lg font-bold text-[#2563eb]" id="valor-promedio">0%</p>
-          ${tendenciaHtml}
+        <div class="kpi-card-mini kpi-row gap-3">
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-arrow-trend-up text-emerald-500 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-500 mb-0.5">${promedioLabel}</p>
+            <p class="text-2xl font-black text-emerald-600" id="valor-promedio">0%</p>
+            ${tendenciaHtml}
+          </div>
         </div>
 
-        <div class="kpi-card-mini">
-          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Criterios Bajos (≤3)</p>
-          ${bajos === 0
-            ? `<p class="text-lg font-bold text-green-600"><i class="fas fa-check-circle text-base"></i> 0</p>`
-            : `<p class="text-lg font-bold text-amber-600">${bajos}</p>`
-          }
+        <div class="kpi-card-mini kpi-row gap-3">
+          <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-triangle-exclamation text-amber-500 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-amber-500 mb-0.5">Criterios Bajos (≤3)</p>
+            ${bajos === 0
+              ? `<p class="text-2xl font-black text-slate-800">0</p>`
+              : `<p class="text-2xl font-black text-amber-500">${bajos}</p>`
+            }
+          </div>
         </div>
 
-        <div class="kpi-card-mini">
-          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">${nivelLabel}</p>
-          <p class="text-lg font-bold text-slate-800">${NIVEL_TEXTO[Math.round(promedio) - 1] || '—'}</p>
+        <div class="kpi-card-mini kpi-row gap-3">
+          <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-award text-purple-500 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-purple-500 mb-0.5">${nivelLabel}</p>
+            <p class="text-xl font-black text-purple-600">${NIVEL_TEXTO[Math.round(promedio) - 1] || '—'}</p>
+          </div>
         </div>
       `;
 
@@ -1178,7 +1391,7 @@
         ? promediosPorCriterio.reduce((a,b)=>a+b,0) / promediosPorCriterio.length
         : 0;
       const porcentaje = (promedioGeneral / 5) * 100;
-      const color = porcentaje >= 90 ? '#10b981' : porcentaje >= 70 ? '#f59e0b' : '#ef4444';
+      const color = porcentaje >= 96 ? '#10b981' : porcentaje >= 91 ? '#3b82f6' : porcentaje >= 88 ? '#f59e0b' : '#ef4444';
 
       const ctxG = document.getElementById('grafica-gauge-campo').getContext('2d');
       if (chartGaugeCampo) chartGaugeCampo.destroy();
@@ -1207,6 +1420,17 @@
 
       const textoEl = document.getElementById('texto-gauge-campo');
       if (textoEl) textoEl.textContent = `Nivel de cumplimiento`;
+
+      const badgeEl = document.getElementById('badge-gauge-campo');
+      const badgeTextoEl = document.getElementById('badge-gauge-campo-texto');
+      if (badgeEl && badgeTextoEl) {
+        const nivelNombre = porcentaje >= 96 ? 'Excelente' : porcentaje >= 91 ? 'Bueno' : porcentaje >= 88 ? 'Regular' : 'Deficiente';
+        badgeTextoEl.textContent = nivelNombre;
+        badgeEl.classList.remove('hidden');
+        badgeEl.classList.add('inline-flex');
+        badgeEl.style.backgroundColor = color + '1A';
+        badgeEl.style.color = color;
+      }
     }
 
     function clasificarPorJobId(jobId, mapa) {
@@ -1273,6 +1497,7 @@
         renderGraficaTendenciaTaller();
         renderGraficaCategoriasTaller();
         renderTablaEvaluacionesTaller();
+        renderObservacionesTaller();
       } else {
         offsetMesGeneral = nuevoOffset;
         renderGeneral();
@@ -1312,7 +1537,7 @@
       configurar('general', 'nav-mes-general', 'label-offset-general', 'btn-prev-general', 'btn-next-general', offsetMesGeneral, vistaGeneral, [...operacionesEvaluadas, ...operacionesTaller]);
     }
 
-    function agruparPorMesSiAnual(dataset, vista) {
+    function agruparPorMesSiAnual(dataset, vista, offsetMeses = 0) {
       const ordenCronologico = [...dataset].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
 
       if (vista !== 'anual' && vista !== 'trimestre') {
@@ -1330,19 +1555,21 @@
         grupos.get(clave).push(op);
       });
 
+      const hoy = new Date();
+      const fechaRef = new Date(hoy.getFullYear(), hoy.getMonth() + offsetMeses, 1);
+      const anioRef = fechaRef.getFullYear();
+      const mesRef = fechaRef.getMonth();
+
       let clavesOrdenadas;
       if (vista === 'trimestre') {
-        const hoy = new Date();
-        const anioActual = hoy.getFullYear();
-        const inicioQ = Math.floor(hoy.getMonth() / 3) * 3; // 0, 3, 6 o 9
+        const inicioQ = Math.floor(mesRef / 3) * 3; // 0, 3, 6 o 9 → 1Q, 2Q, 3Q, 4Q
         clavesOrdenadas = [0, 1, 2].map(i => {
           const mes = inicioQ + i + 1; // 1-indexado
-          return `${anioActual}-${String(mes).padStart(2, '0')}`;
+          return `${anioRef}-${String(mes).padStart(2, '0')}`;
         });
       } else if (vista === 'anual') {
-        const anioActual = new Date().getFullYear();
         clavesOrdenadas = Array.from({ length: 12 }, (_, i) =>
-          `${anioActual}-${String(i + 1).padStart(2, '0')}`
+          `${anioRef}-${String(i + 1).padStart(2, '0')}`
         );
       } else {
         clavesOrdenadas = [...grupos.keys()].sort();
@@ -1379,13 +1606,13 @@
       if (chartCriterios) chartCriterios.destroy();
             chartCriterios = new Chart(ctx1, {
         type: 'bar',
-        plugins: [pluginLineaMeta],
+        plugins: [pluginLineaMeta, pluginLineaCumplimientoTaller],
         data: {
-          labels: CRITERIOS_CALIDAD.map(c => c.nombre),
+          labels: CRITERIOS_CALIDAD.map(c => c.nombre.length > 10 ? c.nombre.split(' ') : c.nombre),
           datasets: [{
             label: 'Promedio',
             data: promediosPorCriterio,
-            backgroundColor: '#2563eb'
+            backgroundColor: '#10b981'
           }]
         },
                 options: {
@@ -1394,8 +1621,17 @@
               min: 0,
               max: 5,
               ticks: {
-                stepSize: 0.5,
+                stepSize: 1,
                 callback: (valor) => `${Math.round((valor / 5) * 100)}%`
+              }
+            },
+            x: {
+              ticks: {
+                color: '#C41E43',
+                font: { weight: 'bold' },
+                maxRotation: 0,
+                minRotation: 0,
+                autoSkip: false
               }
             }
           },
@@ -1584,7 +1820,7 @@
       contCanvas.classList.remove('hidden');
       contCanvas.style.display = 'block';
 
-      const { etiquetas: etiquetasFecha, promedios: promediosOperacion } = agruparPorMesSiAnual(dataset, vistaTendencia);
+      const { etiquetas: etiquetasFecha, promedios: promediosOperacion } = agruparPorMesSiAnual(dataset, vistaTendencia, offsetMesCampo);
 
       const ctx2 = contCanvas.getContext('2d');
       if (chartTendencia) chartTendencia.destroy();
@@ -1762,6 +1998,7 @@
       renderGraficaTendenciaTaller();
       renderGraficaCategoriasTaller();
       renderTablaEvaluacionesTaller();
+      renderObservacionesTaller();
     }
 
     function renderKPIsTaller() {
@@ -1783,11 +2020,13 @@
       });
       operacionesTallerMesGlobal = operacionesMes;
 
-      const inicioTrimestre = new Date(anioActual, mesActual - 2, 1);
+      const inicioQTaller = Math.floor(mesNavegadoTaller / 3) * 3;
+      const inicioTrimestre = new Date(anioNavegadoTaller, inicioQTaller, 1);
+      const finTrimestreTaller = new Date(anioNavegadoTaller, inicioQTaller + 3, 0, 23, 59, 59, 999);
       const operacionesTrimestre = operacionesTaller.filter(op => {
         if (!op.created_at) return false;
         const fechaOp = fechaLocalDesde(op.created_at);
-        return fechaOp >= inicioTrimestre && fechaOp <= fechaActual;
+        return fechaOp >= inicioTrimestre && fechaOp <= finTrimestreTaller;
       });
       operacionesTallerTrimestreGlobal = operacionesTrimestre;
 
@@ -1814,7 +2053,10 @@
       if (vistaKPIsTaller === 'mes') {
         cantidad = operacionesMes.length;
         cantidadLabel = 'Evaluaciones del Mes';
-        cantidadSub = obtenerMesAnioActual();
+        cantidadSub = (() => {
+          const t = fechaMesNavegadoTaller.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+          return t.charAt(0).toUpperCase() + t.slice(1);
+        })();
         promedio = promedioDe(operacionesMes);
         promedioLabel = 'Promedio Mensual';
         bajos = bajosDe(operacionesMes);
@@ -1838,22 +2080,45 @@
       }
 
       cont.innerHTML = `
-        <div class="kpi-card-mini">
-          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">${cantidadLabel}</p>
-          <p class="text-3xl font-black text-slate-800">${cantidad}</p>
-          <p class="text-[10px] text-slate-400 mt-0.5">${cantidadSub}</p>
+        <div class="kpi-card-mini kpi-row gap-3">
+          <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-clipboard-list text-blue-500 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-blue-500 mb-0.5">${cantidadLabel}</p>
+            <p class="text-2xl font-black text-slate-800">${cantidad}</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">${cantidadSub}</p>
+          </div>
         </div>
-        <div class="kpi-card-mini">
-          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">${promedioLabel}</p>
-          <p class="text-3xl font-black text-[#2563eb]">${Math.round((promedio / 5) * 100)}%</p>
+        <div class="kpi-card-mini kpi-row gap-3">
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-arrow-trend-up text-emerald-500 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-500 mb-0.5">${promedioLabel}</p>
+            <p class="text-2xl font-black text-emerald-600">${Math.round((promedio / 5) * 100)}%</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">Promedio mensual</p>
+          </div>
         </div>
-        <div class="kpi-card-mini">
-          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Criterios Bajos (≤3)</p>
-          <p class="text-3xl font-black ${bajos > 0 ? 'text-amber-500' : 'text-green-500'}">${bajos}</p>
+        <div class="kpi-card-mini kpi-row gap-3">
+          <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-triangle-exclamation text-amber-500 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-amber-500 mb-0.5">Criterios Bajos (≤3)</p>
+            <p class="text-2xl font-black ${bajos > 0 ? 'text-amber-500' : 'text-slate-800'}">${bajos}</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">Áreas de oportunidad</p>
+          </div>
         </div>
-        <div class="kpi-card-mini">
-          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">${nivelLabel}</p>
-          <p class="text-lg font-bold text-slate-800">${NIVEL_TEXTO[Math.round(promedio) - 1] || '—'}</p>
+        <div class="kpi-card-mini kpi-row gap-3">
+          <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-award text-purple-500 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-purple-500 mb-0.5">${nivelLabel}</p>
+            <p class="text-xl font-black text-purple-600">${NIVEL_TEXTO[Math.round(promedio) - 1] || '—'}</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">Clasificación del periodo</p>
+          </div>
         </div>
       `;
     }
@@ -1911,6 +2176,22 @@
       chartCategoriasTaller.update();
     }
 
+    const pluginLineaCumplimientoTaller = {
+      id: 'lineaCumplimientoTaller',
+      afterDraw(chart) {
+        if (!['grafica-criterios-taller', 'grafica-criterios', 'grafica-criterios-general'].includes(chart.canvas.id)) return;
+        const { ctx, chartArea: { left, right, top } } = chart;
+        ctx.save();
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#1d4ed8';
+        ctx.moveTo(left, top);
+        ctx.lineTo(right, top);
+        ctx.stroke();
+        ctx.restore();
+      }
+    };
+
     function renderGraficaCriteriosTaller() {
       const dataset = vistaCriteriosTaller === 'mes' ? operacionesTallerMesGlobal
         : vistaCriteriosTaller === 'trimestre' ? operacionesTallerTrimestreGlobal
@@ -1925,10 +2206,10 @@
       if (chartCriteriosTaller) chartCriteriosTaller.destroy();
             chartCriteriosTaller = new Chart(ctx, {
         type: 'bar',
-        plugins: [pluginLineaMeta],
+        plugins: [pluginLineaMeta, pluginLineaCumplimientoTaller],
         data: {
           labels: CRITERIOS_CALIDAD.map(c => c.nombre),
-          datasets: [{ label: 'Promedio', data: promedios, backgroundColor: '#2563eb' }]
+          datasets: [{ label: 'Promedio', data: promedios, backgroundColor: '#10b981' }]
         },
                 options: {
           scales: {
@@ -1936,8 +2217,17 @@
               min: 0,
               max: 5,
               ticks: {
-                stepSize: 0.5,
+                stepSize: 1,
                 callback: (valor) => `${Math.round((valor / 5) * 100)}%`
+              }
+            },
+            x: {
+              ticks: {
+                color: '#C41E43',
+                font: { weight: 'bold' },
+                maxRotation: 0,
+                minRotation: 0,
+                autoSkip: false
               }
             }
           },
@@ -1957,7 +2247,7 @@
         ? promediosPorCriterio.reduce((a,b)=>a+b,0) / promediosPorCriterio.length
         : 0;
       const porcentaje = (promedioGeneral / 5) * 100;
-      const color = porcentaje >= 90 ? '#10b981' : porcentaje >= 70 ? '#f59e0b' : '#ef4444';
+      const color = porcentaje >= 96 ? '#10b981' : porcentaje >= 91 ? '#3b82f6' : porcentaje >= 88 ? '#f59e0b' : '#ef4444';
 
       const ctxG = document.getElementById('grafica-gauge-taller').getContext('2d');
       if (chartGaugeTaller) chartGaugeTaller.destroy();
@@ -1986,6 +2276,17 @@
 
       const textoEl = document.getElementById('texto-gauge-taller');
       if (textoEl) textoEl.textContent = `Nivel de cumplimiento`;
+
+      const badgeEl = document.getElementById('badge-gauge-taller');
+      const badgeTextoEl = document.getElementById('badge-gauge-taller-texto');
+      if (badgeEl && badgeTextoEl) {
+        const nivelNombre = porcentaje >= 96 ? 'Excelente' : porcentaje >= 91 ? 'Bueno' : porcentaje >= 88 ? 'Regular' : 'Deficiente';
+        badgeTextoEl.textContent = nivelNombre;
+        badgeEl.classList.remove('hidden');
+        badgeEl.classList.add('inline-flex');
+        badgeEl.style.backgroundColor = color + '1A';
+        badgeEl.style.color = color;
+      }
     }
 
     function renderGraficaTendenciaTaller() {
@@ -1996,10 +2297,10 @@
       const tituloEl = document.getElementById('titulo-tendencia-taller');
       if (tituloEl) {
         tituloEl.textContent = vistaTendenciaTaller === 'mes'
-          ? 'DESEMPEÑO DE LAS OPERACIONES — MENSUAL'
+          ? 'NIVEL DE CUMPLIMIENTO GLOBAL'
           : vistaTendenciaTaller === 'trimestre'
-          ? 'DESEMPEÑO DE LAS OPERACIONES — TRIMESTRE'
-          : 'DESEMPEÑO DE LAS OPERACIONES — ANUAL';
+          ? 'NIVEL DE CUMPLIMIENTO GLOBAL'
+          : 'NIVEL DE CUMPLIMIENTO GLOBAL';
       }
 
       const contCanvasT = document.getElementById('grafica-tendencia-taller');
@@ -2023,7 +2324,7 @@
       contCanvasT.classList.remove('hidden');
       contCanvasT.style.display = 'block';
 
-      const { etiquetas, promedios } = agruparPorMesSiAnual(dataset, vistaTendenciaTaller);
+      const { etiquetas, promedios } = agruparPorMesSiAnual(dataset, vistaTendenciaTaller, offsetMesTaller);
 
       const ctx = contCanvasT.getContext('2d');
       if (chartTendenciaTaller) chartTendenciaTaller.destroy();
@@ -2097,6 +2398,202 @@
       }).join('');
     }
 
+    function renderObservacionesTaller() {
+      const dataset = (vistaTablaTaller === 'mes' ? operacionesTallerMesGlobal
+        : vistaTablaTaller === 'trimestre' ? operacionesTallerTrimestreGlobal
+        : operacionesTallerAnualGlobal
+      );
+
+      const conObservaciones = dataset.filter(op => op.observaciones && op.observaciones.trim() !== '');
+
+      const bloque = document.getElementById('bloque-observaciones-taller');
+      const lista = document.getElementById('lista-observaciones-taller');
+
+      if (conObservaciones.length === 0) {
+        bloque.classList.add('hidden');
+        lista.innerHTML = '';
+        return;
+      }
+
+      bloque.classList.remove('hidden');
+      lista.innerHTML = conObservaciones.map(op => `
+        <div class="border border-slate-200 rounded-xl p-3">
+          <p class="text-xs font-bold text-slate-500 mb-1">
+            <i class="fas fa-mug-hot"></i> Job ID: ${op.job_id || '—'}
+          </p>
+          <p class="text-sm text-slate-600">${op.observaciones}</p>
+        </div>
+      `).join('');
+    }
+
+    let anioPeriodoCampo = new Date().getFullYear();
+    let mesPeriodoCampo = new Date().getMonth();
+    let anioPeriodoGeneral = new Date().getFullYear();
+    let mesPeriodoGeneral = new Date().getMonth();
+
+    let anioPeriodoTaller = new Date().getFullYear();
+    let mesPeriodoTaller = new Date().getMonth();
+
+    const NOMBRES_MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+    function togglePeriodoTaller() {
+      const dd = document.getElementById('dropdown-periodo-taller');
+      dd.classList.toggle('hidden');
+      if (!dd.classList.contains('hidden')) renderDropdownPeriodoTaller();
+    }
+
+    function cambiarAnioPeriodoTaller(delta) {
+      anioPeriodoTaller += delta;
+      renderDropdownPeriodoTaller();
+    }
+
+    function mesTieneOperacionesTaller(anio, mesIdx) {
+      return operacionesTaller.some(op => {
+        if (!op.created_at) return false;
+        const f = fechaLocalDesde(op.created_at);
+        return f.getFullYear() === anio && f.getMonth() === mesIdx;
+      });
+    }
+
+    function renderDropdownPeriodoTaller() {
+      document.getElementById('label-anio-periodo-taller').textContent = anioPeriodoTaller;
+      const grid = document.getElementById('grid-meses-periodo-taller');
+      grid.innerHTML = NOMBRES_MESES.map((nombre, idx) => {
+        const tieneDatos = mesTieneOperacionesTaller(anioPeriodoTaller, idx);
+        if (!tieneDatos) {
+          return `
+            <button disabled class="text-xs font-semibold py-2 rounded-md text-slate-300 cursor-not-allowed">
+              ${nombre.slice(0,3)}
+            </button>
+          `;
+        }
+        return `
+          <button onclick="seleccionarPeriodoTaller(${idx})" class="text-xs font-semibold py-2 rounded-md hover:bg-slate-100">
+            ${nombre.slice(0,3)}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function seleccionarPeriodoTaller(mesIdx) {
+      mesPeriodoTaller = mesIdx;
+      const fecha = new Date(anioPeriodoTaller, mesPeriodoTaller, 1);
+      const texto = fecha.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+      document.getElementById('label-periodo-taller').textContent = texto.charAt(0).toUpperCase() + texto.slice(1);
+      document.getElementById('dropdown-periodo-taller').classList.add('hidden');
+      const hoy = new Date();
+      offsetMesTaller = (anioPeriodoTaller - hoy.getFullYear()) * 12 + (mesPeriodoTaller - hoy.getMonth());
+      cambiarOffsetMes('taller', 0);
+    }
+
+    function togglePeriodoCampo() {
+      const dd = document.getElementById('dropdown-periodo-campo');
+      dd.classList.toggle('hidden');
+      if (!dd.classList.contains('hidden')) renderDropdownPeriodoCampo();
+    }
+    function cambiarAnioPeriodoCampo(delta) {
+      anioPeriodoCampo += delta;
+      renderDropdownPeriodoCampo();
+    }
+    function mesTieneOperacionesCampo(anio, mesIdx) {
+      return operacionesEvaluadas.some(op => {
+        if (!op.created_at) return false;
+        const f = fechaLocalDesde(op.created_at);
+        return f.getFullYear() === anio && f.getMonth() === mesIdx;
+      });
+    }
+    function renderDropdownPeriodoCampo() {
+      document.getElementById('label-anio-periodo-campo').textContent = anioPeriodoCampo;
+      const grid = document.getElementById('grid-meses-periodo-campo');
+      grid.innerHTML = NOMBRES_MESES.map((nombre, idx) => {
+        const tieneDatos = mesTieneOperacionesCampo(anioPeriodoCampo, idx);
+        if (!tieneDatos) {
+          return `
+            <button disabled class="text-xs font-semibold py-2 rounded-md text-slate-300 cursor-not-allowed">
+              ${nombre.slice(0,3)}
+            </button>
+          `;
+        }
+        return `
+          <button onclick="seleccionarPeriodoCampo(${idx})" class="text-xs font-semibold py-2 rounded-md hover:bg-slate-100">
+            ${nombre.slice(0,3)}
+          </button>
+        `;
+      }).join('');
+    }
+    function seleccionarPeriodoCampo(mesIdx) {
+      mesPeriodoCampo = mesIdx;
+      const fecha = new Date(anioPeriodoCampo, mesPeriodoCampo, 1);
+      const texto = fecha.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+      document.getElementById('label-periodo-campo').textContent = texto.charAt(0).toUpperCase() + texto.slice(1);
+      document.getElementById('dropdown-periodo-campo').classList.add('hidden');
+      const hoy = new Date();
+      offsetMesCampo = (anioPeriodoCampo - hoy.getFullYear()) * 12 + (mesPeriodoCampo - hoy.getMonth());
+      cambiarOffsetMes('campo', 0);
+    }
+
+    function togglePeriodoGeneral() {
+      const dd = document.getElementById('dropdown-periodo-general');
+      dd.classList.toggle('hidden');
+      if (!dd.classList.contains('hidden')) renderDropdownPeriodoGeneral();
+    }
+    function cambiarAnioPeriodoGeneral(delta) {
+      anioPeriodoGeneral += delta;
+      renderDropdownPeriodoGeneral();
+    }
+    function mesTieneOperacionesGeneral(anio, mesIdx) {
+      const enCampo = operacionesEvaluadas.some(op => {
+        if (!op.created_at) return false;
+        const f = fechaLocalDesde(op.created_at);
+        return f.getFullYear() === anio && f.getMonth() === mesIdx;
+      });
+      if (enCampo) return true;
+      return operacionesTaller.some(op => {
+        if (!op.created_at) return false;
+        const f = fechaLocalDesde(op.created_at);
+        return f.getFullYear() === anio && f.getMonth() === mesIdx;
+      });
+    }
+    function renderDropdownPeriodoGeneral() {
+      document.getElementById('label-anio-periodo-general').textContent = anioPeriodoGeneral;
+      const grid = document.getElementById('grid-meses-periodo-general');
+      grid.innerHTML = NOMBRES_MESES.map((nombre, idx) => {
+        const tieneDatos = mesTieneOperacionesGeneral(anioPeriodoGeneral, idx);
+        if (!tieneDatos) {
+          return `
+            <button disabled class="text-xs font-semibold py-2 rounded-md text-slate-300 cursor-not-allowed">
+              ${nombre.slice(0,3)}
+            </button>
+          `;
+        }
+        return `
+          <button onclick="seleccionarPeriodoGeneral(${idx})" class="text-xs font-semibold py-2 rounded-md hover:bg-slate-100">
+            ${nombre.slice(0,3)}
+          </button>
+        `;
+      }).join('');
+    }
+    function seleccionarPeriodoGeneral(mesIdx) {
+      mesPeriodoGeneral = mesIdx;
+      const fecha = new Date(anioPeriodoGeneral, mesPeriodoGeneral, 1);
+      const texto = fecha.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+      document.getElementById('label-periodo-general').textContent = texto.charAt(0).toUpperCase() + texto.slice(1);
+      document.getElementById('dropdown-periodo-general').classList.add('hidden');
+      const hoy = new Date();
+      offsetMesGeneral = (anioPeriodoGeneral - hoy.getFullYear()) * 12 + (mesPeriodoGeneral - hoy.getMonth());
+      renderGeneral();
+    }
+
+    document.addEventListener('click', function(e) {
+      ['taller', 'campo', 'general'].forEach(function(seccion) {
+        const dd = document.getElementById('dropdown-periodo-' + seccion);
+        const boton = e.target.closest('[onclick="togglePeriodo' + seccion.charAt(0).toUpperCase() + seccion.slice(1) + '()"]');
+        if (dd && !dd.classList.contains('hidden') && !dd.contains(e.target) && !boton) {
+          dd.classList.add('hidden');
+        }
+      });
+    });
+
     function cambiarVistaGlobalTaller(vista) {
       vistaKPIsTaller = vista;
       vistaCriteriosTaller = vista;
@@ -2108,6 +2605,7 @@
       renderGraficaTendenciaTaller();
       renderGraficaCategoriasTaller();
       renderTablaEvaluacionesTaller();
+      renderObservacionesTaller();
       actualizarBotonesTabsTaller();
     }
 
@@ -2469,6 +2967,17 @@
 
       const textoEl = document.getElementById('texto-gauge-general');
       if (textoEl) textoEl.textContent = `Nivel de cumplimiento`;
+
+      const badgeEl = document.getElementById('badge-gauge-general');
+      const badgeTextoEl = document.getElementById('badge-gauge-general-texto');
+      if (badgeEl && badgeTextoEl) {
+        const nivelNombre = porcentaje >= 96 ? 'Excelente' : porcentaje >= 91 ? 'Bueno' : porcentaje >= 88 ? 'Regular' : 'Deficiente';
+        badgeTextoEl.textContent = nivelNombre;
+        badgeEl.classList.remove('hidden');
+        badgeEl.classList.add('inline-flex');
+        badgeEl.style.backgroundColor = color + '1A';
+        badgeEl.style.color = color;
+      }
     }
 
     function obtenerDatasetPorVista(operaciones, vista) {
@@ -2487,11 +2996,16 @@
         });
       }
       if (vista === 'trimestre') {
-        const inicioTrimestre = new Date(anioActual, mesActual - 2, 1);
+        const fechaMesNavegadoGeneral = new Date(anioActual, mesActual + offsetMesGeneral, 1);
+        const mesNavegadoGeneral = fechaMesNavegadoGeneral.getMonth();
+        const anioNavegadoGeneral = fechaMesNavegadoGeneral.getFullYear();
+        const inicioQGeneral = Math.floor(mesNavegadoGeneral / 3) * 3;
+        const inicioTrimestre = new Date(anioNavegadoGeneral, inicioQGeneral, 1);
+        const finTrimestreGeneral = new Date(anioNavegadoGeneral, inicioQGeneral + 3, 0, 23, 59, 59, 999);
         return operaciones.filter(op => {
           if (!op.created_at) return false;
           const f = fechaLocalDesde(op.created_at);
-          return f >= inicioTrimestre && f <= fechaActual;
+          return f >= inicioTrimestre && f <= finTrimestreGeneral;
         });
       }
       return operaciones.filter(op => {
@@ -2584,22 +3098,42 @@
         : String(new Date().getFullYear());
 
       document.getElementById('contenedor-kpis-general').innerHTML = `
-        <div class="kpi-card-mini">
-          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Evaluaciones Totales</p>
-          <p class="text-3xl font-black text-slate-800">${combinado.length}</p>
-          <p class="text-[10px] text-slate-400 mt-0.5">${cantidadSub}</p>
+        <div class="kpi-card-mini kpi-row gap-3">
+          <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-clipboard-list text-blue-500 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-blue-500 mb-0.5">Evaluaciones Totales</p>
+            <p class="text-2xl font-black text-slate-800">${combinado.length}</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">${cantidadSub}</p>
+          </div>
         </div>
-        <div class="kpi-card-mini">
-          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Promedio Combinado</p>
-          <p class="text-3xl font-black text-[#2563eb]">${Math.round((promCombinado / 5) * 100)}%</p>
+        <div class="kpi-card-mini kpi-row gap-3">
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-arrow-trend-up text-emerald-500 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-500 mb-0.5">Promedio Combinado</p>
+            <p class="text-2xl font-black text-emerald-600">${Math.round((promCombinado / 5) * 100)}%</p>
+          </div>
         </div>
-        <div class="kpi-card-mini">
-          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Criterios Bajos (≤3)</p>
-          <p class="text-3xl font-black ${bajos > 0 ? 'text-amber-500' : 'text-green-500'}">${bajos}</p>
+        <div class="kpi-card-mini kpi-row gap-3">
+          <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-triangle-exclamation text-amber-500 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-amber-500 mb-0.5">Criterios Bajos (≤3)</p>
+            <p class="text-2xl font-black ${bajos > 0 ? 'text-amber-500' : 'text-slate-800'}">${bajos}</p>
+          </div>
         </div>
-        <div class="kpi-card-mini">
-          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Nivel General</p>
-          <p class="text-lg font-bold text-slate-800">${NIVEL_TEXTO[nivelIdx - 1] || '—'}</p>
+        <div class="kpi-card-mini kpi-row gap-3">
+          <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-award text-purple-500 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-purple-500 mb-0.5">Nivel General</p>
+            <p class="text-xl font-black text-purple-600">${NIVEL_TEXTO[nivelIdx - 1] || '—'}</p>
+          </div>
         </div>
       `;
 
@@ -2611,10 +3145,10 @@
       if (chartCriteriosGeneral) chartCriteriosGeneral.destroy();
             chartCriteriosGeneral = new Chart(ctxC, {
         type: 'bar',
-        plugins: [pluginLineaMeta],
+        plugins: [pluginLineaMeta, pluginLineaCumplimientoTaller],
         data: {
           labels: CRITERIOS_CALIDAD.map(c => c.nombre),
-          datasets: [{ label: 'Promedio', data: promediosCriterios, backgroundColor: '#2563eb' }]
+          datasets: [{ label: 'Promedio', data: promediosCriterios, backgroundColor: '#10b981' }]
         },
                 options: {
           scales: {
@@ -2622,8 +3156,17 @@
               min: 0,
               max: 5,
               ticks: {
-                stepSize: 0.5,
+                stepSize: 1,
                 callback: (valor) => `${Math.round((valor / 5) * 100)}%`
+              }
+            },
+            x: {
+              ticks: {
+                color: '#C41E43',
+                font: { weight: 'bold' },
+                maxRotation: 0,
+                minRotation: 0,
+                autoSkip: false
               }
             }
           },
@@ -2659,7 +3202,7 @@
         contCanvasG.classList.remove('hidden');
         contCanvasG.style.display = 'block';
 
-        const { etiquetas, promedios: promediosOrden } = agruparPorMesSiAnual(combinado, vistaGeneral);
+        const { etiquetas, promedios: promediosOrden } = agruparPorMesSiAnual(combinado, vistaGeneral, offsetMesGeneral);
         const ctxT = contCanvasG.getContext('2d');
         if (chartTendenciaGeneral) chartTendenciaGeneral.destroy();
         chartTendenciaGeneral = new Chart(ctxT, {

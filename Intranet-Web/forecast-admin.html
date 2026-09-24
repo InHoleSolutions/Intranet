@@ -31,9 +31,34 @@
 
   <style>
     body { font-family: Calibri, 'Carlito', 'Segoe UI', system-ui, sans-serif; }
+
+    @keyframes skeletonPulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+    .skeleton-bar {
+      display: inline-block;
+      height: 0.85em;
+      border-radius: 4px;
+      background: #e5e7eb;
+      animation: skeletonPulse 1.3s ease-in-out infinite;
+    }
+    .fa-spin-loading { animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #toastContainer { position: fixed; bottom: 1.25rem; right: 1.25rem; z-index: 200; display: flex; flex-direction: column; gap: 0.5rem; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .toast {
+      animation: toastIn .25s ease-out;
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.75rem 1rem; border-radius: 0.75rem;
+      font-size: 0.85rem; font-weight: 500; color: #fff;
+      box-shadow: 0 4px 14px rgba(0,0,0,.15); max-width: 320px;
+    }
+    .toast-error { background: #dc2626; }
+    .toast-success { background: #16a34a; }
   </style>
 </head>
 <body class="bg-bg text-gray-800 min-h-screen flex flex-col">
+
+  <div id="toastContainer"></div>
 
   <!-- Pantalla de acceso denegado (oculta por defecto) -->
   <div id="overlayAccesoDenegado" class="hidden fixed inset-0 z-[100] bg-white flex items-center justify-center px-6">
@@ -59,12 +84,29 @@
         <div>
           <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Captura de Datos</h1>
           <p class="text-sm text-gray-400 mt-1">Aquí se alimentan los datos que ve el dashboard</p>
-          <p id="ultimaActualizacion" class="text-xs text-gray-400 mt-0.5"></p>
+          <p id="ultimaActualizacion" class="text-xs text-gray-400 mt-0.5">
+            <i class="fas fa-circle-notch fa-spin-loading"></i> Cargando...
+          </p>
         </div>
         <a href="forecast.html"
           class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 bg-white border border-border rounded-lg px-4 py-2 shadow-sm hover:bg-gray-50 hover:border-accent hover:text-accent transition">
           <i class="fas fa-arrow-left text-xs"></i> Volver
         </a>
+      </div>
+
+      <!-- Recordatorio de captura mensual (día 25+ sin Venta Real del mes) -->
+      <div id="bannerRecordatorioMensual" class="hidden items-start justify-between gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <div class="flex items-start gap-3">
+          <i class="fas fa-circle-exclamation text-amber-500 mt-0.5"></i>
+          <div class="text-sm text-amber-800">
+            <p class="font-medium">Aún no se ha capturado la venta real de este mes.</p>
+            <p class="mt-0.5 text-amber-700">Ve a la sección "Cierre de Venta Real Mensual" para registrarla.</p>
+          </div>
+        </div>
+        <button type="button" onclick="document.getElementById('seccionCierreVentaReal').scrollIntoView({behavior:'smooth', block:'start'})"
+          class="shrink-0 bg-amber-500 text-white text-xs font-medium px-3 py-2 rounded-lg hover:bg-amber-600 transition whitespace-nowrap">
+          Ir a capturar
+        </button>
       </div>
 
       <!-- FORMULARIO: Registro mensual de Forecast / Real -->
@@ -186,7 +228,7 @@
       </section>
 
       <!-- CIERRE DE VENTA REAL MENSUAL -->
-      <section class="bg-panel border border-border rounded-2xl p-6 shadow-sm">
+      <section id="seccionCierreVentaReal" class="bg-panel border border-border rounded-2xl p-6 shadow-sm">
         <h2 class="text-lg font-semibold text-gray-900 mb-1">Cierre de Venta Real Mensual</h2>
         <p class="text-sm text-gray-500 mb-4">Cuando un mes ya cerró, captura aquí el monto total realmente vendido. Este concentrado es el que se compara contra el Forecast en el dashboard.</p>
 
@@ -329,38 +371,31 @@
         </div>
       </section>
 
-      <!-- STOCK DE HERRAMIENTAS (colapsable) -->
+      <!-- HISTORIAL DE CAMBIOS (auditoría, colapsable) -->
       <section class="bg-panel border border-border rounded-2xl p-6 shadow-sm">
-        <button id="btnToggleStock" type="button" class="w-full flex items-center justify-between text-left">
+        <button id="btnToggleAuditoria" type="button" class="w-full flex items-center justify-between text-left">
           <div>
-            <h2 class="text-lg font-semibold text-gray-900 mb-1">Stock de Servicio</h2>
-            <p class="text-sm text-gray-500">Captura la cantidad disponible de cada servicio/herramienta del catálogo. Se guarda al salir del campo.</p>
+            <h2 class="text-lg font-semibold text-gray-900 mb-1">Historial de Cambios</h2>
+            <p class="text-sm text-gray-500">Quién creó o editó cada registro, y cuándo.</p>
           </div>
-          <i id="iconoToggleStock" class="fas fa-chevron-down text-gray-400 transition-transform ml-4"></i>
+          <i id="iconoToggleAuditoria" class="fas fa-chevron-down text-gray-400 transition-transform ml-4"></i>
         </button>
 
-        <div id="contenidoStock" class="hidden mt-4">
-          <div class="mb-4">
-            <select id="filtroStockLinea" class="bg-white border border-border rounded-lg px-3 py-2 text-sm">
-              <option value="todas">Todas las líneas</option>
-            </select>
-          </div>
-
-          <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
-            <table class="w-full text-sm">
-              <thead class="sticky top-0 bg-white">
-                <tr class="text-left text-gray-500 border-b border-border">
-                  <th class="py-2 pr-4 font-medium">Línea de Producto</th>
-                  <th class="py-2 pr-4 font-medium">Servicio/Herramienta</th>
-                  <th class="py-2 pr-4 font-medium w-32">Stock</th>
-                </tr>
-              </thead>
-              <tbody id="stockBody" class="divide-y divide-border"></tbody>
-            </table>
-          </div>
+        <div id="contenidoAuditoria" class="hidden mt-4 overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left text-gray-500 border-b border-border">
+                <th class="py-2 pr-4 font-medium">Acción</th>
+                <th class="py-2 pr-4 font-medium">Usuario</th>
+                <th class="py-2 pr-4 font-medium">Cliente · Línea</th>
+                <th class="py-2 pr-4 font-medium">Período</th>
+                <th class="py-2 pr-4 font-medium">Fecha</th>
+              </tr>
+            </thead>
+            <tbody id="auditoriaBody" class="divide-y divide-border"></tbody>
+          </table>
         </div>
       </section>
-
     </div>
   </main>
 
@@ -393,11 +428,12 @@
     document.addEventListener('supabaseListo', () => {
       cargarComponente('header.html', 'header-slot');
       verificarSesion();
-      cargarCatalogo();
       cargarClientes();
       cargarHistorialImportaciones();
+      cargarHistorialAuditoria();
       mostrarUltimaActualizacion();
       revisarMesesPendientes();
+      revisarRecordatorioMensual();
     });
     cargarComponente('footer.html', 'footer-slot');
 
@@ -423,6 +459,28 @@
 
       console.log('Acceso autorizado:', session.user.email, '- Rol:', perfil.rol);
       window.usuarioActual = session.user.email;
+    }
+
+    // Muestra una notificación discreta (toast) al usuario; tipo: 'error' | 'success'
+    function mostrarToast(mensaje, tipo = 'error') {
+      const contenedor = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      const icono = tipo === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check';
+      toast.className = `toast toast-${tipo}`;
+      toast.innerHTML = `<i class="fas ${icono}"></i><span>${mensaje}</span>`;
+      contenedor.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity .3s';
+        setTimeout(() => toast.remove(), 300);
+      }, 4500);
+    }
+
+    // Genera filas <tr> de skeleton para tablas mientras cargan datos de Supabase
+    function filasEsqueleto(numColumnas, numFilas = 3) {
+      const celda = '<td class="py-2 px-3"><span class="skeleton-bar" style="width:80%"></span></td>';
+      const fila = `<tr>${celda.repeat(numColumnas)}</tr>`;
+      return fila.repeat(numFilas);
     }
 
     // Quarter → Mes en cascada
@@ -472,7 +530,7 @@
         .eq('linea_producto', linea)
         .order('nombre');
 
-      if (error) { console.error(error); return; }
+      if (error) { console.error(error); mostrarToast('No se pudo cargar la lista de servicios.'); return; }
 
       datalist.innerHTML = data.map(s => `<option value="${s.nombre}"></option>`).join('');
       hint.textContent = `${data.length} servicio(s) registrados en ${linea}. Si escribes uno nuevo, se agregará a la lista al guardar.`;
@@ -487,7 +545,7 @@
         .select('nombre')
         .order('nombre');
 
-      if (error) { console.error(error); return; }
+      if (error) { console.error(error); mostrarToast('No se pudo cargar la lista de clientes.'); return; }
 
       document.getElementById('listaClientes').innerHTML =
         data.map(c => `<option value="${c.nombre}"></option>`).join('');
@@ -512,7 +570,7 @@
         .eq('mes', mes)
         .lt('anio', anioObjetivo);
 
-      if (error) { console.error(error); return { promedio: null, anios: [] }; }
+      if (error) { console.error(error); mostrarToast('No se pudo calcular el forecast sugerido.'); return { promedio: null, anios: [] }; }
       if (!data || data.length === 0) return { promedio: null, anios: [] };
 
       // Un solo total por año para ese mes (ya viene concentrado, no hace falta sumar por cliente)
@@ -535,6 +593,8 @@
       const hint = document.getElementById('reg_forecast_hint');
 
       if (!linea || !mes || !anio) return;
+
+      hint.innerHTML = '<i class="fas fa-circle-notch fa-spin-loading"></i> Calculando forecast estacional...';
 
       const { promedio, anios } = await calcularForecastEstacional(linea, Number(mes), Number(anio));
 
@@ -584,7 +644,7 @@
         .eq('linea_producto', linea_producto)
         .limit(1);
 
-      if (error) { console.error(error); return null; }
+      if (error) { console.error(error); mostrarToast('No se pudo verificar si el registro ya existía.'); return null; }
       return (data && data.length > 0) ? data[0].id : null;
     }
 
@@ -639,16 +699,30 @@
         }
       }
 
-      const { error } = idExistente
-        ? await supabaseClient.from('forecast_registros').update(payload).eq('id', idExistente)
-        : await supabaseClient.from('forecast_registros').insert(payload);
+      const { data: guardado, error } = idExistente
+        ? await supabaseClient.from('forecast_registros').update(payload).eq('id', idExistente).select('id').single()
+        : await supabaseClient.from('forecast_registros').insert(payload).select('id').single();
 
       if (error) {
         console.error(error);
+        mostrarToast('No se pudo guardar el registro, intenta de nuevo.');
         status.textContent = 'Error al guardar: ' + error.message;
         status.className = 'text-sm text-red-600';
         return;
       }
+
+      // Deja constancia de quién hizo este cambio, para el Historial de Cambios
+      await registrarAuditoria({
+        accion: idExistente ? 'Actualización' : 'Creación',
+        registro_id: guardado ? guardado.id : idExistente,
+        cliente: payload.cliente,
+        linea_producto: payload.linea_producto,
+        servicio: payload.servicio,
+        mes: payload.mes,
+        anio: payload.anio,
+        monto_forecast: payload.monto_forecast,
+      });
+      cargarHistorialAuditoria();
 
       status.textContent = idExistente
         ? '✓ Registro actualizado correctamente'
@@ -660,6 +734,24 @@
       document.getElementById('reg_mes').innerHTML = '<option value="">Elige un Quarter primero</option>';
       document.getElementById('reg_mes').disabled = true;
     });
+
+    // ─────────────────────────────────────────────
+    // Auditoría: registra quién creó o editó cada registro y cuándo
+    // ─────────────────────────────────────────────
+    async function registrarAuditoria({ accion, registro_id, cliente, linea_producto, servicio, mes, anio, monto_forecast }) {
+      const { error } = await supabaseClient.from('forecast_auditoria').insert({
+        registro_id,
+        accion,
+        usuario_email: window.usuarioActual || 'desconocido',
+        cliente,
+        linea_producto,
+        servicio,
+        mes,
+        anio,
+        monto_forecast,
+      });
+      if (error) console.error('No se pudo registrar la auditoría:', error);
+    }
 
     const nombreMes = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
@@ -679,13 +771,13 @@
         .eq('nombre', nombreCliente)
         .maybeSingle();
 
-      if (errBusqueda) { console.error('Error al buscar cliente:', errBusqueda); return; }
+      if (errBusqueda) { console.error('Error al buscar cliente:', errBusqueda); mostrarToast('No se pudo verificar el cliente en la base de datos.'); return; }
 
       if (!existente) {
         const { error } = await supabaseClient
           .from('clientes')
           .insert({ nombre: nombreCliente, primera_aparicion: hoy, ultima_aparicion: hoy });
-        if (error) console.error('Error al registrar cliente nuevo:', error);
+        if (error) { console.error('Error al registrar cliente nuevo:', error); mostrarToast('El forecast se guardó, pero el cliente no quedó registrado.'); }
       } else {
         const { error } = await supabaseClient
           .from('clientes')
@@ -725,7 +817,7 @@
         .select('anio, mes')
         .eq('anio', anioActual);
 
-      if (error) { console.error(error); return; }
+      if (error) { console.error(error); mostrarToast('No se pudieron verificar los meses pendientes.'); return; }
 
       const yaCapturados = new Set((capturados || []).map(r => `${r.anio}-${r.mes}`));
       const pendientes = mesesPosibles.filter(m => !yaCapturados.has(`${m.anio}-${m.mes}`));
@@ -739,11 +831,39 @@
       alerta.classList.add('flex');
     }
 
+    // Si ya estamos en el día 25 o después del mes en curso y todavía no existe
+    // el registro de Venta Real de ESE mes, muestra el banner de recordatorio.
+    async function revisarRecordatorioMensual() {
+      const hoy = new Date();
+      const diaActual = hoy.getDate();
+      if (diaActual < 25) return;
+
+      const anioActual = hoy.getFullYear();
+      const mesActual = hoy.getMonth() + 1; // 1-12
+
+      const { data: existente, error } = await supabaseClient
+        .from('forecast_venta_real_mensual')
+        .select('anio')
+        .eq('anio', anioActual)
+        .eq('mes', mesActual)
+        .maybeSingle();
+
+      if (error) { console.error(error); return; }
+
+      if (!existente) {
+        const banner = document.getElementById('bannerRecordatorioMensual');
+        banner.classList.remove('hidden');
+        banner.classList.add('flex');
+      }
+    }
     // Trae los registros guardados de forecast_registros para el Año/Mes elegido,
     // como referencia para saber cuánto se vendió realmente ese mes.
     document.getElementById('btnVerRegistrosMes').addEventListener('click', async () => {
       const anio = Number(document.getElementById('cierre_anio').value);
       const mes = Number(document.getElementById('cierre_mes').value);
+
+      document.getElementById('registrosMesBody').innerHTML = filasEsqueleto(4);
+      document.getElementById('contenedorRegistrosMes').classList.remove('hidden');
 
       const { data, error } = await supabaseClient
         .from('forecast_registros')
@@ -752,7 +872,7 @@
         .eq('mes', mes)
         .order('cliente');
 
-      if (error) { console.error(error); return; }
+      if (error) { console.error(error); mostrarToast('No se pudieron cargar los registros del mes.'); return; }
 
       const tbody = document.getElementById('registrosMesBody');
       if (!data || data.length === 0) {
@@ -777,7 +897,6 @@
 
       document.getElementById('cierre_monto').value = existente ? existente.monto_real_usd : '';
       document.getElementById('cierre_status').textContent = '';
-      document.getElementById('contenedorRegistrosMes').classList.remove('hidden');
     });
 
     // Guarda (o actualiza) el concentrado de Venta Real del mes elegido
@@ -807,6 +926,7 @@
 
       if (error) {
         console.error(error);
+        mostrarToast('No se pudo guardar la venta real, intenta de nuevo.');
         status.textContent = 'Error al guardar: ' + error.message;
         status.className = 'text-sm mt-2 block text-red-600';
         return;
@@ -820,78 +940,6 @@
       revisarMesesPendientes();
     });
 
-    // ─────────────────────────────────────────────
-    // Stock de servicios (forecast_servicios)
-    // ─────────────────────────────────────────────
-    let serviciosCompletos = [];
-
-    async function cargarCatalogo() {
-      const { data, error } = await supabaseClient
-        .from('forecast_servicios')
-        .select('id, linea_producto, nombre, stock_disponible')
-        .order('linea_producto')
-        .order('nombre');
-
-      if (error) { console.error(error); return; }
-      serviciosCompletos = data || [];
-
-      const lineas = [...new Set(serviciosCompletos.map(s => s.linea_producto))];
-      const selectLinea = document.getElementById('filtroStockLinea');
-      selectLinea.innerHTML = '<option value="todas">Todas las líneas</option>' +
-        lineas.map(l => `<option>${l}</option>`).join('');
-
-      pintarTablaStock('todas');
-    }
-
-    function pintarTablaStock(lineaFiltro) {
-      const tbody = document.getElementById('stockBody');
-      const lista = lineaFiltro === 'todas'
-        ? serviciosCompletos
-        : serviciosCompletos.filter(s => s.linea_producto === lineaFiltro);
-
-      tbody.innerHTML = lista.map(s => `
-        <tr>
-          <td class="py-2 pr-4 text-gray-500">${s.linea_producto}</td>
-          <td class="py-2 pr-4">${s.nombre}</td>
-          <td class="py-2 pr-4">
-            <input type="number" min="0" value="${s.stock_disponible}"
-              data-id="${s.id}"
-              class="stock-input w-24 bg-white border border-border rounded-lg px-2 py-1.5 text-sm">
-          </td>
-        </tr>`).join('');
-
-      document.querySelectorAll('.stock-input').forEach(input => {
-        input.addEventListener('change', async (e) => {
-          const id = e.target.dataset.id;
-          const nuevoStock = Number(e.target.value);
-          e.target.classList.add('opacity-50');
-
-          const { error } = await supabaseClient
-            .from('forecast_servicios')
-            .update({ stock_disponible: nuevoStock })
-            .eq('id', id);
-
-          e.target.classList.remove('opacity-50');
-          if (error) {
-            console.error(error);
-            e.target.classList.add('border-red-400');
-          } else {
-            e.target.classList.remove('border-red-400');
-            e.target.classList.add('border-green-400');
-            setTimeout(() => e.target.classList.remove('border-green-400'), 1000);
-          }
-        });
-      });
-    }
-
-    // Acordeón: la sección de Stock empieza colapsada, solo título y subtítulo visibles
-    document.getElementById('btnToggleStock').addEventListener('click', () => {
-      const contenido = document.getElementById('contenidoStock');
-      const icono = document.getElementById('iconoToggleStock');
-      contenido.classList.toggle('hidden');
-      icono.classList.toggle('rotate-180');
-    });
-
     // Acordeón: la sección de Historial de Cargas empieza colapsada
     document.getElementById('btnToggleHistorial').addEventListener('click', () => {
       const contenido = document.getElementById('contenidoHistorial');
@@ -900,8 +948,12 @@
       icono.classList.toggle('rotate-180');
     });
 
-    document.getElementById('filtroStockLinea').addEventListener('change', (e) => {
-      pintarTablaStock(e.target.value);
+    // Acordeón: la sección de Historial de Cambios empieza colapsada
+    document.getElementById('btnToggleAuditoria').addEventListener('click', () => {
+      const contenido = document.getElementById('contenidoAuditoria');
+      const icono = document.getElementById('iconoToggleAuditoria');
+      contenido.classList.toggle('hidden');
+      icono.classList.toggle('rotate-180');
     });
 
     // ─────────────────────────────────────────────
@@ -1422,15 +1474,27 @@
           monto_p90: f.confianza === 'P90' ? forecast : null,
         };
 
-        const { error } = f.idExistente
-          ? await supabaseClient.from('forecast_registros').update(payload).eq('id', f.idExistente)
-          : await supabaseClient.from('forecast_registros').insert(payload);
+        const { data: guardado, error } = f.idExistente
+          ? await supabaseClient.from('forecast_registros').update(payload).eq('id', f.idExistente).select('id').single()
+          : await supabaseClient.from('forecast_registros').insert(payload).select('id').single();
 
         if (error) {
           console.error('Error importando fila:', f, error);
+          mostrarToast(`Falló la fila de ${f.cliente || 'un registro'} (revisa el resumen al terminar).`);
           fallidas++;
         } else {
           exitosas++;
+          // Deja constancia de quién hizo este cambio, para el Historial de Cambios
+          await registrarAuditoria({
+            accion: f.idExistente ? 'Actualización' : 'Creación',
+            registro_id: guardado ? guardado.id : f.idExistente,
+            cliente: payload.cliente,
+            linea_producto: payload.linea_producto,
+            servicio: payload.servicio,
+            mes: payload.mes,
+            anio: payload.anio,
+            monto_forecast: payload.monto_forecast,
+          });
         }
       }
 
@@ -1450,9 +1514,10 @@
           cantidad_registros: cantidad,
         });
       }
-      cargarHistorialImportaciones();
-      mostrarUltimaActualizacion();
 
+      cargarHistorialImportaciones();
+      cargarHistorialAuditoria();
+      mostrarUltimaActualizacion();
       // Limpiamos el input para permitir subir otro archivo después
       document.getElementById('inputExcel').value = '';
     });
@@ -1483,12 +1548,14 @@
     }
 
     async function cargarHistorialImportaciones() {
+      document.getElementById('historialBody').innerHTML = filasEsqueleto(4);
+
       const { data, error } = await supabaseClient
         .from('forecast_importaciones')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) { console.error(error); return; }
+      if (error) { console.error(error); mostrarToast('No se pudo cargar el historial de cargas.'); return; }
 
       const tbody = document.getElementById('historialBody');
       if (!data || data.length === 0) {
@@ -1502,6 +1569,35 @@
           <td class="py-2.5 pr-4">${imp.usuario_email}</td>
           <td class="py-2.5 pr-4">${imp.cantidad_registros}</td>
           <td class="py-2.5 pr-4 text-gray-500">${new Date(imp.created_at).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })}</td>
+        </tr>`).join('');
+    }
+
+    async function cargarHistorialAuditoria() {
+      document.getElementById('auditoriaBody').innerHTML = filasEsqueleto(5);
+
+      const { data, error } = await supabaseClient
+        .from('forecast_auditoria')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(200);
+
+      if (error) { console.error(error); mostrarToast('No se pudo cargar el historial de cambios.'); return; }
+
+      const tbody = document.getElementById('auditoriaBody');
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-gray-400 text-sm">Aún no hay cambios registrados.</td></tr>`;
+        return;
+      }
+
+      const colorAccion = { 'Creación': 'text-green-600', 'Actualización': 'text-amber-600' };
+
+      tbody.innerHTML = data.map(a => `
+        <tr class="text-gray-700">
+          <td class="py-2.5 pr-4 font-medium ${colorAccion[a.accion] || ''}">${a.accion}</td>
+          <td class="py-2.5 pr-4">${a.usuario_email || '—'}</td>
+          <td class="py-2.5 pr-4">${a.cliente || '—'} · ${a.linea_producto || '—'}</td>
+          <td class="py-2.5 pr-4">${a.mes ? nombreMes[a.mes] : '—'} ${a.anio || ''}</td>
+          <td class="py-2.5 pr-4 text-gray-500">${new Date(a.created_at).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })}</td>
         </tr>`).join('');
     }
 

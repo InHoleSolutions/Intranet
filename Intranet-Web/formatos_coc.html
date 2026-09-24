@@ -29,20 +29,30 @@
   .cell-input:hover:not(:focus) { background:var(--bg); border-color:var(--border); }
   .cell-input::placeholder { color:#94a3b8; font-size:12px; }
   .cell-input.wide { min-width:140px; }
+  .cell-input.compact { min-width:70px; max-width:80px; }
+  .cell-input.tiny { min-width:45px; max-width:55px; text-align:center; }
+  .cell-input.medium { min-width:120px; max-width:120px; }
   .cell-input.xl   { min-width:170px; }
   /* Tabla (border-collapse y min-width no tienen clase Tailwind directa) */
   .coc-table { width:100%; border-collapse:collapse; min-width:1200px; }
   .coc-table thead tr { background:#f1f5f9; border-bottom:2px solid var(--border); }
   .coc-table thead th { position: sticky; top: 0; background:#f1f5f9; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
-  .coc-table th { padding:12px 14px; font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); white-space:nowrap; text-align:left; }
+  .coc-table th { padding:12px 14px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); white-space:nowrap; text-align:left; }
   .coc-table th:first-child { padding-left:1.5rem; }
   .coc-table th:last-child  { padding-right:1.5rem; text-align:center; }
   .coc-table tbody tr { border-bottom:1px solid #f1f5f9; transition:background 0.15s; }
   .coc-table tbody tr:hover { background:#fef8f8; }
   .coc-table tbody tr:last-child { border-bottom:none; }
+  .coc-table th i.fa-sort, .coc-table th i.fa-sort-up, .coc-table th i.fa-sort-down { display: none; }
   .coc-table td { padding:8px 14px; vertical-align:middle; }
   .coc-table td:first-child { padding-left:1.5rem; }
   .coc-table td:last-child  { padding-right:1.5rem; text-align:center; }
+  .coc-table th:nth-child(13), .coc-table td:nth-child(13),
+  .coc-table th:nth-child(14), .coc-table td:nth-child(14) { padding-left:8px; padding-right:8px; text-align:center; }
+  .coc-table.ocultar-comentario th:nth-child(10),
+  .coc-table.ocultar-comentario td:nth-child(10) { display: none; }
+  .coc-table.ocultar-cso th:nth-child(8),
+  .coc-table.ocultar-cso td:nth-child(8) { display: none; }
   /* Saving dot */
   .saving-dot { width:8px; height:8px; border-radius:50%; background:#fbbf24; animation:pulse-dot 1s ease-in-out infinite; display:none; }
   @keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:.3;} }
@@ -229,6 +239,12 @@
         <button onclick="limpiarFiltros()" class="text-[12px] text-slate-400 hover:text-red-500 transition-colors px-2 py-2 flex items-center gap-1">
           <i class="fas fa-times-circle"></i> Limpiar
         </button>
+        <button onclick="toggleComentario()" id="btn-toggle-comentario" class="text-[12px] text-slate-400 hover:text-red-500 transition-colors px-2 py-2 flex items-center gap-1">
+          <i class="fas fa-eye-slash"></i> Ocultar Comentarios
+        </button>
+        <button onclick="toggleCSO()" id="btn-toggle-cso" class="text-[12px] text-slate-400 hover:text-red-500 transition-colors px-2 py-2 flex items-center gap-1">
+          <i class="fas fa-eye-slash"></i> Ocultar C.S.O No.
+        </button>
         <span id="filtro-resultado" class="text-[12px] text-slate-400 ml-auto"></span>
       </div>
       <div class="overflow-x-auto overflow-y-auto" style="max-height: 560px;">
@@ -236,17 +252,17 @@
           <thead>
             <tr>
               <th>#</th>
-              <th onclick="ordenarPor('coc_no', this)" style="cursor:pointer;user-select:none;">COC No. <i class="fas fa-sort text-slate-300 ml-1"></i></th>
+              <th>COC No.</th>
               <th>Description</th>
               <th>Qty</th>
               <th>Serial No. / LOTE</th>
               <th>Part No.</th>
-              <th onclick="ordenarPor('work_order_no', this)" style="cursor:pointer;user-select:none;">Work Order No. <i class="fas fa-sort text-slate-300 ml-1"></i></th>
-              <th onclick="ordenarPor('customer_supply_order_no', this)" style="cursor:pointer;user-select:none;">Customer Supply Order No. <i class="fas fa-sort text-slate-300 ml-1"></i></th>
-              <th onclick="ordenarPor('customer', this)" style="cursor:pointer;user-select:none;">Customer <i class="fas fa-sort text-slate-300 ml-1"></i></th>
+              <th style="white-space:normal; line-height:1.3;">Work Order<br>No.</th>
+              <th>Customer Supply Order No.</th>
+              <th>Customer</th>
               <th>Comentario</th>
               <th>Quality Grade</th>
-              <th onclick="ordenarPor('fecha_emision', this)" style="cursor:pointer;user-select:none;">Date <i class="fas fa-sort text-slate-300 ml-1"></i></th>
+              <th>Date</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
@@ -437,6 +453,21 @@
       poblarFiltroCustomer(data);
       contarEstados();
     }
+
+    function extraerNumeroCOC(valor) {
+      const match = String(valor || '').match(/(\d+)\s*$/);
+      return match ? parseInt(match[1], 10) : 0;
+    }
+
+    async function siguienteCOC() {
+      const { data } = await sb.from(TABLE).select('coc_no');
+      const maximo = (data || []).reduce((max, row) => {
+        const n = extraerNumeroCOC(row.coc_no);
+        return n > max ? n : max;
+      }, 0);
+      return `COC-${String(maximo + 1).padStart(3, '0')}`;
+    }
+
     function escAttr(s) { return String(s || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 
     function crearFila(data = {}, subfilas = [], numeroManual = null) {
@@ -447,16 +478,16 @@
       tr.dataset.id = data.id || '';
 
       const cols = [
-        { key: 'coc_no',                   placeholder: 'COC-001',      cls: 'wide' },
+        { key: 'coc_no',                   placeholder: 'COC-001',      cls: 'compact' },
         { key: 'descripcion',              placeholder: 'Descripción…', cls: 'xl',   addBtn: true,   expandBtn: true, label: 'Description' },
-        { key: 'qty',                      placeholder: '0',            cls: '' },
-        { key: 'serial_lote',              placeholder: 'S/N ó LOTE',  cls: 'wide', expandBtn: true, label: 'Serial No. / LOTE' },
+        { key: 'qty',                      placeholder: '0',            cls: 'tiny' },
+        { key: 'serial_lote',              placeholder: 'S/N ó LOTE',   cls: 'medium', expandBtn: true, label: 'Serial No. / LOTE' },
         { key: 'part_no',                  placeholder: 'Part No.',     cls: 'wide', expandBtn: true, label: 'Part No.' },
-        { key: 'work_order_no',            placeholder: 'W/O No.',      cls: 'wide' },
+        { key: 'work_order_no',            placeholder: 'W/O No.',      cls: 'tiny' },
         { key: 'customer_supply_order_no', placeholder: 'C.S.O No.',    cls: 'wide' },
-        { key: 'customer',                 placeholder: 'Cliente',      cls: 'wide' },
+        { key: 'customer',                 placeholder: 'Cliente',      cls: 'medium' },
         { key: 'comentario',               placeholder: 'Comentario…',  cls: 'xl',   expandBtn: true, label: 'Comentario' },
-        { key: 'quality_grade',            placeholder: 'PREMIUM',       cls: 'wide', default: 'PREMIUM' },
+        { key: 'quality_grade',            placeholder: 'PREMIUM',       cls: 'compact', default: 'PREMIUM' },
         { key: 'fecha_emision',            placeholder: 'DD-MM-YYYY',   cls: 'wide', type: 'date' },
       ];
 
@@ -480,7 +511,7 @@
           </td>`;
         }
       });
-      html += `<td><span class="badge-estado badge-incompleto" data-badge><i class="fas fa-circle-dot"></i> Incompleto</span></td>`;
+      html += `<td><span class="badge-estado badge-incompleto" data-badge><i class="fas fa-circle-dot"></i></span></td>`;
       html += `<td style="text-align:center;">
         <button type="button" class="kebab-btn" onclick="toggleKebabMenu(this)" title="Más acciones">
           <i class="fas fa-ellipsis-vertical"></i>
@@ -512,7 +543,16 @@
             <input type="text" class="cell-input wide" data-subfila-key="part_no" placeholder="Part No." value="${escAttr(sf.part_no || '')}" onblur="guardarSubfilas(this)" onkeydown="saltarSiguienteSubfila(event, this)">
             <button onclick="abrirModal(this.closest('td').querySelector('input'), 'Part No.')" style="background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;" title="Ver texto completo"><i class="fas fa-expand-alt"></i></button>
           </td>
-          <td colspan="7" style="text-align:right;">
+          <td style="position:relative;">
+            <input type="text" class="cell-input" data-subfila-key="work_order_no" placeholder="W.O." value="${escAttr(sf.work_order_no || '')}" onblur="guardarSubfilas(this)" onkeydown="saltarSiguienteSubfila(event, this)">
+          </td>
+          <td class="celda-fusionable"></td>
+          <td class="celda-fusionable"></td>
+          <td class="celda-fusionable"></td>
+          <td class="celda-fusionable"></td>
+          <td class="celda-fusionable"></td>
+          <td class="celda-fusionable"></td>
+          <td style="text-align:right;">
             <button onclick="eliminarSubfila(this)" style="background:#f9e5e6;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#c8181e;font-size:12px;">✕</button>
           </td>
         `;
@@ -520,6 +560,7 @@
         tbody.appendChild(trSub);
       });
 
+      fusionarFilasGrupo(data.id);
       actualizarEmptyState();
     }
 
@@ -540,7 +581,9 @@
     }
 
     function cerrarKebabMenus() {
-      document.getElementById('kebab-dropdown-global').classList.remove('open');
+      const dropdown = document.getElementById('kebab-dropdown-global');
+      if (!dropdown) return;
+      dropdown.classList.remove('open');
       document.querySelectorAll('.kebab-btn.active').forEach(b => b.classList.remove('active'));
     }
 
@@ -558,14 +601,15 @@
     });
     document.addEventListener('scroll', cerrarKebabMenus, true);
 
-    function agregarFila() {
-      crearFila();
+    async function agregarFila() {
+      const numeroAuto = await siguienteCOC();
+      crearFila({ coc_no: numeroAuto });
       const tbody = document.getElementById('coc-tbody');
       const filas = tbody.querySelectorAll('tr');
       const nueva = filas[filas.length - 1]; // la fila recién creada (siempre se crea al final)
       if (nueva) {
         tbody.insertBefore(nueva, tbody.firstChild); // la movemos hasta arriba
-        const inp = nueva.querySelector('input');
+        const inp = nueva.querySelector('[data-key="descripcion"]');
         if (inp) inp.focus();
       }
     }
@@ -594,14 +638,63 @@
           <input type="text" class="cell-input wide" data-subfila-key="part_no" placeholder="Part No." onblur="guardarSubfilas(this)" onkeydown="saltarSiguienteSubfila(event, this)">
           <button onclick="abrirModal(this.closest('td').querySelector('input'), 'Part No.')" style="background:#e0f2fe;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#0369a1;font-size:11px;margin-left:2px;" title="Ver texto completo"><i class="fas fa-expand-alt"></i></button>
         </td>
-        <td colspan="7" style="text-align:right;">
+        <td style="position:relative;">
+          <input type="text" class="cell-input" data-subfila-key="work_order_no" placeholder="W.O." onblur="guardarSubfilas(this)" onkeydown="saltarSiguienteSubfila(event, this)">
+        </td>
+        <td class="celda-fusionable"></td>
+        <td class="celda-fusionable"></td>
+        <td class="celda-fusionable"></td>
+        <td class="celda-fusionable"></td>
+        <td class="celda-fusionable"></td>
+        <td class="celda-fusionable"></td>
+        <td style="text-align:right;">
           <button onclick="eliminarSubfila(this)" style="background:#f9e5e6;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#c8181e;font-size:12px;">✕</button>
         </td>
       `;
 
-      // Insertar la subfila justo después de la fila principal
-      trOrigen.insertAdjacentElement('afterend', trSub);
-      trSub.querySelector('[data-subfila-key="descripcion"]').focus();
+      // Insertar la subfila al final del grupo (después de la última subfila existente,
+      // o después de la fila principal si aún no tiene ninguna)
+      const subfilasExistentes = document.querySelectorAll(`tr.subfila-group[data-parent-id="${trOrigen.dataset.id}"]`);
+      const ultimaSubfila = subfilasExistentes[subfilasExistentes.length - 1];
+      const referencia = ultimaSubfila || trOrigen;
+      referencia.insertAdjacentElement('afterend', trSub);
+      fusionarFilasGrupo(trOrigen.dataset.id);
+      trSub.querySelector('[data-subfila-key="serial_lote"]').focus();
+    }
+
+    function fusionarFilasGrupo(registroId) {
+      if (!registroId) return;
+      const trPrincipal = document.querySelector(`#coc-tbody tr[data-id="${registroId}"]`);
+      if (!trPrincipal) return;
+      const subfilas = Array.from(document.querySelectorAll(`tr.subfila-group[data-parent-id="${registroId}"]`));
+
+      // Reset: mostrar todo antes de recalcular
+      const todasLasFilas = [trPrincipal, ...subfilas];
+      todasLasFilas.forEach(fila => {
+        Array.from(fila.cells).forEach(td => {
+          td.rowSpan = 1;
+          td.style.display = '';
+        });
+      });
+
+      if (subfilas.length === 0) return;
+
+      const totalFilas = todasLasFilas.length;
+
+      // Columnas que solo existen en la fila principal:
+      // 0=#, 1=coc_no, 6=work_order_no, 7=cso, 8=customer, 9=comentario, 10=quality_grade, 11=fecha_emision, 12=estado
+      [0, 1, 7, 8, 9, 10, 11, 12].forEach(colIndex => {
+        const tdPrincipal = trPrincipal.cells[colIndex];
+        if (!tdPrincipal) return;
+        tdPrincipal.rowSpan = totalFilas;
+        subfilas.forEach(sf => {
+          const td = sf.cells[colIndex];
+          if (td) td.style.display = 'none';
+        });
+      });
+
+      // Descripción, Qty, Serial No., Part No. y Work Order No. NO se fusionan:
+      // cada subfila conserva su propia celda editable.
     }
 
     async function guardarCelda(input) {
@@ -657,6 +750,7 @@
         const qty = sf.querySelector('[data-subfila-key="qty"]')?.value?.trim();
         const serial = sf.querySelector('[data-subfila-key="serial_lote"]')?.value?.trim();
         const part = sf.querySelector('[data-subfila-key="part_no"]')?.value?.trim();
+        const wo = sf.querySelector('[data-subfila-key="work_order_no"]')?.value?.trim();
 
         // Solo la tomamos en cuenta si al menos tiene una descripción o datos
         if (desc || qty || serial || part) {
@@ -665,7 +759,8 @@
             description: desc || '',
             qty: qty || '',
             serial_lote: serial || '',
-            part_no: part || ''
+            part_no: part || '',
+            work_order_no: wo || null
           });
         }
       });
@@ -691,6 +786,7 @@
       setSaving(false);
       actualizarBadge(tr);
       contarEstados();
+      fusionarFilasGrupo(registroId);
     }
 
     async function guardarSubfilas(input) {
@@ -707,6 +803,7 @@
         const qty    = sf.querySelector('[data-subfila-key="qty"]')?.value?.trim();
         const serial = sf.querySelector('[data-subfila-key="serial_lote"]')?.value?.trim();
         const part   = sf.querySelector('[data-subfila-key="part_no"]')?.value?.trim();
+        const wo     = sf.querySelector('[data-subfila-key="work_order_no"]')?.value?.trim();
 
         if (desc || qty || serial || part) {
           subfilasData.push({
@@ -714,7 +811,8 @@
             description: desc || '',
             qty:         qty  || '',
             serial_lote: serial || '',
-            part_no:     part  || ''
+            part_no:     part  || '',
+            work_order_no: wo || null
           });
         }
       });
@@ -730,6 +828,7 @@
         }
       }
 
+      fusionarFilasGrupo(registroId);
       setSaving(false);
     }
 
@@ -833,8 +932,15 @@
           qty:         sf.querySelector('[data-subfila-key="qty"]')?.value?.trim() || '',
           serial:      sf.querySelector('[data-subfila-key="serial_lote"]')?.value?.trim() || '',
           part_no:     sf.querySelector('[data-subfila-key="part_no"]')?.value?.trim() || '',
+          work_order:  sf.querySelector('[data-subfila-key="work_order_no"]')?.value?.trim() || '',
         });
       });
+
+      // Columnas que se "parten" por fila cuando alguna subfila trae dato propio.
+      // Serial No. (3) siempre se parte; Part No. (4) y Work Order No. (5) solo si
+      // alguna subfila trae su propio valor; si no, se quedan fusionadas en 1 sola celda.
+      const colFieldMap = { 1: 'descripcion', 2: 'qty', 3: 'serial', 4: 'part_no', 5: 'work_order' };
+      const columnasPorFila = [1, 2, 3, 4, 5].filter(i => i === 3 || subfilas.some(sf => sf[colFieldMap[i]]));
 
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
       const W = 215.9; // ancho carta en mm
@@ -877,7 +983,9 @@
       // Todas las filas a dibujar (principal + subfilas)
       const todasLasFilas = [
         [coc_no, descripcion, qty, serial, part_no, work_order],
-        ...subfilas.map(sf => ['', sf.descripcion, sf.qty, sf.serial, sf.part_no, ''])
+        ...subfilas
+          .filter(sf => columnasPorFila.some(i => sf[colFieldMap[i]]))
+          .map(sf => ['', sf.descripcion, sf.qty, sf.serial, sf.part_no, sf.work_order])
       ];
 
       const alturaHoja = 279.4; // alto de hoja carta en mm
@@ -899,77 +1007,94 @@
 
       let yFila = 85;
 
-      // Calcular altura de cada fila primero
+      // Calcular altura de cada fila: depende de la columna "por fila" que necesite más líneas
       const alturasPorFila = todasLasFilas.map(fila => {
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(9);
         const lineHeight = 5;
-        let maxLines = 1;
-        fila.forEach((v, i) => {
-          const lines = doc.splitTextToSize(v, colW[i] - 2);
-          if (lines.length > maxLines) maxLines = lines.length;
-        });
-        return Math.max(12, maxLines * lineHeight + 6);
+        const maxLineas = Math.max(
+          ...columnasPorFila.map(i => doc.splitTextToSize(fila[i], colW[i] - 2).length)
+        );
+        return Math.max(12, maxLineas * lineHeight + 6);
       });
+
+      // Asegurar que el bloque completo alcance para las columnas combinadas
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      // Solo van "combinadas" (1 sola celda para todo el bloque) las columnas
+      // que NO quedaron marcadas como "por fila"
+      const valoresCombinados = { 0: coc_no };
+      if (!columnasPorFila.includes(1)) valoresCombinados[1] = descripcion;
+      if (!columnasPorFila.includes(2)) valoresCombinados[2] = qty;
+      if (!columnasPorFila.includes(4)) valoresCombinados[4] = part_no;
+      if (!columnasPorFila.includes(5)) valoresCombinados[5] = work_order;
+      const alturaMinCombinadas = Object.keys(valoresCombinados).reduce((max, k) => {
+        const i = Number(k);
+        const n = doc.splitTextToSize(valoresCombinados[i], colW[i] - 2).length;
+        return Math.max(max, n * 5 + 6);
+      }, 0);
+
+      const sumaAlturas = alturasPorFila.reduce((a, b) => a + b, 0);
+      if (sumaAlturas < alturaMinCombinadas) {
+        const extra = (alturaMinCombinadas - sumaAlturas) / alturasPorFila.length;
+        for (let i = 0; i < alturasPorFila.length; i++) alturasPorFila[i] += extra;
+      }
 
       const alturaTotal = alturasPorFila.reduce((a, b) => a + b, 0);
       const yFilaInicio = yFila;
 
-      todasLasFilas.forEach((fila, idx) => {
+            todasLasFilas.forEach((fila, idx) => {
         const alturaFila = alturasPorFila[idx];
         const lineHeight = 5;
 
         doc.setFillColor(255, 255, 255);
         doc.rect(14, yFila, W - 28, alturaFila, 'F');
 
-        // Dibujar solo columnas 1-4 (Description, Qty, Serial No., Part No.)
+        // Se dibujan todas las columnas "por fila" (Serial, y Part No./Work Order
+        // No. cuando alguna subfila trae su propio valor)
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(9);
         doc.setTextColor(30, 30, 30);
-        for (let i = 1; i <= 4; i++) {
+        columnasPorFila.forEach(i => {
           const lines = doc.splitTextToSize(fila[i], colW[i] - 2);
-          const centerX = colX[i] + colW[i] / 2;
           const textBlockHeight = lines.length * lineHeight;
           const startY = yFila + (alturaFila - textBlockHeight) / 2 + lineHeight - 1;
-          doc.text(lines, centerX, startY, { align: 'center' });
-        }
+          doc.text(lines, colX[i] + colW[i] / 2, startY, { align: 'center' });
+        });
 
         doc.setDrawColor(180, 180, 180);
-        // Borde completo solo si es la primera o última fila
         if (idx === 0) {
-          // Línea superior completa solo en la primera fila
           doc.line(14, yFila, 14 + (W - 28), yFila);
         }
         if (idx === todasLasFilas.length - 1) {
-          // Línea inferior completa solo en la última fila
           doc.line(14, yFila + alturaFila, 14 + (W - 28), yFila + alturaFila);
         }
-        // Línea horizontal solo entre columnas 1-4 (no toca COC No. ni Work Order No.)
+        // Separador horizontal SOLO dentro de cada columna "por fila"
+        // (las columnas fusionadas en 1 sola celda no se cortan)
         if (idx > 0) {
-          doc.line(colX[1], yFila, colX[5], yFila);
+          columnasPorFila.forEach(i => {
+            doc.line(colX[i], yFila, colX[i] + colW[i], yFila);
+          });
         }
-        // Bordes izquierdo y derecho exteriores
+        // Bordes exteriores
         doc.line(14, yFila, 14, yFila + alturaFila);
         doc.line(14 + (W - 28), yFila, 14 + (W - 28), yFila + alturaFila);
         yFila += alturaFila;
       });
 
-      // COC No. y Work Order No. centrados verticalmente sobre todas las filas
+      // Columnas combinadas: COC No., Description, Qty, y Part No. / Work Order No.
+      // solo cuando NINGUNA subfila trajo su propio valor (si no, ya se dibujaron por fila)
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
       doc.setTextColor(30, 30, 30);
       const lineHeight = 5;
       const yCentro = yFilaInicio + alturaTotal / 2;
 
-      // COC No. (col 0)
-      const linesCoc = doc.splitTextToSize(coc_no, colW[0] - 2);
-      const startYCoc = yCentro - (linesCoc.length * lineHeight) / 2 + lineHeight - 1;
-      doc.text(linesCoc, colX[0] + colW[0] / 2, startYCoc, { align: 'center' });
-
-      // Work Order No. (col 5)
-      const linesWo = doc.splitTextToSize(work_order, colW[5] - 2);
-      const startYWo = yCentro - (linesWo.length * lineHeight) / 2 + lineHeight - 1;
-      doc.text(linesWo, colX[5] + colW[5] / 2, startYWo, { align: 'center' });
+      Object.keys(valoresCombinados).map(Number).forEach(i => {
+        const lines = doc.splitTextToSize(valoresCombinados[i], colW[i] - 2);
+        const startY = yCentro - (lines.length * lineHeight) / 2 + lineHeight - 1;
+        doc.text(lines, colX[i] + colW[i] / 2, startY, { align: 'center' });
+      });
 
       // Líneas verticales (de header hasta fin de todas las filas)
       colX.slice(1).forEach(x => doc.line(x, 73, x, yFila));
@@ -986,6 +1111,7 @@
       doc.setFontSize(11);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(30, 30, 30);
+      doc.setFont('helvetica', 'normal');
       doc.text('Customer Supply Order No.:', 14, yPost);
       doc.setFont('helvetica', 'bold');
       doc.text(cso_no, 64, yPost);
@@ -1071,7 +1197,7 @@
       }
 
       // ── Descargar ──
-      doc.save(`Formato-${coc_no || 'registro'}.pdf`);
+      doc.save(`${coc_no || 'registro'}.pdf`);
     }
 
     // ── MODAL TEXTO COMPLETO ──
@@ -1182,6 +1308,41 @@
       });
     }
 
+    function toggleComentario() {
+      const tabla = document.querySelector('.coc-table');
+      const btn = document.getElementById('btn-toggle-comentario');
+      tabla.classList.toggle('ocultar-comentario');
+      const oculto = tabla.classList.contains('ocultar-comentario');
+      btn.innerHTML = oculto
+        ? '<i class="fas fa-eye"></i> Comentarios'
+        : '<i class="fas fa-eye-slash"></i> Comentarios';
+      localStorage.setItem('ocultar-comentario', oculto);
+    }
+
+    function toggleCSO() {
+      const tabla = document.querySelector('.coc-table');
+      const btn = document.getElementById('btn-toggle-cso');
+      tabla.classList.toggle('ocultar-cso');
+      const oculto = tabla.classList.contains('ocultar-cso');
+      btn.innerHTML = oculto
+        ? '<i class="fas fa-eye"></i> C.S.O No.'
+        : '<i class="fas fa-eye-slash"></i> C.S.O No.';
+      localStorage.setItem('ocultar-cso', oculto);
+    }
+
+    function restaurarVisibilidadColumnas() {
+      const tabla = document.querySelector('.coc-table');
+      if (localStorage.getItem('ocultar-comentario') === 'true') {
+        tabla.classList.add('ocultar-comentario');
+        document.getElementById('btn-toggle-comentario').innerHTML = '<i class="fas fa-eye"></i> Comentarios';
+      }
+      if (localStorage.getItem('ocultar-cso') === 'true') {
+        tabla.classList.add('ocultar-cso');
+        document.getElementById('btn-toggle-cso').innerHTML = '<i class="fas fa-eye"></i> C.S.O No.';
+      }
+    }
+    restaurarVisibilidadColumnas();
+
     function actualizarBadge(tr) {
       const campos = ['coc_no','descripcion','qty','serial_lote','part_no','work_order_no','customer'];
       const completo = campos.every(k => {
@@ -1192,11 +1353,11 @@
       if (!badge) return;
       if (completo) {
         badge.className = 'badge-estado badge-completo';
-        badge.innerHTML = '<i class="fas fa-check-circle"></i> Completo';
+        badge.innerHTML = '<i class="fas fa-check-circle"></i>';
         tr.classList.remove('fila-incompleta');
       } else {
         badge.className = 'badge-estado badge-incompleto';
-        badge.innerHTML = '<i class="fas fa-circle-dot"></i> Incompleto';
+        badge.innerHTML = '<i class="fas fa-circle-dot"></i>';
         tr.classList.add('fila-incompleta');
       }
     }
@@ -1207,6 +1368,8 @@
 
       // Eliminar del DOM primero
       trSub.remove();
+      fusionarFilasGrupo(registroId);
+      guardarSubfilas(document.querySelector(`tr[data-id="${registroId}"] [data-key="descripcion"]`) || document.body); // opcional, si necesitas resincronizar BD
 
       // Luego re-guardar todas las subfilas restantes en Supabase
       const subfilasData = [];
@@ -1215,8 +1378,9 @@
         const qty    = sf.querySelector('[data-subfila-key="qty"]')?.value?.trim();
         const serial = sf.querySelector('[data-subfila-key="serial_lote"]')?.value?.trim();
         const part   = sf.querySelector('[data-subfila-key="part_no"]')?.value?.trim();
+        const wo     = sf.querySelector('[data-subfila-key="work_order_no"]')?.value?.trim();
         if (desc || qty || serial || part) {
-          subfilasData.push({ registro_id: registroId, description: desc, qty, serial_lote: serial, part_no: part });
+          subfilasData.push({ registro_id: registroId, description: desc, qty, serial_lote: serial, part_no: part, work_order_no: wo || null });
         }
       });
 
