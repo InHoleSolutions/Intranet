@@ -95,7 +95,7 @@
       <div class="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-300 rounded-lg px-4 py-2">
         <span class="text-emerald-600 font-bold">🎯</span>
         <p id="texto-meta-indicador" class="text-sm font-semibold text-emerald-800">
-          Meta del indicador: Mantener un índice de calidad ≥ 96% en las evaluaciones post-servicio de campo y taller.
+          Meta del indicador: Mantener un índice de calidad ≥ 95% en las evaluaciones post-servicio de campo y taller.
         </p>
       </div>
       <button id="btn-editar-meta" onclick="activarEdicionMeta()" class="text-[#f8fafc] hover:text-black transition-colors" title="Editar meta">
@@ -177,22 +177,18 @@
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="relative border border-slate-200 rounded-xl p-4">
+        <div class="relative border border-slate-200 rounded-xl p-4 lg:order-2 flex flex-col justify-center">
           <i class="fas fa-circle-info absolute top-4 right-4 text-slate-300"></i>
           <p class="text-sm font-bold text-blue-900">DESEMPEÑO POR CRITERIO DE EVALUACIÓN</p>
           <canvas id="grafica-criterios"></canvas>
-          <div class="flex items-center justify-center gap-6 mt-3">
-            <div class="flex items-center gap-2">
-              <span class="w-4 h-2.5 rounded-sm" style="background:#1d4ed8;"></span>
-              <span class="text-[11px] text-slate-500 font-semibold">Cumplimiento alcanzado</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="w-4 h-0 border-t-2 border-dashed" style="border-color:#ef4444;"></span>
-              <span class="text-[11px] text-slate-500 font-semibold">Meta de cumplimiento</span>
-            </div>
+          <div class="flex items-center justify-center gap-x-4 gap-y-1 flex-wrap mt-4 mb-2 text-[11px] text-slate-500">
+            <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#10b981;"></span>Excelente (100%)</span>
+            <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#3b82f6;"></span>Bueno (80%)</span>
+            <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b;"></span>Regular (60%)</span>
+            <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#ef4444;"></span>Deficiente (0-40%)</span>
           </div>
         </div>
-        <div class="border border-slate-200 rounded-xl p-4">
+        <div class="border border-slate-200 rounded-xl p-4 lg:order-1">
           <div class="flex items-center mb-1">
             <p id="titulo-tendencia" class="text-sm font-bold text-blue-900">EVOLUCIÓN DEL PROMEDIO</p>
           </div>
@@ -208,6 +204,12 @@
               <span id="badge-gauge-campo-texto"></span>
             </span>
           </div>
+          <div class="flex items-center justify-center gap-x-4 gap-y-1 flex-wrap mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-600">
+            <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#10b981;"></span>Excelente (&ge; 96%)</span>
+            <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#3b82f6;"></span>Bueno (95% - 91%)</span>
+            <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b;"></span>Regular (90% - 88%)</span>
+            <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#ef4444;"></span>Deficiente (&lt; 87%)</span>
+          </div>
         </div>
       </div>
     </div>
@@ -216,12 +218,6 @@
       <div class="flex items-center gap-2">
         <i class="fas fa-circle-info text-slate-400"></i>
         <span>Los resultados reflejan el promedio de las evaluaciones realizadas en el período seleccionado.</span>
-      </div>
-      <div class="flex items-center gap-4 lg:ml-auto flex-wrap">
-        <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#10b981;"></span>Excelente (&ge; 96%)</span>
-        <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#3b82f6;"></span>Bueno (95% - 91%)</span>
-        <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b;"></span>Regular (90% - 88%)</span>
-        <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#ef4444;"></span>Deficiente (&lt; 87%)</span>
       </div>
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -370,22 +366,18 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="relative border border-slate-200 rounded-xl p-4">
+          <div class="relative border border-slate-200 rounded-xl p-4 lg:order-2 flex flex-col justify-center">
             <i class="fas fa-circle-info absolute top-4 right-4 text-slate-300"></i>
             <p class="text-sm font-bold text-blue-900">DESEMPEÑO POR CRITERIO DE EVALUACIÓN</p>
             <canvas id="grafica-criterios-general"></canvas>
-            <div class="flex items-center justify-center gap-6 mt-3">
-              <div class="flex items-center gap-2">
-                <span class="w-4 h-2.5 rounded-sm" style="background:#1d4ed8;"></span>
-                <span class="text-[11px] text-slate-500 font-semibold">Cumplimiento alcanzado</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="w-4 h-0 border-t-2 border-dashed" style="border-color:#ef4444;"></span>
-                <span class="text-[11px] text-slate-500 font-semibold">Meta de cumplimiento</span>
-              </div>
+            <div class="flex items-center justify-center gap-x-4 gap-y-1 flex-wrap mt-4 mb-2 text-[11px] text-slate-500">
+              <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#10b981;"></span>Excelente (100%)</span>
+              <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#3b82f6;"></span>Bueno (80%)</span>
+              <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b;"></span>Regular (60%)</span>
+              <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#ef4444;"></span>Deficiente (0-40%)</span>
             </div>
           </div>
-          <div class="border border-slate-200 rounded-xl p-4">
+          <div class="border border-slate-200 rounded-xl p-4 lg:order-1">
             <div class="flex items-center mb-1">
               <p id="titulo-tendencia-general" class="text-sm font-bold text-blue-900">EVOLUCIÓN DEL PROMEDIO</p>
             </div>
@@ -401,6 +393,12 @@
                 <span id="badge-gauge-general-texto"></span>
               </span>
             </div>
+            <div class="flex items-center justify-center gap-x-4 gap-y-1 flex-wrap mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-600">
+            <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#10b981;"></span>Excelente (&ge; 96%)</span>
+            <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#3b82f6;"></span>Bueno (95% - 91%)</span>
+            <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b;"></span>Regular (90% - 88%)</span>
+            <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#ef4444;"></span>Deficiente (&lt; 87%)</span>
+          </div>
           </div>
         </div>
       </div>
@@ -409,12 +407,6 @@
         <div class="flex items-center gap-2">
           <i class="fas fa-circle-info text-slate-400"></i>
           <span>Los resultados reflejan el promedio de las evaluaciones realizadas en el período seleccionado.</span>
-        </div>
-        <div class="flex items-center gap-4 lg:ml-auto flex-wrap">
-          <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#10b981;"></span>Excelente (&ge; 96%)</span>
-          <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#3b82f6;"></span>Bueno (95% - 91%)</span>
-          <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b;"></span>Regular (90% - 88%)</span>
-          <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#ef4444;"></span>Deficiente (&lt; 87%)</span>
         </div>
       </div>
 
@@ -514,23 +506,19 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="relative border border-slate-200 rounded-xl p-4">
+          <div class="relative border border-slate-200 rounded-xl p-4 lg:order-2 flex flex-col justify-center">
             <i class="fas fa-circle-info absolute top-4 right-4 text-slate-300"></i>
             <p class="text-sm font-bold text-blue-900">CUMPLIMIENTO POR CRITERIO DE EVALUACIÓN</p>
             <p class="text-[11px] text-slate-400 mb-4">Porcentaje de cumplimiento alcanzado en cada criterio</p>
             <canvas id="grafica-criterios-taller"></canvas>
-            <div class="flex items-center justify-center gap-6 mt-3">
-              <div class="flex items-center gap-2">
-                <span class="w-4 h-2.5 rounded-sm" style="background:#1d4ed8;"></span>
-                <span class="text-[11px] text-slate-500 font-semibold">Cumplimiento alcanzado</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="w-4 h-0 border-t-2 border-dashed" style="border-color:#ef4444;"></span>
-                <span class="text-[11px] text-slate-500 font-semibold">Meta de cumplimiento</span>
-              </div>
+            <div class="flex items-center justify-center gap-x-4 gap-y-1 flex-wrap mt-4 mb-2 text-[11px] text-slate-500">
+              <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#10b981;"></span>Excelente (100%)</span>
+              <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#3b82f6;"></span>Bueno (80%)</span>
+              <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b;"></span>Regular (60%)</span>
+              <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#ef4444;"></span>Deficiente (0-40%)</span>
             </div>
           </div>
-          <div class="border border-slate-200 rounded-xl p-4">
+          <div class="border border-slate-200 rounded-xl p-4 lg:order-1">
             <p id="titulo-tendencia-taller" class="text-sm font-bold text-blue-900 mb-1">EVOLUCIÓN DEL PROMEDIO</p>
             <p class="text-[11px] text-slate-400 mb-4">Resultado general del período</p>
             <canvas id="grafica-tendencia-taller"></canvas>
@@ -544,6 +532,12 @@
                 <span id="badge-gauge-taller-texto"></span>
               </span>
             </div>
+            <div class="flex items-center justify-center gap-x-4 gap-y-1 flex-wrap mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-600">
+              <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#10b981;"></span>Excelente (&ge; 96%)</span>
+              <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#3b82f6;"></span>Bueno (95% - 91%)</span>
+              <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b;"></span>Regular (90% - 88%)</span>
+              <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#ef4444;"></span>Deficiente (&lt; 87%)</span>
+            </div>
           </div>
         </div>
       </div>
@@ -552,12 +546,6 @@
         <div class="flex items-center gap-2">
           <i class="fas fa-circle-info text-slate-400"></i>
           <span>Los resultados reflejan el promedio de las evaluaciones realizadas en el período seleccionado.</span>
-        </div>
-        <div class="flex items-center gap-4 lg:ml-auto flex-wrap">
-          <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#10b981;"></span>Excelente (&ge; 96%)</span>
-          <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#3b82f6;"></span>Bueno (95% - 91%)</span>
-          <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b;"></span>Regular (90% - 88%)</span>
-          <span class="flex items-center gap-1.5 font-semibold"><span class="w-2.5 h-2.5 rounded-full" style="background:#ef4444;"></span>Deficiente (&lt; 87%)</span>
         </div>
       </div>
 
@@ -775,6 +763,16 @@
   </script>
 
   <script>
+    // Color de cada barra según la clasificación por criterio (escala 0 a 5)
+    // 5 → Excelente | 4 → Bueno | 3 → Regular | 0 a 2 → Deficiente
+    function colorPorPromedio(valor) {
+      const puntos = Math.round(valor);          // el promedio se redondea al punto más cercano
+      if (puntos >= 5) return '#10b981';         // Excelente (100%) → verde
+      if (puntos === 4) return '#3b82f6';        // Bueno (80%) → azul
+      if (puntos === 3) return '#f59e0b';        // Regular (60%) → naranja
+      return '#ef4444';                          // Deficiente (0% - 40%) → rojo
+    }
+
     const CRITERIOS_CALIDAD = [
       { id: 'personal',             nombre: 'Personal' },
       { id: 'equipo',               nombre: 'Equipo' },
@@ -1276,7 +1274,7 @@
 
     let chartGaugeCampo = null;
 
-    const META_PORCENTAJE = 96;
+    const META_PORCENTAJE = 95;
     const META_VALOR = (META_PORCENTAJE / 100) * 5;
 
     const pluginLineaMeta = {
@@ -1606,13 +1604,13 @@
       if (chartCriterios) chartCriterios.destroy();
             chartCriterios = new Chart(ctx1, {
         type: 'bar',
-        plugins: [pluginLineaMeta, pluginLineaCumplimientoTaller],
+        plugins: [],
         data: {
           labels: CRITERIOS_CALIDAD.map(c => c.nombre.length > 10 ? c.nombre.split(' ') : c.nombre),
           datasets: [{
             label: 'Promedio',
             data: promediosPorCriterio,
-            backgroundColor: '#10b981'
+            backgroundColor: promediosPorCriterio.map(colorPorPromedio)
           }]
         },
                 options: {
@@ -1635,7 +1633,15 @@
               }
             }
           },
-          plugins: { legend: { display: false }, datalabels: { display: false } }
+          plugins: {
+            legend: { display: false },
+            datalabels: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => ` Promedio: ${Math.round((ctx.parsed.y / 5) * 100)}%`
+              }
+            }
+          }
         }
       });
     }
@@ -2206,10 +2212,10 @@
       if (chartCriteriosTaller) chartCriteriosTaller.destroy();
             chartCriteriosTaller = new Chart(ctx, {
         type: 'bar',
-        plugins: [pluginLineaMeta, pluginLineaCumplimientoTaller],
+        plugins: [],
         data: {
           labels: CRITERIOS_CALIDAD.map(c => c.nombre),
-          datasets: [{ label: 'Promedio', data: promedios, backgroundColor: '#10b981' }]
+          datasets: [{ label: 'Promedio', data: promedios, backgroundColor: promedios.map(colorPorPromedio) }]
         },
                 options: {
           scales: {
@@ -2231,7 +2237,15 @@
               }
             }
           },
-          plugins: { legend: { display: false }, datalabels: { display: false } }
+          plugins: {
+            legend: { display: false },
+            datalabels: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => ` Promedio: ${Math.round((ctx.parsed.y / 5) * 100)}%`
+              }
+            }
+          }
         }
       });
     }
@@ -2938,7 +2952,7 @@
         ? promediosPorCriterio.reduce((a,b)=>a+b,0) / promediosPorCriterio.length
         : 0;
       const porcentaje = (promedioGeneral / 5) * 100;
-      const color = porcentaje >= 90 ? '#10b981' : porcentaje >= 70 ? '#f59e0b' : '#ef4444';
+      const color = porcentaje >= 96 ? '#10b981' : porcentaje >= 90 ? '#3b82f6' : porcentaje >= 85 ? '#f59e0b' : '#ef4444';
 
       const ctxG = document.getElementById('grafica-gauge-general').getContext('2d');
       if (chartGaugeGeneral) chartGaugeGeneral.destroy();
@@ -2969,7 +2983,7 @@
       if (textoEl) textoEl.textContent = `Nivel de cumplimiento`;
 
       const badgeEl = document.getElementById('badge-gauge-general');
-      const badgeTextoEl = document.getElementById('badge-gauge-general-texto');
+      const nivelNombre = porcentaje >= 96 ? 'Excelente' : porcentaje >= 90 ? 'Bueno' : porcentaje >= 85 ? 'Regular' : 'Deficiente';
       if (badgeEl && badgeTextoEl) {
         const nivelNombre = porcentaje >= 96 ? 'Excelente' : porcentaje >= 91 ? 'Bueno' : porcentaje >= 88 ? 'Regular' : 'Deficiente';
         badgeTextoEl.textContent = nivelNombre;
@@ -3145,10 +3159,10 @@
       if (chartCriteriosGeneral) chartCriteriosGeneral.destroy();
             chartCriteriosGeneral = new Chart(ctxC, {
         type: 'bar',
-        plugins: [pluginLineaMeta, pluginLineaCumplimientoTaller],
+        plugins: [],
         data: {
           labels: CRITERIOS_CALIDAD.map(c => c.nombre),
-          datasets: [{ label: 'Promedio', data: promediosCriterios, backgroundColor: '#10b981' }]
+          datasets: [{ label: 'Promedio', data: promediosCriterios, backgroundColor: promediosCriterios.map(colorPorPromedio) }]
         },
                 options: {
           scales: {
@@ -3170,7 +3184,15 @@
               }
             }
           },
-          plugins: { legend: { display: false }, datalabels: { display: false } }
+          plugins: {
+            legend: { display: false },
+            datalabels: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => ` Promedio: ${Math.round((ctx.parsed.y / 5) * 100)}%`
+              }
+            }
+          }
         }
       });
 
