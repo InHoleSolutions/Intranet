@@ -29,6 +29,8 @@
     .kpi-card:hover, .kpi-card-mini:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
 
     .fila-hover { transition: background 0.15s, cursor 0.15s; cursor: pointer; }
+    .kpi-clickable { cursor: pointer; }
+    .kpi-clickable:hover { border-color: #fcd34d; }
     .fila-hover:hover { background: #f1f5f9 !important; }
 
     .skeleton-card {
@@ -165,6 +167,7 @@
       <div class="kpi-card-mini skeleton-card"></div>
       <div class="kpi-card-mini skeleton-card"></div>
     </div>
+    <div id="panel-bajos-campo" class="hidden mb-8"></div>
     <div class="kpi-card mb-8">
       <div class="flex items-center gap-3 mb-6 pb-4">
         <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
@@ -332,7 +335,7 @@
         <div class="kpi-card-mini skeleton-card"></div>
         <div class="kpi-card-mini skeleton-card"></div>
       </div>
-
+      <div id="panel-bajos-general" class="hidden mb-8"></div>
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
         <div class="kpi-card">
           <p class="text-sm font-bold text-slate-700 mb-1">Servicio en Campo</p>
@@ -493,7 +496,7 @@
         <div class="kpi-card-mini skeleton-card"></div>
         <div class="kpi-card-mini skeleton-card"></div>
       </div>
-
+      <div id="panel-bajos-taller" class="hidden mb-8"></div>
       <div class="kpi-card mb-8">
         <div class="flex items-center gap-3 mb-6 pb-4">
           <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
@@ -1034,6 +1037,13 @@
         return fechaOp.getFullYear() === anioActual;
       });
       operacionesAnualGlobal = operacionesAnual;
+      bajosPorSeccion.campo = calcularBajos(
+        vistaKPIs === 'mes' ? operacionesDelMes
+          : vistaKPIs === 'trimestre' ? operacionesTrimestre
+          : operacionesAnual,
+        'Campo'
+      );
+      actualizarPanelBajos('campo');
 
       const evaluacionesAnual = operacionesAnual.length;
       const promediosAnual = operacionesAnual.map(promedioOperacion).filter(v => v !== null);
@@ -1147,16 +1157,14 @@
           </div>
         </div>
 
-        <div class="kpi-card-mini kpi-row gap-3">
+        <div class="kpi-card-mini kpi-row gap-3 ${bajos > 0 ? 'kpi-clickable' : ''}" ${bajos > 0 ? `onclick="toggleBajos('campo')"` : ''}>
           <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
             <i class="fas fa-triangle-exclamation text-amber-500 text-lg"></i>
           </div>
           <div>
             <p class="text-[10px] font-bold uppercase tracking-widest text-amber-500 mb-0.5">Criterios Bajos (≤3)</p>
-            ${bajos === 0
-              ? `<p class="text-2xl font-black text-slate-800">0</p>`
-              : `<p class="text-2xl font-black text-amber-500">${bajos}</p>`
-            }
+            <p class="text-2xl font-black ${bajos > 0 ? 'text-amber-500' : 'text-slate-800'}">${bajos}</p>
+            ${bajos > 0 ? `<p class="text-[10px] text-amber-600 font-semibold mt-0.5">Clic para ver detalle <i class="fas fa-chevron-down"></i></p>` : ''}
           </div>
         </div>
 
@@ -2041,6 +2049,13 @@
         return fechaLocalDesde(op.created_at).getFullYear() === anioActual;
       });
       operacionesTallerAnualGlobal = operacionesAnual;
+      bajosPorSeccion.taller = calcularBajos(
+        vistaKPIsTaller === 'mes' ? operacionesMes
+          : vistaKPIsTaller === 'trimestre' ? operacionesTrimestre
+          : operacionesAnual,
+        'Taller'
+      );
+      actualizarPanelBajos('taller');
 
       const promedioDe = (lista) => {
         const vals = lista.map(promedioOperacion).filter(v => v !== null);
@@ -2106,14 +2121,16 @@
             <p class="text-[10px] text-slate-400 mt-0.5">Promedio mensual</p>
           </div>
         </div>
-        <div class="kpi-card-mini kpi-row gap-3">
+        <div class="kpi-card-mini kpi-row gap-3 ${bajos > 0 ? 'kpi-clickable' : ''}" ${bajos > 0 ? `onclick="toggleBajos('taller')"` : ''}>
           <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
             <i class="fas fa-triangle-exclamation text-amber-500 text-lg"></i>
           </div>
           <div>
             <p class="text-[10px] font-bold uppercase tracking-widest text-amber-500 mb-0.5">Criterios Bajos (≤3)</p>
             <p class="text-2xl font-black ${bajos > 0 ? 'text-amber-500' : 'text-slate-800'}">${bajos}</p>
-            <p class="text-[10px] text-slate-400 mt-0.5">Áreas de oportunidad</p>
+            ${bajos > 0
+              ? `<p class="text-[10px] text-amber-600 font-semibold mt-0.5">Clic para ver detalle <i class="fas fa-chevron-down"></i></p>`
+              : `<p class="text-[10px] text-slate-400 mt-0.5">Áreas de oportunidad</p>`}
           </div>
         </div>
         <div class="kpi-card-mini kpi-row gap-3">
@@ -3106,6 +3123,9 @@
         return acc;
       }, 0);
 
+      bajosPorSeccion.general = calcularBajos(combinado, 'Campo');
+      actualizarPanelBajos('general');
+
       const nivelIdx = promCombinado ? Math.round(promCombinado) : 0;
       const cantidadSub = vistaGeneral === 'mes' ? obtenerMesAnioActual()
         : vistaGeneral === 'trimestre' ? 'Últimos 3 meses'
@@ -3131,13 +3151,14 @@
             <p class="text-2xl font-black text-emerald-600">${Math.round((promCombinado / 5) * 100)}%</p>
           </div>
         </div>
-        <div class="kpi-card-mini kpi-row gap-3">
+        <div class="kpi-card-mini kpi-row gap-3 ${bajos > 0 ? 'kpi-clickable' : ''}" ${bajos > 0 ? `onclick="toggleBajos('general')"` : ''}>
           <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
             <i class="fas fa-triangle-exclamation text-amber-500 text-lg"></i>
           </div>
           <div>
             <p class="text-[10px] font-bold uppercase tracking-widest text-amber-500 mb-0.5">Criterios Bajos (≤3)</p>
             <p class="text-2xl font-black ${bajos > 0 ? 'text-amber-500' : 'text-slate-800'}">${bajos}</p>
+            ${bajos > 0 ? `<p class="text-[10px] text-amber-600 font-semibold mt-0.5">Clic para ver detalle <i class="fas fa-chevron-down"></i></p>` : ''}
           </div>
         </div>
         <div class="kpi-card-mini kpi-row gap-3">
@@ -3402,6 +3423,103 @@
     }
 
     document.addEventListener('DOMContentLoaded', cargarMeta);
+  </script>
+
+  <script>
+    // ══════════════════════════════════════════
+    //  PANEL DE CRITERIOS BAJOS (≤3)
+    // ══════════════════════════════════════════
+    const bajosPorSeccion = { campo: [], taller: [], general: [] };
+    const bajosAbierto = { campo: false, taller: false, general: false };
+
+    function calcularBajos(lista, origenDefault) {
+      const items = [];
+      lista.forEach(op => {
+        CRITERIOS_CALIDAD.forEach(c => {
+          const val = op.evaluacion_calidad[c.id];
+          if (val && val <= 3) {
+            items.push({
+              opId: op.id,
+              origen: op.origen || origenDefault,
+              jobId: op.job_id || '—',
+              detalle: op.nombre_pozo
+                ? `${op.cliente || '—'} · ${op.nombre_pozo}`
+                : (op.servicio_proporcionado || '—'),
+              fecha: op.created_at,
+              criterio: c.nombre,
+              valor: val
+            });
+          }
+        });
+      });
+      return items;
+    }
+
+    function toggleBajos(seccion) {
+      bajosAbierto[seccion] = !bajosAbierto[seccion];
+      actualizarPanelBajos(seccion);
+    }
+
+    function actualizarPanelBajos(seccion) {
+      const panel = document.getElementById('panel-bajos-' + seccion);
+      if (!panel) return;
+      const items = bajosPorSeccion[seccion] || [];
+      if (!items.length) bajosAbierto[seccion] = false;
+
+      if (!bajosAbierto[seccion]) {
+        panel.classList.add('hidden');
+        panel.innerHTML = '';
+        return;
+      }
+
+      // Agrupar criterios bajos por evaluación
+      const grupos = new Map();
+      items.forEach(it => {
+        const k = it.origen + '-' + it.opId;
+        if (!grupos.has(k)) grupos.set(k, { ...it, criterios: [] });
+        grupos.get(k).criterios.push({ nombre: it.criterio, valor: it.valor });
+      });
+      const lista = [...grupos.values()].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+      const clickable = seccion !== 'general';
+
+      panel.innerHTML = `
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <p class="text-sm font-bold text-amber-800"><i class="fas fa-triangle-exclamation mr-1"></i> Criterios con calificación ≤3</p>
+              <p class="text-[11px] text-amber-700">${items.length} criterio(s) en ${lista.length} evaluación(es) del periodo seleccionado</p>
+            </div>
+            <button onclick="toggleBajos('${seccion}')" class="text-amber-600 hover:text-amber-800" title="Cerrar">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="space-y-2 max-h-80 overflow-y-auto">
+            ${lista.map(g => {
+              const fn = g.origen === 'Taller' ? 'abrirModalDetalleTaller' : 'abrirModalDetalle';
+              const click = clickable ? `onclick="${fn}('${g.opId}')"` : '';
+              const badge = seccion === 'general'
+                ? `<span class="ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold ${g.origen === 'Campo' ? 'bg-sky-100 text-sky-700' : 'bg-purple-100 text-purple-700'}">${g.origen}</span>`
+                : '';
+              return `
+                <div ${click} class="bg-white border border-amber-100 rounded-lg px-3 py-2 flex flex-wrap items-center justify-between gap-2 ${clickable ? 'cursor-pointer hover:bg-amber-50 transition' : ''}">
+                  <div class="min-w-0">
+                    <p class="text-sm font-semibold text-slate-700"><span class="font-mono text-xs">${g.jobId}</span>${badge}</p>
+                    <p class="text-xs text-slate-400 truncate">${g.detalle} · ${formatFecha(g.fecha)}</p>
+                  </div>
+                  <div class="flex flex-wrap gap-1.5">
+                    ${g.criterios.map(c => {
+                      const col = NIVEL_COLOR[Math.round(c.valor) - 1] || '#94a3b8';
+                      return `<span class="px-2 py-1 rounded-full text-xs font-bold" style="background:${col}20; color:${col};">${c.nombre}: ${c.valor}/5</span>`;
+                    }).join('')}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+      panel.classList.remove('hidden');
+    }
   </script>
 
 </body>
