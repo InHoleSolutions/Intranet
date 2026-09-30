@@ -1079,7 +1079,7 @@
       }, 0);
 
       // ── Promedio del periodo anterior (para la tendencia) ──
-      const mesAnteriorFecha = new Date(anioActual, mesActual - 1, 1);
+      const mesAnteriorFecha = new Date(anioActual, mesActual + offsetMesCampo - 1, 1);
       const operacionesMesAnterior = operacionesEvaluadas.filter(op => {
         if (!op.created_at) return false;
         const fechaOp = fechaLocalDesde(op.created_at);
@@ -2969,7 +2969,7 @@
         ? promediosPorCriterio.reduce((a,b)=>a+b,0) / promediosPorCriterio.length
         : 0;
       const porcentaje = (promedioGeneral / 5) * 100;
-      const color = porcentaje >= 96 ? '#10b981' : porcentaje >= 90 ? '#3b82f6' : porcentaje >= 85 ? '#f59e0b' : '#ef4444';
+      const color = porcentaje >= 96 ? '#10b981' : porcentaje >= 91 ? '#3b82f6' : porcentaje >= 88 ? '#f59e0b' : '#ef4444';
 
       const ctxG = document.getElementById('grafica-gauge-general').getContext('2d');
       if (chartGaugeGeneral) chartGaugeGeneral.destroy();
@@ -3000,7 +3000,7 @@
       if (textoEl) textoEl.textContent = `Nivel de cumplimiento`;
 
       const badgeEl = document.getElementById('badge-gauge-general');
-      const nivelNombre = porcentaje >= 96 ? 'Excelente' : porcentaje >= 90 ? 'Bueno' : porcentaje >= 85 ? 'Regular' : 'Deficiente';
+      const badgeTextoEl = document.getElementById('badge-gauge-general-texto');
       if (badgeEl && badgeTextoEl) {
         const nivelNombre = porcentaje >= 96 ? 'Excelente' : porcentaje >= 91 ? 'Bueno' : porcentaje >= 88 ? 'Regular' : 'Deficiente';
         badgeTextoEl.textContent = nivelNombre;
@@ -3127,7 +3127,7 @@
       actualizarPanelBajos('general');
 
       const nivelIdx = promCombinado ? Math.round(promCombinado) : 0;
-      const cantidadSub = vistaGeneral === 'mes' ? obtenerMesAnioActual()
+      const cantidadSub = vistaGeneral === 'mes' ? nombreMesOffset(offsetMesGeneral)
         : vistaGeneral === 'trimestre' ? 'Últimos 3 meses'
         : String(new Date().getFullYear());
 
