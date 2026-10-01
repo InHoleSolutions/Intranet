@@ -16,43 +16,35 @@
       background-image: radial-gradient(circle, #e31e2412 1px, transparent 1px);
       background-size: 24px 24px;
     }
-
     /* Animación entrada */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(16px); }
       to   { opacity: 1; transform: translateY(0); }
     }
     .fade-up { animation: fadeUp 0.4s ease forwards; }
-
     /* Filas de tabla */
     .user-row { transition: background 0.15s; }
     .user-row:hover { background: #fff5f5; }
     .user-row.activa { background: #fff1f1; box-shadow: inset 3px 0 0 #e31e24; }
-
     /* Badge roles */
     .badge-admin    { background:#fee2e2; color:#991b1b; }
     .badge-usuario  { background:#f1f5f9; color:#475569; }
     .badge-qhse     { background:#fef9c3; color:#854d0e; }
     .badge-ops      { background:#e0f2fe; color:#075985; }
     .badge-ingven   { background:#dcfce7; color:#166534; }
-
     /* Scrollbar tabla */
     .table-wrap::-webkit-scrollbar { height: 5px; }
     .table-wrap::-webkit-scrollbar-thumb { background:#e2e8f0; border-radius:4px; }
-
     /* Modal backdrop */
     #modal-usuario {
       backdrop-filter: blur(6px);
       background: rgba(15,23,42,0.6);
     }
-
     /* Input focus rojo */
     .inp:focus { outline: none; border-color: #e31e24 !important; box-shadow: 0 0 0 3px rgba(227,30,36,0.1); }
-
     /* Spinner */
     @keyframes spin { to { transform: rotate(360deg); } }
     .spinner { animation: spin 0.7s linear infinite; }
-
     /* Skeleton */
     .skeleton {
       background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
@@ -63,7 +55,6 @@
       0%   { background-position: 200% 0; }
       100% { background-position: -200% 0; }
     }
-
     /* Shimmer en botón */
     .btn-shimmer {
       position: relative;
@@ -83,7 +74,6 @@
       50%  { left: 150%; }
       100% { left: 150%; }
     }
-
     /* Buscador animado */
     #buscador-wrap {
       transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
@@ -106,7 +96,6 @@
     #resultado-count {
       transition: all 0.3s ease;
     }
-
     /* Header gradiente animado */
     @keyframes gradiente-move {
       0%   { background-position: 0% 50%; }
@@ -124,7 +113,6 @@
       background-size: 200% 100%;
       animation: shimmer-btn 2s linear infinite;
     }
-
     /* Modal sheet en móvil */
     @media (max-width: 640px) {
       #modal-usuario > div,
@@ -151,10 +139,8 @@
   </style>
 </head>
 <body class="bg-[#f8fafc] min-h-screen flex flex-col">
-
   <!-- ── HEADER ── -->
   <div id="site-header" style="position:sticky; top:0; z-index:50;"></div>
-
   <!-- ── MAIN ── -->
   <main class="flex-1 max-w-[1440px] mx-auto p-6 md:p-10 mt-[56px] sm:mt-[64px] lg:mt-[120px]">
     <div>
@@ -189,7 +175,6 @@
           <p class="text-xs text-slate-400 mt-2">en la intranet</p>
         </div>
       </div>
-
       <div class="stat-card group bg-white rounded-2xl border border-red-100 p-5 shadow-sm hover:shadow-lg hover:shadow-red-100 hover:-translate-y-1 transition-all duration-300 overflow-hidden relative">
         <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-red-400 to-red-600 rounded-l-2xl"></div>
         <div class="absolute -right-4 -top-4 w-20 h-20 bg-red-50 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
@@ -204,7 +189,6 @@
           <p class="text-xs text-red-300 mt-2">con acceso total</p>
         </div>
       </div>
-
       <div class="stat-card group bg-white rounded-2xl border border-emerald-100 p-5 shadow-sm hover:shadow-lg hover:shadow-emerald-100 hover:-translate-y-1 transition-all duration-300 overflow-hidden relative">
         <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-l-2xl"></div>
         <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
@@ -219,7 +203,6 @@
           <p class="text-xs text-emerald-400 mt-2">último minuto</p>
         </div>
       </div>
-
     </div>
     <!-- Buscador + filtro -->
     <div class="flex flex-col sm:flex-row gap-3 mb-5 fade-up" style="animation-delay:0.1s">
@@ -264,7 +247,6 @@
       </div>
     </div>
   </main>
-
   <!-- ── MODAL CONTRASEÑA ── -->
   <div id="modal-password" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4" style="backdrop-filter:blur(6px); background:rgba(15,23,42,0.6);">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden" style="animation: fadeUp 0.3s cubic-bezier(0.175,0.885,0.32,1.275) forwards;">
@@ -287,7 +269,6 @@
       </div>
       <!-- Cuerpo -->
       <div class="px-6 py-5 space-y-4">
-
         <!-- Estado inicial: explicación + botón generar -->
         <div id="pass-estado-inicial">
           <p class="text-sm text-slate-500 leading-relaxed">
@@ -295,7 +276,6 @@
             entrar con ella y se recomienda que la cambie por la suya lo antes posible.
           </p>
         </div>
-
         <!-- Estado con contraseña generada (oculto al inicio) -->
         <div id="pass-resultado" class="hidden space-y-2">
           <label class="block text-xs font-black uppercase tracking-widest text-slate-400">Contraseña temporal</label>
@@ -312,7 +292,6 @@
             Cópiala y pásala al usuario ahora — no se volverá a mostrar después de cerrar este cuadro.
           </p>
         </div>
-
         <!-- Error -->
         <div id="pass-error" class="hidden bg-red-50 border border-red-100 text-red-600 text-xs px-4 py-3 rounded-xl flex items-center gap-2">
           <i class="fas fa-circle-exclamation"></i>
@@ -330,7 +309,6 @@
       </div>
     </div>
   </div>
-
   <!-- ── MODAL USUARIO ── -->
   <div id="modal-usuario" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden" style="animation: fadeUp 0.3s cubic-bezier(0.175,0.885,0.32,1.275) forwards;">
@@ -425,7 +403,6 @@
 
   <script type="module">
     import { supabaseClient } from './Js/supabase-config.js';
-
     let todosLosUsuarios = [];
     let sesionActual = null;
 
@@ -452,7 +429,6 @@
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) { window.location.href = 'intranet-login.html'; return; }
       sesionActual = session;
-
       // ── Activos ahora: primera carga + refresco automático cada 15 segundos ──
       actualizarActivosAhora();
       setInterval(actualizarActivosAhora, 15000);
@@ -465,7 +441,6 @@
         window.location.href = 'dashboard.html';
         return;
       }
-
       // Mostrar saludo
       const elWelcome = document.getElementById('user-welcome');
       const elRol = document.getElementById('user-rol');
@@ -473,7 +448,6 @@
       const rolLabel = document.getElementById('user-rol-label');
       if (rolLabel) rolLabel.innerText = `Miembro del Equipo · ${perfil.rol}`;
       if (elRol) elRol.textContent = perfil.rol || 'Miembro del Equipo';
-
       cargarUsuarios();
     }
     // ── CARGAR USUARIOS ──
@@ -516,7 +490,6 @@
           </td></tr>`;
         return;
       }
-
       todosLosUsuarios = (data || []).map(u => {
         const authUser = authUsers.find(a => a.id === u.id);
         return { ...u, last_sign_in_at: authUser?.last_sign_in_at || null };
@@ -553,7 +526,6 @@
         tbody.innerHTML = `
           <tr><td colspan="7" class="px-6 py-14 text-center">
             <div style="animation: fadeUp 0.4s ease forwards;">
-
               ${buscando ? `
               <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-4">
                 <circle cx="40" cy="40" r="38" fill="#fff1f1" stroke="#fecaca" stroke-width="2"/>
@@ -566,7 +538,6 @@
               <button onclick="limpiarFiltros()" class="mt-4 text-xs font-bold text-red-500 hover:text-red-700 underline underline-offset-2 transition-colors">
                 Limpiar filtros
               </button>`
-
               : `
               <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-4">
                 <circle cx="40" cy="40" r="38" fill="#fff1f1" stroke="#fecaca" stroke-width="2"/>
@@ -580,12 +551,10 @@
               <button onclick="abrirModal()" class="mt-4 inline-flex items-center gap-2 bg-[#e31e24] text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md shadow-red-200 hover:bg-red-700 transition-all">
                 <i class="fas fa-plus"></i> Nuevo Usuario
               </button>`}
-
             </div>
           </td></tr>`;
         return;
       }
-
       tbody.innerHTML = usuarios.map(u => {
         const iniciales = (u.nombre_completo || '?').split(' ').map(p => p[0]).slice(0,2).join('').toUpperCase();
         const coloresAvatar = [
@@ -606,7 +575,6 @@
                            rol.includes('ingenier') ? 'badge-ingven' : 'badge-usuario';
         const rolLabel   = u.rol || 'Sin rol';
         const fecha      = u.created_at ? new Date(u.created_at).toLocaleDateString('es-MX', { day:'2-digit', month:'short', year:'numeric' }) : '—';
-
         return `
         <tr class="user-row border-b border-slate-50 cursor-pointer" onclick="seleccionarFila(this)" data-nombre="${(u.nombre_completo||'').toLowerCase()}" data-correo="${(u.correo||'').toLowerCase()}" data-puesto="${(u.puesto||'').toLowerCase()}" data-rol="${(u.rol||'').toLowerCase()}">
           <td class="px-6 py-4">
@@ -667,7 +635,6 @@
 
     async function actualizarActivosAhora() {
       const hace2Min = new Date(Date.now() - 2 * 60000).toISOString();
-
       const { data, error } = await supabaseClient
         .from('perfiles')
         .select('id')
@@ -677,12 +644,10 @@
         contarAnimar('stat-activos', (data || []).length, 600);
       }
     }
-
     // ── BUSCADOR Y FILTRO ──
     function filtrarTabla() {
       const texto = document.getElementById('buscador').value.toLowerCase();
       const rol   = document.getElementById('filtro-rol').value.toLowerCase();
-
       const filtrados = todosLosUsuarios.filter(u => {
         const coincideTexto = !texto ||
           (u.nombre_completo||'').toLowerCase().includes(texto) ||
@@ -691,7 +656,6 @@
         const coincideRol = !rol || (u.rol||'').toLowerCase().includes(rol);
         return coincideTexto && coincideRol;
       });
-
       renderTabla(filtrados);
       // Contador de resultados
       const count = document.getElementById('resultado-count');
@@ -746,7 +710,6 @@
         const { error: errorPerfil } = await supabaseClient
           .from('perfiles').delete().eq('id', id);
         if (errorPerfil) throw errorPerfil;
-
         // 2. Borrar de Supabase Auth (vía Edge Function segura)
         try {
           const respEliminar = await fetch('https://bgqlvkvlscujikhzzazf.supabase.co/functions/v1/admin-usuarios', {
@@ -762,10 +725,8 @@
         } catch (e) {
           console.warn('No se pudo borrar de Auth:', e.message);
         }
-
         mostrarToast('Usuario eliminado correctamente', 'red');
         cargarUsuarios();
-
       } catch (err) {
         mostrarToast('Error al eliminar: ' + err.message, 'red');
       }
@@ -778,14 +739,12 @@
         blue:  { bg: 'bg-blue-500',    barra: 'bg-blue-300',    icono: 'fa-circle-info'  }
       };
       const c = config[color] || config.green;
-
       // Eliminar toast anterior si existe
       document.querySelectorAll('.ihs-toast').forEach(t => t.remove());
 
       const t = document.createElement('div');
       t.className = `ihs-toast fixed bottom-6 left-1/2 z-[300] ${c.bg} text-white rounded-2xl shadow-2xl overflow-hidden`;
       t.style.cssText = 'transform: translateX(-50%) translateY(80px); opacity:0; transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275), opacity 0.3s ease; min-width: 280px;';
-
       t.innerHTML = `
         <div class="flex items-center gap-3 px-5 py-4">
           <i class="fas ${c.icono} text-lg flex-shrink-0"></i>
@@ -797,7 +756,6 @@
         <div class="h-1 w-full ${c.barra} opacity-60">
           <div class="ihs-progress h-full bg-white/40" style="width:100%; transition: width 3s linear;"></div>
         </div>`;
-
       document.body.appendChild(t);
       // Entrada
       requestAnimationFrame(() => {
@@ -849,7 +807,6 @@
         document.getElementById('f-correo').value   = '';
         document.getElementById('f-password').value = '';
       }
-
       document.getElementById('modal-usuario').classList.remove('hidden');
     }
 
@@ -896,7 +853,6 @@
 
           if (error) throw error;
           mostrarToast('Usuario actualizado correctamente', 'green');
-
         } else {
           // ── CREAR: primero crea en Auth, luego inserta en perfiles ──
           if (!correo)        { mostrarErrorModal('El correo es obligatorio.'); return; }
@@ -937,10 +893,8 @@
           }
           mostrarToast('Usuario creado correctamente', 'green');
         }
-
         cerrarModal();
         cargarUsuarios();
-
       } catch (err) {
         mostrarErrorModal(err.message || 'Ocurrió un error inesperado.');
       } finally {
@@ -976,7 +930,6 @@
       const btn = document.getElementById('btn-generar-pass');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-circle-notch spinner"></i> Generando...';
-
       try {
         const resp = await fetch('https://bgqlvkvlscujikhzzazf.supabase.co/functions/v1/admin-usuarios', {
           method: 'POST',
@@ -988,7 +941,6 @@
         });
         const data = await resp.json();
         if (!resp.ok) throw new Error(data.error || 'Error al generar la contraseña');
-
         // Registrar la fecha de cambio, igual que si el usuario la hubiera cambiado
         await supabaseClient
           .from('perfiles')
@@ -999,10 +951,8 @@
         document.getElementById('pass-estado-inicial').classList.add('hidden');
         document.getElementById('pass-resultado').classList.remove('hidden');
         btn.classList.add('hidden');
-
         mostrarToast('Contraseña temporal generada', 'green');
         cargarUsuarios();
-
       } catch (err) {
         document.getElementById('pass-error-texto').textContent = err.message;
         document.getElementById('pass-error').classList.remove('hidden');
@@ -1018,12 +968,10 @@
       navigator.clipboard.writeText(input.value);
       mostrarToast('Contraseña copiada al portapapeles', 'green');
     }
-
     // Cerrar al click fuera
     document.getElementById('modal-password').addEventListener('click', function(e) {
       if (e.target === this) cerrarModalPassword();
     });
-
     // ── SWIPE DOWN para cerrar modales en móvil ──
     function agregarSwipeDown(modalId, cerrarFn) {
       const modal = document.getElementById(modalId);
@@ -1059,10 +1007,8 @@
         }
       });
     }
-
     agregarSwipeDown('modal-usuario',  cerrarModal);
     agregarSwipeDown('modal-password', cerrarModalPassword);
-
     // ── Exponer funciones al scope global ──
     // (necesario porque los módulos no cuelgan sus funciones en window automáticamente,
     // y el HTML las llama con onclick="..." / oninput="...")
@@ -1080,9 +1026,7 @@
     window.togglePass          = togglePass;
     window.verContrasena       = verContrasena;
     window.cerrarSesion        = cerrarSesion;
-
     init();
-
     init();
   </script>
 
@@ -1123,8 +1067,6 @@
       }
     });
   </script>
-
   <div id="footer-componente"></div>
-
 </body>
 </html>
