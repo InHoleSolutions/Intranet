@@ -75,13 +75,10 @@
   </style>
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col">
-
   <!-- ── HEADER (se carga desde header.html) ── -->
   <div id="header-componente"></div>
-
   <!-- ── MAIN ── -->
   <main id="main-content" class="w-full max-w-[1440px] 3xl:max-w-[1800px] mx-auto px-4 sm:px-6 3xl:px-12 pb-16">
-
     <!-- ── Breadcrumb ── -->
     <div class="flex items-center gap-2 text-sm text-slate-400 mb-4">
       <a href="dashboard.html" class="hover:text-[#e31e24] transition-colors">
@@ -90,7 +87,6 @@
       <span class="text-slate-300">/</span>
       <span class="font-semibold">Mantenimiento</span>
     </div>
-
     <!-- ── Encabezado de sección + KPI ── -->
     <div class="flex flex-col lg:flex-row gap-6 mb-4 items-stretch">
       <div class="flex-1">
@@ -106,7 +102,6 @@
           Los equipos y herramientas utilizados en las operaciones son sometidos a programas de mantenimiento, calibración, verificación e inspección, de acuerdo con las recomendaciones del fabricante, los requisitos aplicables y las necesidades operativas. El seguimiento y la trazabilidad de estas actividades contribuyen a asegurar su confiabilidad y la calidad de los servicios.
         </p>
       </div>
-
       <!-- ── KPI: Cumplimiento del Programa de Mantenimiento y Calibración ── -->
       <div class="flex-1 flex lg:justify-center">
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 w-full lg:w-[560px] flex-shrink-0">
@@ -137,7 +132,6 @@
       </div>
       </div>
     </div>
-
     <!-- ── Botones globales: Instructivo + Exportar PDF completo ── -->
     <div class="mb-3 flex items-center gap-2">
       <div class="relative inline-block">
@@ -146,7 +140,6 @@
                px-4 py-2.5 rounded-xl shadow-sm transition-colors">
         <i class="fas fa-file-pdf text-red-400"></i> Instructivo <i class="fas fa-chevron-down text-[10px] ml-1"></i>
       </button>
-
       <div id="menu-instructivo" class="hidden absolute left-0 top-12 z-30 bg-white border border-slate-200 rounded-xl shadow-lg py-1 w-72 text-left">
         <div class="flex items-center justify-between pl-3 pr-1 py-1 hover:bg-slate-50 rounded-lg">
           <button onclick="verInstructivo('equipos')" class="flex items-center gap-2 text-xs text-slate-600 flex-1 text-left py-1.5">
@@ -197,7 +190,6 @@
         <i class="fas fa-file-pdf"></i> Exportar PDF completo
       </button>
     </div>
-
     <!-- ── Pestañas ── -->
     <div class="flex flex-wrap gap-2 mb-3">
       <button onclick="cambiarPestana('equipos')" id="tab-equipos"
@@ -213,7 +205,6 @@
         <i class="fas fa-ruler-horizontal mr-2"></i>Drift
       </button>
     </div>
-
     <!-- ── Panel: Equipos y Herramientas ── -->
     <section id="panel-equipos" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6">
       <div class="flex items-center justify-between mb-4">
@@ -261,7 +252,6 @@
         </table>
       </div>
     </section>
-
     <!-- ── Panel: Accesorios de Izaje ── -->
     <section id="panel-izaje" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6">
       <div class="flex items-center justify-between mb-4">
@@ -316,7 +306,6 @@
           </tbody>
         </table>
       </div>
-
       <!-- ── Tabla: Eslingas de cable de acero / Estrobos ── -->
       <div class="flex items-center justify-between mb-4 mt-8">
         <h2 class="text-sm font-black text-slate-700 uppercase tracking-wide">Eslingas de Cable de Acero / Estrobos</h2>
@@ -371,7 +360,6 @@
         </table>
       </div>
     </section>
-
     <!-- ── Panel: Drift ── -->
     <section id="panel-drift" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6">
       <div class="flex items-center justify-between mb-4">
@@ -424,9 +412,7 @@
         </table>
       </div>
     </section>
-
   </main>
-
   <!-- ── Modal Historial de Certificados ── -->
   <div id="modalHistorial" class="hidden fixed inset-0 z-[250] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden shadow-2xl">
@@ -441,7 +427,6 @@
       </div>
     </div>
   </div>
-
   <!-- ── Modal PDF Instructivo ── -->
   <div id="modalPDF" class="hidden fixed inset-0 z-[200] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden shadow-2xl">
@@ -452,10 +437,8 @@
       <iframe id="iframePDF" class="flex-1 w-full" src=""></iframe>
     </div>
   </div>
-
   <!-- ── Toast de notificaciones ── -->
   <div id="toast-contenedor" class="fixed top-5 right-5 z-[300] flex flex-col gap-2"></div>
-
   <!-- ── Modal de aviso/información ── -->
   <div id="modalAviso" class="hidden fixed inset-0 z-[260] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl text-center">
@@ -468,7 +451,6 @@
       </button>
     </div>
   </div>
-
   <!-- ── Modal de confirmación personalizado ── -->
   <div id="modalConfirmar" class="hidden fixed inset-0 z-[280] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
@@ -488,7 +470,6 @@
       </div>
     </div>
   </div>
-
   <!-- ── Modal Historial de Bajas ── -->
   <div id="modalHistorialBajas" class="hidden fixed inset-0 z-[250] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[80vh] flex flex-col overflow-hidden shadow-2xl">
@@ -503,7 +484,6 @@
       </div>
     </div>
   </div>
-
   <!-- ── Modal Trazabilidad del Accesorio ── -->
   <div id="modalTrazabilidad" class="hidden fixed inset-0 z-[250] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl w-full max-w-5xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
@@ -521,7 +501,6 @@
       </div>
     </div>
   </div>
-
   <!-- ── Modal Trazabilidad del Equipo ── -->
   <div id="modalTrazabilidadEquipo" class="hidden fixed inset-0 z-[250] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl w-full max-w-5xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
@@ -539,7 +518,6 @@
       </div>
     </div>
   </div>
-
   <!-- ── Modal Trazabilidad del Drift ── -->
   <div id="modalTrazabilidadDrift" class="hidden fixed inset-0 z-[250] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl w-full max-w-5xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
@@ -557,7 +535,6 @@
       </div>
     </div>
   </div>
-
   <!-- ── Modal Filas Ocultas ── -->
   <div id="modalFilasOcultas" class="hidden fixed inset-0 z-[250] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl w-full max-w-lg max-h-[80vh] flex flex-col overflow-hidden shadow-2xl">
@@ -580,7 +557,6 @@
       'https://bgqlvkvlscujikhzzazf.supabase.co',
       'sb_publishable_S5G17esnd47Gw9hO3rTfbA_cTxVtG-P'
     );
-
     // ── Escapa un valor para poder meterlo de forma segura dentro de un onclick="..." ──
     function escAttr(valor) {
       return String(valor ?? '')
@@ -589,7 +565,6 @@
         .replace(/"/g, '&quot;')
         .replace(/\r?\n/g, ' ');
     }
-
     // ── Cargar header / footer ──
     fetch('header.html').then(r => r.text()).then(html => {
       document.getElementById('header-componente').innerHTML = html;
@@ -605,7 +580,6 @@
         new ResizeObserver(ajustarEspacioHeader).observe(header);
       }
     });
-
     // ── Ajusta el espacio del contenido según el alto real del header ──
     function ajustarEspacioHeader() {
       const header = document.getElementById('header-componente');
@@ -626,7 +600,6 @@
       const y = document.getElementById('footer-year');
       if (y) y.textContent = new Date().getFullYear();
     });
-
     // Funciones que usa header.html
     function toggleMenu(id) { document.getElementById(id).classList.toggle('hidden'); }
     function toggleSubmenu(btn) {
@@ -654,17 +627,14 @@
             .catch(() => {}); // Si falla un latido por red, no pasa nada — se reintenta en 30s
         }
       };
-
       enviarLatido();
       intervaloLatido = setInterval(enviarLatido, 30000);
     }
-
     // ── Config global ──
     let esQHSE = false;
     const estadoObservaciones = {};
     let pestanaActual = 'equipos';
     let graficaKPI = null;
-
     // ── KPI: Cumplimiento del Programa de Mantenimiento y Calibración ──
     async function cargarKPI() {
       const categorias = [
@@ -687,7 +657,6 @@
       const totalVigentes = resultados.reduce((acc, r) => acc + r.vigentes, 0);
       const totalGeneral  = resultados.reduce((acc, r) => acc + r.total, 0);
       const cumplimiento  = totalGeneral > 0 ? Math.round((totalVigentes / totalGeneral) * 100) : 0;
-
       // ── Actualiza la dona ──
       document.getElementById('kpi-porcentaje').innerText = `${cumplimiento}%`;
       const datosGrafica = [totalVigentes, Math.max(totalGeneral - totalVigentes, 0)];
@@ -711,7 +680,6 @@
       } catch (errGrafica) {
         console.error('No se pudo dibujar la gráfica KPI:', errGrafica);
       }
-
       // ── Actualiza la tabla por categoría ──
       const tbodyKPI = document.getElementById('tbody-kpi-categorias');
       const filasCategorias = resultados.map(r => {
@@ -733,13 +701,11 @@
           <td class="py-2 text-center text-slate-800">${cumplimiento}%</td>
         </tr>`;
     }
-
     // ── Toast de notificación ──
     function mostrarToast(mensaje, tipo = 'exito') {
       const contenedor = document.getElementById('toast-contenedor');
       const colores = { exito: 'bg-emerald-500', error: 'bg-red-500', info: 'bg-slate-800' };
       const icono = { exito: 'fa-circle-check', error: 'fa-circle-exclamation', info: 'fa-circle-info' };
-
       const toast = document.createElement('div');
       toast.className = `${colores[tipo] || colores.info} text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 opacity-0 translate-x-4 transition-all duration-300`;
       toast.innerHTML = `<i class="fas ${icono[tipo] || icono.info}"></i> ${mensaje}`;
@@ -752,14 +718,12 @@
         setTimeout(() => toast.remove(), 300);
       }, 3000);
     }
-
     // ── Modal de aviso (reemplaza alert()) ──
     function mostrarAviso(mensaje) {
       return new Promise(resolve => {
         const modal = document.getElementById('modalAviso');
         document.getElementById('mensajeAviso').textContent = mensaje;
         modal.classList.remove('hidden');
-
         const btnCerrar = document.getElementById('btnCerrarAviso');
         function cerrar() {
           modal.classList.add('hidden');
@@ -769,7 +733,6 @@
         btnCerrar.addEventListener('click', cerrar);
       });
     }
-
     // ── Modal de confirmación (reemplaza confirm()) ──
     function confirmarAccion(mensaje) {
       return new Promise(resolve => {
@@ -847,7 +810,6 @@
         columnasArchivo: ['certificado']
       }
     };
-
     // ── Pestañas ──
     function cambiarPestana(nombre) {
       pestanaActual = nombre;
@@ -858,7 +820,6 @@
       cargarTabla(nombre);
       if (nombre === 'izaje') cargarTabla('izajeCable');
     }
-
     // ── Realtime: refresca las tablas de Izaje cuando hay cambios en Supabase ──
     function suscribirRealtimeIzaje() {
       supabaseClient
@@ -871,7 +832,6 @@
         })
         .subscribe();
     }
-
     // ── Realtime: refresca las tablas de Equipos y Drift cuando hay cambios en Supabase ──
     function suscribirRealtimeEquiposDrift() {
       supabaseClient
@@ -884,7 +844,6 @@
         })
         .subscribe();
     }
-
     // ── Cargar datos de una tabla ──
     async function cargarTabla(nombre) {
       cargarKPI();
@@ -979,7 +938,6 @@
       if (!el) return '';
       return (el.tagName === 'INPUT' ? el.value : el.textContent).trim();
     }
-
     // ── Generar PDF de "Lista de Equipos" (Fuente Calibri sin Paginación) ──
     async function generarPDFEquipos() {
       const boton = document.getElementById('btn-pdf-equipos');
@@ -1002,7 +960,6 @@
         const margenIzq = 14;
         const anchoUtil = pageWidth - (margenIzq * 2); // 182mm
         let y = 14;
-
         // ── Paleta de Colores Corporativos ──
         const COLOR_AZUL_MARINO = [15, 23, 42];    // #0F172A (Slate 900)
         const COLOR_AZUL_ACCENT = [30, 58, 138];   // #1E3A8A (Navy Blue)
@@ -1010,32 +967,26 @@
         const COLOR_GRIS_LINEA  = [226, 232, 240]; // #E2E8F0 (Slate 200)
         const COLOR_GRIS_BG     = [248, 250, 252]; // #F8FAFC (Slate 50)
         const COLOR_VERDE_EXITO = [16, 185, 129];  // Emerald Green
-
         // ── 1. Barra superior decorativa ──
         doc.setFillColor(...COLOR_AZUL_MARINO);
         doc.rect(0, 0, pageWidth, 2, 'F');
-
         // ── 2. Encabezado Executive ──
         doc.setFillColor(...COLOR_AZUL_ACCENT);
         doc.rect(margenIzq, y, 3, 12, 'F');
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(16);
         doc.setTextColor(...COLOR_AZUL_MARINO);
         doc.text('IN HOLE SOLUTIONS', margenIzq + 6, y + 5);
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
         doc.setTextColor(...COLOR_GRIS_TEXTO);
         doc.text('Control de Mantenimiento y Calibración', margenIzq + 6, y + 10);
-
         // Línea divisora
         y += 16;
         doc.setDrawColor(...COLOR_GRIS_LINEA);
         doc.setLineWidth(0.4);
         doc.line(margenIzq, y, pageWidth - margenIzq, y);
         y += 8;
-
         // ── 3. Título y Descripción ──
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
@@ -1050,38 +1001,31 @@
         const lineasDescripcion = doc.splitTextToSize(descripcion, anchoUtil);
         doc.text(lineasDescripcion, margenIzq, y);
         y += (lineasDescripcion.length * 3.5) + 6;
-
         // ── 4. TÍTULO DE SECCIÓN KPI (CENTRADO) ──
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(9.5);
         doc.setTextColor(...COLOR_AZUL_MARINO);
         doc.text('Cumplimiento del Programa de Mantenimiento y Calibración', pageWidth / 2, y, { align: 'center' });
         y += 5;
-
         // ── 5. SECCIÓN DE KPIs CENTRADOS ──
         const kpiTexto = document.getElementById('kpi-porcentaje')?.innerText || '0%';
         const pctNum = Math.min(100, Math.max(0, parseFloat(kpiTexto.replace('%', '')) || 0));
-
         const card1W = 75;  // Tarjeta Cumplimiento Global
         const card2W = 99;  // Tarjeta Tabla Categorías
         const gapCards = 6;
         const cardH = 32;
-        
         const anchoTotalBloque = card1W + gapCards + card2W;
         const startXBloque = (pageWidth - anchoTotalBloque) / 2;
         const cardY = y;
-
         // -- Tarjeta 1: Cumplimiento Global --
         doc.setFillColor(...COLOR_GRIS_BG);
         doc.setDrawColor(...COLOR_GRIS_LINEA);
         doc.setLineWidth(0.3);
         doc.roundedRect(startXBloque, cardY, card1W, cardH, 2, 2, 'FD');
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(7);
         doc.setTextColor(...COLOR_GRIS_TEXTO);
         doc.text('CUMPLIMIENTO GLOBAL', startXBloque + 8, cardY + 8);
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(22);
         doc.setTextColor(...COLOR_AZUL_ACCENT);
@@ -1097,7 +1041,6 @@
           doc.setFillColor(...COLOR_AZUL_ACCENT);
           doc.roundedRect(barX, barY, barW * (pctNum / 100), 2.5, 1, 1, 'F');
         }
-
         // -- Tarjeta 2: Tabla de Desglose de Categorías --
         const card2X = startXBloque + card1W + gapCards;
         doc.setFillColor(...COLOR_GRIS_BG);
@@ -1142,7 +1085,6 @@
         });
 
         y = cardY + cardH + 10;
-
         // ── 6. TABLA "LISTA DE EQUIPOS" ──
         const { data, error } = await supabaseClient
           .from('mantto_equipos_herramientas')
@@ -1153,7 +1095,6 @@
 
         const filas = (data || []).filter(f => f.oculto !== true);
         const hayObservaciones = filas.some(f => (f.observaciones || '').trim() !== '');
-
         const encabezados = ['No.', 'Equipo', 'Marca', 'No. Serie', 'Último', 'Próximo', 'Días', 'Frec.'];
         if (hayObservaciones) encabezados.push('Observaciones');
 
@@ -1234,35 +1175,28 @@
           columnStyles: configColumnas,
           margin: { left: margenIzq, right: margenIzq, bottom: 22 }
         });
-
         // ── 7. PIE DE PÁGINA LEGAL (SIN PAGINACIÓN) ──
         const totalPaginas = doc.internal.getNumberOfPages();
         const anioActual = new Date().getFullYear();
         const folioTexto = typeof folio !== 'undefined' && folio ? `${folio} ` : '';
-
         const footerText = `${folioTexto}©${anioActual} IN HOLE SOLUTIONS - Todos los derechos reservados. Documento generado desde IHS CONNECT, plataforma integral de IN HOLE SOLUTIONS. Una vez descargada o impreso, este documento se considera una copia no controlada. La versión vigente es la disponible en IHS CONNECT. La información contenida en este documento es confidencial y de uso exclusivo para fines autorizados por IN HOLE SOLUTIONS. Queda restringida su reproducción, distribución, divulgación o modificación total o parcial sin la autorización correspondiente.`;
 
         for (let p = 1; p <= totalPaginas; p++) {
           doc.setPage(p);
-
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(7);
           doc.setTextColor(...COLOR_GRIS_TEXTO);
-
           // Dividir el texto para encajar perfectamente en el ancho útil
           const lineasFooter = doc.splitTextToSize(footerText, anchoUtil);
           const altoFooter = lineasFooter.length * 3;
           const yFooterText = pageHeight - 6 - altoFooter;
-
           // Línea divisora superior del footer
           doc.setDrawColor(...COLOR_GRIS_LINEA);
           doc.setLineWidth(0.3);
           doc.line(margenIzq, yFooterText - 2, pageWidth - margenIzq, yFooterText - 2);
-
           // Dibujar texto legal
           doc.text(lineasFooter, margenIzq, yFooterText, { align: 'justify', maxWidth: anchoUtil });
         }
-
         doc.save(`Lista_de_Equipos_${new Date().toISOString().slice(0, 10)}.pdf`);
 
       } catch (err) {
@@ -1275,7 +1209,6 @@
         }
       }
     }
-
     // ── Generar PDF de "Eslingas de Poliéster" (Accesorios de Izaje) ──
     async function generarPDFIzaje() {
       const boton = document.getElementById('btn-pdf-izaje');
@@ -1283,7 +1216,6 @@
         boton.disabled = true;
         boton.classList.add('opacity-50');
       }
-
       try {
         const { jsPDF } = window.jspdf;
 
@@ -1298,7 +1230,6 @@
         const margenIzq = 14;
         const anchoUtil = pageWidth - (margenIzq * 2);
         let y = 14;
-
         // ── Paleta de Colores Corporativos ──
         const COLOR_AZUL_MARINO = [15, 23, 42];
         const COLOR_AZUL_ACCENT = [30, 58, 138];
@@ -1306,20 +1237,16 @@
         const COLOR_GRIS_LINEA  = [226, 232, 240];
         const COLOR_GRIS_BG     = [248, 250, 252];
         const COLOR_VERDE_EXITO = [16, 185, 129];
-
         // ── 1. Barra superior decorativa ──
         doc.setFillColor(...COLOR_AZUL_MARINO);
         doc.rect(0, 0, pageWidth, 2, 'F');
-
         // ── 2. Encabezado Executive ──
         doc.setFillColor(...COLOR_AZUL_ACCENT);
         doc.rect(margenIzq, y, 3, 12, 'F');
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(16);
         doc.setTextColor(...COLOR_AZUL_MARINO);
         doc.text('IN HOLE SOLUTIONS', margenIzq + 6, y + 5);
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
         doc.setTextColor(...COLOR_GRIS_TEXTO);
@@ -1330,7 +1257,6 @@
         doc.setLineWidth(0.4);
         doc.line(margenIzq, y, pageWidth - margenIzq, y);
         y += 8;
-
         // ── 3. Título y Descripción ──
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
@@ -1345,23 +1271,19 @@
         const lineasDescripcion = doc.splitTextToSize(descripcion, anchoUtil);
         doc.text(lineasDescripcion, margenIzq, y);
         y += (lineasDescripcion.length * 3.5) + 6;
-
         // ── 4. TÍTULO DE SECCIÓN KPI (CENTRADO) ──
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(9.5);
         doc.setTextColor(...COLOR_AZUL_MARINO);
         doc.text('Cumplimiento del Programa de Mantenimiento y Calibración', pageWidth / 2, y, { align: 'center' });
         y += 5;
-
         // ── 5. SECCIÓN DE KPIs CENTRADOS ──
         const kpiTexto = document.getElementById('kpi-porcentaje')?.innerText || '0%';
         const pctNum = Math.min(100, Math.max(0, parseFloat(kpiTexto.replace('%', '')) || 0));
-
         const card1W = 75;
         const card2W = 99;
         const gapCards = 6;
         const cardH = 32;
-
         const anchoTotalBloque = card1W + gapCards + card2W;
         const startXBloque = (pageWidth - anchoTotalBloque) / 2;
         const cardY = y;
@@ -1370,12 +1292,10 @@
         doc.setDrawColor(...COLOR_GRIS_LINEA);
         doc.setLineWidth(0.3);
         doc.roundedRect(startXBloque, cardY, card1W, cardH, 2, 2, 'FD');
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(7);
         doc.setTextColor(...COLOR_GRIS_TEXTO);
         doc.text('CUMPLIMIENTO GLOBAL', startXBloque + 8, cardY + 8);
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(22);
         doc.setTextColor(...COLOR_AZUL_ACCENT);
@@ -1435,14 +1355,12 @@
         });
 
         y = cardY + cardH + 10;
-
         // ── 6. TÍTULO DE LA TABLA ──
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(10);
         doc.setTextColor(...COLOR_AZUL_MARINO);
         doc.text('Eslingas de Poliéster', margenIzq, y);
         y += 5;
-
         // ── 7. TABLA "ACCESORIOS DE IZAJE" ──
         const { data, error } = await supabaseClient
           .from('mantto_izaje')
@@ -1452,7 +1370,6 @@
         if (error) throw error;
 
         const filas = (data || []).filter(f => f.oculto !== true);
-
         const encabezados = [
           [
             { content: 'No.', rowSpan: 2 },
@@ -1532,7 +1449,6 @@
           tableWidth: anchoUtil,
           margin: { left: margenIzq, right: margenIzq, bottom: 22 }
         });
-
         // ── 8. PIE DE PÁGINA LEGAL ──
         const totalPaginas = doc.internal.getNumberOfPages();
         const anioActual = new Date().getFullYear();
@@ -1542,7 +1458,6 @@
 
         for (let p = 1; p <= totalPaginas; p++) {
           doc.setPage(p);
-
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(7);
           doc.setTextColor(...COLOR_GRIS_TEXTO);
@@ -1554,10 +1469,8 @@
           doc.setDrawColor(...COLOR_GRIS_LINEA);
           doc.setLineWidth(0.3);
           doc.line(margenIzq, yFooterText - 2, pageWidth - margenIzq, yFooterText - 2);
-
           doc.text(lineasFooter, margenIzq, yFooterText, { align: 'justify', maxWidth: anchoUtil });
         }
-
         doc.save(`Accesorios_de_Izaje_${new Date().toISOString().slice(0, 10)}.pdf`);
 
       } catch (err) {
@@ -1570,7 +1483,6 @@
         }
       }
     }
-
     // ── Generar PDF de "Eslingas de Cable de Acero / Estrobos" ──
     async function generarPDFIzajeCable() {
       const boton = document.getElementById('btn-pdf-izajeCable');
@@ -1593,7 +1505,6 @@
         const margenIzq = 14;
         const anchoUtil = pageWidth - (margenIzq * 2);
         let y = 14;
-
         // ── Paleta de Colores Corporativos ──
         const COLOR_AZUL_MARINO = [15, 23, 42];
         const COLOR_AZUL_ACCENT = [30, 58, 138];
@@ -1601,20 +1512,16 @@
         const COLOR_GRIS_LINEA  = [226, 232, 240];
         const COLOR_GRIS_BG     = [248, 250, 252];
         const COLOR_VERDE_EXITO = [16, 185, 129];
-
         // ── 1. Barra superior decorativa ──
         doc.setFillColor(...COLOR_AZUL_MARINO);
         doc.rect(0, 0, pageWidth, 2, 'F');
-
         // ── 2. Encabezado Executive ──
         doc.setFillColor(...COLOR_AZUL_ACCENT);
         doc.rect(margenIzq, y, 3, 12, 'F');
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(16);
         doc.setTextColor(...COLOR_AZUL_MARINO);
         doc.text('IN HOLE SOLUTIONS', margenIzq + 6, y + 5);
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
         doc.setTextColor(...COLOR_GRIS_TEXTO);
@@ -1625,7 +1532,6 @@
         doc.setLineWidth(0.4);
         doc.line(margenIzq, y, pageWidth - margenIzq, y);
         y += 8;
-
         // ── 3. Título y Descripción ──
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
@@ -1640,23 +1546,19 @@
         const lineasDescripcion = doc.splitTextToSize(descripcion, anchoUtil);
         doc.text(lineasDescripcion, margenIzq, y);
         y += (lineasDescripcion.length * 3.5) + 6;
-
         // ── 4. TÍTULO DE SECCIÓN KPI (CENTRADO) ──
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(9.5);
         doc.setTextColor(...COLOR_AZUL_MARINO);
         doc.text('Cumplimiento del Programa de Mantenimiento y Calibración', pageWidth / 2, y, { align: 'center' });
         y += 5;
-
         // ── 5. SECCIÓN DE KPIs CENTRADOS ──
         const kpiTexto = document.getElementById('kpi-porcentaje')?.innerText || '0%';
         const pctNum = Math.min(100, Math.max(0, parseFloat(kpiTexto.replace('%', '')) || 0));
-
         const card1W = 75;
         const card2W = 99;
         const gapCards = 6;
         const cardH = 32;
-
         const anchoTotalBloque = card1W + gapCards + card2W;
         const startXBloque = (pageWidth - anchoTotalBloque) / 2;
         const cardY = y;
@@ -1665,12 +1567,10 @@
         doc.setDrawColor(...COLOR_GRIS_LINEA);
         doc.setLineWidth(0.3);
         doc.roundedRect(startXBloque, cardY, card1W, cardH, 2, 2, 'FD');
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(7);
         doc.setTextColor(...COLOR_GRIS_TEXTO);
         doc.text('CUMPLIMIENTO GLOBAL', startXBloque + 8, cardY + 8);
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(22);
         doc.setTextColor(...COLOR_AZUL_ACCENT);
@@ -1728,16 +1628,13 @@
             3: { halign: 'center', fontStyle: 'bold', textColor: COLOR_AZUL_ACCENT, cellWidth: anchoTabla * 0.22 }
           }
         });
-
         y = cardY + cardH + 10;
-
         // ── 6. TÍTULO DE LA TABLA ──
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(10);
         doc.setTextColor(...COLOR_AZUL_MARINO);
         doc.text('Eslingas de Cable de Acero / Estrobos', margenIzq, y);
         y += 5;
-
         // ── 7. TABLA "ESLINGAS DE CABLE DE ACERO / ESTROBOS" ──
         const { data, error } = await supabaseClient
           .from('mantto_izaje_cable')
@@ -1747,7 +1644,6 @@
         if (error) throw error;
 
         const filas = (data || []).filter(f => f.oculto !== true);
-
         const encabezados = [
           [
             { content: 'No.', rowSpan: 2 },
@@ -1827,17 +1723,14 @@
           tableWidth: anchoUtil,
           margin: { left: margenIzq, right: margenIzq, bottom: 22 }
         });
-
         // ── 8. PIE DE PÁGINA LEGAL ──
         const totalPaginas = doc.internal.getNumberOfPages();
         const anioActual = new Date().getFullYear();
         const folioTexto = typeof folio !== 'undefined' && folio ? `${folio} ` : '';
-
         const footerText = `${folioTexto}©${anioActual} IN HOLE SOLUTIONS - Todos los derechos reservados. Documento generado desde IHS CONNECT, plataforma integral de IN HOLE SOLUTIONS. Una vez descargada o impreso, este documento se considera una copia no controlada. La versión vigente es la disponible en IHS CONNECT. La información contenida en este documento es confidencial y de uso exclusivo para fines autorizados por IN HOLE SOLUTIONS. Queda restringida su reproducción, distribución, divulgación o modificación total o parcial sin la autorización correspondiente.`;
 
         for (let p = 1; p <= totalPaginas; p++) {
           doc.setPage(p);
-
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(7);
           doc.setTextColor(...COLOR_GRIS_TEXTO);
@@ -1849,10 +1742,8 @@
           doc.setDrawColor(...COLOR_GRIS_LINEA);
           doc.setLineWidth(0.3);
           doc.line(margenIzq, yFooterText - 2, pageWidth - margenIzq, yFooterText - 2);
-
           doc.text(lineasFooter, margenIzq, yFooterText, { align: 'justify', maxWidth: anchoUtil });
         }
-
         doc.save(`Eslingas_Cable_Acero_Estrobos_${new Date().toISOString().slice(0, 10)}.pdf`);
 
       } catch (err) {
@@ -1865,7 +1756,6 @@
         }
       }
     }
-
     // ── Generar PDF de "Drift" ──
     async function generarPDFDrift() {
       const boton = document.getElementById('btn-pdf-drift');
@@ -1888,27 +1778,22 @@
         const margenIzq = 14;
         const anchoUtil = pageWidth - (margenIzq * 2);
         let y = 14;
-
         // ── Paleta de Colores Corporativos ──
         const COLOR_AZUL_MARINO = [15, 23, 42];
         const COLOR_AZUL_ACCENT = [30, 58, 138];
         const COLOR_GRIS_TEXTO  = [100, 116, 139];
         const COLOR_GRIS_LINEA  = [226, 232, 240];
         const COLOR_GRIS_BG     = [248, 250, 252];
-
         // ── 1. Barra superior decorativa ──
         doc.setFillColor(...COLOR_AZUL_MARINO);
         doc.rect(0, 0, pageWidth, 2, 'F');
-
         // ── 2. Encabezado Executive ──
         doc.setFillColor(...COLOR_AZUL_ACCENT);
         doc.rect(margenIzq, y, 3, 12, 'F');
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(16);
         doc.setTextColor(...COLOR_AZUL_MARINO);
         doc.text('IN HOLE SOLUTIONS', margenIzq + 6, y + 5);
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
         doc.setTextColor(...COLOR_GRIS_TEXTO);
@@ -1919,7 +1804,6 @@
         doc.setLineWidth(0.4);
         doc.line(margenIzq, y, pageWidth - margenIzq, y);
         y += 8;
-
         // ── 3. Título y Descripción ──
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
@@ -1934,23 +1818,19 @@
         const lineasDescripcion = doc.splitTextToSize(descripcion, anchoUtil);
         doc.text(lineasDescripcion, margenIzq, y);
         y += (lineasDescripcion.length * 3.5) + 6;
-
         // ── 4. TÍTULO DE SECCIÓN KPI (CENTRADO) ──
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(9.5);
         doc.setTextColor(...COLOR_AZUL_MARINO);
         doc.text('Cumplimiento del Programa de Mantenimiento y Calibración', pageWidth / 2, y, { align: 'center' });
         y += 5;
-
         // ── 5. SECCIÓN DE KPIs CENTRADOS ──
         const kpiTexto = document.getElementById('kpi-porcentaje')?.innerText || '0%';
         const pctNum = Math.min(100, Math.max(0, parseFloat(kpiTexto.replace('%', '')) || 0));
-
         const card1W = 75;
         const card2W = 99;
         const gapCards = 6;
         const cardH = 32;
-
         const anchoTotalBloque = card1W + gapCards + card2W;
         const startXBloque = (pageWidth - anchoTotalBloque) / 2;
         const cardY = y;
@@ -1959,12 +1839,10 @@
         doc.setDrawColor(...COLOR_GRIS_LINEA);
         doc.setLineWidth(0.3);
         doc.roundedRect(startXBloque, cardY, card1W, cardH, 2, 2, 'FD');
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(7);
         doc.setTextColor(...COLOR_GRIS_TEXTO);
         doc.text('CUMPLIMIENTO GLOBAL', startXBloque + 8, cardY + 8);
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(22);
         doc.setTextColor(...COLOR_AZUL_ACCENT);
@@ -2024,14 +1902,12 @@
         });
 
         y = cardY + cardH + 10;
-
         // ── 6. TÍTULO DE LA TABLA ──
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(10);
         doc.setTextColor(...COLOR_AZUL_MARINO);
         doc.text('Drift', margenIzq, y);
         y += 5;
-
         // ── 7. TABLA "DRIFT" ──
         const { data, error } = await supabaseClient
           .from('mantto_drift')
@@ -2041,7 +1917,6 @@
         if (error) throw error;
 
         const filas = (data || []).filter(f => f.oculto !== true);
-
         const encabezados = [
           [
             { content: 'No.', rowSpan: 2 },
@@ -2109,17 +1984,14 @@
           tableWidth: anchoUtil,
           margin: { left: margenIzq, right: margenIzq, bottom: 22 }
         });
-
         // ── 8. PIE DE PÁGINA LEGAL ──
         const totalPaginas = doc.internal.getNumberOfPages();
         const anioActual = new Date().getFullYear();
         const folioTexto = typeof folio !== 'undefined' && folio ? `${folio} ` : '';
-
         const footerText = `${folioTexto}©${anioActual} IN HOLE SOLUTIONS - Todos los derechos reservados. Documento generado desde IHS CONNECT, plataforma integral de IN HOLE SOLUTIONS. Una vez descargada o impreso, este documento se considera una copia no controlada. La versión vigente es la disponible en IHS CONNECT. La información contenida en este documento es confidencial y de uso exclusivo para fines autorizados por IN HOLE SOLUTIONS. Queda restringida su reproducción, distribución, divulgación o modificación total o parcial sin la autorización correspondiente.`;
 
         for (let p = 1; p <= totalPaginas; p++) {
           doc.setPage(p);
-
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(7);
           doc.setTextColor(...COLOR_GRIS_TEXTO);
@@ -2131,10 +2003,8 @@
           doc.setDrawColor(...COLOR_GRIS_LINEA);
           doc.setLineWidth(0.3);
           doc.line(margenIzq, yFooterText - 2, pageWidth - margenIzq, yFooterText - 2);
-
           doc.text(lineasFooter, margenIzq, yFooterText, { align: 'justify', maxWidth: anchoUtil });
         }
-
         doc.save(`Drift_${new Date().toISOString().slice(0, 10)}.pdf`);
 
       } catch (err) {
@@ -2147,7 +2017,6 @@
         }
       }
     }
-
     // ── Generar PDF completo: Equipos + Izaje + Izaje Cable + Drift en un solo archivo ──
     async function generarPDFCompleto() {
       const boton = document.getElementById('btn-pdf-completo');
@@ -2155,37 +2024,30 @@
         boton.disabled = true;
         boton.classList.add('opacity-50');
       }
-
       try {
         const { jsPDF } = window.jspdf;
-
         const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
         const margenIzq = 14;
         const anchoUtil = pageWidth - (margenIzq * 2);
-
         const COLOR_AZUL_MARINO = [15, 23, 42];
         const COLOR_AZUL_ACCENT = [30, 58, 138];
         const COLOR_GRIS_TEXTO  = [100, 116, 139];
         const COLOR_GRIS_LINEA  = [226, 232, 240];
         const COLOR_GRIS_BG     = [248, 250, 252];
         const COLOR_VERDE_EXITO = [16, 185, 129];
-
         // ── Encabezado compacto: se repite al inicio de cada tabla ──
         function dibujarEncabezadoCompacto(tituloTabla) {
           let yy = 14;
           doc.setFillColor(...COLOR_AZUL_MARINO);
           doc.rect(0, 0, pageWidth, 2, 'F');
-
           doc.setFillColor(...COLOR_AZUL_ACCENT);
           doc.rect(margenIzq, yy, 3, 12, 'F');
-
           doc.setFont('helvetica', 'bold');
           doc.setFontSize(16);
           doc.setTextColor(...COLOR_AZUL_MARINO);
           doc.text('IN HOLE SOLUTIONS', margenIzq + 6, yy + 5);
-
           doc.setFont('helvetica', 'bold');
           doc.setFontSize(14);
           doc.setTextColor(...COLOR_GRIS_TEXTO);
@@ -2205,7 +2067,6 @@
 
           return yy;
         }
-
         // ── Título de sección "ligero": se usa cuando la tabla siguiente
         //    cabe en la misma página (no repite el encabezado completo) ──
         function dibujarTituloSeccion(tituloTabla, yy) {
@@ -2213,14 +2074,12 @@
           doc.setDrawColor(...COLOR_GRIS_LINEA);
           doc.setLineWidth(0.3);
           doc.line(margenIzq, yy - 4, pageWidth - margenIzq, yy - 4);
-
           doc.setFont('helvetica', 'bold');
           doc.setFontSize(11);
           doc.setTextColor(...COLOR_AZUL_MARINO);
           doc.text(tituloTabla, margenIzq, yy);
           return yy + 6;
         }
-
         // ── Decide si el título/tabla siguiente cabe en la página actual
         //    o si hay que saltar de página ──
         function posicionarSiguienteSeccion(tituloTabla, finalYManual) {
@@ -2231,21 +2090,17 @@
           }
           return dibujarTituloSeccion(tituloTabla, finalY);
         }
-
         // ── PÁGINA 1: Portada con título, descripción y KPIs ──
         let y = 14;
 
         doc.setFillColor(...COLOR_AZUL_MARINO);
         doc.rect(0, 0, pageWidth, 2, 'F');
-
         doc.setFillColor(...COLOR_AZUL_ACCENT);
         doc.rect(margenIzq, y, 3, 12, 'F');
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(16);
         doc.setTextColor(...COLOR_AZUL_MARINO);
         doc.text('IN HOLE SOLUTIONS', margenIzq + 6, y + 5);
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
         doc.setTextColor(...COLOR_GRIS_TEXTO);
@@ -2279,12 +2134,10 @@
 
         const kpiTexto = document.getElementById('kpi-porcentaje')?.innerText || '0%';
         const pctNum = Math.min(100, Math.max(0, parseFloat(kpiTexto.replace('%', '')) || 0));
-
         const card1W = 75;
         const card2W = 99;
         const gapCards = 6;
         const cardH = 32;
-
         const anchoTotalBloque = card1W + gapCards + card2W;
         const startXBloque = (pageWidth - anchoTotalBloque) / 2;
         const cardY = y;
@@ -2293,12 +2146,10 @@
         doc.setDrawColor(...COLOR_GRIS_LINEA);
         doc.setLineWidth(0.3);
         doc.roundedRect(startXBloque, cardY, card1W, cardH, 2, 2, 'FD');
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(7);
         doc.setTextColor(...COLOR_GRIS_TEXTO);
         doc.text('CUMPLIMIENTO GLOBAL', startXBloque + 8, cardY + 8);
-
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(22);
         doc.setTextColor(...COLOR_AZUL_ACCENT);
@@ -2343,7 +2194,6 @@
             3: { halign: 'center', fontStyle: 'bold', textColor: COLOR_AZUL_ACCENT, cellWidth: anchoTabla * 0.22 }
           }
         });
-
         // ── Consultar datos de las 4 tablas en paralelo ──
         const [{ data: dataEquipos, error: errEquipos }, { data: dataIzaje, error: errIzaje },
                { data: dataIzajeCable, error: errIzajeCable }, { data: dataDrift, error: errDrift }] = await Promise.all([
@@ -2356,14 +2206,12 @@
         if (errEquipos || errIzaje || errIzajeCable || errDrift) {
           throw errEquipos || errIzaje || errIzajeCable || errDrift;
         }
-
         // ── SECCIÓN 1: Lista de Equipos ──
         const finalYKPIs = Math.max(cardY + cardH, doc.lastAutoTable.finalY);
         y = posicionarSiguienteSeccion('Lista de Equipos', finalYKPIs);
 
         const filasEquipos = (dataEquipos || []).filter(f => f.oculto !== true);
         const hayObservaciones = filasEquipos.some(f => (f.observaciones || '').trim() !== '');
-
         const encabezadosEquipos = ['No.', 'Equipo', 'Marca', 'No. Serie', 'Último', 'Próximo', 'Días', 'Frec.'];
         if (hayObservaciones) encabezadosEquipos.push('Observaciones');
 
@@ -2404,13 +2252,11 @@
           tableWidth: anchoUtil,
           margin: { left: margenIzq, right: margenIzq, bottom: 22 }
         });
-
         // ── SECCIÓN 2: Eslingas de Poliéster ──
         y = posicionarSiguienteSeccion('Eslingas de Poliéster');
 
         const filasIzaje = (dataIzaje || []).filter(f => f.oculto !== true);
         const coloresEstado = { 'Baja': [225, 29, 72], 'Mantto.': [217, 119, 6] };
-
         const encabezadosIzaje = [
           [
             { content: 'No.', rowSpan: 2 }, { content: 'Tipo de Eslinga', rowSpan: 2 }, { content: 'Medidas', rowSpan: 2 },
@@ -2449,12 +2295,10 @@
           tableWidth: anchoUtil,
           margin: { left: margenIzq, right: margenIzq, bottom: 22 }
         });
-
         // ── SECCIÓN 3: Eslingas de Cable de Acero / Estrobos ──
         y = posicionarSiguienteSeccion('Eslingas de Cable de Acero / Estrobos');
 
         const filasIzajeCable = (dataIzajeCable || []).filter(f => f.oculto !== true);
-
         const encabezadosIzajeCable = [
           [
             { content: 'No.', rowSpan: 2 }, { content: 'Tipo de Eslinga', rowSpan: 2 }, { content: 'Medidas', rowSpan: 2 },
@@ -2493,12 +2337,10 @@
           tableWidth: anchoUtil,
           margin: { left: margenIzq, right: margenIzq, bottom: 22 }
         });
-
         // ── SECCIÓN 4: Drift ──
         y = posicionarSiguienteSeccion('Drift');
 
         const filasDrift = (dataDrift || []).filter(f => f.oculto !== true);
-
         const encabezadosDrift = [
           [
             { content: 'No.', rowSpan: 2 }, { content: 'Cantidad', rowSpan: 2 }, { content: 'Tamaño', rowSpan: 2 },
@@ -2532,7 +2374,6 @@
           tableWidth: anchoUtil,
           margin: { left: margenIzq, right: margenIzq, bottom: 22 }
         });
-
         // ── PIE DE PÁGINA LEGAL (en todas las páginas, con numeración) ──
         const totalPaginas = doc.internal.getNumberOfPages();
         const anioActual = new Date().getFullYear();
@@ -2552,10 +2393,8 @@
           doc.setDrawColor(...COLOR_GRIS_LINEA);
           doc.setLineWidth(0.3);
           doc.line(margenIzq, yFooterText - 2, pageWidth - margenIzq, yFooterText - 2);
-
           doc.text(lineasFooter, margenIzq, yFooterText, { align: 'justify', maxWidth: anchoUtil });
         }
-
         doc.save(`Control_Mantenimiento_Completo_${new Date().toISOString().slice(0, 10)}.pdf`);
 
       } catch (err) {
@@ -2675,7 +2514,6 @@
                     </button>
                   </td>`;
         }
-
         if (esArchivo) {
           const link = valor
             ? `<a href="${valor}" target="_blank" rel="noopener" class="text-red-500 hover:text-red-700" title="Ver / descargar certificado">
@@ -2702,7 +2540,6 @@
 
           return `<td class="px-3 py-2 text-center whitespace-nowrap">${link}${botonSubir}${botonEliminar}</td>`;
         }
-
         if (col === 'observaciones') {
           const ocultaColumna = cfg.columnaObservacionesCondicional && !esQHSE && !estadoObservaciones[nombre];
           const claseOculta = ocultaColumna ? ' hidden' : '';
@@ -2722,7 +2559,6 @@
                     <div class="hidden mt-1">${contenidoInterno}</div>
                   </td>`;
         }
-
         if (esFecha) {
           const esRestringida = (cfg.columnasRestringidas || []).includes(col);
           const claseOculta = (esRestringida && !esQHSE) ? ' col-fecha-restringida hidden' : '';
@@ -2732,7 +2568,6 @@
                   onchange="guardarCelda('${nombre}', '${fila.id}', this)"></td>`
             : `<td class="px-3 py-2 text-slate-600${claseOculta}">${formatearFecha(valor)}</td>`;
         }
-
         return esQHSE
           ? `<td class="px-3 py-2"><span contenteditable="true" class="celda block outline-none px-2 py-1 rounded"
                 data-col="${col}" onblur="guardarCelda('${nombre}', '${fila.id}', this)">${valor}</span></td>`
@@ -2757,17 +2592,14 @@
              </div>
            </td>`
         : '';
-
       const claseOculta = (fila.oculto === true || fila.oculto === 'true') ? 'opacity-40 grayscale' : '';
       return `<tr id="fila-${fila.id}">${numero}${celdas}${accion}</tr>`;
     }
-
     // ── Mostrar/ocultar el texto de una observación ──
     function toggleObservacion(btn) {
       const contenedor = btn.nextElementSibling;
       if (contenedor) contenedor.classList.toggle('hidden');
     }
-
     // ── Menú de 3 puntitos (Acciones) ──
     function toggleMenuAcciones(evento, id) {
       evento.stopPropagation();
@@ -2779,20 +2611,17 @@
     document.addEventListener('click', () => {
       document.querySelectorAll('[id^="menu-acciones-"]').forEach(menu => menu.classList.add('hidden'));
     });
-
     // ── Determina las clases de color según el valor de Estado ──
     function clasesColorEstado(valorEstado) {
       if (valorEstado === 'Baja') return 'bg-red-50 text-red-600';
       if (valorEstado === 'Mantto.') return 'bg-amber-50 text-amber-700';
       return 'bg-emerald-50 text-emerald-700'; // Disponible
     }
-
     // ── Cambia el color del select de Estado al instante, sin esperar recarga ──
     function actualizarColorEstado(select) {
       select.classList.remove('bg-emerald-50', 'text-emerald-700', 'bg-red-50', 'text-red-600', 'bg-amber-50', 'text-amber-700');
       clasesColorEstado(select.value).split(' ').forEach(clase => select.classList.add(clase));
     }
-
     // ── Lee todos los valores actuales de una fila (para guardarla en el historial) ──
     function obtenerDatosFila(filaEl, cfg) {
       const datos = {};
@@ -2805,7 +2634,6 @@
       });
       return datos;
     }
-
     // ── Maneja el cambio de Estado: si es "Baja", confirma, guarda en historial y elimina la fila ──
     async function onCambioEstado(nombre, id, select) {
       const nuevoValor = select.value;
@@ -2818,7 +2646,6 @@
           actualizarColorEstado(select);
           return;
         }
-
         const cfg = CONFIG_TABLAS[nombre];
         const filaEl = document.getElementById(`fila-${id}`);
         const datosFila = obtenerDatosFila(filaEl, cfg);
@@ -2846,12 +2673,10 @@
         mostrarToast('Registro dado de baja y guardado en el Historial', 'info');
         return;
       }
-
       actualizarColorEstado(select);
       select.dataset.valorAnterior = nuevoValor;
       guardarCelda(nombre, id, select);
     }
-
     // ── Ver historial de bajas de una tabla ──
     async function verHistorialBajas(nombre) {
       const modal = document.getElementById('modalHistorialBajas');
@@ -2896,7 +2721,6 @@
         </div>
       `;
     }
-
     // ── Guardar edición de una celda (solo QHSE) ──
     async function guardarCelda(nombre, id, el) {
       const cfg = CONFIG_TABLAS[nombre];
@@ -2919,23 +2743,19 @@
         }
       }
     }
-
     // ── Actualiza el contador de filas ocultas en el botón ──
     function actualizarBotonOcultos(nombre, cantidad) {
       const contador = document.getElementById(`contador-ocultos-${nombre}`);
       if (contador) contador.textContent = cantidad;
     }
-
     // ── Oculta una fila (desde el menú de Acciones): desaparece de la tabla y recalcula el KPI ──
     async function toggleOcultarFila(nombre, id) {
       const cfg = CONFIG_TABLAS[nombre];
       const { error } = await supabaseClient.from(cfg.tabla).update({ oculto: true }).eq('id', id);
       if (error) { console.error('Error ocultando fila:', error); return; }
-
       mostrarToast('Fila ocultada', 'info');
       cargarTabla(nombre);
     }
-
     // ── Ver filas ocultas y permitir volver a mostrarlas ──
     async function verFilasOcultas(nombre) {
       const cfg = CONFIG_TABLAS[nombre];
@@ -2965,18 +2785,15 @@
           </button>
         </div>`).join('');
     }
-
     // ── Vuelve a mostrar una fila oculta ──
     async function mostrarFilaOculta(nombre, id) {
       const cfg = CONFIG_TABLAS[nombre];
       const { error } = await supabaseClient.from(cfg.tabla).update({ oculto: false }).eq('id', id);
       if (error) { console.error('Error mostrando fila:', error); return; }
-
       mostrarToast('Fila visible de nuevo', 'exito');
       verFilasOcultas(nombre); // refresca el modal
       cargarTabla(nombre);     // refresca la tabla principal y el KPI
     }
-
     // ── Agregar fila nueva (solo QHSE) ──
     async function agregarFila(nombre) {
       const cfg = CONFIG_TABLAS[nombre];
@@ -2993,7 +2810,6 @@
       const indice = tbody.querySelectorAll('tr').length;
       tbody.insertAdjacentHTML('beforeend', filaHTML(nombre, data, indice));
     }
-
     // ── Eliminar fila (solo QHSE) ──
     async function eliminarFila(nombre, id) {
       const confirmado = await confirmarAccion('¿Seguro que quieres eliminar este registro? Esta acción no se puede deshacer.');
@@ -3006,7 +2822,6 @@
       document.getElementById(`fila-${id}`)?.remove();
       mostrarToast('Registro eliminado correctamente', 'info');
     }
-
     // ── Instructivos PDF (uno por pestaña) ──
     const urlsInstructivo = { equipos: '', izaje: '', drift: '' };
 
@@ -3021,7 +2836,6 @@
       }
       actualizarBotonesInstructivo();
     }
-
     // ── Muestra/oculta el botón de eliminar según si hay PDF cargado (solo QHSE) ──
     function actualizarBotonesInstructivo() {
       ['equipos', 'izaje', 'drift'].forEach(tipo => {
@@ -3054,7 +2868,6 @@
       document.getElementById('iframePDF').src = '';
       document.body.style.overflow = 'auto';
     }
-
     // Reemplazar instructivo de una pestaña específica (solo QHSE)
     async function subirInstructivo(evento, tipo) {
       const archivo = evento.target.files[0];
@@ -3074,7 +2887,6 @@
 
       mostrarToast('Instructivo actualizado correctamente ✅', 'exito');
     }
-
     // Eliminar instructivo de una pestaña específica (solo QHSE)
     async function eliminarInstructivo(tipo) {
       document.getElementById('menu-instructivo').classList.add('hidden');
@@ -3099,7 +2911,6 @@
       actualizarBotonesInstructivo();
       mostrarToast('Instructivo eliminado correctamente', 'info');
     }
-
     // ── Subir certificado PDF de una fila (solo QHSE) ──
     async function subirCertificado(nombre, id, inputEl) {
       const archivo = inputEl.files[0];
@@ -3107,14 +2918,12 @@
 
       const cfg = CONFIG_TABLAS[nombre];
       const nombreArchivo = `certificados/${nombre}-${id}-${Date.now()}.pdf`;
-
       const { error: errorSubida } = await supabaseClient.storage
         .from('documentos').upload(nombreArchivo, archivo, { upsert: true });
 
       if (errorSubida) { await mostrarAviso('Error al subir el certificado.'); console.error(errorSubida); return; }
 
       const { data: urlPublica } = supabaseClient.storage.from('documentos').getPublicUrl(nombreArchivo);
-
       const { error: errorGuardado } = await supabaseClient.from(cfg.tabla)
         .update({ certificado: urlPublica.publicUrl }).eq('id', id);
 
@@ -3126,16 +2935,13 @@
         url: urlPublica.publicUrl,
         nombre_archivo: archivo.name
       });
-
       mostrarToast('Certificado subido correctamente ✅', 'exito');
       cargarTabla(nombre);
     }
-
     // ── Ver trazabilidad de un accesorio (izaje) ──
     async function verTrazabilidad(filaId, tipoAccesorio, capacidadWll, longitudAcc, noSerieAcc) {
       const modal = document.getElementById('modalTrazabilidad');
       const contenido = document.getElementById('contenidoTrazabilidad');
-
       const detalles = [];
       if (capacidadWll) detalles.push(`WLL: ${capacidadWll}`);
       if (longitudAcc) detalles.push(`Longitud: ${longitudAcc}`);
@@ -3250,7 +3056,6 @@
         ${botonAgregar}
       `;
     }
-
     // ── Agregar un evento de trazabilidad, con la fecha de puesta en servicio precargada (solo QHSE) ──
     async function agregarEventoTrazabilidad(filaId) {
       let fechaInicial = null;
@@ -3277,14 +3082,12 @@
       if (error) { await mostrarAviso('No se pudo agregar el evento.'); console.error(error); return; }
       await cargarTrazabilidad(filaId);
     }
-
     // ── Guardar edición de un campo de un evento (solo QHSE) ──
     async function guardarEventoTrazabilidad(idEvento, campo, valor) {
       const { error } = await supabaseClient.from('mantto_trazabilidad_izaje')
         .update({ [campo]: valor === '' ? null : valor }).eq('id', idEvento);
       if (error) { console.error('Error guardando evento de trazabilidad:', error); }
     }
-
     // ── Subir / reemplazar documento (PDF o foto) de un evento (solo QHSE) ──
     async function subirDocumentoTrazabilidad(idEvento, inputEl) {
       const archivo = inputEl.files[0];
@@ -3298,7 +3101,6 @@
       if (errorSubida) { await mostrarAviso('Error al subir el documento.'); console.error(errorSubida); return; }
 
       const { data: urlPublica } = supabaseClient.storage.from('documentos').getPublicUrl(nombreArchivo);
-
       const { error: errorGuardado } = await supabaseClient.from('mantto_trazabilidad_izaje')
         .update({ documento_url: urlPublica.publicUrl, documento_nombre: archivo.name }).eq('id', idEvento);
 
@@ -3308,7 +3110,6 @@
       const filaId = document.getElementById('modalTrazabilidad').dataset.filaId;
       await cargarTrazabilidad(filaId);
     }
-
     // ── Eliminar un evento de trazabilidad (solo QHSE) ──
     async function eliminarEventoTrazabilidad(idEvento) {
       const confirmado = await confirmarAccion('¿Seguro que quieres eliminar este evento de trazabilidad? Esta acción no se puede deshacer.');
@@ -3321,12 +3122,10 @@
       const filaId = document.getElementById('modalTrazabilidad').dataset.filaId;
       await cargarTrazabilidad(filaId);
     }
-
     // ── Ver trazabilidad de un equipo ──
     async function verTrazabilidadEquipo(filaId, nombreEquipo, marcaEquipo, noSerieEquipo) {
       const modal = document.getElementById('modalTrazabilidadEquipo');
       const contenido = document.getElementById('contenidoTrazabilidadEquipo');
-
       const detalles = [];
       if (marcaEquipo) detalles.push(`Marca: ${marcaEquipo}`);
       if (noSerieEquipo) detalles.push(`N° Serie: ${noSerieEquipo}`);
@@ -3440,7 +3239,6 @@
         ${botonAgregar}
       `;
     }
-
     // ── Agregar un evento de trazabilidad, con la fecha de calibración precargada (solo QHSE) ──
     async function agregarEventoTrazabilidadEquipo(filaId) {
       const { data: filaEquipo, error: errorFila } = await supabaseClient
@@ -3452,20 +3250,17 @@
       if (errorFila) console.error('No se pudo obtener la fecha de calibración:', errorFila);
 
       const fechaInicial = filaEquipo ? filaEquipo.fecha_calibracion : null;
-
       const { error } = await supabaseClient.from('mantto_trazabilidad_equipos')
         .insert({ fila_id: filaId, fecha: fechaInicial });
       if (error) { await mostrarAviso('No se pudo agregar el evento.'); console.error(error); return; }
       await cargarTrazabilidadEquipo(filaId);
     }
-
     // ── Guardar edición de un campo de un evento (solo QHSE) ──
     async function guardarEventoTrazabilidadEquipo(idEvento, campo, valor) {
       const { error } = await supabaseClient.from('mantto_trazabilidad_equipos')
         .update({ [campo]: valor === '' ? null : valor }).eq('id', idEvento);
       if (error) { console.error('Error guardando evento de trazabilidad:', error); }
     }
-
     // ── Subir / reemplazar documento (PDF o foto) de un evento (solo QHSE) ──
     async function subirDocumentoTrazabilidadEquipo(idEvento, inputEl) {
       const archivo = inputEl.files[0];
@@ -3479,7 +3274,6 @@
       if (errorSubida) { await mostrarAviso('Error al subir el documento.'); console.error(errorSubida); return; }
 
       const { data: urlPublica } = supabaseClient.storage.from('documentos').getPublicUrl(nombreArchivo);
-
       const { error: errorGuardado } = await supabaseClient.from('mantto_trazabilidad_equipos')
         .update({ documento_url: urlPublica.publicUrl, documento_nombre: archivo.name }).eq('id', idEvento);
 
@@ -3489,7 +3283,6 @@
       const filaId = document.getElementById('modalTrazabilidadEquipo').dataset.filaId;
       await cargarTrazabilidadEquipo(filaId);
     }
-
     // ── Eliminar un evento de trazabilidad (solo QHSE) ──
     async function eliminarEventoTrazabilidadEquipo(idEvento) {
       const confirmado = await confirmarAccion('¿Seguro que quieres eliminar este evento de trazabilidad? Esta acción no se puede deshacer.');
@@ -3502,12 +3295,10 @@
       const filaId = document.getElementById('modalTrazabilidadEquipo').dataset.filaId;
       await cargarTrazabilidadEquipo(filaId);
     }
-
     // ── Ver trazabilidad de un drift ──
     async function verTrazabilidadDrift(filaId, tamanoDrift, materialDrift, noSerieDrift) {
       const modal = document.getElementById('modalTrazabilidadDrift');
       const contenido = document.getElementById('contenidoTrazabilidadDrift');
-
       const detalles = [];
       if (materialDrift) detalles.push(`Material: ${materialDrift}`);
       if (noSerieDrift) detalles.push(`N° Serie: ${noSerieDrift}`);
@@ -3621,7 +3412,6 @@
         ${botonAgregar}
       `;
     }
-
     // ── Agregar un evento de trazabilidad, con la fecha de calibración precargada (solo QHSE) ──
     async function agregarEventoTrazabilidadDrift(filaId) {
       const { data: filaDrift, error: errorFila } = await supabaseClient
@@ -3633,20 +3423,17 @@
       if (errorFila) console.error('No se pudo obtener la fecha de calibración:', errorFila);
 
       const fechaInicial = filaDrift ? filaDrift.fecha_calibracion : null;
-
       const { error } = await supabaseClient.from('mantto_trazabilidad_drift')
         .insert({ fila_id: filaId, fecha: fechaInicial });
       if (error) { await mostrarAviso('No se pudo agregar el evento.'); console.error(error); return; }
       await cargarTrazabilidadDrift(filaId);
     }
-
     // ── Guardar edición de un campo de un evento (solo QHSE) ──
     async function guardarEventoTrazabilidadDrift(idEvento, campo, valor) {
       const { error } = await supabaseClient.from('mantto_trazabilidad_drift')
         .update({ [campo]: valor === '' ? null : valor }).eq('id', idEvento);
       if (error) { console.error('Error guardando evento de trazabilidad:', error); }
     }
-
     // ── Subir / reemplazar documento (PDF o foto) de un evento (solo QHSE) ──
     async function subirDocumentoTrazabilidadDrift(idEvento, inputEl) {
       const archivo = inputEl.files[0];
@@ -3660,7 +3447,6 @@
       if (errorSubida) { await mostrarAviso('Error al subir el documento.'); console.error(errorSubida); return; }
 
       const { data: urlPublica } = supabaseClient.storage.from('documentos').getPublicUrl(nombreArchivo);
-
       const { error: errorGuardado } = await supabaseClient.from('mantto_trazabilidad_drift')
         .update({ documento_url: urlPublica.publicUrl, documento_nombre: archivo.name }).eq('id', idEvento);
 
@@ -3670,7 +3456,6 @@
       const filaId = document.getElementById('modalTrazabilidadDrift').dataset.filaId;
       await cargarTrazabilidadDrift(filaId);
     }
-
     // ── Eliminar un evento de trazabilidad (solo QHSE) ──
     async function eliminarEventoTrazabilidadDrift(idEvento) {
       const confirmado = await confirmarAccion('¿Seguro que quieres eliminar este evento de trazabilidad? Esta acción no se puede deshacer.');
@@ -3683,7 +3468,6 @@
       const filaId = document.getElementById('modalTrazabilidadDrift').dataset.filaId;
       await cargarTrazabilidadDrift(filaId);
     }
-
     // ── Eliminar certificado PDF de una fila (solo QHSE) ──
     async function eliminarCertificado(nombre, id, url) {
       const confirmado = await confirmarAccion('¿Seguro que quieres eliminar este certificado? Esta acción no se puede deshacer.');
@@ -3718,7 +3502,6 @@
       mostrarToast('Certificado eliminado correctamente', 'info');
       cargarTabla(nombre);
     }
-
     // ── Eliminar un certificado puntual del historial ──
     async function eliminarDelHistorial(nombre, filaId, historialId, url) {
       const confirmado = await confirmarAccion('¿Seguro que quieres eliminar este certificado del historial? Esta acción no se puede deshacer.');
@@ -3735,18 +3518,15 @@
 
       const { error: errorHistorial } = await supabaseClient.from('certificados_historial').delete().eq('id', historialId);
       if (errorHistorial) { await mostrarAviso('No se pudo eliminar del historial.'); console.error(errorHistorial); return; }
-
       // Si el certificado eliminado era el que estaba activo en la fila, lo quitamos también de ahí
       const { data: filaActual } = await supabaseClient.from(cfg.tabla).select('certificado').eq('id', filaId).single();
       if (filaActual && filaActual.certificado === url) {
         await supabaseClient.from(cfg.tabla).update({ certificado: null }).eq('id', filaId);
         cargarTabla(nombre);
       }
-
       mostrarToast('Certificado eliminado del historial', 'info');
       verHistorial(nombre, filaId); // Recarga el modal con la lista actualizada
     }
-
     // ── Ver historial de certificados de una fila ──
     async function verHistorial(nombre, id) {
       document.querySelectorAll('[id^="menu-acciones-"]').forEach(menu => menu.classList.add('hidden'));
@@ -3792,7 +3572,6 @@
                 </div>`;
       }).join('');
     }
-
     // ── Saludo según la hora del día ──
     function saludoSegunHora() {
       const hora = new Date().getHours();
@@ -3800,7 +3579,6 @@
       if (hora >= 12 && hora < 19) return 'Buenas tardes';
       return 'Buenas noches';
     }
-
     // ── Sesión y rol ──
     async function cargarDatos() {
       const { data: { session } } = await supabaseClient.auth.getSession();
@@ -3808,7 +3586,6 @@
       iniciarLatido(session.user.id);
 
       const { data: perfil } = await supabaseClient.from('perfiles').select('*').eq('id', session.user.id).single();
-
       const welcome = document.getElementById('user-welcome');
       const rolLabel = document.getElementById('user-rol-label');
       if (perfil) {
@@ -3851,11 +3628,9 @@
           document.querySelectorAll('.col-fecha-restringida').forEach(el => el.classList.remove('hidden'));
         }
       }
-
       await cargarInstructivo();
       await cargarTabla('equipos');
     }
-
     cargarDatos();
     suscribirRealtimeIzaje();
     suscribirRealtimeEquiposDrift();
