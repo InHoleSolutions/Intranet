@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +12,6 @@
   <link rel="icon" href="data:,">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-
   <style>
     :root {
       --rv-page-bg: #e8edf4;
@@ -556,7 +554,6 @@
       0% {
         background-position: 200% 0;
       }
-
       100% {
         background-position: -200% 0;
       }
@@ -656,7 +653,6 @@
     }
     #site-header { display: block; }
     .mobile-active { display: block !important; }
-
     /* ── MODO LECTURA / PANTALLA COMPLETA ── */
     body.modo-lectura #site-header,
     body.modo-lectura #topbar,
@@ -757,7 +753,6 @@
       <span class="text-slate-300">/</span>
       <span class="text-sm text-slate-500 font-medium">Alertas QHSE</span>
     </div>
-
     <div id="hemeroteca-wrap">
       <div class="hemeroteca-titulo">
         <span class="hemeroteca-titulo-texto"><i class="fas fa-book-open"></i> Hemeroteca — Ediciones Anteriores</span>
@@ -775,7 +770,6 @@
         <button class="hemeroteca-arrow right" onclick="moverHemeroteca(1)"><i class="fas fa-chevron-right"></i></button>
       </div>
     </div>
-
     <div id="heatmap-locacion-wrap">
       <div class="hemeroteca-titulo">
         <span class="hemeroteca-titulo-texto"><i class="fas fa-fire"></i> Reportes por Locación — Año en curso</span>
@@ -784,7 +778,6 @@
         <p style="text-align:center;color:#94a3b8;font-size:12px;">Cargando...</p>
       </div>
     </div>
-
     <div class="indice-revista" style="max-width:80%;margin:0 auto 14px;display:flex;flex-wrap:wrap;gap:10px;padding:0 16px;">
       <button onclick="irAIndice('safety')" class="indice-btn"><i class="fas fa-hard-hat"></i> Safety</button>
       <button onclick="irAIndice('quality')" class="indice-btn"><i class="fas fa-check-double"></i> Quality</button>
@@ -850,11 +843,9 @@
             .catch(() => { }); // Si falla un latido por red, no pasa nada — se reintenta en 30s
         }
       };
-
       enviarLatido();
       intervaloLatido = setInterval(enviarLatido, 30000);
     }
-
     // ── INIT ──
     async function init() {
       const { data: { session } } = await sb.auth.getSession();
@@ -873,7 +864,6 @@
           document.getElementById('btn-admin-toggle').classList.remove('hidden');
         }
       }
-
       await cargarRevista();
       cargarHeatmapLocacion();
     }
@@ -884,7 +874,6 @@
       if (h >= 12 && h < 19) return 'Buenas tardes';
       return 'Buenas noches';
     }
-
     // ── MAPA DE CALOR: reportes por locación ──
     const CATEGORIAS_LOCACION = [
       { prefijo: 'In Hole Solutions - Taller',  nombre: 'Taller' },
@@ -914,7 +903,6 @@
       }));
 
       const maxTotal = Math.max(...conteos.map(c => c.total), 1);
-
       cont.innerHTML = conteos
         .sort((a, b) => b.total - a.total)
         .map(c => {
@@ -934,7 +922,6 @@
           `;
         }).join('');
     }
-
     // ── ADMIN: LOAD EDITIONS ──
     async function cargarRevista() {
       const { data, error } = await sb
@@ -948,17 +935,14 @@
 
       if (error || !data) {
         const hayError = !!error;
-
         // Detener el "cargando" de la barra superior
         document.getElementById('edition-tag').textContent = 'Sin edición publicada';
         document.getElementById('issue-counter').textContent = 'ED-—';
-
         // Ocultar los botones de índice (no tienen a dónde llevar)
         document.querySelector('.indice-revista').style.display = 'none';
         document.getElementById('heatmap-locacion-wrap').style.display = 'none';
         document.getElementById('indicador-auto').classList.add('hidden');
         window.sinEdicion = true;
-
         // Aviso visible en lugar del espacio en blanco
         document.getElementById('revista-container').innerHTML = `
           <div style="max-width:560px;margin:40px auto;text-align:center;padding:40px 28px;background:var(--rv-card-bg,#fff);border:1px solid var(--rv-borde,#e2e8f0);border-radius:16px;">
@@ -973,16 +957,13 @@
                 : 'Cuando el equipo QHSE publique la próxima edición, aparecerá aquí.'}
             </p>
           </div>`;
-
         // Reemplaza los skeletons: muestra ediciones anteriores o oculta la hemeroteca si no hay
         cargarHemeroteca();
         return;
       }
-
       await pintarEdicionEnRevista(data);
       cargarHemeroteca();
     }
-
     // ── PINTA cualquier edición (activa o del historial) en el contenedor de la revista ──
     async function pintarEdicionEnRevista(data) {
       document.querySelector('.indice-revista').style.display = 'flex';
@@ -990,12 +971,10 @@
       window.sinEdicion = false;
       montarRevista('revista-container');
       aplicarEdicionARevista(data);
-
       // Actualizar topbar
       const setEl = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.textContent = val; };
       setEl('edition-tag', data.edicion ? `Edición ${data.edicion} — ${data.volumen || 'Vol.1'}` : 'Edición —');
       setEl('issue-counter', data.id ? `ED-${String(data.id).padStart(3, '0')}` : '— — —');
-
       // Cargar Near Miss de esta edición
       const { data: nmArr } = await sb
         .from('qhse_near_miss')
@@ -1026,7 +1005,6 @@
       set('stat-dias', data.stat_dias ?? 0);
       set('stat-obs', data.stat_obs ?? 0);
       set('stat-acc', data.stat_acc ?? 0);
-
       // Extraer mes y año del campo "edicion" (ej: "Mayo 2026")
       const mesesES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
       const partes = (data.edicion || '').toLowerCase().split(' ');
@@ -1036,13 +1014,11 @@
         cargarStatsAutomaticos(mesEdicion, anioEdicion);
         iniciarLibro();
       }, 600);
-
       // Marcar en el carrusel cuál edición se está viendo ahora mismo
       document.querySelectorAll('.hemeroteca-card').forEach(c => {
         c.classList.toggle('seleccionada', Number(c.dataset.id) === Number(data.id));
       });
     }
-
     // ── HEMEROTECA: carga las miniaturas de todas las ediciones publicadas ──
     async function cargarHemeroteca() {
       const track = document.getElementById('hemeroteca-track');
@@ -1069,7 +1045,6 @@
 
       aplicarPreferenciaHemeroteca();
     }
-
     // ── HEMEROTECA: al hacer clic en una miniatura, pinta esa edición en la revista ──
     async function verEdicionHemeroteca(id) {
       const { data, error } = await sb
@@ -1083,13 +1058,11 @@
       document.getElementById('revista-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
       await pintarEdicionEnRevista(data);
     }
-
     // ── HEMEROTECA: mover el carrusel con las flechas ──
     function moverHemeroteca(dir) {
       const track = document.getElementById('hemeroteca-track');
       if (track) track.scrollBy({ left: dir * 320, behavior: 'smooth' });
     }
-
     // ── HEMEROTECA: ocultar/mostrar el carrusel ──
     function toggleHemeroteca() {
       const wrap = document.getElementById('hemeroteca-wrap');
@@ -1100,7 +1073,6 @@
         : '<i class="fas fa-chevron-up"></i> Ocultar';
       localStorage.setItem('hemeroteca_oculta', oculta ? '1' : '0');
     }
-
     // ── HEMEROTECA: aplicar la preferencia guardada al cargar la página ──
     function aplicarPreferenciaHemeroteca() {
       const wrap = document.getElementById('hemeroteca-wrap');
@@ -1112,7 +1084,6 @@
         ? '<i class="fas fa-chevron-down"></i> Mostrar'
         : '<i class="fas fa-chevron-up"></i> Ocultar';
     }
-
     // ── ODÓMETRO: anima un número de 0 hasta valorFinal ──
     function animarContador(elId, valorFinal, duracionMs = 1400) {
       const el = document.getElementById(elId);
@@ -1141,7 +1112,6 @@
       }
       requestAnimationFrame(frame);
     }
-
     // ── SPARKLINE: resta N meses a un mes/año dado ──
     function restarMeses(mes, anio, n) {
       let m = mes - n;
@@ -1149,7 +1119,6 @@
       while (m <= 0) { m += 12; a -= 1; }
       return { mes: m, anio: a };
     }
-
     // ── SPARKLINE: dibuja la mini gráfica de tendencia ──
     function renderSparkline(valores) {
       const svg = document.getElementById('pv-sparkline-svg');
@@ -1160,7 +1129,6 @@
       const max = Math.max(...valores, 1);
       const min = Math.min(...valores, 0);
       const rango = (max - min) || 1;
-
       const puntos = valores.map((v, i) => {
         const x = pad + (i * (w - pad * 2)) / (valores.length - 1 || 1);
         const y = h - pad - ((v - min) / rango) * (h - pad * 2);
@@ -1169,11 +1137,9 @@
 
       const linea = puntos.map(p => p.join(',')).join(' ');
       const area = `${pad},${h - pad} ${linea} ${w - pad},${h - pad}`;
-
       // "Mejora" = terminamos con menos (o igual) reportes que al inicio
       const mejora = valores[valores.length - 1] <= valores[0];
       const color = mejora ? '#34d399' : '#fbbf24';
-
       svg.innerHTML = `
         <defs>
           <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
@@ -1201,14 +1167,12 @@
     async function cargarStatsAutomaticos(mesRevista, anioRevista) {
       const mes = mesRevista ?? new Date().getMonth() + 1;
       const anio = anioRevista ?? new Date().getFullYear();
-
       // 1. REPORTES DE RIESGO — todos los registros del mes/año
       const { count: totalReportes } = await sb
         .from('safety_alerts')
         .select('id', { count: 'exact', head: true })
         .eq('mes_registro', mes)
         .eq('anio_registro', anio);
-
       // 2. NEAR MISS RESUELTOS — solo los de tipo "Incidente" del mes/año
       const { count: totalNearMiss } = await sb
         .from('safety_alerts')
@@ -1216,7 +1180,6 @@
         .eq('mes_registro', mes)
         .eq('anio_registro', anio)
         .eq('tipo_evento', 'Incidente');
-
       // 3. DÍAS SIN ACCIDENTE — días desde el último accidente registrado
       const { data: ultimoAccidenteArr } = await sb
         .from('safety_alerts')
@@ -1236,7 +1199,6 @@
         // Sin accidentes registrados, contar desde inicio del año
         diasSinAccidente = Math.floor((new Date() - new Date(anio, 0, 1)) / (1000 * 60 * 60 * 24));
       }
-
       // 4. Pintar en la revista
       const setEl = (id, val) => {
         const el = document.getElementById(id);
@@ -1245,7 +1207,6 @@
       animarContador('pv-stat-dias', diasSinAccidente);
       animarContador('pv-stat-obs', totalReportes ?? 0);
       animarContador('pv-stat-acc', totalNearMiss ?? 0);
-
       // 5. TENDENCIA — reportes de riesgo de los últimos 6 meses (incluyendo el mes de la edición)
       const ultimosSeisMeses = [5, 4, 3, 2, 1, 0].map(n => restarMeses(mes, anio, n));
       const conteosSparkline = await Promise.all(
@@ -1267,7 +1228,6 @@
       showToast('🗑️ Edición eliminada');
       cargarRevista();
     }
-
     // ── ADMIN: LOAD STATS ──
     async function loadStats() {
       const [edCount, nmCount, gCount] = await Promise.all([
@@ -1280,7 +1240,6 @@
       document.getElementById('stat-guardianes').textContent = gCount.data?.filter(g => g.guardian_nombre).length ?? '—';
       document.getElementById('stat-last-update').textContent = new Date().toLocaleDateString('es-MX');
     }
-
     // ── UI HELPERS ──
     function toggleAdminPanel() {
       if (!isAdmin) { showToast('⛔ Acceso restringido a administradores', 'error'); return; }
@@ -1302,7 +1261,6 @@
     function scrollToSection(id) {
       document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-
     // ── ÍNDICE INTERACTIVO ──
     const MAPA_INDICE = {
       safety:      { hoja: 2,  seccion: 'prev-safety'      },
@@ -1337,7 +1295,6 @@
       if (toastTimer) clearTimeout(toastTimer);
       toastTimer = setTimeout(() => toast.classList.remove('show'), 3800);
     }
-
     init();
   </script>
 
@@ -1374,7 +1331,6 @@
     function toggleMenu(id) { 
       document.getElementById(id).classList.toggle('hidden'); 
     }
-
     // ── MODO OSCURO ──
     function toggleDarkMode() {
       const activo = document.body.classList.toggle('dark-mode');
@@ -1395,7 +1351,6 @@
       if (activo) document.body.classList.add('dark-mode');
       actualizarBotonDarkMode(activo);
     })();
-
     // ── MODO LECTURA / PANTALLA COMPLETA ──
     let autoAvanceInterval = null;
 
@@ -1416,7 +1371,6 @@
         detenerOcultarCursor();
       }
     }
-
     // ── AUTO-AVANCE (flip automático o auto-scroll) ──
     function iniciarAutoAvance() {
       if (window.sinEdicion) return; // sin edición no hay nada que reproducir
@@ -1451,7 +1405,6 @@
       if (autoAvanceInterval) { clearInterval(autoAvanceInterval); autoAvanceInterval = null; }
       document.getElementById('indicador-auto').classList.add('hidden');
     }
-
     // ── OCULTAR CURSOR EN INACTIVIDAD ──
     let cursorTimeout = null;
     function resetCursor() {
@@ -1474,11 +1427,9 @@
       clearTimeout(cursorTimeout);
       document.body.classList.remove('cursor-oculto');
     }
-
     // Si el usuario sale de pantalla completa con ESC o el botón nativo del navegador,
     // también salimos del modo lectura para no dejarlo "atrapado" sin header.
     document.getElementById('revista-container').addEventListener('dblclick', toggleModoLectura);
-
     document.addEventListener('fullscreenchange', () => {
       if (!document.fullscreenElement && document.body.classList.contains('modo-lectura')) {
         document.body.classList.remove('modo-lectura');
