@@ -126,7 +126,7 @@
             <i class="fa-regular fa-calendar text-slate-400"></i>
             <div class="flex flex-col leading-tight text-left">
               <span class="text-[10px] text-slate-400">Periodo seleccionado</span>
-              <span id="label-periodo-campo" class="text-sm font-bold text-slate-700">Septiembre de 2026</span>
+              <span id="label-periodo-campo" class="text-sm font-bold text-slate-700">&nbsp;</span>
             </div>
             <i class="fas fa-chevron-down text-slate-400 text-xs ml-1"></i>
           </button>
@@ -286,7 +286,7 @@
               <i class="fa-regular fa-calendar text-slate-400"></i>
               <div class="flex flex-col leading-tight text-left">
                 <span class="text-[10px] text-slate-400">Periodo seleccionado</span>
-                <span id="label-periodo-general" class="text-sm font-bold text-slate-700">Septiembre de 2026</span>
+                <span id="label-periodo-general" class="text-sm font-bold text-slate-700">&nbsp;</span>
               </div>
               <i class="fas fa-chevron-down text-slate-400 text-xs ml-1"></i>
             </button>
@@ -431,7 +431,7 @@
               <i class="fa-regular fa-calendar text-slate-400"></i>
               <div class="flex flex-col leading-tight text-left">
                 <span class="text-[10px] text-slate-400">Periodo seleccionado</span>
-                <span id="label-periodo-taller" class="text-sm font-bold text-slate-700">Septiembre de 2026</span>
+                <span id="label-periodo-taller" class="text-sm font-bold text-slate-700">&nbsp;</span>
               </div>
               <i class="fas fa-chevron-down text-slate-400 text-xs ml-1"></i>
             </button>
@@ -454,7 +454,7 @@
               <button id="btn-taller-trimestre" onclick="cambiarVistaGlobalTaller('trimestre')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Trimestre</button>
               <button id="btn-taller-anual" onclick="cambiarVistaGlobalTaller('anual')" class="tab-btn px-3 py-1 text-xs font-bold rounded-md">Anual</button>
             </div>
-            <button onclick="abrirModalAgregarTaller()" class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors flex items-center gap-2">
+            <button id="btn-agregar-taller" onclick="abrirModalAgregarTaller()" class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors flex items-center gap-2">
               <i class="fas fa-plus"></i> Agregar Evaluación
             </button>
           </div>
@@ -547,7 +547,7 @@
               <th class="py-2 pr-4">Sublínea</th>
               <th class="py-2 pr-4">Fecha</th>
               <th class="py-2 pr-4">Resultado</th>
-              <th class="py-2 pr-4">Acciones</th>
+              <th id="th-acciones-taller" class="py-2 pr-4">Acciones</th>
             </tr>
           </thead>
           <tbody id="tabla-evaluaciones-taller-body"></tbody>
@@ -880,11 +880,36 @@
       cont.classList.remove('hidden');
     }
 
+    // ── Permisos por rol ──
+    let soloLectura = false;
+    const ROLES_ADMIN = ['admin', 'administrador', 'Administrador'];
+    const ROLES_QHSE  = ['QHSE', 'qhse'];
+
+    async function aplicarPermisos() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) { window.location.href = 'intranet-login.html'; return; }
+
+      const { data: perfil } = await supabaseClient
+        .from('perfiles').select('rol').eq('id', session.user.id).single();
+      const rol = perfil?.rol;
+
+      if (ROLES_ADMIN.includes(rol)) {
+        soloLectura = true;
+        document.getElementById('btn-editar-meta')?.remove();
+        document.getElementById('btn-agregar-taller')?.remove();
+        document.getElementById('th-acciones-taller')?.remove();
+      } else if (!ROLES_QHSE.includes(rol)) {
+        // Cualquier otro rol no debería estar aquí
+        window.location.href = 'dashboard.html';
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
       const hoy = new Date();
       const fechaTexto = hoy.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
       const fechaEl = document.getElementById('fecha-hoy');
       if (fechaEl) fechaEl.textContent = `· Hoy es ${fechaTexto}`;
+      await aplicarPermisos();
       await Promise.all([cargarEvaluaciones(), cargarEvaluacionesTaller()]);
       cambiarVistaGeneral('mes');
     });
@@ -2297,6 +2322,7 @@
                 ${prom ? prom.toFixed(2) : '—'} / 5
               </span>
             </td>
+            ${soloLectura ? '' : `
             <td class="py-2 pr-4">
               <div class="flex items-center gap-3">
                 <button onclick="event.stopPropagation(); abrirModalEditarTaller('${op.id}')" class="text-slate-400 hover:text-[#2563eb]" title="Editar">
@@ -2306,7 +2332,7 @@
                   <i class="fas fa-trash text-xs"></i>
                 </button>
               </div>
-            </td>
+            </td>`}
           </tr>
         `;
       }).join('');
@@ -2345,6 +2371,18 @@
     let mesPeriodoGeneral = new Date().getMonth();
     let anioPeriodoTaller = new Date().getFullYear();
     let mesPeriodoTaller = new Date().getMonth();
+
+    // ── Poner en los 3 botones de periodo el mes actual ──
+    function inicializarEtiquetasPeriodo() {
+      const hoy = new Date();
+      const texto = hoy.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+      const textoFinal = texto.charAt(0).toUpperCase() + texto.slice(1);
+      ['campo', 'general', 'taller'].forEach(seccion => {
+        const el = document.getElementById(`label-periodo-${seccion}`);
+        if (el) el.textContent = textoFinal;
+      });
+    }
+    document.addEventListener('DOMContentLoaded', inicializarEtiquetasPeriodo);
 
     const NOMBRES_MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
@@ -2655,6 +2693,7 @@
     }
 
     function abrirModalAgregarTaller() {
+      if (soloLectura) return;
       tallerEditandoId = null;
       document.getElementById('titulo-modal-agregar-taller').textContent = 'Agregar Evaluación de Taller';
       document.getElementById('form-agregar-taller').reset();
@@ -2673,6 +2712,7 @@
     }
 
     function abrirModalEditarTaller(opId) {
+      if (soloLectura) return;
       const op = operacionesTaller.find(o => String(o.id) === String(opId));
       if (!op) return;
 
@@ -2708,6 +2748,7 @@
     }
 
     async function guardarEvaluacionTaller(event) {
+      if (soloLectura) return;
       event.preventDefault();
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) return;
@@ -2785,6 +2826,7 @@
     let tallerEliminandoId = null;
 
     function eliminarEvaluacionTaller(opId) {
+      if (soloLectura) return;
       const op = operacionesTaller.find(o => String(o.id) === String(opId));
       tallerEliminandoId = opId;
       document.getElementById('texto-confirmar-eliminar').textContent =
@@ -2800,6 +2842,7 @@
     }
 
     async function confirmarEliminarTaller() {
+      if (soloLectura) return;
       if (!tallerEliminandoId) return;
       const opId = tallerEliminandoId;
 
@@ -3197,6 +3240,7 @@
     }
     // ── Edición de la Meta del indicador (guardado en Supabase) ──
     function activarEdicionMeta() {
+      if (soloLectura) return;
       const p = document.getElementById('texto-meta-indicador');
       const btnEditar = document.getElementById('btn-editar-meta');
       const textoActual = p.textContent.trim();
@@ -3224,6 +3268,7 @@
     }
 
     async function guardarMeta() {
+      if (soloLectura) return;
       const input = document.getElementById('input-meta-indicador');
       const nuevoTexto = input.value.trim();
       const btnGuardar = document.getElementById('btn-guardar-meta');
