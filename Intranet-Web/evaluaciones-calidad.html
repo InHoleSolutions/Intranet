@@ -10,6 +10,8 @@
   <link rel="icon" href="data:,">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
   if (window.ChartDataLabels) {
     Chart.register(ChartDataLabels);
@@ -32,7 +34,8 @@
     .kpi-clickable { cursor: pointer; }
     .kpi-clickable:hover { border-color: #fcd34d; }
     .fila-hover:hover { background: #f1f5f9 !important; }
-
+    /* Oculta una gráfica cuando el periodo no tiene datos (gana sobre cualquier display) */
+    .oculto-por-vacio { display: none !important; }
     .skeleton-card {
       background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
       background-size: 200% 100%;
@@ -100,7 +103,8 @@
       </button>
     </div>
     <!-- ── Pestañas principales ── -->
-    <div class="flex gap-1 bg-slate-100 rounded-lg p-1 mb-6 w-fit">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+    <div class="flex gap-1 bg-slate-100 rounded-lg p-1 w-fit">
       <button id="btn-seccion-general" onclick="cambiarSeccion('general')" class="tab-btn px-4 py-2 text-sm font-bold rounded-md flex items-center gap-2">
         <i class="fa-solid fa-border-all"></i> General
       </button>
@@ -109,6 +113,10 @@
       </button>
       <button id="btn-seccion-taller" onclick="cambiarSeccion('taller')" class="tab-btn px-4 py-2 text-sm font-bold rounded-md flex items-center gap-2">
         <i class="fa-solid fa-screwdriver-wrench"></i> Servicio en Taller
+      </button>
+    </div>
+      <button id="btn-exportar-pdf" onclick="exportarPDF()" class="bg-white border border-slate-200 hover:border-slate-300 text-slate-700 text-sm font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+        <i class="fas fa-file-pdf text-[#e31e24]"></i> Exportar PDF
       </button>
     </div>
     <div id="banner-alertas" class="hidden mb-6"></div>
@@ -1305,20 +1313,48 @@
       }
     };
 
+    // Muestra un mensaje amigable en lugar de una gráfica cuando no hay datos
+    function mostrarEstadoVacio(elementoId, vacio, mensaje = 'Sin evaluaciones registradas este periodo') {
+      const el = document.getElementById(elementoId);
+      if (!el) return;
+      const idVacio = 'vacio-' + elementoId;
+      document.getElementById(idVacio)?.remove();
+      el.classList.toggle('oculto-por-vacio', vacio);
+      if (!vacio) return;
+      el.insertAdjacentHTML('afterend', `
+        <div id="${idVacio}" class="flex flex-col items-center justify-center text-center py-10 px-4">
+          <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-3">
+            <i class="fas fa-chart-simple text-2xl text-slate-300"></i>
+          </div>
+          <p class="text-sm font-bold text-slate-500">${mensaje}</p>
+          <p class="text-xs text-slate-400 mt-1">Cuando haya evaluaciones aparecerán aquí.</p>
+        </div>
+      `);
+    }
+
     const pluginTextoGauge = {
       id: 'textoGauge',
       afterDraw(chart) {
-        if (chart.config._porcentajeGauge === undefined) return;
+        // El valor final viene del propio dataset
+        const pctFinal = chart.data.datasets[0]?.data?.[0];
+        if (pctFinal === undefined) return;
+
+        // Valor "en vivo" según cuánto se ha dibujado el arco (para el conteo animado)
+        const arco = chart.getDatasetMeta(0).data[0];
+        let pctActual = pctFinal;
+        if (arco && typeof arco.circumference === 'number') {
+          pctActual = Math.min(pctFinal, Math.max(0, (arco.circumference / Math.PI) * 100));
+        }
+
         const { ctx, chartArea: { left, right, bottom } } = chart;
         const x = (left + right) / 2;
         const y = bottom - 30;
-        const pct = chart.config._porcentajeGauge;
         ctx.save();
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.font = '800 44px sans-serif';
-        ctx.fillStyle = pct >= 90 ? '#10b981' : pct >= 70 ? '#f59e0b' : '#ef4444';
-        ctx.fillText(`${pct.toFixed(0)}%`, x, y);
+        ctx.fillStyle = pctFinal >= 90 ? '#10b981' : pctFinal >= 70 ? '#f59e0b' : '#ef4444';
+        ctx.fillText(`${pctActual.toFixed(0)}%`, x, y);
         ctx.restore();
       }
     };
@@ -1352,11 +1388,15 @@
           circumference: 180,
           cutout: '68%',
           layout: { padding: { top: 10 } },
+          animation: {
+            duration: 1400,
+            easing: 'easeOutCubic',
+            animateRotate: true,
+            animateScale: false
+          },
           plugins: { legend: { display: false }, tooltip: { enabled: false }, datalabels: { display: false } }
         }
       });
-      chartGaugeCampo.config._porcentajeGauge = porcentaje;
-      chartGaugeCampo.update();
 
       const textoEl = document.getElementById('texto-gauge-campo');
       if (textoEl) textoEl.textContent = `Nivel de cumplimiento`;
@@ -1537,7 +1577,7 @@
           .filter(v => v !== null && v !== undefined);
         return valores.length ? valores.reduce((a,b)=>a+b,0) / valores.length : 0;
       });
-
+      mostrarEstadoVacio('grafica-criterios', dataset.length === 0);
       const ctx1 = document.getElementById('grafica-criterios').getContext('2d');
       if (chartCriterios) chartCriterios.destroy();
             chartCriterios = new Chart(ctx1, {
@@ -1670,6 +1710,7 @@
       const etiquetas = Object.keys(conteos);
       const valores = Object.values(conteos);
       const total = valores.reduce((a, b) => a + b, 0);
+      mostrarEstadoVacio('grafica-categorias', dataset.length === 0);
       const ctx3 = document.getElementById('grafica-categorias').getContext('2d');
       if (chartCategorias) chartCategorias.destroy();
       chartCategorias = new Chart(ctx3, {
@@ -1733,6 +1774,8 @@
       }
       const contCanvas = document.getElementById('grafica-tendencia');
       const contGauge = document.getElementById('indicador-tendencia-campo');
+      mostrarEstadoVacio('grafica-tendencia', false);
+      mostrarEstadoVacio('indicador-tendencia-campo', false);
 
       if (vistaTendencia === 'mes') {
         if (chartTendencia) {
@@ -1744,6 +1787,7 @@
         contGauge.classList.remove('hidden');
         contGauge.classList.add('flex');
         contGauge.style.display = 'flex';
+        mostrarEstadoVacio('indicador-tendencia-campo', dataset.length === 0);
         renderIndicadorTendenciaCampo(dataset);
         return;
       }
@@ -1756,6 +1800,7 @@
       contGauge.style.display = 'none';
       contCanvas.classList.remove('hidden');
       contCanvas.style.display = 'block';
+      mostrarEstadoVacio('grafica-tendencia', dataset.length === 0);
 
       const { etiquetas: etiquetasFecha, promedios: promediosOperacion } = agruparPorMesSiAnual(dataset, vistaTendencia, offsetMesCampo);
       const ctx2 = contCanvas.getContext('2d');
@@ -2074,6 +2119,7 @@
       const etiquetas = Object.keys(conteos);
       const valores = Object.values(conteos);
       const total = valores.reduce((a, b) => a + b, 0);
+      mostrarEstadoVacio('grafica-categorias-taller', dataset.length === 0);
       const ctxCat = document.getElementById('grafica-categorias-taller').getContext('2d');
       if (chartCategoriasTaller) chartCategoriasTaller.destroy();
       chartCategoriasTaller = new Chart(ctxCat, {
@@ -2135,7 +2181,7 @@
         const valores = dataset.map(op => op.evaluacion_calidad[c.id]).filter(v => v !== null && v !== undefined);
         return valores.length ? valores.reduce((a,b)=>a+b,0) / valores.length : 0;
       });
-
+      mostrarEstadoVacio('grafica-criterios-taller', dataset.length === 0);
       const ctx = document.getElementById('grafica-criterios-taller').getContext('2d');
       if (chartCriteriosTaller) chartCriteriosTaller.destroy();
             chartCriteriosTaller = new Chart(ctx, {
@@ -2209,11 +2255,15 @@
           circumference: 180,
           cutout: '68%',
           layout: { padding: { top: 10 } },
+          animation: {
+            duration: 1400,
+            easing: 'easeOutCubic',
+            animateRotate: true,
+            animateScale: false
+          },
           plugins: { legend: { display: false }, tooltip: { enabled: false }, datalabels: { display: false } }
         }
       });
-      chartGaugeTaller.config._porcentajeGauge = porcentaje;
-      chartGaugeTaller.update();
 
       const textoEl = document.getElementById('texto-gauge-taller');
       if (textoEl) textoEl.textContent = `Nivel de cumplimiento`;
@@ -2245,6 +2295,8 @@
       }
       const contCanvasT = document.getElementById('grafica-tendencia-taller');
       const contGaugeT = document.getElementById('indicador-tendencia-taller');
+      mostrarEstadoVacio('grafica-tendencia-taller', false);
+      mostrarEstadoVacio('indicador-tendencia-taller', false);
 
       if (vistaTendenciaTaller === 'mes') {
         if (chartTendenciaTaller) { chartTendenciaTaller.destroy(); chartTendenciaTaller = null; }
@@ -2253,6 +2305,7 @@
         contGaugeT.classList.remove('hidden');
         contGaugeT.classList.add('flex');
         contGaugeT.style.display = 'flex';
+        mostrarEstadoVacio('indicador-tendencia-taller', dataset.length === 0);
         renderIndicadorTendenciaTaller(dataset);
         return;
       }
@@ -2263,6 +2316,7 @@
       contGaugeT.style.display = 'none';
       contCanvasT.classList.remove('hidden');
       contCanvasT.style.display = 'block';
+      mostrarEstadoVacio('grafica-tendencia-taller', dataset.length === 0);
 
       const { etiquetas, promedios } = agruparPorMesSiAnual(dataset, vistaTendenciaTaller, offsetMesTaller);
       const ctx = contCanvasT.getContext('2d');
@@ -2906,11 +2960,15 @@
           circumference: 180,
           cutout: '68%',
           layout: { padding: { top: 10 } },
+          animation: {
+            duration: 1400,
+            easing: 'easeOutCubic',
+            animateRotate: true,
+            animateScale: false
+          },
           plugins: { legend: { display: false }, tooltip: { enabled: false }, datalabels: { display: false } }
         }
       });
-      chartGaugeGeneral.config._porcentajeGauge = porcentaje;
-      chartGaugeGeneral.update();
 
       const textoEl = document.getElementById('texto-gauge-general');
       if (textoEl) textoEl.textContent = `Nivel de cumplimiento`;
@@ -2976,6 +3034,7 @@
         const valores = taller.map(op => op.evaluacion_calidad[c.id]).filter(v => v !== null && v !== undefined);
         return valores.length ? valores.reduce((a,b) => a+b, 0) / valores.length : 0;
       });
+      mostrarEstadoVacio('grafica-comparativa-general', campo.length === 0 && taller.length === 0);
       const ctxComp = document.getElementById('grafica-comparativa-general').getContext('2d');
       if (chartComparativaGeneral) chartComparativaGeneral.destroy();
       chartComparativaGeneral = new Chart(ctxComp, {
@@ -3086,6 +3145,7 @@
         const valores = combinado.map(op => op.evaluacion_calidad[c.id]).filter(v => v !== null && v !== undefined);
         return valores.length ? valores.reduce((a,b) => a+b, 0) / valores.length : 0;
       });
+      mostrarEstadoVacio('grafica-criterios-general', combinado.length === 0);
       const ctxC = document.getElementById('grafica-criterios-general').getContext('2d');
       if (chartCriteriosGeneral) chartCriteriosGeneral.destroy();
             chartCriteriosGeneral = new Chart(ctxC, {
@@ -3136,7 +3196,8 @@
       }
       const contCanvasG = document.getElementById('grafica-tendencia-general');
       const contGaugeG = document.getElementById('indicador-tendencia-general');
-
+      mostrarEstadoVacio('grafica-tendencia-general', false);
+      mostrarEstadoVacio('indicador-tendencia-general', false);
       if (vistaGeneral === 'mes') {
         if (chartTendenciaGeneral) { chartTendenciaGeneral.destroy(); chartTendenciaGeneral = null; }
         contCanvasG.classList.add('hidden');
@@ -3144,6 +3205,7 @@
         contGaugeG.classList.remove('hidden');
         contGaugeG.classList.add('flex');
         contGaugeG.style.display = 'flex';
+        mostrarEstadoVacio('indicador-tendencia-general', combinado.length === 0);
         renderIndicadorTendenciaGeneral(combinado);
       } else {
         if (chartGaugeGeneral) { chartGaugeGeneral.destroy(); chartGaugeGeneral = null; }
@@ -3152,6 +3214,7 @@
         contGaugeG.style.display = 'none';
         contCanvasG.classList.remove('hidden');
         contCanvasG.style.display = 'block';
+        mostrarEstadoVacio('grafica-tendencia-general', combinado.length === 0);
 
         const { etiquetas, promedios: promediosOrden } = agruparPorMesSiAnual(combinado, vistaGeneral, offsetMesGeneral);
         const ctxT = contCanvasG.getContext('2d');
@@ -3420,6 +3483,167 @@
         </div>
       `;
       panel.classList.remove('hidden');
+    }
+  </script>
+
+  <script>
+    // ══════════════════════════════════════════
+    //  EXPORTAR A PDF (periodo seleccionado)
+    // ══════════════════════════════════════════
+    function obtenerContextoPDF() {
+      const seccion = ['campo', 'general', 'taller'].find(s =>
+        !document.getElementById(`seccion-${s}`).classList.contains('hidden')) || 'campo';
+
+      const config = {
+        campo:   { titulo: 'Servicio en Campo',        vista: vistaTendencia,       offset: offsetMesCampo },
+        taller:  { titulo: 'Servicio en Taller',       vista: vistaTendenciaTaller, offset: offsetMesTaller },
+        general: { titulo: 'General (Campo + Taller)', vista: vistaGeneral,         offset: offsetMesGeneral }
+      }[seccion];
+
+      const hoy = new Date();
+      const fecha = new Date(hoy.getFullYear(), hoy.getMonth() + config.offset, 1);
+      const anio = fecha.getFullYear();
+      const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
+      const nombreMes = d => cap(d.toLocaleDateString('es-MX', { month: 'long' }));
+
+      let periodo, sufijoArchivo;
+      if (config.vista === 'mes') {
+        periodo = `${nombreMes(fecha)} de ${anio}`;
+        sufijoArchivo = `${anio}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
+      } else if (config.vista === 'trimestre') {
+        const q = Math.floor(fecha.getMonth() / 3);
+        periodo = `Trimestre ${q + 1} de ${anio} (${nombreMes(new Date(anio, q * 3, 1))} a ${nombreMes(new Date(anio, q * 3 + 2, 1))})`;
+        sufijoArchivo = `${anio}-T${q + 1}`;
+      } else {
+        periodo = `Año ${anio}`;
+        sufijoArchivo = `${anio}`;
+      }
+      return { seccion, titulo: config.titulo, periodo, sufijoArchivo };
+    }
+
+    // Coloca una captura en el PDF; si no cabe, salta de página (o la rebana si es muy alta)
+    function agregarBloqueAlPDF(pdf, canvas, est) {
+      const mmPorPx = est.anchoUtil / canvas.width;
+      const altoMm = canvas.height * mmPorPx;
+      const poner = (cnv, y, altoImg) =>
+        pdf.addImage(cnv.toDataURL('image/jpeg', 0.92), 'JPEG', est.margen, y, est.anchoUtil, altoImg);
+
+      if (est.y + altoMm <= est.yMax) {
+        poner(canvas, est.y, altoMm);
+        est.y += altoMm + est.separacion;
+        return;
+      }
+      if (altoMm <= est.yMax - est.margen) {
+        pdf.addPage();
+        est.y = est.margen;
+        poner(canvas, est.y, altoMm);
+        est.y += altoMm + est.separacion;
+        return;
+      }
+      // Bloque más alto que una página (p. ej. tabla larga): se corta en rebanadas
+      let pxY = 0;
+      while (pxY < canvas.height) {
+        let espacioMm = est.yMax - est.y;
+        if (espacioMm < 30) { pdf.addPage(); est.y = est.margen; espacioMm = est.yMax - est.y; }
+        const pxRebanada = Math.min(canvas.height - pxY, Math.floor(espacioMm / mmPorPx));
+        const tmp = document.createElement('canvas');
+        tmp.width = canvas.width;
+        tmp.height = pxRebanada;
+        tmp.getContext('2d').drawImage(canvas, 0, pxY, canvas.width, pxRebanada, 0, 0, canvas.width, pxRebanada);
+        poner(tmp, est.y, pxRebanada * mmPorPx);
+        est.y += pxRebanada * mmPorPx;
+        pxY += pxRebanada;
+        if (pxY < canvas.height) { pdf.addPage(); est.y = est.margen; }
+      }
+      est.y += est.separacion;
+    }
+
+    async function exportarPDF() {
+      const btn = document.getElementById('btn-exportar-pdf');
+      const htmlOriginal = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
+
+      try {
+        const { jsPDF } = window.jspdf;
+        const ctx = obtenerContextoPDF();
+        const seccion = document.getElementById(`seccion-${ctx.seccion}`);
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const est = { margen: 10, anchoUtil: 190, yMax: 283, separacion: 4, y: 0 };
+
+        // ── Encabezado de la primera página ──
+        const generado = new Date().toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short' })
+          .replace(/[\u202f\u00a0]/g, ' ');
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(16);
+        pdf.setTextColor(30, 41, 59);
+        pdf.text('Indicadores de calidad en el servicio', est.margen, 16);
+        pdf.setFontSize(11);
+        pdf.setTextColor(37, 99, 235);
+        pdf.text(`${ctx.titulo}  |  Periodo: ${ctx.periodo}`, est.margen, 23);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(8.5);
+        pdf.setTextColor(100, 116, 139);
+        pdf.text(`Generado el ${generado}`, est.margen, 28);
+
+        const meta = (document.getElementById('texto-meta-indicador')?.textContent || '')
+          .replace(/\s+/g, ' ').replace(/≥/g, '>=').trim();
+        const lineasMeta = pdf.splitTextToSize(meta, est.anchoUtil);
+        pdf.text(lineasMeta, est.margen, 33);
+        est.y = 33 + lineasMeta.length * 4 + 4;
+        pdf.setDrawColor(226, 232, 240);
+        pdf.line(est.margen, est.y - 2, est.margen + est.anchoUtil, est.y - 2);
+        est.y += 3;
+
+        // ── Bloques a capturar: todo lo visible de la sección activa, sin controles ni modales ──
+        const bloques = Array.from(seccion.children).filter(el => {
+          if (el.classList.contains('hidden')) return false;
+          if (el.id && el.id.startsWith('modal-')) return false;
+          if (el.querySelector('[onclick^="togglePeriodo"]')) return false; // selector de periodo
+          return el.offsetHeight > 0;
+        });
+
+        for (const el of bloques) {
+          const canvas = await html2canvas(el, {
+            scale: 2,
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            logging: false,
+            onclone: (doc) => {
+              // Que la tabla salga completa (sin scroll interno) y desplegada
+              doc.querySelectorAll('[class*="max-h-"], [class*="overflow-y-auto"], [class*="overflow-x-auto"]')
+                .forEach(n => { n.style.maxHeight = 'none'; n.style.overflow = 'visible'; });
+              doc.querySelectorAll('[id^="contenido-detalle-operacion"]')
+                .forEach(n => n.classList.remove('hidden'));
+              // Quitar lo que no aporta en un reporte
+              doc.querySelectorAll('[id^="icono-detalle-operacion"]').forEach(n => n.remove());
+              doc.getElementById('th-acciones-taller')?.remove();
+              doc.querySelectorAll('#tabla-evaluaciones-taller-body td').forEach(td => {
+                if (td.querySelector('button')) td.remove(); // columna de editar/eliminar
+              });
+            }
+          });
+          agregarBloqueAlPDF(pdf, canvas, est);
+        }
+
+        // ── Pie de página con numeración ──
+        const total = pdf.getNumberOfPages();
+        for (let i = 1; i <= total; i++) {
+          pdf.setPage(i);
+          pdf.setFontSize(8);
+          pdf.setTextColor(148, 163, 184);
+          pdf.text('In Hole Solutions - Evaluaciones de Calidad', est.margen, 291);
+          pdf.text(`Página ${i} de ${total}`, 200, 291, { align: 'right' });
+        }
+
+        pdf.save(`Evaluaciones-Calidad_${ctx.seccion}_${ctx.sufijoArchivo}.pdf`);
+      } catch (err) {
+        console.error('Error al exportar PDF:', err);
+        alert('No se pudo generar el PDF. Revisa la consola (F12) para ver el detalle.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = htmlOriginal;
+      }
     }
   </script>
 
