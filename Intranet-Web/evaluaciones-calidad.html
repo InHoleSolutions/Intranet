@@ -1313,6 +1313,17 @@
       }
     };
 
+    // Etiquetas de porcentaje dentro de las barras (escala 0-5 → 0-100%)
+    const DATALABELS_BARRAS = {
+      display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
+      anchor: 'end',
+      align: (ctx) => ctx.dataset.data[ctx.dataIndex] < 0.6 ? 'end' : 'start',
+      offset: 4,
+      color: (ctx) => ctx.dataset.data[ctx.dataIndex] < 0.6 ? '#475569' : '#ffffff',
+      font: { weight: '700', size: 13 },
+      formatter: (valor) => `${Math.round((valor / 5) * 100)}%`
+    };
+
     // Muestra un mensaje amigable en lugar de una gráfica cuando no hay datos
     function mostrarEstadoVacio(elementoId, vacio, mensaje = 'Sin evaluaciones registradas este periodo') {
       const el = document.getElementById(elementoId);
@@ -1613,7 +1624,7 @@
           },
           plugins: {
             legend: { display: false },
-            datalabels: { display: false },
+            datalabels: DATALABELS_BARRAS,
             tooltip: {
               callbacks: {
                 label: (ctx) => ` Promedio: ${Math.round((ctx.parsed.y / 5) * 100)}%`
@@ -2213,7 +2224,7 @@
           },
           plugins: {
             legend: { display: false },
-            datalabels: { display: false },
+            datalabels: DATALABELS_BARRAS,
             tooltip: {
               callbacks: {
                 label: (ctx) => ` Promedio: ${Math.round((ctx.parsed.y / 5) * 100)}%`
@@ -3062,7 +3073,7 @@
           },
           plugins: {
             legend: { position: 'bottom' },
-            datalabels: { display: false }
+            datalabels: { ...DATALABELS_BARRAS, font: { weight: '700', size: 11 } }
           }
         }
       });
@@ -3177,7 +3188,7 @@
           },
           plugins: {
             legend: { display: false },
-            datalabels: { display: false },
+            datalabels: DATALABELS_BARRAS,
             tooltip: {
               callbacks: {
                 label: (ctx) => ` Promedio: ${Math.round((ctx.parsed.y / 5) * 100)}%`
