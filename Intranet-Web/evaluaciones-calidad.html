@@ -1178,6 +1178,11 @@
       document.getElementById('btn-seccion-general').classList.toggle('active', seccion === 'general');
       document.getElementById('btn-seccion-campo').classList.toggle('active', seccion === 'campo');
       document.getElementById('btn-seccion-taller').classList.toggle('active', seccion === 'taller');
+
+      // Repetir la animación del gauge al entrar a la pestaña
+      if (seccion === 'taller' && typeof renderGraficaTendenciaTaller === 'function') renderGraficaTendenciaTaller();
+      if (seccion === 'general' && typeof renderGeneral === 'function') renderGeneral();
+      if (seccion === 'campo' && typeof renderGraficaTendencia === 'function') renderGraficaTendencia();
     }
     cambiarSeccion('campo');
   </script>
