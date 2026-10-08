@@ -1609,6 +1609,7 @@
         },
         options: {
           scales: {
+            x: { offset: true },
             y: {
               min: 0,
               max: 5,
@@ -1737,8 +1738,23 @@
           datasets: [{ data: valores, backgroundColor: COLORES_CATEGORIAS }]
         },
         options: {
+          layout: { padding: 30 },
           plugins: {
-            legend: { position: 'bottom' },
+            legend: {
+              position: 'bottom',
+              labels: {
+                generateLabels: (chart) => {
+                  const ds = chart.data.datasets[0];
+                  return chart.data.labels.map((lbl, i) => ({
+                    text: `${lbl} (${ds.data[i]})`,
+                    fillStyle: ds.backgroundColor[i],
+                    strokeStyle: ds.backgroundColor[i],
+                    hidden: !chart.getDataVisibility(i),
+                    index: i
+                  }));
+                }
+              }
+            },
             tooltip: {
               callbacks: {
                 label: (ctx) => {
@@ -1749,11 +1765,16 @@
               }
             },
             datalabels: {
-              color: '#fff',
+              anchor: 'end',
+              // Sectores chicos (<8%): etiqueta afuera. Grandes: adentro, cerca del borde
+              align: (c) => (c.dataset.data[c.dataIndex] / total < 0.08 ? 'end' : 'start'),
+              offset: (c) => (c.dataset.data[c.dataIndex] / total < 0.08 ? 6 : 10),
+              color: (c) => (c.dataset.data[c.dataIndex] / total < 0.08 ? '#1e293b' : '#fff'),
+              textAlign: 'center',
               font: { weight: '700', size: 13 },
               formatter: (valor) => {
                 const pct = total ? ((valor / total) * 100).toFixed(1) : 0;
-                return pct > 4 ? `${pct}%` : '';
+                return `${valor}\n(${pct}%)`;
               }
             }
           }
@@ -1833,11 +1854,19 @@
             backgroundColor: 'rgba(37,99,235,0.1)',
             fill: true,
             tension: 0.3,
+            borderWidth: 4,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            pointBackgroundColor: '#2563eb',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            clip: false,
             spanGaps: vistaTendencia !== 'trimestre'
           }]
         },
         options: {
           scales: {
+            x: { offset: true },
             y: {
               min: 0,
               max: 5,
@@ -1847,7 +1876,25 @@
               }
             }
           },
-          plugins: { datalabels: { display: false } }
+          layout: { padding: { top: 32, right: 24, left: 8, bottom: 4 } },
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              display: (c) => 
+                c.dataset.data[c.dataIndex] !== null && c.dataset.data[c.dataIndex] !== undefined,
+              anchor: 'end',
+              align: 'top',
+              offset: 4,
+              color: '#1e3a8a',
+              backgroundColor: 'rgba(255,255,255,0.9)',
+              borderColor: '#2563eb',
+              borderWidth: 1,
+              borderRadius: 4,
+              padding: { top: 2, bottom: 2, left: 5, right: 5 },
+              font: { weight: '700', size: 11 },
+              formatter: (valor) => `${Math.round((valor / 5) * 100)}%`
+            }
+          }
         }
       });
       chartTendencia.config._mostrarSinDatos = true;
@@ -2146,8 +2193,23 @@
           datasets: [{ data: valores, backgroundColor: COLORES_CATEGORIAS }]
         },
         options: {
+          layout: { padding: 30 },
           plugins: {
-            legend: { position: 'bottom' },
+            legend: {
+              position: 'bottom',
+              labels: {
+                generateLabels: (chart) => {
+                  const ds = chart.data.datasets[0];
+                  return chart.data.labels.map((lbl, i) => ({
+                    text: `${lbl} (${ds.data[i]})`,
+                    fillStyle: ds.backgroundColor[i],
+                    strokeStyle: ds.backgroundColor[i],
+                    hidden: !chart.getDataVisibility(i),
+                    index: i
+                  }));
+                }
+              }
+            },
             tooltip: {
               callbacks: {
                 label: (ctx) => {
@@ -2158,11 +2220,16 @@
               }
             },
             datalabels: {
-              color: '#fff',
+              anchor: 'end',
+              // Sectores chicos (<8%): etiqueta afuera. Grandes: adentro, cerca del borde
+              align: (c) => (c.dataset.data[c.dataIndex] / total < 0.08 ? 'end' : 'start'),
+              offset: (c) => (c.dataset.data[c.dataIndex] / total < 0.08 ? 6 : 10),
+              color: (c) => (c.dataset.data[c.dataIndex] / total < 0.08 ? '#1e293b' : '#fff'),
+              textAlign: 'center',
               font: { weight: '700', size: 13 },
               formatter: (valor) => {
                 const pct = total ? ((valor / total) * 100).toFixed(1) : 0;
-                return pct > 4 ? `${pct}%` : '';
+                return `${valor}\n(${pct}%)`;
               }
             }
           }
@@ -2209,6 +2276,7 @@
         },
                 options: {
           scales: {
+            x: { offset: true },
             y: {
               min: 0,
               max: 5,
@@ -2349,11 +2417,19 @@
             backgroundColor: 'rgba(37,99,235,0.1)',
             fill: true,
             tension: 0.3,
+            borderWidth: 4,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            pointBackgroundColor: '#2563eb',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            clip: false,
             spanGaps: vistaTendenciaTaller !== 'trimestre'
           }]
         },
         options: {
           scales: {
+            x: { offset: true },
             y: {
               min: 0,
               max: 5,
@@ -2363,7 +2439,25 @@
               }
             }
           },
-          plugins: { datalabels: { display: false } }
+          layout: { padding: { top: 32, right: 24, left: 8, bottom: 4 } },
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              display: (c) =>
+                c.dataset.data[c.dataIndex] !== null && c.dataset.data[c.dataIndex] !== undefined,
+              anchor: 'end',
+              align: 'top',
+              offset: 4,
+              color: '#1e3a8a',
+              backgroundColor: 'rgba(255,255,255,0.9)',
+              borderColor: '#2563eb',
+              borderWidth: 1,
+              borderRadius: 4,
+              padding: { top: 2, bottom: 2, left: 5, right: 5 },
+              font: { weight: '700', size: 11 },
+              formatter: (valor) => `${Math.round((valor / 5) * 100)}%`
+            }
+          }
         }
       });
       chartTendenciaTaller.config._mostrarSinDatos = true;
@@ -3067,6 +3161,7 @@
           responsive: true,
           maintainAspectRatio: false,
           scales: {
+            x: { offset: true },
             y: {
               min: 0,
               max: 5,
@@ -3077,7 +3172,21 @@
             }
           },
           plugins: {
-            legend: { position: 'bottom' },
+            legend: {
+              position: 'bottom',
+              labels: {
+                generateLabels: (chart) => {
+                  const ds = chart.data.datasets[0];
+                  return chart.data.labels.map((lbl, i) => ({
+                    text: `${lbl} (${ds.data[i]})`,
+                    fillStyle: ds.backgroundColor[i],
+                    strokeStyle: ds.backgroundColor[i],
+                    hidden: !chart.getDataVisibility(i),
+                    index: i
+                  }));
+                }
+              }
+            },
             datalabels: { ...DATALABELS_BARRAS, font: { weight: '700', size: 11 } }
           }
         }
@@ -3173,6 +3282,7 @@
         },
                 options: {
           scales: {
+            x: { offset: true },
             y: {
               min: 0,
               max: 5,
@@ -3247,11 +3357,19 @@
               backgroundColor: 'rgba(37,99,235,0.1)',
               fill: true,
               tension: 0.3,
+              borderWidth: 4,
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              pointBackgroundColor: '#2563eb',
+              pointBorderColor: '#ffffff',
+              pointBorderWidth: 2,
+              clip: false,
               spanGaps: vistaGeneral !== 'trimestre'
             }]
           },
           options: {
             scales: {
+              x: { offset: true },
               y: {
                 min: 0,
                 max: 5,
@@ -3261,7 +3379,25 @@
                 }
               }
             },
-            plugins: { datalabels: { display: false } }
+            layout: { padding: { top: 32, right: 24, left: 8, bottom: 4 } },
+            plugins: {
+              legend: { display: false },
+              datalabels: {
+                display: (c) => 
+                  c.dataset.data[c.dataIndex] !== null && c.dataset.data[c.dataIndex] !== undefined,
+                anchor: 'end',
+                align: 'top',
+                offset: 4,
+                color: '#1e3a8a',
+                backgroundColor: 'rgba(255,255,255,0.9)',
+                borderColor: '#2563eb',
+                borderWidth: 1,
+                borderRadius: 4,
+                padding: { top: 2, bottom: 2, left: 5, right: 5 },
+                font: { weight: '700', size: 11 },
+                formatter: (valor) => `${Math.round((valor / 5) * 100)}%`
+              }
+            }
           }
         });
         chartTendenciaGeneral.config._mostrarSinDatos = true;
