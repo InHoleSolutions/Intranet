@@ -3172,21 +3172,7 @@
             }
           },
           plugins: {
-            legend: {
-              position: 'bottom',
-              labels: {
-                generateLabels: (chart) => {
-                  const ds = chart.data.datasets[0];
-                  return chart.data.labels.map((lbl, i) => ({
-                    text: `${lbl} (${ds.data[i]})`,
-                    fillStyle: ds.backgroundColor[i],
-                    strokeStyle: ds.backgroundColor[i],
-                    hidden: !chart.getDataVisibility(i),
-                    index: i
-                  }));
-                }
-              }
-            },
+            legend: { display: false },
             datalabels: { ...DATALABELS_BARRAS, font: { weight: '700', size: 11 } }
           }
         }
