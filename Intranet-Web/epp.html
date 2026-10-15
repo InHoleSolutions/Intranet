@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control de EPP | In Hole Solutions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:,">
+  <style>
+    body { font-family: 'Calibri', 'Carlito', Arial, sans-serif; background: #f8fafc; }
+    .dropdown:hover > .dropdown-menu { display: block; }
+    .tab-btn { color: #64748b; border-bottom: 3px solid transparent; }
+    .tab-btn:hover { color: #1e293b; }
+    .tab-btn.activa { color: #e31e24; border-bottom-color: #e31e24; }
+    .tab-panel { display: none; }
+    .tab-panel.activo { display: block; animation: fadeIn 0.25s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .table-container::-webkit-scrollbar { height: 6px; }
+    .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .input-ihs { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 9px 12px; font-size: 14px; background: #f8fafc; outline: none; }
+    .input-ihs:focus { border-color: #e31e24; background: #fff; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- HEADER -->
+  <div id="header-componente"></div>
+
+  <main class="flex-1 w-full max-w-[1400px] mx-auto px-4 pb-10 mt-[56px] sm:mt-[64px] lg:mt-[20px]">
+    <div class="pt-4 lg:pt-32">
+
+      <!-- Título -->
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+            <i class="fas fa-helmet-safety text-[#e31e24]"></i> Control de EPP
+          </h2>
+          <p class="text-slate-500 mt-1 text-sm">Selección, provisión, uso, mantenimiento y control del equipo de protección personal.</p>
+        </div>
+      </div>
+
+      <!-- Pestañas -->
+      <div class="bg-white rounded-t-3xl border border-slate-200 border-b-0 px-4 overflow-x-auto">
+        <nav class="flex gap-1 min-w-max">
+          <button class="tab-btn activa px-4 py-4 text-xs font-black uppercase tracking-widest transition" data-tab="kpis" onclick="cambiarTab('kpis')">
+            <i class="fas fa-gauge-high mr-2"></i>KPIs
+          </button>
+          <button class="tab-btn px-4 py-4 text-xs font-black uppercase tracking-widest transition" data-tab="vale" onclick="cambiarTab('vale')">
+            <i class="fas fa-file-signature mr-2"></i>Nuevo vale
+          </button>
+          <button class="tab-btn px-4 py-4 text-xs font-black uppercase tracking-widest transition" data-tab="historial" onclick="cambiarTab('historial')">
+            <i class="fas fa-clock-rotate-left mr-2"></i>Historial
+          </button>
+          <button class="tab-btn px-4 py-4 text-xs font-black uppercase tracking-widest transition" data-tab="reposicion" onclick="cambiarTab('reposicion')">
+            <i class="fas fa-calendar-check mr-2"></i>Reposición
+          </button>
+          <button class="tab-btn px-4 py-4 text-xs font-black uppercase tracking-widest transition" data-tab="matriz" onclick="cambiarTab('matriz')">
+            <i class="fas fa-table-cells mr-2"></i>Matriz por puesto
+          </button>
+          <button class="tab-btn px-4 py-4 text-xs font-black uppercase tracking-widest transition" data-tab="catalogo" onclick="cambiarTab('catalogo')">
+            <i class="fas fa-list mr-2"></i>Catálogo
+          </button>
+          <button class="tab-btn px-4 py-4 text-xs font-black uppercase tracking-widest transition" data-tab="inventario" onclick="cambiarTab('inventario')">
+            <i class="fas fa-boxes-stacked mr-2"></i>Inventario
+          </button>
+          <button class="tab-btn px-4 py-4 text-xs font-black uppercase tracking-widest transition" data-tab="mantenimiento" onclick="cambiarTab('mantenimiento')">
+            <i class="fas fa-screwdriver-wrench mr-2"></i>Mantenimiento
+          </button>
+        </nav>
+      </div>
+
+      <!-- Contenido de pestañas -->
+      <div class="bg-white rounded-b-3xl border border-slate-200 shadow-sm p-6 md:p-8 min-h-[400px]">
+
+        <section id="tab-kpis" class="tab-panel activo">
+          <p class="text-slate-400 text-sm">KPIs (Paso 7)</p>
+        </section>
+
+        <section id="tab-vale" class="tab-panel">
+          <div class="mb-6">
+            <h3 class="text-lg font-bold text-slate-800">Resguardo de EPP</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Formato F-SGI-IHS-015 · Elige el puesto para cargar el equipo que le corresponde según la matriz.</p>
+          </div>
+
+          <!-- Datos del trabajador -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Nombre del trabajador</label>
+              <input id="vale-trabajador" list="lista-trabajadores" class="input-ihs mt-1" placeholder="Nombre completo" autocomplete="off">
+              <datalist id="lista-trabajadores"></datalist>
+            </div>
+            <div>
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Puesto / cargo</label>
+              <select id="vale-puesto" class="input-ihs mt-1" onchange="cambiarPuestoVale()">
+                <option value="">Selecciona un puesto...</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Entregado por</label>
+              <input id="vale-entregado" class="input-ihs mt-1" placeholder="Nombre de quien entrega">
+            </div>
+            <div>
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Tipo de entrega (aplica a todo el equipo)</label>
+              <select id="vale-motivo-general" class="input-ihs mt-1" onchange="valeMotivoGeneral(this.value)">
+                <option>Entrega inicial</option>
+                <option>Reposición</option>
+                <option>Desgaste</option>
+                <option>Pérdida</option>
+                <option>Daño</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Equipo según la matriz -->
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Equipo según matriz del puesto</p>
+            <button onclick="valeMarcarTodos()" class="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-[#e31e24] transition">
+              <i class="fas fa-check-double mr-1"></i>Marcar / desmarcar todos
+            </button>
+          </div>
+          <div class="table-container overflow-x-auto rounded-2xl border border-slate-100">
+            <table class="w-full text-sm text-left">
+              <thead class="bg-slate-50 text-slate-400 uppercase tracking-widest text-[10px] font-black">
+                <tr>
+                  <th class="px-4 py-3 w-10"></th>
+                  <th class="px-4 py-3">EPP</th>
+                  <th class="px-4 py-3">Talla</th>
+                  <th class="px-4 py-3">Motivo</th>
+                  <th class="px-4 py-3">Cantidad</th>
+                  <th class="px-4 py-3">Fecha de entrega</th>
+                  <th class="px-4 py-3">Inventario / reposición</th>
+                </tr>
+              </thead>
+              <tbody id="vale-body" class="divide-y divide-slate-100 text-slate-600">
+                <tr><td colspan="7" class="px-4 py-8 text-center text-slate-300">Selecciona un puesto para cargar su equipo</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-4">
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Observaciones</label>
+            <textarea id="vale-obs" rows="2" class="input-ihs mt-1" placeholder="Opcional"></textarea>
+          </div>
+
+          <div class="flex flex-wrap justify-end gap-2 mt-6">
+            <button onclick="limpiarVale()" class="text-slate-500 font-semibold px-5 py-2.5 rounded-xl hover:bg-slate-100 transition">Limpiar</button>
+            <button id="btn-guardar-vale" onclick="guardarVale()" class="bg-[#e31e24] hover:bg-[#b3161b] text-white text-xs font-black uppercase tracking-widest px-6 py-3 rounded-xl transition disabled:opacity-50">
+              <i class="fas fa-floppy-disk mr-2"></i>Guardar vale
+            </button>
+          </div>
+        </section>
+
+        <section id="tab-historial" class="tab-panel">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <div>
+              <h3 class="text-lg font-bold text-slate-800">Historial de vales</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Registro de todas las entregas de EPP.</p>
+            </div>
+            <input id="vales-buscar" oninput="renderVales()" class="input-ihs max-w-xs" placeholder="Buscar por folio, trabajador o puesto...">
+          </div>
+          <div class="table-container overflow-x-auto rounded-2xl border border-slate-100">
+            <table class="w-full text-sm text-left">
+              <thead class="bg-slate-50 text-slate-400 uppercase tracking-widest text-[10px] font-black">
+                <tr>
+                  <th class="px-4 py-3">Folio</th>
+                  <th class="px-4 py-3">Fecha</th>
+                  <th class="px-4 py-3">Trabajador</th>
+                  <th class="px-4 py-3">Puesto</th>
+                  <th class="px-4 py-3">Equipo</th>
+                  <th class="px-4 py-3">Entregó</th>
+                  <th class="px-4 py-3 w-12"></th>
+                </tr>
+              </thead>
+              <tbody id="vales-body" class="divide-y divide-slate-100 text-slate-600">
+                <tr><td colspan="7" class="px-4 py-8 text-center text-slate-300">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="tab-reposicion" class="tab-panel">
+          <p class="text-slate-400 text-sm">Calendario de reposición (Paso 6)</p>
+        </section>
+
+        <section id="tab-matriz" class="tab-panel">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <div>
+              <h3 class="text-lg font-bold text-slate-800">Matriz de EPP por puesto</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Marca qué equipo aplica a cada puesto. Estos datos alimentan el formulario del vale.</p>
+            </div>
+            <button onclick="abrirModalPuesto()" class="bg-[#e31e24] hover:bg-[#b3161b] text-white text-xs font-black uppercase tracking-widest px-4 py-2.5 rounded-xl transition">
+              <i class="fas fa-plus mr-2"></i>Nuevo puesto
+            </button>
+          </div>
+
+          <!-- Selector de puesto -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="md:col-span-1">
+              <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Puestos</p>
+              <div id="lista-puestos" class="space-y-2 max-h-[480px] overflow-y-auto pr-1"></div>
+            </div>
+            <div class="md:col-span-2">
+              <div class="flex items-center justify-between mb-2">
+                <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">EPP asignado a: <span id="matriz-puesto-nombre" class="text-slate-700">—</span></p>
+                <button id="btn-eliminar-puesto" onclick="eliminarPuesto()" class="hidden text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-red-600 transition">
+                  <i class="fas fa-trash mr-1"></i>Eliminar puesto
+                </button>
+              </div>
+              <div class="table-container overflow-x-auto rounded-2xl border border-slate-100">
+                <table class="w-full text-sm text-left">
+                  <thead class="bg-slate-50 text-slate-400 uppercase tracking-widest text-[10px] font-black">
+                    <tr>
+                      <th class="px-4 py-3 w-10"></th>
+                      <th class="px-4 py-3">EPP</th>
+                      <th class="px-4 py-3">Entrega inicial</th>
+                      <th class="px-4 py-3">Repos. (cant.)</th>
+                      <th class="px-4 py-3">Cada (días)</th>
+                      <th class="px-4 py-3 text-center">Desgaste</th>
+                      <th class="px-4 py-3">Notas</th>
+                    </tr>
+                  </thead>
+                  <tbody id="matriz-body" class="divide-y divide-slate-100 text-slate-600">
+                    <tr><td colspan="5" class="px-4 py-8 text-center text-slate-300">Selecciona un puesto</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p id="matriz-aviso-todos" class="hidden text-[11px] font-bold text-blue-600 bg-blue-50 rounded-lg px-3 py-2 mt-2">
+                <i class="fas fa-users mr-1"></i>Este grupo se agrega automáticamente al vale de todos los puestos.
+              </p>
+              <p class="text-[11px] text-slate-400 mt-2">
+                <b>Cada (días):</b> 180 = 6 meses, 365 = 12 meses. Si lo dejas vacío, solo se repone por desgaste, pérdida o daño (sin fecha programada).
+                <b>Repos. (cant.)</b> vacío = misma cantidad que la entrega inicial. <b>Desgaste</b> marcado = también se repone de inmediato por desgaste.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="tab-catalogo" class="tab-panel">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <div>
+              <h3 class="text-lg font-bold text-slate-800">Catálogo de EPP</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Tipos de equipo, norma aplicable y vida útil estándar.</p>
+            </div>
+            <button onclick="abrirModalEPP()" class="bg-[#e31e24] hover:bg-[#b3161b] text-white text-xs font-black uppercase tracking-widest px-4 py-2.5 rounded-xl transition">
+              <i class="fas fa-plus mr-2"></i>Nuevo EPP
+            </button>
+          </div>
+          <div class="table-container overflow-x-auto rounded-2xl border border-slate-100">
+            <table class="w-full text-sm text-left">
+              <thead class="bg-slate-50 text-slate-400 uppercase tracking-widest text-[10px] font-black">
+                <tr>
+                  <th class="px-4 py-3">Nombre</th>
+                  <th class="px-4 py-3">Categoría</th>
+                  <th class="px-4 py-3">Norma</th>
+                  <th class="px-4 py-3">Talla</th>
+                  <th class="px-4 py-3">Vida útil (días)</th>
+                  <th class="px-4 py-3 w-24"></th>
+                </tr>
+              </thead>
+              <tbody id="catalogo-body" class="divide-y divide-slate-100 text-slate-600">
+                <tr><td colspan="6" class="px-4 py-8 text-center text-slate-300">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="tab-inventario" class="tab-panel">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <div>
+              <h3 class="text-lg font-bold text-slate-800">Inventario de EPP</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Existencias, estado y ubicación del equipo.</p>
+            </div>
+            <button onclick="abrirModalInventario()" class="bg-[#e31e24] hover:bg-[#b3161b] text-white text-xs font-black uppercase tracking-widest px-4 py-2.5 rounded-xl transition">
+              <i class="fas fa-plus mr-2"></i>Agregar al inventario
+            </button>
+          </div>
+
+          <!-- Resumen -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+            <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+              <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Piezas disponibles</p>
+              <p id="inv-kpi-piezas" class="text-3xl font-black text-slate-800 mt-1">0</p>
+            </div>
+            <div class="rounded-2xl bg-red-50 border border-red-100 p-4">
+              <p class="text-[10px] font-black uppercase tracking-widest text-red-400">Bajo stock mínimo</p>
+              <p id="inv-kpi-bajo" class="text-3xl font-black text-red-600 mt-1">0</p>
+            </div>
+            <div class="rounded-2xl bg-amber-50 border border-amber-100 p-4">
+              <p class="text-[10px] font-black uppercase tracking-widest text-amber-500">En mantenimiento</p>
+              <p id="inv-kpi-mant" class="text-3xl font-black text-amber-600 mt-1">0</p>
+            </div>
+            <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+              <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Dañado / Baja</p>
+              <p id="inv-kpi-danado" class="text-3xl font-black text-slate-700 mt-1">0</p>
+            </div>
+          </div>
+
+          <!-- Filtros -->
+          <div class="flex flex-wrap gap-3 mb-4">
+            <input id="inv-buscar" oninput="renderInventario()" class="input-ihs max-w-xs" placeholder="Buscar EPP...">
+            <select id="inv-filtro-estado" onchange="renderInventario()" class="input-ihs max-w-[200px]">
+              <option value="">Todos los estados</option>
+              <option>Disponible</option>
+              <option>En mantenimiento</option>
+              <option>Dañado</option>
+              <option>Baja</option>
+            </select>
+          </div>
+
+          <div class="table-container overflow-x-auto rounded-2xl border border-slate-100">
+            <table class="w-full text-sm text-left">
+              <thead class="bg-slate-50 text-slate-400 uppercase tracking-widest text-[10px] font-black">
+                <tr>
+                  <th class="px-4 py-3">EPP</th>
+                  <th class="px-4 py-3">Talla</th>
+                  <th class="px-4 py-3 text-center">Stock</th>
+                  <th class="px-4 py-3 text-center">Mínimo</th>
+                  <th class="px-4 py-3">Estado</th>
+                  <th class="px-4 py-3">Ubicación</th>
+                  <th class="px-4 py-3 w-24"></th>
+                </tr>
+              </thead>
+              <tbody id="inventario-body" class="divide-y divide-slate-100 text-slate-600">
+                <tr><td colspan="7" class="px-4 py-8 text-center text-slate-300">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="tab-mantenimiento" class="tab-panel">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <div>
+              <h3 class="text-lg font-bold text-slate-800">Mantenimiento e inspección</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Limpieza, inspecciones, reparaciones y certificaciones del equipo.</p>
+            </div>
+            <button onclick="abrirModalMantenimiento()" class="bg-[#e31e24] hover:bg-[#b3161b] text-white text-xs font-black uppercase tracking-widest px-4 py-2.5 rounded-xl transition">
+              <i class="fas fa-plus mr-2"></i>Registrar mantenimiento
+            </button>
+          </div>
+          <div class="table-container overflow-x-auto rounded-2xl border border-slate-100">
+            <table class="w-full text-sm text-left">
+              <thead class="bg-slate-50 text-slate-400 uppercase tracking-widest text-[10px] font-black">
+                <tr>
+                  <th class="px-4 py-3">Fecha</th>
+                  <th class="px-4 py-3">Equipo</th>
+                  <th class="px-4 py-3">Tipo</th>
+                  <th class="px-4 py-3">Próxima</th>
+                  <th class="px-4 py-3">Responsable</th>
+                  <th class="px-4 py-3">Observaciones</th>
+                  <th class="px-4 py-3 w-12"></th>
+                </tr>
+              </thead>
+              <tbody id="mantenimiento-body" class="divide-y divide-slate-100 text-slate-600">
+                <tr><td colspan="7" class="px-4 py-8 text-center text-slate-300">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <div id="footer-componente"></div>
+
+  <!-- Modal: EPP -->
+  <div id="modal-epp" class="hidden fixed inset-0 z-[300] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+      <h3 id="modal-epp-titulo" class="text-lg font-bold text-slate-800 mb-4">Nuevo EPP</h3>
+      <input type="hidden" id="epp-id">
+      <div class="space-y-3">
+        <div>
+          <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Nombre</label>
+          <input id="epp-nombre" class="input-ihs mt-1" placeholder="Ej. Casco dieléctrico">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Categoría</label>
+            <select id="epp-categoria" class="input-ihs mt-1">
+              <option>Cabeza</option><option>Vista</option><option>Oído</option><option>Respiratoria</option>
+              <option>Manos</option><option>Pies</option><option>Altura</option><option>Corporal</option><option>Otro</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Vida útil (días)</label>
+            <input id="epp-vida" type="number" min="1" value="180" class="input-ihs mt-1">
+          </div>
+        </div>
+        <div>
+          <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Norma</label>
+          <input id="epp-norma" class="input-ihs mt-1" placeholder="Ej. NOM-115-STPS / ANSI Z89.1">
+        </div>
+        <label class="flex items-center gap-2 text-sm text-slate-600">
+          <input id="epp-talla" type="checkbox" class="w-4 h-4 accent-[#e31e24]"> Requiere talla
+        </label>
+      </div>
+      <div class="flex gap-2 mt-6">
+        <button onclick="cerrarModal('modal-epp')" class="flex-1 text-slate-500 font-semibold py-2.5 rounded-xl hover:bg-slate-100 transition">Cancelar</button>
+        <button onclick="guardarEPP()" class="flex-1 bg-[#e31e24] hover:bg-[#b3161b] text-white font-bold py-2.5 rounded-xl transition">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+    <!-- Modal: Inventario -->
+  <div id="modal-inventario" class="hidden fixed inset-0 z-[300] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+      <h3 id="modal-inv-titulo" class="text-lg font-bold text-slate-800 mb-4">Agregar al inventario</h3>
+      <input type="hidden" id="inv-id">
+      <div class="space-y-3">
+        <div>
+          <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">EPP</label>
+          <select id="inv-epp" class="input-ihs mt-1" onchange="ajustarTallaInventario()"></select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Talla</label>
+            <input id="inv-talla" class="input-ihs mt-1" placeholder="Ej. 32, M, 27.5">
+          </div>
+          <div>
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Ubicación</label>
+            <input id="inv-ubicacion" class="input-ihs mt-1" placeholder="Ej. Almacén Villahermosa">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Stock</label>
+            <input id="inv-stock" type="number" min="0" value="0" class="input-ihs mt-1">
+          </div>
+          <div>
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Stock mínimo</label>
+            <input id="inv-minimo" type="number" min="0" value="0" class="input-ihs mt-1">
+          </div>
+        </div>
+        <div>
+          <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Estado</label>
+          <select id="inv-estado" class="input-ihs mt-1">
+            <option>Disponible</option><option>En mantenimiento</option><option>Dañado</option><option>Baja</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex gap-2 mt-6">
+        <button onclick="cerrarModal('modal-inventario')" class="flex-1 text-slate-500 font-semibold py-2.5 rounded-xl hover:bg-slate-100 transition">Cancelar</button>
+        <button onclick="guardarInventario()" class="flex-1 bg-[#e31e24] hover:bg-[#b3161b] text-white font-bold py-2.5 rounded-xl transition">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Mantenimiento -->
+  <div id="modal-mantenimiento" class="hidden fixed inset-0 z-[300] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+      <h3 class="text-lg font-bold text-slate-800 mb-4">Registrar mantenimiento</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Equipo</label>
+          <select id="mant-inventario" class="input-ihs mt-1"></select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Tipo</label>
+            <select id="mant-tipo" class="input-ihs mt-1">
+              <option>Inspección</option><option>Limpieza</option><option>Reparación</option><option>Certificación</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Fecha</label>
+            <input id="mant-fecha" type="date" class="input-ihs mt-1">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Próxima fecha</label>
+            <input id="mant-proxima" type="date" class="input-ihs mt-1">
+          </div>
+          <div>
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Estado después</label>
+            <select id="mant-estado" class="input-ihs mt-1">
+              <option value="">Sin cambio</option>
+              <option>Disponible</option><option>En mantenimiento</option><option>Dañado</option><option>Baja</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Responsable</label>
+          <input id="mant-responsable" class="input-ihs mt-1">
+        </div>
+        <div>
+          <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Observaciones</label>
+          <textarea id="mant-obs" rows="2" class="input-ihs mt-1"></textarea>
+        </div>
+      </div>
+      <div class="flex gap-2 mt-6">
+        <button onclick="cerrarModal('modal-mantenimiento')" class="flex-1 text-slate-500 font-semibold py-2.5 rounded-xl hover:bg-slate-100 transition">Cancelar</button>
+        <button onclick="guardarMantenimiento()" class="flex-1 bg-[#e31e24] hover:bg-[#b3161b] text-white font-bold py-2.5 rounded-xl transition">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+    <!-- Modal: Confirmación -->
+  <div id="modal-confirmar" class="hidden fixed inset-0 z-[500] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-7 text-center" style="animation: fadeIn 0.2s ease-out;">
+      <div id="confirmar-icono-wrap" class="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+        <i id="confirmar-icono" class="fas fa-trash text-red-500 text-xl"></i>
+      </div>
+      <h3 id="confirmar-titulo" class="text-lg font-bold text-slate-800 mb-2">¿Estás seguro?</h3>
+      <p id="confirmar-mensaje" class="text-sm text-slate-500 leading-relaxed mb-6"></p>
+      <div class="flex gap-2">
+        <button id="confirmar-cancelar" class="flex-1 text-slate-500 font-semibold py-2.5 rounded-xl hover:bg-slate-100 transition">Cancelar</button>
+        <button id="confirmar-aceptar" class="flex-1 bg-[#e31e24] hover:bg-[#b3161b] text-white font-bold py-2.5 rounded-xl transition">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Avisos (toasts) -->
+  <div id="toast-contenedor" class="fixed top-5 right-5 z-[600] flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- Modal: Detalle de vale -->
+  <div id="modal-vale-detalle" class="hidden fixed inset-0 z-[300] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">F-SGI-IHS-015 · Resguardo de EPP</p>
+          <h3 id="vd-folio" class="text-xl font-black text-slate-800 mt-1">—</h3>
+        </div>
+        <button onclick="cerrarModal('modal-vale-detalle')" class="text-slate-400 hover:text-slate-700"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="grid grid-cols-2 gap-3 text-sm mb-4">
+        <div><p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Trabajador</p><p id="vd-trabajador" class="font-semibold text-slate-700"></p></div>
+        <div><p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Puesto</p><p id="vd-puesto" class="font-semibold text-slate-700"></p></div>
+        <div><p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Entregado por</p><p id="vd-entregado" class="font-semibold text-slate-700"></p></div>
+        <div><p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Fecha de registro</p><p id="vd-fecha" class="font-semibold text-slate-700"></p></div>
+      </div>
+      <div class="table-container overflow-x-auto rounded-2xl border border-slate-100">
+        <table class="w-full text-sm text-left">
+          <thead class="bg-slate-50 text-slate-400 uppercase tracking-widest text-[10px] font-black">
+            <tr>
+              <th class="px-3 py-2">EPP</th><th class="px-3 py-2">Talla</th><th class="px-3 py-2">Cant.</th>
+              <th class="px-3 py-2">Motivo</th><th class="px-3 py-2">Entrega</th><th class="px-3 py-2">Reposición</th>
+            </tr>
+          </thead>
+          <tbody id="vd-detalle" class="divide-y divide-slate-100 text-slate-600"></tbody>
+        </table>
+      </div>
+      <p id="vd-obs" class="text-xs text-slate-500 mt-3"></p>
+    </div>
+  </div>
+
+  <!-- Modal: Puesto -->
+  <div id="modal-puesto" class="hidden fixed inset-0 z-[300] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6">
+      <h3 class="text-lg font-bold text-slate-800 mb-4">Nuevo puesto</h3>
+      <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Nombre del puesto</label>
+      <input id="puesto-nombre" class="input-ihs mt-1" placeholder="Ej. Técnico de campo">
+      <div class="flex gap-2 mt-6">
+        <button onclick="cerrarModal('modal-puesto')" class="flex-1 text-slate-500 font-semibold py-2.5 rounded-xl hover:bg-slate-100 transition">Cancelar</button>
+        <button onclick="guardarPuesto()" class="flex-1 bg-[#e31e24] hover:bg-[#b3161b] text-white font-bold py-2.5 rounded-xl transition">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase -->
+  <script type="module">
+    import { supabaseClient } from './Js/supabase-config.js';
+    window.supabaseClient = supabaseClient;
+    document.dispatchEvent(new Event('supabaseListo'));
+  </script>
+
+  <script>
+    // ── Cargar header y footer (igual que dashboard) ──
+    function insertarHTMLConScripts(contenedorId, html) {
+      const contenedor = document.getElementById(contenedorId);
+      contenedor.innerHTML = html;
+      contenedor.querySelectorAll('script').forEach(viejo => {
+        const nuevo = document.createElement('script');
+        if (viejo.src) nuevo.src = viejo.src; else nuevo.textContent = viejo.textContent;
+        viejo.replaceWith(nuevo);
+      });
+    }
+
+    document.addEventListener('supabaseListo', () => {
+      fetch('header.html').then(r => r.text()).then(html => insertarHTMLConScripts('header-componente', html));
+      iniciarEPP();
+    });
+
+    fetch('footer.html').then(r => r.text()).then(html => {
+      document.getElementById('footer-componente').innerHTML = html;
+      const y = document.getElementById('footer-year');
+      if (y) y.textContent = new Date().getFullYear();
+    });
+
+    function toggleMenu(id) { document.getElementById(id).classList.toggle('hidden'); }
+    function toggleSubmenu(btn) {
+      if (window.innerWidth < 1024) {
+        const submenu = btn.nextElementSibling;
+        if (submenu) submenu.classList.toggle('mobile-active');
+      }
+    }
+
+    // ── Pestañas ──
+    function cambiarTab(nombre) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('activa', b.dataset.tab === nombre));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('activo', p.id === 'tab-' + nombre));
+      try { localStorage.setItem('eppTabActual', nombre); } catch (e) {}
+      if (nombre === 'vale') prepararVale();
+    }
+
+        // ══════════ UTILIDADES ══════════
+    function esc(t) {
+      return String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    function abrirModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function cerrarModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        // ── Confirmación con estilo propio (devuelve una promesa: true / false) ──
+    function confirmar({ titulo = '¿Estás seguro?', mensaje = '', textoAceptar = 'Eliminar', tipo = 'peligro' } = {}) {
+      return new Promise(resolve => {
+        const modal = document.getElementById('modal-confirmar');
+        const wrap = document.getElementById('confirmar-icono-wrap');
+        const icono = document.getElementById('confirmar-icono');
+        const btnOk = document.getElementById('confirmar-aceptar');
+        const btnNo = document.getElementById('confirmar-cancelar');
+
+        const estilos = {
+          peligro: { wrap: 'bg-red-100',   icono: 'fa-trash text-red-500',                     btn: 'bg-[#e31e24] hover:bg-[#b3161b]' },
+          aviso:   { wrap: 'bg-amber-100', icono: 'fa-triangle-exclamation text-amber-500',    btn: 'bg-amber-500 hover:bg-amber-600' }
+        }[tipo] || {};
+
+        wrap.className = `w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 ${estilos.wrap}`;
+        icono.className = `fas text-xl ${estilos.icono}`;
+        btnOk.className = `flex-1 text-white font-bold py-2.5 rounded-xl transition ${estilos.btn}`;
+        document.getElementById('confirmar-titulo').textContent = titulo;
+        document.getElementById('confirmar-mensaje').textContent = mensaje;
+        btnOk.textContent = textoAceptar;
+
+        const cerrar = (valor) => {
+          modal.classList.add('hidden');
+          btnOk.onclick = null; btnNo.onclick = null; modal.onclick = null;
+          document.removeEventListener('keydown', teclas);
+          resolve(valor);
+        };
+        const teclas = (e) => { if (e.key === 'Escape') cerrar(false); };
+
+        btnOk.onclick = () => cerrar(true);
+        btnNo.onclick = () => cerrar(false);
+        modal.onclick = (e) => { if (e.target === modal) cerrar(false); };
+        document.addEventListener('keydown', teclas);
+
+        modal.classList.remove('hidden');
+        btnNo.focus();
+      });
+    }
+
+    // ── Avisos tipo toast: tipo = 'exito' | 'error' | 'info' ──
+    function aviso(mensaje, tipo = 'info') {
+      const cont = document.getElementById('toast-contenedor');
+      const cfg = {
+        exito: { icono: 'fa-circle-check',        color: 'text-emerald-500', borde: 'border-emerald-200' },
+        error: { icono: 'fa-circle-xmark',        color: 'text-red-500',     borde: 'border-red-200' },
+        info:  { icono: 'fa-circle-info',         color: 'text-blue-500',    borde: 'border-blue-200' }
+      }[tipo] || {};
+
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto bg-white border ${cfg.borde} shadow-xl rounded-xl px-4 py-3 flex items-start gap-3 max-w-sm`;
+      el.style.animation = 'fadeIn 0.25s ease-out';
+      el.innerHTML = `
+        <i class="fas ${cfg.icono} ${cfg.color} text-lg mt-0.5"></i>
+        <p class="text-sm text-slate-700 flex-1">${esc(mensaje)}</p>
+        <button class="text-slate-300 hover:text-slate-500"><i class="fas fa-times text-xs"></i></button>`;
+
+      const quitar = () => { el.style.transition = 'opacity .3s'; el.style.opacity = '0'; setTimeout(() => el.remove(), 300); };
+      el.querySelector('button').onclick = quitar;
+      cont.appendChild(el);
+      setTimeout(quitar, tipo === 'error' ? 6000 : 3500);
+    }
+
+    // ══════════ CATÁLOGO ══════════
+    let catalogoEPP = [];
+
+    async function cargarCatalogo() {
+      const { data, error } = await supabaseClient
+        .from('epp_catalogo').select('*').eq('activo', true).order('categoria').order('nombre');
+      if (error) { console.error(error); aviso('Error al cargar el catálogo', 'error'); return; }
+      catalogoEPP = data || [];
+      renderCatalogo();
+    }
+
+    function renderCatalogo() {
+      const tb = document.getElementById('catalogo-body');
+      if (!catalogoEPP.length) {
+        tb.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-slate-300">Sin equipos registrados. Agrega el primero con "Nuevo EPP".</td></tr>';
+        return;
+      }
+      tb.innerHTML = catalogoEPP.map(e => `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="px-4 py-3 font-semibold text-slate-700">${esc(e.nombre)}</td>
+          <td class="px-4 py-3"><span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px] font-bold">${esc(e.categoria || '—')}</span></td>
+          <td class="px-4 py-3 text-slate-500">${esc(e.norma || '—')}</td>
+          <td class="px-4 py-3">${e.requiere_talla ? '<i class="fas fa-check text-emerald-500"></i>' : '<span class="text-slate-300">—</span>'}</td>
+          <td class="px-4 py-3">${e.vida_util_dias ?? '—'}</td>
+          <td class="px-4 py-3 text-right whitespace-nowrap">
+            <button onclick="abrirModalEPP('${e.id}')" class="text-slate-400 hover:text-blue-600 mr-3" title="Editar"><i class="fas fa-pen"></i></button>
+            <button onclick="eliminarEPP('${e.id}')" class="text-slate-400 hover:text-red-600" title="Eliminar"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>`).join('');
+    }
+
+    function abrirModalEPP(id) {
+      const e = id ? catalogoEPP.find(x => x.id === id) : null;
+      document.getElementById('modal-epp-titulo').textContent = e ? 'Editar EPP' : 'Nuevo EPP';
+      document.getElementById('epp-id').value = e?.id || '';
+      document.getElementById('epp-nombre').value = e?.nombre || '';
+      document.getElementById('epp-categoria').value = e?.categoria || 'Cabeza';
+      document.getElementById('epp-vida').value = e?.vida_util_dias ?? 180;
+      document.getElementById('epp-norma').value = e?.norma || '';
+      document.getElementById('epp-talla').checked = !!e?.requiere_talla;
+      abrirModal('modal-epp');
+    }
+
+    async function guardarEPP() {
+      const id = document.getElementById('epp-id').value;
+      const nombre = document.getElementById('epp-nombre').value.trim();
+      if (!nombre) { aviso('Escribe el nombre del EPP', 'error'); return; }
+
+      const registro = {
+        nombre,
+        categoria: document.getElementById('epp-categoria').value,
+        norma: document.getElementById('epp-norma').value.trim() || null,
+        vida_util_dias: parseInt(document.getElementById('epp-vida').value) || 180,
+        requiere_talla: document.getElementById('epp-talla').checked
+      };
+
+      const { error } = id
+        ? await supabaseClient.from('epp_catalogo').update(registro).eq('id', id)
+        : await supabaseClient.from('epp_catalogo').insert(registro);
+
+      if (error) { console.error(error); aviso('No se pudo guardar: ' + error.message, 'error'); return; }
+      cerrarModal('modal-epp');
+      aviso('EPP guardado correctamente', 'exito');
+      await cargarCatalogo();
+      if (puestoSeleccionado) renderMatriz();
+    }
+
+    async function eliminarEPP(id) {
+      if (!await confirmar({
+        titulo: 'Eliminar EPP',
+        mensaje: 'Se quitará del catálogo y de la matriz de los puestos. Los vales ya emitidos se conservan.'
+      })) return;
+      // Se desactiva (no se borra) para conservar el historial de vales
+      const { error } = await supabaseClient.from('epp_catalogo').update({ activo: false }).eq('id', id);
+      if (error) { console.error(error); aviso('No se pudo eliminar', 'error'); return; }
+      await supabaseClient.from('epp_matriz').delete().eq('epp_id', id);
+      await cargarCatalogo();
+      await cargarMatrizDatos();
+    }
+
+    // ══════════ MATRIZ POR PUESTO ══════════
+    let puestos = [];
+    let matrizDatos = [];          // filas de epp_matriz
+    let puestoSeleccionado = null; // id del puesto activo
+
+    async function cargarPuestos() {
+      const { data, error } = await supabaseClient
+        .from('epp_puestos').select('*').eq('activo', true).order('nombre');
+      if (error) { console.error(error); aviso('Error al cargar puestos', 'error'); return; }
+      puestos = data || [];
+      renderPuestos();
+    }
+
+    async function cargarMatrizDatos() {
+      const { data, error } = await supabaseClient.from('epp_matriz').select('*');
+      if (error) { console.error(error); return; }
+      matrizDatos = data || [];
+      renderPuestos();
+      renderMatriz();
+    }
+
+    function renderPuestos() {
+      const cont = document.getElementById('lista-puestos');
+      if (!puestos.length) {
+        cont.innerHTML = '<p class="text-xs text-slate-400 py-4 text-center">Sin puestos. Crea el primero.</p>';
+        return;
+      }
+      cont.innerHTML = puestos.map(p => {
+        const total = matrizDatos.filter(m => m.puesto_id === p.id).length;
+        const activo = p.id === puestoSeleccionado;
+        return `
+          <button onclick="seleccionarPuesto('${p.id}')"
+            class="w-full text-left px-4 py-3 rounded-xl border transition flex items-center justify-between gap-2
+            ${activo ? 'bg-red-50 border-[#e31e24] text-[#e31e24]' : 'bg-slate-50 border-slate-100 text-slate-700 hover:bg-white hover:shadow'}">
+            <span class="text-sm font-bold truncate">${esc(p.nombre)}${p.aplica_a_todos ? ' <i class="fas fa-users text-[10px] opacity-60" title="Aplica a todos los puestos"></i>' : ''}</span>
+            <span class="text-[10px] font-black ${activo ? 'bg-[#e31e24] text-white' : 'bg-slate-200 text-slate-500'} px-2 py-0.5 rounded-full">${total}</span>
+          </button>`;
+      }).join('');
+    }
+
+    function seleccionarPuesto(id) {
+      puestoSeleccionado = id;
+      renderPuestos();
+      renderMatriz();
+    }
+
+        function renderMatriz() {
+      const tb = document.getElementById('matriz-body');
+      const nombreEl = document.getElementById('matriz-puesto-nombre');
+      const btnDel = document.getElementById('btn-eliminar-puesto');
+      const aviso = document.getElementById('matriz-aviso-todos');
+
+      if (!puestoSeleccionado) {
+        nombreEl.textContent = '—';
+        btnDel.classList.add('hidden');
+        aviso.classList.add('hidden');
+        tb.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-slate-300">Selecciona un puesto</td></tr>';
+        return;
+      }
+      const puesto = puestos.find(p => p.id === puestoSeleccionado);
+      nombreEl.textContent = puesto ? puesto.nombre : '—';
+      btnDel.classList.remove('hidden');
+      aviso.classList.toggle('hidden', !puesto?.aplica_a_todos);
+
+      if (!catalogoEPP.length) {
+        tb.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-slate-300">Primero agrega equipos en la pestaña Catálogo</td></tr>';
+        return;
+      }
+
+      const inp = 'border border-slate-200 rounded-lg px-2 py-1 text-sm disabled:bg-slate-50 disabled:text-slate-300';
+
+      tb.innerHTML = catalogoEPP.map(e => {
+        const m = matrizDatos.find(x => x.puesto_id === puestoSeleccionado && x.epp_id === e.id);
+        const on = !!m;
+        const dis = on ? '' : 'disabled';
+        return `
+          <tr class="${on ? 'bg-red-50/40' : ''} hover:bg-slate-50 transition-colors">
+            <td class="px-4 py-3">
+              <input type="checkbox" class="w-4 h-4 accent-[#e31e24] cursor-pointer" ${on ? 'checked' : ''}
+                onchange="toggleMatriz('${e.id}', this.checked)">
+            </td>
+            <td class="px-4 py-3">
+              <p class="font-semibold text-slate-700">${esc(e.nombre)}</p>
+              <p class="text-[10px] text-slate-400">${esc(e.categoria || '')}</p>
+            </td>
+            <td class="px-4 py-3">
+              <input type="number" min="1" value="${m?.cantidad_inicial ?? 1}" ${dis} class="w-16 ${inp}"
+                onchange="actualizarMatriz('${e.id}', 'cantidad_inicial', this.value)">
+            </td>
+            <td class="px-4 py-3">
+              <input type="number" min="1" value="${m?.cantidad_reposicion ?? ''}" placeholder="${m?.cantidad_inicial ?? 1}" ${dis} class="w-16 ${inp}"
+                onchange="actualizarMatriz('${e.id}', 'cantidad_reposicion', this.value)">
+            </td>
+            <td class="px-4 py-3">
+              <input type="number" min="1" value="${m?.reposicion_dias ?? ''}" placeholder="—" ${dis} class="w-20 ${inp}"
+                onchange="actualizarMatriz('${e.id}', 'reposicion_dias', this.value)">
+            </td>
+            <td class="px-4 py-3 text-center">
+              <input type="checkbox" class="w-4 h-4 accent-[#e31e24] cursor-pointer" ${m?.por_desgaste ? 'checked' : ''} ${dis}
+                onchange="actualizarMatriz('${e.id}', 'por_desgaste', this.checked)">
+            </td>
+            <td class="px-4 py-3">
+              <input type="text" value="${esc(m?.notas ?? '')}" ${dis} class="w-60 ${inp}"
+                onchange="actualizarMatriz('${e.id}', 'notas', this.value)">
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    async function toggleMatriz(eppId, marcado) {
+      if (!puestoSeleccionado) return;
+      if (marcado) {
+        const { error } = await supabaseClient.from('epp_matriz')
+          .insert({ puesto_id: puestoSeleccionado, epp_id: eppId, cantidad_inicial: 1, por_desgaste: true });
+        if (error) { console.error(error); aviso('No se pudo asignar', 'error'); }
+      } else {
+        const { error } = await supabaseClient.from('epp_matriz')
+          .delete().eq('puesto_id', puestoSeleccionado).eq('epp_id', eppId);
+        if (error) { console.error(error); aviso('No se pudo quitar', 'error'); }
+      }
+      await cargarMatrizDatos();
+    }
+
+    async function actualizarMatriz(eppId, campo, valor) {
+      let v;
+      if (campo === 'notas') v = String(valor).trim() || null;
+      else if (campo === 'por_desgaste') v = !!valor;
+      else v = valor === '' ? null : parseInt(valor);
+      if (campo === 'cantidad_inicial' && !v) v = 1;
+
+      const { error } = await supabaseClient.from('epp_matriz')
+        .update({ [campo]: v })
+        .eq('puesto_id', puestoSeleccionado).eq('epp_id', eppId);
+      if (error) { console.error(error); aviso('No se pudo actualizar', 'error'); return; }
+
+      const fila = matrizDatos.find(x => x.puesto_id === puestoSeleccionado && x.epp_id === eppId);
+      if (fila) fila[campo] = v;
+      if (campo === 'cantidad_inicial') renderMatriz(); // actualiza el placeholder de reposición
+    }
+
+    function abrirModalPuesto() {
+      document.getElementById('puesto-nombre').value = '';
+      abrirModal('modal-puesto');
+    }
+
+    async function guardarPuesto() {
+      const nombre = document.getElementById('puesto-nombre').value.trim();
+      if (!nombre) { aviso('Escribe el nombre del puesto', 'error'); return; }
+      const { data, error } = await supabaseClient
+        .from('epp_puestos').insert({ nombre }).select().single();
+      if (error) {
+        aviso(error.code === '23505' ? 'Ese puesto ya existe' : 'No se pudo guardar: ' + error.message, 'error');
+        return;
+      }
+      cerrarModal('modal-puesto');
+      aviso('Puesto creado correctamente', 'exito');
+      await cargarPuestos();
+      seleccionarPuesto(data.id);
+    }
+
+    async function eliminarPuesto() {
+      if (!puestoSeleccionado) return;
+      if (!await confirmar({
+        titulo: 'Eliminar puesto',
+        mensaje: 'Se eliminará el puesto y su matriz de EPP. Los vales ya emitidos se conservan.'
+      })) return;
+      const { error } = await supabaseClient
+        .from('epp_puestos').update({ activo: false }).eq('id', puestoSeleccionado);
+      if (error) { console.error(error); aviso('No se pudo eliminar', 'error'); return; }
+      await supabaseClient.from('epp_matriz').delete().eq('puesto_id', puestoSeleccionado);
+      puestoSeleccionado = null;
+      await cargarPuestos();
+      await cargarMatrizDatos();
+    }
+
+    // Carga inicial de catálogo + puestos + matriz
+    async function cargarBaseEPP() {
+      await Promise.all([cargarCatalogo(), cargarPuestos()]);
+      await cargarMatrizDatos();
+    }
+
+        // ══════════ INVENTARIO ══════════
+    let inventario = [];
+
+    function hoyLocal() {
+      return new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
+    }
+
+    function badgeEstado(estado) {
+      const c = {
+        'Disponible': 'bg-emerald-50 text-emerald-700',
+        'En mantenimiento': 'bg-amber-50 text-amber-700',
+        'Dañado': 'bg-red-50 text-red-700',
+        'Baja': 'bg-slate-100 text-slate-500'
+      }[estado] || 'bg-slate-100 text-slate-500';
+      return `<span class="${c} px-2 py-0.5 rounded-full text-[10px] font-bold">${esc(estado)}</span>`;
+    }
+
+    async function cargarInventario() {
+      const { data, error } = await supabaseClient
+        .from('epp_inventario')
+        .select('*, epp_catalogo(nombre, categoria, requiere_talla)');
+      if (error) { console.error(error); aviso('Error al cargar el inventario', 'error'); return; }
+      inventario = (data || []).sort((a, b) =>
+        (a.epp_catalogo?.nombre || '').localeCompare(b.epp_catalogo?.nombre || '') ||
+        String(a.talla || '').localeCompare(String(b.talla || ''), undefined, { numeric: true }));
+      renderInventario();
+    }
+
+    function esBajoMinimo(i) {
+      return i.estado === 'Disponible' && (i.stock_minimo || 0) > 0 && i.stock <= i.stock_minimo;
+    }
+
+    function renderInventario() {
+      const tb = document.getElementById('inventario-body');
+      const q = (document.getElementById('inv-buscar')?.value || '').toLowerCase().trim();
+      const fe = document.getElementById('inv-filtro-estado')?.value || '';
+
+      // Resumen (sobre todo el inventario, sin filtros)
+      document.getElementById('inv-kpi-piezas').textContent =
+        inventario.filter(i => i.estado === 'Disponible').reduce((s, i) => s + (i.stock || 0), 0);
+      document.getElementById('inv-kpi-bajo').textContent = inventario.filter(esBajoMinimo).length;
+      document.getElementById('inv-kpi-mant').textContent = inventario.filter(i => i.estado === 'En mantenimiento').length;
+      document.getElementById('inv-kpi-danado').textContent = inventario.filter(i => i.estado === 'Dañado' || i.estado === 'Baja').length;
+
+      const lista = inventario.filter(i =>
+        (!fe || i.estado === fe) &&
+        (!q || (i.epp_catalogo?.nombre || '').toLowerCase().includes(q)));
+
+      if (!lista.length) {
+        tb.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-slate-300">Sin registros en el inventario</td></tr>';
+        return;
+      }
+
+      tb.innerHTML = lista.map(i => {
+        const bajo = esBajoMinimo(i);
+        return `
+          <tr class="${bajo ? 'bg-red-50/50' : ''} hover:bg-slate-50 transition-colors">
+            <td class="px-4 py-3">
+              <p class="font-semibold text-slate-700">${esc(i.epp_catalogo?.nombre || '—')}</p>
+              <p class="text-[10px] text-slate-400">${esc(i.epp_catalogo?.categoria || '')}</p>
+            </td>
+            <td class="px-4 py-3">${esc(i.talla || '—')}</td>
+            <td class="px-4 py-3 text-center font-black ${bajo ? 'text-red-600' : 'text-slate-700'}">
+              ${i.stock ?? 0}${bajo ? ' <i class="fas fa-triangle-exclamation text-xs" title="Bajo el stock mínimo"></i>' : ''}
+            </td>
+            <td class="px-4 py-3 text-center text-slate-400">${i.stock_minimo ?? 0}</td>
+            <td class="px-4 py-3">${badgeEstado(i.estado)}</td>
+            <td class="px-4 py-3 text-slate-500">${esc(i.ubicacion || '—')}</td>
+            <td class="px-4 py-3 text-right whitespace-nowrap">
+              <button onclick="abrirModalInventario('${i.id}')" class="text-slate-400 hover:text-blue-600 mr-3" title="Editar"><i class="fas fa-pen"></i></button>
+              <button onclick="eliminarInventario('${i.id}')" class="text-slate-400 hover:text-red-600" title="Eliminar"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    function ajustarTallaInventario() {
+      const epp = catalogoEPP.find(e => e.id === document.getElementById('inv-epp').value);
+      const inp = document.getElementById('inv-talla');
+      if (epp && !epp.requiere_talla) {
+        inp.value = '';
+        inp.disabled = true;
+        inp.placeholder = 'No aplica';
+      } else {
+        inp.disabled = false;
+        inp.placeholder = 'Ej. 32, M, 27.5';
+      }
+    }
+
+    function abrirModalInventario(id) {
+      if (!catalogoEPP.length) { aviso('Primero agrega equipos en el Catálogo', 'error'); return; }
+      const i = id ? inventario.find(x => x.id === id) : null;
+      document.getElementById('modal-inv-titulo').textContent = i ? 'Editar inventario' : 'Agregar al inventario';
+      document.getElementById('inv-id').value = i?.id || '';
+      document.getElementById('inv-epp').innerHTML = catalogoEPP
+        .map(e => `<option value="${e.id}">${esc(e.nombre)}</option>`).join('');
+      if (i) document.getElementById('inv-epp').value = i.epp_id;
+      document.getElementById('inv-epp').disabled = !!i; // al editar no se cambia el EPP
+      document.getElementById('inv-talla').value = i?.talla || '';
+      document.getElementById('inv-ubicacion').value = i?.ubicacion || '';
+      document.getElementById('inv-stock').value = i?.stock ?? 0;
+      document.getElementById('inv-minimo').value = i?.stock_minimo ?? 0;
+      document.getElementById('inv-estado').value = i?.estado || 'Disponible';
+      ajustarTallaInventario();
+      abrirModal('modal-inventario');
+    }
+
+    async function guardarInventario() {
+      const id = document.getElementById('inv-id').value;
+      const eppId = document.getElementById('inv-epp').value;
+      const talla = document.getElementById('inv-talla').value.trim() || null;
+      const estado = document.getElementById('inv-estado').value;
+      const epp = catalogoEPP.find(e => e.id === eppId);
+
+      if (epp?.requiere_talla && !talla) { aviso('Este EPP requiere talla', 'error'); return; }
+
+      const duplicado = inventario.find(x => x.id !== id && x.epp_id === eppId &&
+        (x.talla || '') === (talla || '') && x.estado === estado);
+      if (duplicado) { aviso('Ya existe un registro con ese EPP, talla y estado. Edítalo para ajustar el stock.', 'error'); return; }
+
+      const registro = {
+        epp_id: eppId,
+        talla,
+        stock: Math.max(0, parseInt(document.getElementById('inv-stock').value) || 0),
+        stock_minimo: Math.max(0, parseInt(document.getElementById('inv-minimo').value) || 0),
+        estado,
+        ubicacion: document.getElementById('inv-ubicacion').value.trim() || null,
+        updated_at: new Date().toISOString()
+      };
+
+      const { error } = id
+        ? await supabaseClient.from('epp_inventario').update(registro).eq('id', id)
+        : await supabaseClient.from('epp_inventario').insert(registro);
+
+      if (error) { console.error(error); aviso('No se pudo guardar: ' + error.message, 'error'); return; }
+      cerrarModal('modal-inventario');
+      aviso('Inventario actualizado', 'exito');
+      await cargarInventario();
+    }
+
+    async function eliminarInventario(id) {
+      if (!await confirmar({
+        titulo: 'Eliminar del inventario',
+        mensaje: 'Se borrará este registro y también su historial de mantenimiento. Esta acción no se puede deshacer.'
+      })) return;
+      const { error } = await supabaseClient.from('epp_inventario').delete().eq('id', id);
+      if (error) { console.error(error); aviso('No se pudo eliminar', 'error'); return; }
+      await cargarInventario();
+      await cargarMantenimiento();
+    }
+
+    // ══════════ MANTENIMIENTO ══════════
+    let mantenimientos = [];
+
+    async function cargarMantenimiento() {
+      const { data, error } = await supabaseClient
+        .from('epp_mantenimiento')
+        .select('*, epp_inventario(talla, ubicacion, epp_catalogo(nombre))')
+        .order('fecha', { ascending: false });
+      if (error) { console.error(error); aviso('Error al cargar mantenimientos', 'error'); return; }
+      mantenimientos = data || [];
+      renderMantenimiento();
+    }
+
+    function renderMantenimiento() {
+      const tb = document.getElementById('mantenimiento-body');
+      if (!mantenimientos.length) {
+        tb.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-slate-300">Sin registros de mantenimiento</td></tr>';
+        return;
+      }
+      const hoy = new Date(hoyLocal() + 'T00:00:00');
+
+      tb.innerHTML = mantenimientos.map(m => {
+        const inv = m.epp_inventario;
+        const equipo = inv ? `${inv.epp_catalogo?.nombre || '—'}${inv.talla ? ' · T. ' + inv.talla : ''}` : '— (eliminado)';
+
+        let proxima = '<span class="text-slate-300">—</span>';
+        if (m.proxima_fecha) {
+          const dias = Math.round((new Date(m.proxima_fecha + 'T00:00:00') - hoy) / 86400000);
+          const cls = dias < 0 ? 'bg-red-50 text-red-700' : dias <= 30 ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-600';
+          const txt = dias < 0 ? `Vencido hace ${Math.abs(dias)} d` : dias === 0 ? 'Hoy' : `En ${dias} d`;
+          proxima = `<span class="${cls} px-2 py-0.5 rounded-full text-[10px] font-bold">${esc(m.proxima_fecha)} · ${txt}</span>`;
+        }
+
+        return `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="px-4 py-3 whitespace-nowrap text-slate-500">${esc(m.fecha)}</td>
+            <td class="px-4 py-3 font-semibold text-slate-700">${esc(equipo)}</td>
+            <td class="px-4 py-3"><span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px] font-bold">${esc(m.tipo || '—')}</span></td>
+            <td class="px-4 py-3 whitespace-nowrap">${proxima}</td>
+            <td class="px-4 py-3">${esc(m.responsable || '—')}</td>
+            <td class="px-4 py-3 text-slate-500 max-w-[260px] truncate" title="${esc(m.observaciones || '')}">${esc(m.observaciones || '—')}</td>
+            <td class="px-4 py-3 text-right">
+              <button onclick="eliminarMantenimiento('${m.id}')" class="text-slate-400 hover:text-red-600" title="Eliminar"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    function abrirModalMantenimiento() {
+      const activos = inventario.filter(i => i.estado !== 'Baja');
+      if (!activos.length) { aviso('Primero agrega equipo al Inventario', 'error'); return; }
+      document.getElementById('mant-inventario').innerHTML = activos.map(i =>
+        `<option value="${i.id}">${esc(i.epp_catalogo?.nombre || '—')}${i.talla ? ' · T. ' + esc(i.talla) : ''}${i.ubicacion ? ' · ' + esc(i.ubicacion) : ''} (${esc(i.estado)})</option>`
+      ).join('');
+      document.getElementById('mant-tipo').value = 'Inspección';
+      document.getElementById('mant-fecha').value = hoyLocal();
+      document.getElementById('mant-proxima').value = '';
+      document.getElementById('mant-estado').value = '';
+      document.getElementById('mant-responsable').value = usuarioActual?.nombre_completo || '';
+      document.getElementById('mant-obs').value = '';
+      abrirModal('modal-mantenimiento');
+    }
+
+    async function guardarMantenimiento() {
+      const inventarioId = document.getElementById('mant-inventario').value;
+      const fecha = document.getElementById('mant-fecha').value;
+      const proxima = document.getElementById('mant-proxima').value || null;
+      if (!inventarioId || !fecha) { aviso('Selecciona el equipo y la fecha', 'error'); return; }
+      if (proxima && proxima < fecha) { aviso('La próxima fecha no puede ser anterior a la fecha del mantenimiento', 'error'); return; }
+
+      const { error } = await supabaseClient.from('epp_mantenimiento').insert({
+        inventario_id: inventarioId,
+        tipo: document.getElementById('mant-tipo').value,
+        fecha,
+        proxima_fecha: proxima,
+        responsable: document.getElementById('mant-responsable').value.trim() || null,
+        observaciones: document.getElementById('mant-obs').value.trim() || null
+      });
+      if (error) { console.error(error); aviso('No se pudo guardar: ' + error.message, 'error'); return; }
+
+      // Si se eligió un nuevo estado, se actualiza el inventario
+      const nuevoEstado = document.getElementById('mant-estado').value;
+      if (nuevoEstado) {
+        const { error: e2 } = await supabaseClient.from('epp_inventario')
+          .update({ estado: nuevoEstado, updated_at: new Date().toISOString() }).eq('id', inventarioId);
+        if (e2) { console.error(e2); aviso('El mantenimiento se guardó, pero no se pudo cambiar el estado: ' + e2.message, 'error'); }
+      }
+
+      cerrarModal('modal-mantenimiento');
+      aviso('Mantenimiento registrado', 'exito');
+      await cargarInventario();
+      await cargarMantenimiento();
+    }
+
+    async function eliminarMantenimiento(id) {
+      if (!await confirmar({
+        titulo: 'Eliminar mantenimiento',
+        mensaje: 'Se borrará este registro de mantenimiento. Esta acción no se puede deshacer.'
+      })) return;
+      const { error } = await supabaseClient.from('epp_mantenimiento').delete().eq('id', id);
+      if (error) { console.error(error); aviso('No se pudo eliminar', 'error'); return; }
+      await cargarMantenimiento();
+    }
+
+        // ══════════ VALE F-SGI-IHS-015 ══════════
+    let filasVale = [];
+    let guardandoVale = false;
+    const MOTIVOS_VALE = ['Entrega inicial', 'Reposición', 'Desgaste', 'Pérdida', 'Daño'];
+
+    function sumarDias(fechaISO, dias) {
+      const d = new Date(fechaISO + 'T12:00:00');
+      d.setDate(d.getDate() + dias);
+      const p = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+    }
+
+    function fmtFecha(iso) {
+      return iso ? iso.split('-').reverse().join('/') : '—';
+    }
+
+    // Cantidad sugerida: inicial → cantidad inicial; reposición programada → cantidad de reposición; desgaste/pérdida/daño → 1
+    function cantidadSugerida(f) {
+      if (f.motivo === 'Entrega inicial') return f.m.cantidad_inicial || 1;
+      if (f.motivo === 'Reposición') return f.m.cantidad_reposicion ?? f.m.cantidad_inicial ?? 1;
+      return 1;
+    }
+
+    function prepararVale() {
+      const sel = document.getElementById('vale-puesto');
+      const actual = sel.value;
+      sel.innerHTML = '<option value="">Selecciona un puesto...</option>' +
+        puestos.filter(p => !p.aplica_a_todos).map(p => `<option value="${p.id}">${esc(p.nombre)}</option>`).join('');
+      if (actual && puestos.some(p => p.id === actual)) sel.value = actual;
+
+      const ent = document.getElementById('vale-entregado');
+      if (!ent.value) ent.value = usuarioActual?.nombre_completo || '';
+
+      poblarTrabajadores();
+      if (filasVale.length) renderVale(); // refresca existencias
+    }
+
+    function poblarTrabajadores() {
+      const nombres = [...new Set(valesLista.map(v => v.trabajador))].sort((a, b) => a.localeCompare(b));
+      document.getElementById('lista-trabajadores').innerHTML = nombres.map(n => `<option value="${esc(n)}">`).join('');
+    }
+
+    function cambiarPuestoVale() {
+      const puestoId = document.getElementById('vale-puesto').value;
+      const motivo = document.getElementById('vale-motivo-general').value;
+      filasVale = [];
+
+      if (puestoId) {
+        const idsTodos = puestos.filter(p => p.aplica_a_todos).map(p => p.id);
+        const propias = matrizDatos.filter(m => m.puesto_id === puestoId);
+        const generales = matrizDatos.filter(m => idsTodos.includes(m.puesto_id) && !propias.some(x => x.epp_id === m.epp_id));
+
+        [...propias.map(m => ({ m, deTodos: false })), ...generales.map(m => ({ m, deTodos: true }))].forEach(({ m, deTodos }) => {
+          const epp = catalogoEPP.find(e => e.id === m.epp_id);
+          if (!epp) return;
+          const f = { epp, m, deTodos, sel: false, talla: '', motivo, cantidad: 1, fecha: hoyLocal() };
+          f.cantidad = cantidadSugerida(f);
+          filasVale.push(f);
+        });
+      }
+      renderVale();
+    }
+
+    function valeMotivoGeneral(motivo) {
+      filasVale.forEach(f => { f.motivo = motivo; f.cantidad = cantidadSugerida(f); });
+      renderVale();
+    }
+
+    function valeMarcarTodos() {
+      if (!filasVale.length) return;
+      const marcar = !filasVale.every(f => f.sel);
+      filasVale.forEach(f => f.sel = marcar);
+      renderVale();
+    }
+
+    function valeToggle(i, on) {
+      filasVale[i].sel = on;
+      renderVale();
+    }
+
+    function valeCampo(i, campo, valor) {
+      const f = filasVale[i];
+      if (campo === 'cantidad') f.cantidad = Math.max(1, parseInt(valor) || 1);
+      else if (campo === 'motivo') { f.motivo = valor; f.cantidad = cantidadSugerida(f); renderVale(); return; }
+      else f[campo] = valor;
+      refrescarInfoVale(i);
+    }
+
+    function stockVale(f) {
+      return inventario
+        .filter(i => i.epp_id === f.epp.id && i.estado === 'Disponible' &&
+          (!f.epp.requiere_talla || (i.talla || '') === (f.talla || '').trim()))
+        .reduce((s, i) => s + (i.stock || 0), 0);
+    }
+
+    function infoVale(f) {
+      if (!f.sel) return '<span class="text-slate-300">—</span>';
+      let stockTxt;
+      if (f.epp.requiere_talla && !(f.talla || '').trim()) {
+        stockTxt = '<span class="text-slate-400">Elige la talla</span>';
+      } else {
+        const s = stockVale(f);
+        stockTxt = s >= f.cantidad
+          ? `<span class="text-emerald-600 font-bold">Stock: ${s}</span>`
+          : `<span class="text-red-600 font-bold">Stock: ${s} (insuficiente)</span>`;
+      }
+      const rep = f.m.reposicion_dias && f.fecha
+        ? `Repone: <b>${fmtFecha(sumarDias(f.fecha, f.m.reposicion_dias))}</b>`
+        : 'Sin fecha (por desgaste)';
+      return `<p class="text-xs">${stockTxt}</p><p class="text-[11px] text-slate-400">${rep}</p>`;
+    }
+
+    function refrescarInfoVale(i) {
+      const el = document.getElementById('vale-info-' + i);
+      if (el) el.innerHTML = infoVale(filasVale[i]);
+    }
+
+    function renderVale() {
+      const tb = document.getElementById('vale-body');
+      const puestoId = document.getElementById('vale-puesto').value;
+
+      if (!puestoId) {
+        tb.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-slate-300">Selecciona un puesto para cargar su equipo</td></tr>';
+        return;
+      }
+      if (!filasVale.length) {
+        tb.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-slate-300">Este puesto no tiene EPP en la matriz. Asígnalo en la pestaña "Matriz por puesto".</td></tr>';
+        return;
+      }
+
+      const inp = 'border border-slate-200 rounded-lg px-2 py-1 text-sm disabled:bg-slate-50 disabled:text-slate-300';
+
+      tb.innerHTML = filasVale.map((f, i) => {
+        const dis = f.sel ? '' : 'disabled';
+        const tallas = [...new Set(inventario
+          .filter(x => x.epp_id === f.epp.id && x.estado === 'Disponible' && (x.stock || 0) > 0 && x.talla)
+          .map(x => x.talla))];
+
+        const celdaTalla = f.epp.requiere_talla
+          ? `<input list="dl-talla-${i}" value="${esc(f.talla)}" ${dis} class="w-24 ${inp}" placeholder="Talla"
+               onchange="valeCampo(${i}, 'talla', this.value)">
+             <datalist id="dl-talla-${i}">${tallas.map(t => `<option value="${esc(t)}">`).join('')}</datalist>`
+          : '<span class="text-slate-300 text-xs">N/A</span>';
+
+        return `
+          <tr class="${f.sel ? 'bg-red-50/40' : ''} hover:bg-slate-50 transition-colors">
+            <td class="px-4 py-3">
+              <input type="checkbox" class="w-4 h-4 accent-[#e31e24] cursor-pointer" ${f.sel ? 'checked' : ''}
+                onchange="valeToggle(${i}, this.checked)">
+            </td>
+            <td class="px-4 py-3">
+              <p class="font-semibold text-slate-700">${esc(f.epp.nombre)}
+                ${f.deTodos ? '<span class="ml-1 bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded text-[9px] font-black uppercase">Todos</span>' : ''}
+              </p>
+              <p class="text-[10px] text-slate-400">${esc(f.m.notas || f.epp.categoria || '')}</p>
+            </td>
+            <td class="px-4 py-3">${celdaTalla}</td>
+            <td class="px-4 py-3">
+              <select ${dis} class="${inp}" onchange="valeCampo(${i}, 'motivo', this.value)">
+                ${MOTIVOS_VALE.map(m => `<option ${m === f.motivo ? 'selected' : ''}>${m}</option>`).join('')}
+              </select>
+            </td>
+            <td class="px-4 py-3">
+              <input type="number" min="1" value="${f.cantidad}" ${dis} class="w-16 ${inp}"
+                onchange="valeCampo(${i}, 'cantidad', this.value)">
+            </td>
+            <td class="px-4 py-3">
+              <input type="date" value="${f.fecha}" ${dis} class="${inp}"
+                onchange="valeCampo(${i}, 'fecha', this.value)">
+            </td>
+            <td id="vale-info-${i}" class="px-4 py-3">${infoVale(f)}</td>
+          </tr>`;
+      }).join('');
+    }
+
+    function limpiarVale() {
+      document.getElementById('vale-trabajador').value = '';
+      document.getElementById('vale-puesto').value = '';
+      document.getElementById('vale-motivo-general').value = 'Entrega inicial';
+      document.getElementById('vale-obs').value = '';
+      filasVale = [];
+      renderVale();
+    }
+
+    async function generarFolio() {
+      const anio = new Date().getFullYear();
+      const { data } = await supabaseClient.from('epp_vales').select('folio')
+        .like('folio', `EPP-${anio}-%`).order('folio', { ascending: false }).limit(1);
+      let n = 1;
+      if (data?.length) n = (parseInt(data[0].folio.split('-')[2]) || 0) + 1;
+      return `EPP-${anio}-${String(n).padStart(4, '0')}`;
+    }
+
+    async function guardarVale() {
+      if (guardandoVale) return;
+
+      const trabajador = document.getElementById('vale-trabajador').value.trim().replace(/\s+/g, ' ');
+      const puestoId = document.getElementById('vale-puesto').value;
+      const entregado = document.getElementById('vale-entregado').value.trim();
+      const elegidas = filasVale.filter(f => f.sel);
+
+      if (!trabajador) { aviso('Escribe el nombre del trabajador', 'error'); return; }
+      if (!puestoId) { aviso('Selecciona el puesto', 'error'); return; }
+      if (!elegidas.length) { aviso('Marca al menos un EPP entregado', 'error'); return; }
+
+      for (const f of elegidas) {
+        if (f.epp.requiere_talla && !(f.talla || '').trim()) { aviso(`Falta la talla de: ${f.epp.nombre}`, 'error'); return; }
+        if (!f.fecha) { aviso(`Falta la fecha de entrega de: ${f.epp.nombre}`, 'error'); return; }
+        if (!(f.cantidad >= 1)) { aviso(`Cantidad inválida en: ${f.epp.nombre}`, 'error'); return; }
+      }
+
+      // Plan de descuento de inventario
+      const plan = elegidas.map(f => {
+        const talla = f.epp.requiere_talla ? f.talla.trim() : null;
+        const reg = inventario.find(i => i.epp_id === f.epp.id && i.estado === 'Disponible' && (i.talla || '') === (talla || ''));
+        return { f, talla, reg, ok: !!reg && reg.stock >= f.cantidad };
+      });
+
+      const sinStock = plan.filter(p => !p.ok);
+      if (sinStock.length) {
+        const lista = sinStock.map(p => p.f.epp.nombre + (p.talla ? ' T.' + p.talla : '')).join(', ');
+        const seguir = await confirmar({
+          titulo: 'Inventario insuficiente',
+          mensaje: `No hay existencias suficientes (o no están registradas) de: ${lista}. El vale se guardará, pero no se descontará inventario de esos equipos. ¿Continuar?`,
+          textoAceptar: 'Guardar vale',
+          tipo: 'aviso'
+        });
+        if (!seguir) return;
+      }
+
+      guardandoVale = true;
+      const btn = document.getElementById('btn-guardar-vale');
+      btn.disabled = true;
+
+      try {
+        // 1. Encabezado con folio (reintenta si dos personas generan el mismo folio)
+        const puesto = puestos.find(p => p.id === puestoId);
+        let vale = null;
+        for (let intento = 0; intento < 3 && !vale; intento++) {
+          const folio = await generarFolio();
+          const { data, error } = await supabaseClient.from('epp_vales').insert({
+            folio,
+            trabajador,
+            puesto_id: puestoId,
+            puesto_nombre: puesto?.nombre || null,
+            entregado_por: entregado || null,
+            observaciones: document.getElementById('vale-obs').value.trim() || null
+          }).select().single();
+          if (!error) vale = data;
+          else if (error.code !== '23505') throw error;
+        }
+        if (!vale) throw new Error('No se pudo generar el folio');
+
+        // 2. Detalle
+        const detalle = plan.map(p => ({
+          vale_id: vale.id,
+          epp_id: p.f.epp.id,
+          epp_nombre: p.f.epp.nombre,
+          talla: p.talla,
+          cantidad: p.f.cantidad,
+          fecha_entrega: p.f.fecha,
+          fecha_reposicion: p.f.m.reposicion_dias ? sumarDias(p.f.fecha, p.f.m.reposicion_dias) : null,
+          motivo: p.f.motivo
+        }));
+        const { error: eDet } = await supabaseClient.from('epp_vales_detalle').insert(detalle);
+        if (eDet) {
+          await supabaseClient.from('epp_vales').delete().eq('id', vale.id); // deshacer el encabezado
+          throw eDet;
+        }
+
+        // 3. Descontar inventario
+        let falloInventario = false;
+        for (const p of plan.filter(p => p.ok)) {
+          const { error } = await supabaseClient.from('epp_inventario')
+            .update({ stock: p.reg.stock - p.f.cantidad, updated_at: new Date().toISOString() })
+            .eq('id', p.reg.id);
+          if (error) { console.error(error); falloInventario = true; }
+        }
+
+        aviso(`Vale ${vale.folio} guardado correctamente`, 'exito');
+        if (falloInventario) aviso('El vale se guardó, pero no se pudo descontar parte del inventario. Revísalo en la pestaña Inventario.', 'error');
+
+        limpiarVale();
+        await cargarInventario();
+        await cargarVales();
+      } catch (e) {
+        console.error(e);
+        aviso('No se pudo guardar el vale: ' + (e.message || ''), 'error');
+      } finally {
+        guardandoVale = false;
+        btn.disabled = false;
+      }
+    }
+
+    // ══════════ HISTORIAL DE VALES ══════════
+    let valesLista = [];
+
+    async function cargarVales() {
+      const { data, error } = await supabaseClient
+        .from('epp_vales')
+        .select('*, epp_vales_detalle(*)')
+        .order('created_at', { ascending: false })
+        .limit(500);
+      if (error) { console.error(error); aviso('Error al cargar el historial de vales', 'error'); return; }
+      valesLista = data || [];
+      renderVales();
+      poblarTrabajadores();
+    }
+
+    function renderVales() {
+      const tb = document.getElementById('vales-body');
+      const q = (document.getElementById('vales-buscar')?.value || '').toLowerCase().trim();
+
+      const lista = valesLista.filter(v => !q ||
+        (v.folio || '').toLowerCase().includes(q) ||
+        (v.trabajador || '').toLowerCase().includes(q) ||
+        (v.puesto_nombre || '').toLowerCase().includes(q));
+
+      if (!lista.length) {
+        tb.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-slate-300">Sin vales registrados</td></tr>';
+        return;
+      }
+
+      tb.innerHTML = lista.map(v => {
+        const items = v.epp_vales_detalle || [];
+        const nombres = items.map(d => `${d.epp_nombre} ×${d.cantidad}`).join(', ');
+        return `
+          <tr class="hover:bg-slate-50 transition-colors cursor-pointer" onclick="verVale('${v.id}')">
+            <td class="px-4 py-3 font-mono font-bold text-slate-700 whitespace-nowrap">${esc(v.folio)}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-slate-500">${new Date(v.created_at).toLocaleDateString('es-MX')}</td>
+            <td class="px-4 py-3 font-semibold text-slate-700">${esc(v.trabajador)}</td>
+            <td class="px-4 py-3">${esc(v.puesto_nombre || '—')}</td>
+            <td class="px-4 py-3 text-slate-500 max-w-[280px] truncate" title="${esc(nombres)}">
+              <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px] font-bold mr-1">${items.length}</span>${esc(nombres)}
+            </td>
+            <td class="px-4 py-3">${esc(v.entregado_por || '—')}</td>
+            <td class="px-4 py-3 text-right text-slate-300"><i class="fas fa-chevron-right text-xs"></i></td>
+          </tr>`;
+      }).join('');
+    }
+
+    function verVale(id) {
+      const v = valesLista.find(x => x.id === id);
+      if (!v) return;
+      document.getElementById('vd-folio').textContent = v.folio;
+      document.getElementById('vd-trabajador').textContent = v.trabajador;
+      document.getElementById('vd-puesto').textContent = v.puesto_nombre || '—';
+      document.getElementById('vd-entregado').textContent = v.entregado_por || '—';
+      document.getElementById('vd-fecha').textContent = new Date(v.created_at).toLocaleString('es-MX');
+      document.getElementById('vd-obs').textContent = v.observaciones ? 'Observaciones: ' + v.observaciones : '';
+      document.getElementById('vd-detalle').innerHTML = (v.epp_vales_detalle || []).map(d => `
+        <tr>
+          <td class="px-3 py-2 font-semibold text-slate-700">${esc(d.epp_nombre)}</td>
+          <td class="px-3 py-2">${esc(d.talla || '—')}</td>
+          <td class="px-3 py-2">${d.cantidad}</td>
+          <td class="px-3 py-2">${esc(d.motivo || '—')}</td>
+          <td class="px-3 py-2 whitespace-nowrap">${fmtFecha(d.fecha_entrega)}</td>
+          <td class="px-3 py-2 whitespace-nowrap">${d.fecha_reposicion ? fmtFecha(d.fecha_reposicion) : '<span class="text-slate-300">—</span>'}</td>
+        </tr>`).join('');
+      abrirModal('modal-vale-detalle');
+    }
+
+    // ── Sesión y permisos (solo admin y QHSE) ──
+    let usuarioActual = null;
+
+    async function iniciarEPP() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) { window.location.href = 'intranet-login.html'; return; }
+
+      const { data: perfil } = await supabaseClient
+        .from('perfiles').select('*').eq('id', session.user.id).single();
+
+      const rolesPermitidos = ['admin', 'administrador', 'Administrador', 'QHSE', 'qhse'];
+      if (!perfil || !rolesPermitidos.includes(perfil.rol)) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      usuarioActual = perfil;
+
+      // Cargar catálogo, puestos y matriz (los usan varias pestañas)
+      await cargarBaseEPP();
+      await cargarInventario();
+      await cargarMantenimiento();
+      await cargarVales();
+
+      // Recordar la última pestaña usada
+      let tab = 'kpis';
+      try { tab = localStorage.getItem('eppTabActual') || 'kpis'; } catch (e) {}
+      cambiarTab(tab);
+    }
+  </script>
+</body>
+</html>

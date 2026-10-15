@@ -357,6 +357,12 @@
           <h4 class="text-lg font-bold text-slate-800 mb-2 relative z-10">Personal por Contrato</h4>
           <p class="text-slate-500 text-sm leading-relaxed relative z-10">Asignación de personal por contrato.</p>
         </a>
+        <a id="card-epp" href="epp.html"
+          class="hidden group relative p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl transition-all cursor-pointer overflow-hidden">
+          <i class="fas fa-helmet-safety text-[#e31e24] text-4xl mb-6 relative z-10"></i>
+          <h4 class="text-lg font-bold text-slate-800 mb-2 relative z-10">Control de EPP</h4>
+          <p class="text-slate-500 text-sm leading-relaxed relative z-10">Vales de resguardo, matriz por puesto, inventario y reposición de equipo de protección personal.</p>
+        </a>
       </div>
     </div>
 
@@ -1294,6 +1300,7 @@
           document.getElementById('card-eval-calidad')?.classList.remove('hidden');
           document.getElementById('card-examenes-medicos')?.classList.remove('hidden');
           document.getElementById('card-personal-contratos')?.classList.remove('hidden');
+          document.getElementById('card-epp')?.classList.remove('hidden');
           revisarExamenesMedicos();
 
           // ── Reordenar tarjetas: prioridad QHSE arriba ──
@@ -1309,7 +1316,8 @@
             'card-politicas': 9,
             'card-formatos': 10,
             'card-directorio': 11,
-            'card-accesos': 12
+            'card-accesos': 12,
+            'card-epp': 13
           };
           Object.entries(ordenQHSE).forEach(([id, orden]) => {
             const el = document.getElementById(id);
