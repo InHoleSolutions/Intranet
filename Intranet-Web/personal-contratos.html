@@ -23,6 +23,10 @@
     .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .fade-in { animation: fadeIn 0.25s ease-out both; }
+
+    /* Líneas verticales ligeras entre columnas */
+    tbody td { border-left: 1px solid #f8f7f7; }
+    tbody td:first-child { border-left: none; }
   </style>
 </head>
 <body class="bg-[#f8fafc] min-h-screen flex flex-col">
@@ -344,15 +348,15 @@
             : '<span class="text-slate-300">—</span>';
           const celdaCliente = i === 0
             ? `<td rowspan="${items.length}" class="px-4 py-3 font-black text-slate-800 align-middle border-r border-slate-100 bg-slate-50">${esc(cliente)}</td>` : '';
-          return `<tr class="border-t border-slate-100 hover:bg-slate-50/60 transition">
+          return `<tr class="border-t-2 border-slate-300 hover:bg-slate-50/60 transition">
             ${celdaCliente}
             <td class="px-2 py-3 font-semibold align-middle">${esc(c.numero_contrato)}</td>
-            <td class="px-4 py-3 align-top">${esc(c.alcance) || '<span class="text-slate-300">—</span>'}</td>
-            <td class="px-4 py-3 align-top font-semibold">${esc(c.servicio) || '<span class="text-slate-300">—</span>'}</td>
-            <td colspan="2" class="px-4 py-3 align-top">${personal}</td>
-            <td class="px-4 py-3 align-top">${reqs}</td>
-            <td class="px-2 py-3 align-top whitespace-nowrap">${formatearFecha(c.fecha_alta)}</td>
-            <td class="px-2 py-3 align-top">
+            <td class="px-4 py-3 align-middle">${esc(c.alcance) || '<span class="text-slate-300">—</span>'}</td>
+            <td class="px-4 py-3 align-middle font-semibold">${esc(c.servicio) || '<span class="text-slate-300">—</span>'}</td>
+            <td colspan="2" class="px-4 py-3 align-middle">${personal}</td>
+            <td class="px-4 py-3 align-middle">${reqs}</td>
+            <td class="px-2 py-3 align-middle whitespace-nowrap">${formatearFecha(c.fecha_alta)}</td>
+            <td class="px-2 py-3 align-middle">
               <div class="flex flex-col items-center gap-3">
                 <button data-editar="${c.id}" class="text-slate-400 hover:text-blue-600" title="Editar"><i class="fas fa-pen"></i></button>
                 <button data-borrar="${c.id}" class="text-slate-400 hover:text-[#e31e24]" title="Eliminar"><i class="fas fa-trash"></i></button>
