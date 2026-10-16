@@ -27,6 +27,7 @@
     /* Líneas verticales ligeras entre columnas */
     tbody td { border-left: 1px solid #f8f7f7; }
     tbody td:first-child { border-left: none; }
+    tbody td { padding-top: 14px; padding-bottom: 14px; }
   </style>
 </head>
 <body class="bg-[#f8fafc] min-h-screen flex flex-col">
@@ -82,10 +83,10 @@
           <colgroup>
             <col style="width:125px"> <!-- Cliente -->
             <col style="width:95px"> <!-- No. Contrato -->
-            <col style="width:200px"> <!-- Alcance -->
-            <col style="width:230px"> <!-- Servicio -->
-            <col style="width:150px"> <!-- Personal IHS -->
-            <col style="width:180px"> <!-- Puesto -->
+            <col style="width:190px"> <!-- Alcance -->
+            <col style="width:190px"> <!-- Servicio -->
+            <col style="width:160px"> <!-- Personal IHS -->
+            <col style="width:220px"> <!-- Puesto -->
             <col style="width:240px"> <!-- Requisitos -->
             <col style="width:90px"> <!-- Fecha alta -->
             <col style="width:70px">  <!-- Acciones -->
@@ -339,20 +340,20 @@
         items.map((c, i) => {
           const equipo = c.personal_puestos || [];
           const personal = equipo.length
-            ? `<div class="grid grid-cols-[126px_1fr] gap-x-4 gap-y-1">${equipo.map(p => `
+            ? `<div class="grid grid-cols-[126px_1fr] gap-x-4 gap-y-2 items-center">${equipo.map(p => `
                 <span class="flex items-center gap-2 min-h-[2.75rem] bg-slate-100 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-700"><i class="fas fa-user text-[10px] text-slate-400"></i>${esc(p.nombre)}</span>
-                <div class="flex items-center text-xs font-semibold text-slate-600">${esc(p.puesto) || '<span class="text-slate-300">—</span>'}</div>`).join('')}</div>`
+                <div class="flex items-center text-xs leading-snug font-semibold text-slate-700">${esc(p.puesto) || '<span class="text-slate-300">—</span>'}</div>`).join('')}</div>`
             : '<span class="text-slate-300 text-xs italic">Sin asignar</span>';
           const reqs = (c.requisitos || []).length
-            ? `<div class="flex flex-wrap gap-1">${c.requisitos.map(r => `<span class="bg-amber-50 border border-amber-200 text-amber-800 rounded-lg px-2 py-0.5 text-xs font-semibold">${esc(r)}</span>`).join('')}</div>`
+            ? `<div class="flex flex-wrap gap-1">${c.requisitos.map(r => `<span class="bg-amber-50 border border-amber-200 text-amber-800 rounded-md px-1.5 py-px text-[11px] leading-tight font-semibold">${esc(r)}</span>`).join('')}</div>`
             : '<span class="text-slate-300">—</span>';
           const celdaCliente = i === 0
             ? `<td rowspan="${items.length}" class="px-4 py-3 font-black text-slate-800 align-middle border-r border-slate-100 bg-slate-50">${esc(cliente)}</td>` : '';
           return `<tr class="border-t-2 border-slate-300 hover:bg-slate-50/60 transition">
             ${celdaCliente}
             <td class="px-2 py-3 font-semibold align-middle">${esc(c.numero_contrato)}</td>
-            <td class="px-4 py-3 align-middle">${esc(c.alcance) || '<span class="text-slate-300">—</span>'}</td>
-            <td class="px-4 py-3 align-middle font-semibold">${esc(c.servicio) || '<span class="text-slate-300">—</span>'}</td>
+            <td class="px-4 py-3 align-middle text-[13px] leading-snug text-slate-600">${esc(c.alcance) || '<span class="text-slate-300">—</span>'}</td>
+            <td class="px-4 py-3 align-middle text-[13px] leading-snug font-semibold text-slate-800">${esc(c.servicio) || '<span class="text-slate-300">—</span>'}</td>
             <td colspan="2" class="px-4 py-3 align-middle">${personal}</td>
             <td class="px-4 py-3 align-middle">${reqs}</td>
             <td class="px-2 py-3 align-middle whitespace-nowrap">${formatearFecha(c.fecha_alta)}</td>
