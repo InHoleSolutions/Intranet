@@ -23,6 +23,28 @@
     .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     .input-ihs { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 9px 12px; font-size: 14px; background: #f8fafc; outline: none; }
     .input-ihs:focus { border-color: #e31e24; background: #fff; }
+
+    /* ── Impresión del vale ── */
+    #area-impresion { display: none; }
+    @media print {
+      @page { size: letter portrait; margin: 0; }
+      body > *:not(#area-impresion) { display: none !important; }
+      body { background: #fff !important; display: block !important; }
+      #area-impresion { display: block !important; padding: 12mm; box-sizing: border-box; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+    .vp { font-family: 'Calibri', 'Carlito', Arial, sans-serif; color: #111; font-size: 11px; }
+    .vp table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .vp td, .vp th { border: 1px solid #444; padding: 4px 8px; vertical-align: middle; }
+    .vp .barra { background: #1e2433; color: #fff; font-weight: 700; text-transform: uppercase; text-align: left; font-size: 11px; }
+    .vp .sub { background: #e5e7eb; font-weight: 700; text-align: center; }
+    .vp .c { text-align: center; }
+    .vp .gris { font-size: 10px; color: #333; }
+    .vp .rojo { color: #b91c1c; }
+    .vp .fila { height: 30px; }
+    .vp .fila td { padding: 0 8px; }
+    .vp .pie { font-size: 7px; line-height: 1.3; margin-top: 18px; }
+    .vp .pie p { margin: 0; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -77,7 +99,151 @@
       <div class="bg-white rounded-b-3xl border border-slate-200 shadow-sm p-6 md:p-8 min-h-[400px]">
 
         <section id="tab-kpis" class="tab-panel activo">
-          <p class="text-slate-400 text-sm">KPIs (Paso 7)</p>
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+            <div>
+              <h3 class="text-lg font-bold text-slate-800">Indicadores de EPP</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Cumplimiento de entregas, reposiciones próximas, pérdidas y disponibilidad.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Periodo</label>
+              <select id="kpi-periodo" onchange="renderKPIs()" class="input-ihs !w-auto">
+                <option value="3">Últimos 3 meses</option>
+                <option value="6">Últimos 6 meses</option>
+                <option value="12" selected>Últimos 12 meses</option>
+                <option value="0">Todo el historial</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Tarjetas principales -->
+          <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+            <div class="rounded-2xl bg-slate-50 border border-slate-100 p-5">
+              <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Entregas en tiempo</p>
+              <p id="kpi-cumpl" class="text-4xl font-black text-slate-800 mt-1">—</p>
+              <p id="kpi-cumpl-det" class="text-[11px] text-slate-400 mt-2"></p>
+            </div>
+            <div class="rounded-2xl bg-amber-50 border border-amber-100 p-5">
+              <p class="text-[10px] font-black uppercase tracking-widest text-amber-500">Próximos a reposición</p>
+              <p id="kpi-proximos" class="text-4xl font-black text-amber-600 mt-1">0</p>
+              <p id="kpi-proximos-det" class="text-[11px] text-amber-500 mt-2"></p>
+            </div>
+            <div class="rounded-2xl bg-red-50 border border-red-100 p-5">
+              <p class="text-[10px] font-black uppercase tracking-widest text-red-400">Reposición vencida</p>
+              <p id="kpi-vencidos" class="text-4xl font-black text-red-600 mt-1">0</p>
+              <p id="kpi-vencidos-det" class="text-[11px] text-red-400 mt-2"></p>
+            </div>
+            <div class="rounded-2xl bg-slate-50 border border-slate-100 p-5">
+              <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Pérdidas frecuentes</p>
+              <p id="kpi-perdidas" class="text-4xl font-black text-slate-800 mt-1">0</p>
+              <p id="kpi-perdidas-det" class="text-[11px] text-slate-400 mt-2"></p>
+            </div>
+          </div>
+
+          <!-- Gráficas -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="rounded-2xl border border-slate-100 p-5">
+              <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Estado de las reposiciones programadas</p>
+              <div class="relative h-64">
+                <canvas id="kpi-graf-estado"></canvas>
+                <p id="kpi-estado-vacio" class="hidden absolute inset-0 flex items-center justify-center text-sm text-slate-300 text-center px-6">Aún no hay reposiciones programadas</p>
+              </div>
+            </div>
+            <div class="rounded-2xl border border-slate-100 p-5">
+              <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Pérdidas y daños por EPP (piezas)</p>
+              <div class="relative h-64">
+                <canvas id="kpi-graf-perdidas"></canvas>
+                <p id="kpi-perdidas-vacio" class="hidden absolute inset-0 flex items-center justify-center text-sm text-slate-300 text-center px-6">Sin pérdidas ni daños en el periodo</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Personal próximo / vencido -->
+          <div class="mb-8">
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">
+              <i class="fas fa-calendar-check mr-1"></i>Personal con reposición vencida o próxima (30 días)
+            </p>
+            <div class="table-container overflow-x-auto rounded-2xl border border-slate-100">
+              <table class="w-full text-sm text-left">
+                <thead class="bg-slate-50 text-slate-400 uppercase tracking-widest text-[10px] font-black">
+                  <tr>
+                    <th class="px-4 py-3">Estado</th>
+                    <th class="px-4 py-3">Trabajador</th>
+                    <th class="px-4 py-3">Puesto</th>
+                    <th class="px-4 py-3">EPP por reponer</th>
+                    <th class="px-4 py-3">Fecha más próxima</th>
+                  </tr>
+                </thead>
+                <tbody id="kpi-tabla-repo" class="divide-y divide-slate-100 text-slate-600">
+                  <tr><td colspan="5" class="px-4 py-6 text-center text-slate-300">Cargando...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Personal con pérdidas -->
+          <div class="mb-8">
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">
+              <i class="fas fa-triangle-exclamation mr-1"></i>Personal con más pérdidas y daños
+              <span class="normal-case tracking-normal font-semibold text-slate-300">(Alto = 3 o más piezas)</span>
+            </p>
+            <div class="table-container overflow-x-auto rounded-2xl border border-slate-100">
+              <table class="w-full text-sm text-left">
+                <thead class="bg-slate-50 text-slate-400 uppercase tracking-widest text-[10px] font-black">
+                  <tr>
+                    <th class="px-4 py-3">Nivel</th>
+                    <th class="px-4 py-3">Trabajador</th>
+                    <th class="px-4 py-3">Puesto</th>
+                    <th class="px-4 py-3 text-center">Pérdida</th>
+                    <th class="px-4 py-3 text-center">Daño</th>
+                    <th class="px-4 py-3 text-center">Total</th>
+                    <th class="px-4 py-3 text-center">Desgaste</th>
+                  </tr>
+                </thead>
+                <tbody id="kpi-tabla-perdidas" class="divide-y divide-slate-100 text-slate-600">
+                  <tr><td colspan="7" class="px-4 py-6 text-center text-slate-300">Cargando...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Disponibilidad -->
+          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">
+            <i class="fas fa-boxes-stacked mr-1"></i>Disponibilidad, estado y mantenimiento
+          </p>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div class="rounded-2xl bg-red-50 border border-red-100 p-4">
+              <p class="text-[10px] font-black uppercase tracking-widest text-red-400">Bajo stock mínimo</p>
+              <p id="kpi-disp-bajo" class="text-3xl font-black text-red-600 mt-1">0</p>
+            </div>
+            <div class="rounded-2xl bg-amber-50 border border-amber-100 p-4">
+              <p class="text-[10px] font-black uppercase tracking-widest text-amber-500">En mantenimiento</p>
+              <p id="kpi-disp-mant" class="text-3xl font-black text-amber-600 mt-1">0</p>
+            </div>
+            <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+              <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Dañado / Baja</p>
+              <p id="kpi-disp-danado" class="text-3xl font-black text-slate-700 mt-1">0</p>
+            </div>
+            <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+              <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Mantenimientos vencidos</p>
+              <p id="kpi-disp-mantvenc" class="text-3xl font-black text-slate-700 mt-1">0</p>
+            </div>
+          </div>
+          <div class="table-container overflow-x-auto rounded-2xl border border-slate-100">
+            <table class="w-full text-sm text-left">
+              <thead class="bg-slate-50 text-slate-400 uppercase tracking-widest text-[10px] font-black">
+                <tr>
+                  <th class="px-4 py-3">Equipo con stock bajo</th>
+                  <th class="px-4 py-3">Talla</th>
+                  <th class="px-4 py-3 text-center">Stock</th>
+                  <th class="px-4 py-3 text-center">Mínimo</th>
+                  <th class="px-4 py-3">Ubicación</th>
+                </tr>
+              </thead>
+              <tbody id="kpi-tabla-bajo" class="divide-y divide-slate-100 text-slate-600">
+                <tr><td colspan="5" class="px-4 py-6 text-center text-slate-300">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <section id="tab-vale" class="tab-panel">
@@ -90,7 +256,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
               <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Nombre del trabajador</label>
-              <input id="vale-trabajador" list="lista-trabajadores" class="input-ihs mt-1" placeholder="Nombre completo" autocomplete="off">
+              <input id="vale-trabajador" list="lista-trabajadores" class="input-ihs mt-1" placeholder="Escribe y elige de la lista..." autocomplete="off" onchange="validarTrabajadorVale()">
               <datalist id="lista-trabajadores"></datalist>
             </div>
             <div>
@@ -183,7 +349,82 @@
         </section>
 
         <section id="tab-reposicion" class="tab-panel">
-          <p class="text-slate-400 text-sm">Calendario de reposición (Paso 6)</p>
+          <div class="mb-5">
+            <h3 class="text-lg font-bold text-slate-800">Calendario de reposición</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Fechas programadas según la última entrega de cada trabajador. Solo incluye EPP con periodo de reposición en la matriz.</p>
+          </div>
+
+          <!-- Resumen -->
+          <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="rounded-2xl bg-red-50 border border-red-100 p-4">
+              <p class="text-[10px] font-black uppercase tracking-widest text-red-400">Vencidos</p>
+              <p id="repo-kpi-vencidos" class="text-3xl font-black text-red-600 mt-1">0</p>
+            </div>
+            <div class="rounded-2xl bg-amber-50 border border-amber-100 p-4">
+              <p class="text-[10px] font-black uppercase tracking-widest text-amber-500">Próximos (30 días)</p>
+              <p id="repo-kpi-proximos" class="text-3xl font-black text-amber-600 mt-1">0</p>
+            </div>
+            <div class="rounded-2xl bg-emerald-50 border border-emerald-100 p-4">
+              <p class="text-[10px] font-black uppercase tracking-widest text-emerald-500">En tiempo</p>
+              <p id="repo-kpi-entiempo" class="text-3xl font-black text-emerald-600 mt-1">0</p>
+            </div>
+          </div>
+
+          <!-- Calendario mensual -->
+          <div class="max-w-2xl mb-8">
+            <div class="flex items-center justify-between mb-3">
+              <button onclick="repoCambiarMes(-1)" class="h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
+                <i class="fas fa-chevron-left text-slate-500 text-xs"></i>
+              </button>
+              <p id="repo-mes-titulo" class="text-sm font-black uppercase tracking-widest text-slate-700"></p>
+              <button onclick="repoCambiarMes(1)" class="h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
+                <i class="fas fa-chevron-right text-slate-500 text-xs"></i>
+              </button>
+            </div>
+            <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">
+              <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
+            </div>
+            <div id="repo-calendario" class="grid grid-cols-7 gap-1"></div>
+            <div class="flex flex-wrap items-center gap-4 mt-3 text-[10px] font-bold text-slate-400">
+              <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-red-200 inline-block"></span> Vencido</span>
+              <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-amber-200 inline-block"></span> Próximo</span>
+              <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-200 inline-block"></span> En tiempo</span>
+              <span>Haz clic en un día para filtrar la lista.</span>
+            </div>
+          </div>
+
+          <!-- Filtros -->
+          <div class="flex flex-wrap items-center gap-3 mb-4">
+            <input id="repo-buscar" oninput="renderReposicionLista()" class="input-ihs max-w-xs" placeholder="Buscar trabajador, puesto o EPP...">
+            <select id="repo-filtro-estado" onchange="renderReposicionLista()" class="input-ihs max-w-[200px]">
+              <option value="">Todos los estados</option>
+              <option>Vencido</option>
+              <option>Próximo</option>
+              <option>En tiempo</option>
+            </select>
+            <button id="repo-quitar-dia" onclick="repoSeleccionarDia(null)" class="hidden text-xs font-bold text-[#e31e24] bg-red-50 px-3 py-2 rounded-xl hover:bg-red-100 transition">
+              <i class="fas fa-xmark mr-1"></i><span id="repo-dia-texto"></span>
+            </button>
+          </div>
+
+          <div class="table-container overflow-x-auto rounded-2xl border border-slate-100">
+            <table class="w-full text-sm text-left">
+              <thead class="bg-slate-50 text-slate-400 uppercase tracking-widest text-[10px] font-black">
+                <tr>
+                  <th class="px-4 py-3">Estado</th>
+                  <th class="px-4 py-3">Trabajador</th>
+                  <th class="px-4 py-3">Puesto</th>
+                  <th class="px-4 py-3">EPP</th>
+                  <th class="px-4 py-3">Última entrega</th>
+                  <th class="px-4 py-3">Reposición</th>
+                  <th class="px-4 py-3 w-28"></th>
+                </tr>
+              </thead>
+              <tbody id="repo-body" class="divide-y divide-slate-100 text-slate-600">
+                <tr><td colspan="7" class="px-4 py-8 text-center text-slate-300">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <section id="tab-matriz" class="tab-panel">
@@ -525,7 +766,12 @@
           <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">F-SGI-IHS-015 · Resguardo de EPP</p>
           <h3 id="vd-folio" class="text-xl font-black text-slate-800 mt-1">—</h3>
         </div>
-        <button onclick="cerrarModal('modal-vale-detalle')" class="text-slate-400 hover:text-slate-700"><i class="fas fa-times"></i></button>
+        <div class="flex items-center gap-3">
+          <button onclick="imprimirVale(valeActualId)" class="bg-[#e31e24] hover:bg-[#b3161b] text-white text-[10px] font-black uppercase tracking-widest px-3 py-2 rounded-lg transition">
+            <i class="fas fa-print mr-1"></i>Imprimir / PDF
+          </button>
+          <button onclick="cerrarModal('modal-vale-detalle')" class="text-slate-400 hover:text-slate-700"><i class="fas fa-times"></i></button>
+        </div>
       </div>
       <div class="grid grid-cols-2 gap-3 text-sm mb-4">
         <div><p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Trabajador</p><p id="vd-trabajador" class="font-semibold text-slate-700"></p></div>
@@ -560,6 +806,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Área de impresión del vale -->
+  <div id="area-impresion"></div>
 
   <!-- Supabase -->
   <script type="module">
@@ -605,6 +854,8 @@
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('activo', p.id === 'tab-' + nombre));
       try { localStorage.setItem('eppTabActual', nombre); } catch (e) {}
       if (nombre === 'vale') prepararVale();
+      if (nombre === 'reposicion') renderReposicion();
+      if (nombre === 'kpis') renderKPIs();
     }
 
         // ══════════ UTILIDADES ══════════
@@ -963,6 +1214,7 @@
         (a.epp_catalogo?.nombre || '').localeCompare(b.epp_catalogo?.nombre || '') ||
         String(a.talla || '').localeCompare(String(b.talla || ''), undefined, { numeric: true }));
       renderInventario();
+      renderKPIs();
     }
 
     function esBajoMinimo(i) {
@@ -1099,6 +1351,7 @@
       if (error) { console.error(error); aviso('Error al cargar mantenimientos', 'error'); return; }
       mantenimientos = data || [];
       renderMantenimiento();
+      renderKPIs();
     }
 
     function renderMantenimiento() {
@@ -1229,9 +1482,54 @@
       if (filasVale.length) renderVale(); // refresca existencias
     }
 
+    // Quita acentos, mayúsculas y espacios dobles para comparar nombres
+    function normalizarNombre(n) {
+      return String(n || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ').trim().toLowerCase();
+    }
+
+    let trabajadoresLista = [];   // [{ nombre }]
+
+    // Une perfiles.nombre_completo + cap_hse_empleados.nombre sin repetir
+    async function cargarTrabajadores() {
+      const [r1, r2] = await Promise.all([
+        supabaseClient.from('perfiles').select('nombre_completo'),
+        supabaseClient.from('cap_hse_empleados').select('nombre')
+      ]);
+      if (r1.error) console.error('perfiles:', r1.error);
+      if (r2.error) console.error('cap_hse_empleados:', r2.error);
+
+      const mapa = new Map();
+      const agregar = (nombre) => {
+        const limpio = String(nombre || '').replace(/\s+/g, ' ').trim();
+        if (!limpio) return;
+        const clave = normalizarNombre(limpio);
+        if (!mapa.has(clave)) mapa.set(clave, { nombre: limpio }); // si ya existe, se omite
+      };
+
+      (r1.data || []).forEach(p => agregar(p.nombre_completo));  // perfiles tiene prioridad
+      (r2.data || []).forEach(e => agregar(e.nombre));
+
+      trabajadoresLista = [...mapa.values()].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+      poblarTrabajadores();
+    }
+
     function poblarTrabajadores() {
-      const nombres = [...new Set(valesLista.map(v => v.trabajador))].sort((a, b) => a.localeCompare(b));
-      document.getElementById('lista-trabajadores').innerHTML = nombres.map(n => `<option value="${esc(n)}">`).join('');
+      document.getElementById('lista-trabajadores').innerHTML =
+        trabajadoresLista.map(t => `<option value="${esc(t.nombre)}">`).join('');
+    }
+
+    // Al salir del campo: si coincide con alguien de la lista, se pone el nombre oficial
+    function validarTrabajadorVale() {
+      const inp = document.getElementById('vale-trabajador');
+      const escrito = inp.value.trim();
+      if (!escrito) return;
+      const t = trabajadoresLista.find(x => normalizarNombre(x.nombre) === normalizarNombre(escrito));
+      if (t) {
+        inp.value = t.nombre;
+      } else {
+        aviso('Ese nombre no está registrado. Elige un trabajador de la lista.', 'error');
+      }
     }
 
     function cambiarPuestoVale() {
@@ -1388,12 +1686,15 @@
     async function guardarVale() {
       if (guardandoVale) return;
 
-      const trabajador = document.getElementById('vale-trabajador').value.trim().replace(/\s+/g, ' ');
+      const escrito = document.getElementById('vale-trabajador').value.trim();
+      const encontrado = trabajadoresLista.find(t => normalizarNombre(t.nombre) === normalizarNombre(escrito));
+      const trabajador = encontrado ? encontrado.nombre : '';
       const puestoId = document.getElementById('vale-puesto').value;
       const entregado = document.getElementById('vale-entregado').value.trim();
       const elegidas = filasVale.filter(f => f.sel);
 
-      if (!trabajador) { aviso('Escribe el nombre del trabajador', 'error'); return; }
+      if (!escrito) { aviso('Selecciona al trabajador', 'error'); return; }
+      if (!trabajador) { aviso('Ese trabajador no está registrado. Elígelo de la lista.', 'error'); return; }
       if (!puestoId) { aviso('Selecciona el puesto', 'error'); return; }
       if (!elegidas.length) { aviso('Marca al menos un EPP entregado', 'error'); return; }
 
@@ -1477,6 +1778,15 @@
         limpiarVale();
         await cargarInventario();
         await cargarVales();
+        await cargarTrabajadores();
+
+        const imprimir = await confirmar({
+          titulo: 'Vale guardado',
+          mensaje: `¿Quieres imprimir el vale ${vale.folio} para la firma del trabajador?`,
+          textoAceptar: 'Imprimir',
+          tipo: 'aviso'
+        });
+        if (imprimir) await imprimirVale(vale.id);
       } catch (e) {
         console.error(e);
         aviso('No se pudo guardar el vale: ' + (e.message || ''), 'error');
@@ -1499,6 +1809,8 @@
       valesLista = data || [];
       renderVales();
       poblarTrabajadores();
+      renderReposicion();
+      renderKPIs();
     }
 
     function renderVales() {
@@ -1536,6 +1848,7 @@
     function verVale(id) {
       const v = valesLista.find(x => x.id === id);
       if (!v) return;
+      valeActualId = id;
       document.getElementById('vd-folio').textContent = v.folio;
       document.getElementById('vd-trabajador').textContent = v.trabajador;
       document.getElementById('vd-puesto').textContent = v.puesto_nombre || '—';
@@ -1554,7 +1867,608 @@
       abrirModal('modal-vale-detalle');
     }
 
-    // ── Sesión y permisos (solo admin y QHSE) ──
+    // ══════════ CALENDARIO DE REPOSICIÓN ══════════
+    const REPO_AVISO_DIAS = 30;      // "Próximo" = faltan 30 días o menos
+    let repoItems = [];
+    let repoMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    let repoDiaSel = null;
+
+    function diasHasta(fechaISO) {
+      const hoy = new Date(hoyLocal() + 'T00:00:00');
+      return Math.round((new Date(fechaISO + 'T00:00:00') - hoy) / 86400000);
+    }
+
+    function estadoRepo(dias) {
+      if (dias < 0) return 'Vencido';
+      if (dias <= REPO_AVISO_DIAS) return 'Próximo';
+      return 'En tiempo';
+    }
+
+    function construirReposicion() {
+      // Última entrega por trabajador + EPP
+      const ultimas = {};
+      valesLista.forEach(v => {
+        (v.epp_vales_detalle || []).forEach(d => {
+          const key = normalizarNombre(v.trabajador) + '|' + d.epp_id;
+          const nueva = {
+            valeId: v.id,
+            folio: v.folio,
+            trabajador: v.trabajador,
+            puesto_id: v.puesto_id,
+            puesto_nombre: v.puesto_nombre,
+            epp_id: d.epp_id,
+            epp_nombre: d.epp_nombre,
+            talla: d.talla,
+            cantidad: d.cantidad,
+            fecha_entrega: d.fecha_entrega,
+            fecha_reposicion: d.fecha_reposicion,
+            creado: v.created_at
+          };
+          const prev = ultimas[key];
+          if (!prev || nueva.fecha_entrega > prev.fecha_entrega ||
+              (nueva.fecha_entrega === prev.fecha_entrega && nueva.creado > prev.creado)) {
+            ultimas[key] = nueva;
+          }
+        });
+      });
+
+      // Solo las que tienen fecha de reposición programada
+      repoItems = Object.values(ultimas)
+        .filter(x => x.fecha_reposicion)
+        .map(x => {
+          const dias = diasHasta(x.fecha_reposicion);
+          return { ...x, dias, estado: estadoRepo(dias) };
+        })
+        .sort((a, b) => a.fecha_reposicion.localeCompare(b.fecha_reposicion));
+    }
+
+    function renderReposicion() {
+      construirReposicion();
+      document.getElementById('repo-kpi-vencidos').textContent = repoItems.filter(x => x.estado === 'Vencido').length;
+      document.getElementById('repo-kpi-proximos').textContent = repoItems.filter(x => x.estado === 'Próximo').length;
+      document.getElementById('repo-kpi-entiempo').textContent = repoItems.filter(x => x.estado === 'En tiempo').length;
+      renderCalendarioRepo();
+      renderReposicionLista();
+    }
+
+    function repoCambiarMes(delta) {
+      repoMes = new Date(repoMes.getFullYear(), repoMes.getMonth() + delta, 1);
+      renderCalendarioRepo();
+    }
+
+    function repoSeleccionarDia(iso) {
+      repoDiaSel = (iso === repoDiaSel) ? null : iso;
+      renderCalendarioRepo();
+      renderReposicionLista();
+    }
+
+    function renderCalendarioRepo() {
+      const y = repoMes.getFullYear(), m = repoMes.getMonth();
+      const p = n => String(n).padStart(2, '0');
+      document.getElementById('repo-mes-titulo').textContent =
+        repoMes.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+
+      // Agrupar por fecha
+      const porFecha = {};
+      repoItems.forEach(x => { (porFecha[x.fecha_reposicion] ||= []).push(x); });
+
+      const offset = (new Date(y, m, 1).getDay() + 6) % 7; // la semana empieza en lunes
+      const diasMes = new Date(y, m + 1, 0).getDate();
+      const hoyISO = hoyLocal();
+
+      let html = '';
+      for (let i = 0; i < offset; i++) html += '<div></div>';
+
+      for (let d = 1; d <= diasMes; d++) {
+        const iso = `${y}-${p(m + 1)}-${p(d)}`;
+        const items = porFecha[iso] || [];
+        const esHoy = iso === hoyISO;
+        const sel = iso === repoDiaSel;
+
+        let color = 'bg-slate-50 border-slate-100 text-slate-500';
+        let badge = '';
+        if (items.length) {
+          const peor = items.some(x => x.estado === 'Vencido') ? 'Vencido'
+                     : items.some(x => x.estado === 'Próximo') ? 'Próximo' : 'En tiempo';
+          color = {
+            'Vencido':   'bg-red-100 border-red-200 text-red-800',
+            'Próximo':   'bg-amber-100 border-amber-200 text-amber-800',
+            'En tiempo': 'bg-emerald-100 border-emerald-200 text-emerald-800'
+          }[peor];
+          badge = `<span class="block text-[11px] font-black mt-1">${items.length} <span class="font-bold opacity-70">EPP</span></span>`;
+        }
+
+        html += `
+          <button ${items.length ? `onclick="repoSeleccionarDia('${iso}')"` : 'disabled'}
+            class="h-16 rounded-xl border text-left p-1.5 transition ${color}
+            ${items.length ? 'hover:shadow cursor-pointer' : 'cursor-default'}
+            ${esHoy ? 'ring-2 ring-[#e31e24]' : ''} ${sel ? 'ring-2 ring-slate-800' : ''}">
+            <span class="text-xs font-bold">${d}</span>${badge}
+          </button>`;
+      }
+      document.getElementById('repo-calendario').innerHTML = html;
+    }
+
+    function renderReposicionLista() {
+      const tb = document.getElementById('repo-body');
+      const q = (document.getElementById('repo-buscar')?.value || '').toLowerCase().trim();
+      const fe = document.getElementById('repo-filtro-estado')?.value || '';
+
+      // Etiqueta del filtro por día
+      const btnDia = document.getElementById('repo-quitar-dia');
+      if (repoDiaSel) {
+        document.getElementById('repo-dia-texto').textContent = 'Día ' + fmtFecha(repoDiaSel);
+        btnDia.classList.remove('hidden');
+      } else {
+        btnDia.classList.add('hidden');
+      }
+
+      const lista = repoItems.filter(x =>
+        (!fe || x.estado === fe) &&
+        (!repoDiaSel || x.fecha_reposicion === repoDiaSel) &&
+        (!q || x.trabajador.toLowerCase().includes(q) ||
+               (x.puesto_nombre || '').toLowerCase().includes(q) ||
+               (x.epp_nombre || '').toLowerCase().includes(q)));
+
+      if (!lista.length) {
+        tb.innerHTML = `<tr><td colspan="7" class="px-4 py-8 text-center text-slate-300">${
+          repoItems.length ? 'Sin resultados con esos filtros' : 'Aún no hay reposiciones programadas. Se generan al guardar vales con EPP que tengan periodo de reposición.'
+        }</td></tr>`;
+        return;
+      }
+
+      const badges = {
+        'Vencido':   'bg-red-50 text-red-700',
+        'Próximo':   'bg-amber-50 text-amber-700',
+        'En tiempo': 'bg-emerald-50 text-emerald-700'
+      };
+
+      tb.innerHTML = lista.map(x => {
+        const txtDias = x.dias < 0 ? `Venció hace ${Math.abs(x.dias)} d` : x.dias === 0 ? 'Hoy' : `En ${x.dias} d`;
+        return `
+          <tr class="${x.estado === 'Vencido' ? 'bg-red-50/40' : ''} hover:bg-slate-50 transition-colors">
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span class="${badges[x.estado]} px-2 py-0.5 rounded-full text-[10px] font-bold">${x.estado}</span>
+            </td>
+            <td class="px-4 py-3 font-semibold text-slate-700">${esc(x.trabajador)}</td>
+            <td class="px-4 py-3 text-slate-500">${esc(x.puesto_nombre || '—')}</td>
+            <td class="px-4 py-3">${esc(x.epp_nombre)}${x.talla ? ` <span class="text-slate-400 text-xs">· T. ${esc(x.talla)}</span>` : ''}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-slate-500">${fmtFecha(x.fecha_entrega)}</td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <p class="font-semibold text-slate-700">${fmtFecha(x.fecha_reposicion)}</p>
+              <p class="text-[11px] text-slate-400">${txtDias}</p>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <button onclick="reponerDesde('${x.valeId}', '${x.epp_id}')"
+                class="text-[10px] font-black uppercase tracking-widest text-[#e31e24] bg-red-50 hover:bg-[#e31e24] hover:text-white px-3 py-1.5 rounded-lg transition">
+                Reponer
+              </button>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    // Abre el formulario del vale ya cargado para reponer ese EPP
+    function reponerDesde(valeId, eppId) {
+      const x = repoItems.find(i => i.valeId === valeId && i.epp_id === eppId);
+      if (!x) return;
+
+      cambiarTab('vale');
+      document.getElementById('vale-trabajador').value = x.trabajador;
+      document.getElementById('vale-motivo-general').value = 'Reposición';
+
+      const puestoValido = puestos.some(p => p.id === x.puesto_id && !p.aplica_a_todos);
+      if (!puestoValido) {
+        aviso('El puesto de ese vale ya no existe. Elige el puesto manualmente.', 'info');
+        return;
+      }
+
+      document.getElementById('vale-puesto').value = x.puesto_id;
+      cambiarPuestoVale();
+
+      const f = filasVale.find(fila => fila.epp.id === eppId);
+      if (f) {
+        f.sel = true;
+        f.talla = x.talla || '';
+        renderVale();
+      } else {
+        aviso('Ese EPP ya no está en la matriz del puesto. Selecciónalo manualmente.', 'info');
+      }
+    }
+
+        // ══════════ KPIs ══════════
+    const PERDIDAS_UMBRAL = 3;   // piezas perdidas + dañadas para marcar nivel "Alto"
+    let kpiGrafEstado = null;
+    let kpiGrafPerdidas = null;
+
+    function fechaMesesAtras(meses) {
+      const d = new Date(hoyLocal() + 'T12:00:00');
+      d.setMonth(d.getMonth() - meses);
+      const p = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+    }
+
+    function agruparRepoPorTrabajador(items) {
+      const m = {};
+      items.forEach(x => {
+        const k = normalizarNombre(x.trabajador);
+        (m[k] ||= { trabajador: x.trabajador, puesto: x.puesto_nombre, items: [] }).items.push(x);
+      });
+      return Object.values(m);
+    }
+
+    // Entregas en tiempo: compara cada reposición con la fecha programada de la entrega anterior
+    function calcularEntregasKPI(desde) {
+      const grupos = {};
+      valesLista.forEach(v => (v.epp_vales_detalle || []).forEach(d => {
+        const key = normalizarNombre(v.trabajador) + '|' + d.epp_id;
+        (grupos[key] ||= []).push({ ...d, creado: v.created_at });
+      }));
+
+      let aTiempo = 0, tarde = 0;
+      Object.values(grupos).forEach(arr => {
+        arr.sort((a, b) => a.fecha_entrega.localeCompare(b.fecha_entrega) || a.creado.localeCompare(b.creado));
+        for (let i = 1; i < arr.length; i++) {
+          const prev = arr[i - 1], act = arr[i];
+          if (act.motivo !== 'Reposición' || !prev.fecha_reposicion) continue;
+          if (desde && act.fecha_entrega < desde) continue;
+          if (act.fecha_entrega <= prev.fecha_reposicion) aTiempo++; else tarde++;
+        }
+      });
+      const pendientes = repoItems.filter(x => x.estado === 'Vencido').length;
+      return { aTiempo, tarde, pendientes };
+    }
+
+    function calcularPerdidasKPI(desde) {
+      const porPers = {}, porEPP = {};
+      valesLista.forEach(v => (v.epp_vales_detalle || []).forEach(d => {
+        if (!['Pérdida', 'Daño', 'Desgaste'].includes(d.motivo)) return;
+        if (desde && d.fecha_entrega < desde) return;
+        const k = normalizarNombre(v.trabajador);
+        const p = (porPers[k] ||= { trabajador: v.trabajador, puesto: v.puesto_nombre, perdida: 0, dano: 0, desgaste: 0 });
+        const cant = d.cantidad || 1;
+        if (d.motivo === 'Pérdida') p.perdida += cant;
+        else if (d.motivo === 'Daño') p.dano += cant;
+        else p.desgaste += cant;
+        if (d.motivo !== 'Desgaste') porEPP[d.epp_nombre] = (porEPP[d.epp_nombre] || 0) + cant;
+      }));
+      const personas = Object.values(porPers)
+        .map(p => ({ ...p, total: p.perdida + p.dano }))
+        .sort((a, b) => b.total - a.total || b.desgaste - a.desgaste);
+      return { personas, porEPP };
+    }
+
+    function renderKPIs() {
+      if (!document.getElementById('kpi-cumpl')) return;
+      construirReposicion(); // asegura repoItems actualizado
+
+      const meses = parseInt(document.getElementById('kpi-periodo').value);
+      const desde = meses ? fechaMesesAtras(meses) : null;
+
+      // ── 1. Entregas en tiempo ──
+      const { aTiempo, tarde, pendientes } = calcularEntregasKPI(desde);
+      const base = aTiempo + tarde + pendientes;
+      const elCumpl = document.getElementById('kpi-cumpl');
+      if (base === 0) {
+        elCumpl.textContent = '—';
+        elCumpl.className = 'text-4xl font-black text-slate-800 mt-1';
+        document.getElementById('kpi-cumpl-det').textContent = 'Aún no hay reposiciones que evaluar';
+      } else {
+        const pct = Math.round((aTiempo / base) * 100);
+        elCumpl.textContent = pct + '%';
+        elCumpl.className = 'text-4xl font-black mt-1 ' + (pct >= 90 ? 'text-emerald-600' : pct >= 70 ? 'text-amber-600' : 'text-red-600');
+        document.getElementById('kpi-cumpl-det').textContent =
+          `${aTiempo} a tiempo · ${tarde} tarde · ${pendientes} vencida${pendientes === 1 ? '' : 's'} sin reponer`;
+      }
+
+      // ── 2 y 3. Próximos y vencidos (por persona) ──
+      const proximos = repoItems.filter(x => x.estado === 'Próximo');
+      const vencidos = repoItems.filter(x => x.estado === 'Vencido');
+      const persProx = agruparRepoPorTrabajador(proximos);
+      const persVenc = agruparRepoPorTrabajador(vencidos);
+      document.getElementById('kpi-proximos').textContent = persProx.length;
+      document.getElementById('kpi-proximos-det').textContent = `${proximos.length} EPP en los próximos 30 días`;
+      document.getElementById('kpi-vencidos').textContent = persVenc.length;
+      document.getElementById('kpi-vencidos-det').textContent = `${vencidos.length} EPP sin reponer`;
+
+      // ── 4. Pérdidas ──
+      const { personas, porEPP } = calcularPerdidasKPI(desde);
+      const frecuentes = personas.filter(p => p.total >= PERDIDAS_UMBRAL);
+      document.getElementById('kpi-perdidas').textContent = frecuentes.length;
+      document.getElementById('kpi-perdidas-det').textContent =
+        `Personas con ${PERDIDAS_UMBRAL}+ piezas perdidas o dañadas` + (meses ? ` (${meses} meses)` : '');
+
+      renderKPIGraficas(porEPP);
+      renderKPITablaRepo(persProx, persVenc);
+      renderKPITablaPerdidas(personas);
+      renderKPIDisponibilidad();
+    }
+
+    function renderKPIGraficas(porEPP) {
+      // Dona: estado de reposiciones
+      const n = e => repoItems.filter(x => x.estado === e).length;
+      const datosEstado = [n('Vencido'), n('Próximo'), n('En tiempo')];
+      const hayEstado = datosEstado.some(v => v > 0);
+      document.getElementById('kpi-estado-vacio').classList.toggle('hidden', hayEstado);
+
+      if (kpiGrafEstado) kpiGrafEstado.destroy();
+      kpiGrafEstado = new Chart(document.getElementById('kpi-graf-estado').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Vencido', 'Próximo', 'En tiempo'],
+          datasets: [{ data: hayEstado ? datosEstado : [], backgroundColor: ['#ef4444', '#f59e0b', '#10b981'], borderWidth: 0 }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, cutout: '62%',
+          plugins: { legend: { position: 'right', labels: { font: { size: 12 }, padding: 14 } } }
+        }
+      });
+
+      // Barras: pérdidas y daños por EPP
+      const pares = Object.entries(porEPP).sort((a, b) => b[1] - a[1]).slice(0, 8);
+      document.getElementById('kpi-perdidas-vacio').classList.toggle('hidden', pares.length > 0);
+
+      if (kpiGrafPerdidas) kpiGrafPerdidas.destroy();
+      kpiGrafPerdidas = new Chart(document.getElementById('kpi-graf-perdidas').getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: pares.map(p => p[0]),
+          datasets: [{ label: 'Piezas', data: pares.map(p => p[1]), backgroundColor: '#e31e24', borderRadius: 6 }]
+        },
+        options: {
+          indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { beginAtZero: true, ticks: { precision: 0, font: { size: 10 } }, grid: { color: 'rgba(0,0,0,0.04)' } },
+            y: { ticks: { font: { size: 11 } }, grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function renderKPITablaRepo(persProx, persVenc) {
+      const tb = document.getElementById('kpi-tabla-repo');
+      const filas = [
+        ...persVenc.map(p => ({ ...p, estado: 'Vencido' })),
+        ...persProx.filter(p => !persVenc.some(v => normalizarNombre(v.trabajador) === normalizarNombre(p.trabajador)))
+                   .map(p => ({ ...p, estado: 'Próximo' }))
+      ].map(p => ({ ...p, minDias: Math.min(...p.items.map(i => i.dias)) }))
+       .sort((a, b) => a.minDias - b.minDias);
+
+      if (!filas.length) {
+        tb.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-center text-slate-300">Nadie con reposición vencida o próxima</td></tr>';
+        return;
+      }
+      const badge = { 'Vencido': 'bg-red-50 text-red-700', 'Próximo': 'bg-amber-50 text-amber-700' };
+
+      tb.innerHTML = filas.map(p => {
+        const proxima = p.items.reduce((a, b) => (a.dias <= b.dias ? a : b));
+        const txt = proxima.dias < 0 ? `Venció hace ${Math.abs(proxima.dias)} d` : proxima.dias === 0 ? 'Hoy' : `En ${proxima.dias} d`;
+        const epps = p.items.map(i => esc(i.epp_nombre)).join(', ');
+        return `
+          <tr class="${p.estado === 'Vencido' ? 'bg-red-50/40' : ''} hover:bg-slate-50 transition-colors">
+            <td class="px-4 py-3"><span class="${badge[p.estado]} px-2 py-0.5 rounded-full text-[10px] font-bold">${p.estado}</span></td>
+            <td class="px-4 py-3 font-semibold text-slate-700">${esc(p.trabajador)}</td>
+            <td class="px-4 py-3 text-slate-500">${esc(p.puesto || '—')}</td>
+            <td class="px-4 py-3">${epps}</td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <p class="font-semibold text-slate-700">${fmtFecha(proxima.fecha_reposicion)}</p>
+              <p class="text-[11px] text-slate-400">${txt}</p>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    function renderKPITablaPerdidas(personas) {
+      const tb = document.getElementById('kpi-tabla-perdidas');
+      const lista = personas.filter(p => p.total > 0).slice(0, 15);
+      if (!lista.length) {
+        tb.innerHTML = '<tr><td colspan="7" class="px-4 py-6 text-center text-slate-300">Sin pérdidas ni daños registrados en el periodo</td></tr>';
+        return;
+      }
+      tb.innerHTML = lista.map(p => {
+        const alto = p.total >= PERDIDAS_UMBRAL;
+        return `
+          <tr class="${alto ? 'bg-red-50/40' : ''} hover:bg-slate-50 transition-colors">
+            <td class="px-4 py-3">
+              <span class="${alto ? 'bg-red-50 text-red-700' : 'bg-slate-100 text-slate-500'} px-2 py-0.5 rounded-full text-[10px] font-bold">${alto ? 'Alto' : 'Normal'}</span>
+            </td>
+            <td class="px-4 py-3 font-semibold text-slate-700">${esc(p.trabajador)}</td>
+            <td class="px-4 py-3 text-slate-500">${esc(p.puesto || '—')}</td>
+            <td class="px-4 py-3 text-center">${p.perdida}</td>
+            <td class="px-4 py-3 text-center">${p.dano}</td>
+            <td class="px-4 py-3 text-center font-black ${alto ? 'text-red-600' : 'text-slate-700'}">${p.total}</td>
+            <td class="px-4 py-3 text-center text-slate-400">${p.desgaste}</td>
+          </tr>`;
+      }).join('');
+    }
+
+    function renderKPIDisponibilidad() {
+      const bajos = inventario.filter(esBajoMinimo);
+      document.getElementById('kpi-disp-bajo').textContent = bajos.length;
+      document.getElementById('kpi-disp-mant').textContent = inventario.filter(i => i.estado === 'En mantenimiento').length;
+      document.getElementById('kpi-disp-danado').textContent = inventario.filter(i => i.estado === 'Dañado' || i.estado === 'Baja').length;
+
+      // Mantenimientos vencidos: solo cuenta el registro más reciente de cada equipo
+      const ultimo = {};
+      mantenimientos.forEach(m => {
+        if (!m.inventario_id) return;
+        const prev = ultimo[m.inventario_id];
+        if (!prev || m.fecha > prev.fecha) ultimo[m.inventario_id] = m;
+      });
+      const vencidos = Object.values(ultimo).filter(m => m.proxima_fecha && diasHasta(m.proxima_fecha) < 0).length;
+      document.getElementById('kpi-disp-mantvenc').textContent = vencidos;
+
+      const tb = document.getElementById('kpi-tabla-bajo');
+      if (!bajos.length) {
+        tb.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-center text-slate-300">Todo el equipo está por encima del stock mínimo</td></tr>';
+        return;
+      }
+      tb.innerHTML = bajos.map(i => `
+        <tr class="bg-red-50/40 hover:bg-slate-50 transition-colors">
+          <td class="px-4 py-3 font-semibold text-slate-700">${esc(i.epp_catalogo?.nombre || '—')}</td>
+          <td class="px-4 py-3">${esc(i.talla || '—')}</td>
+          <td class="px-4 py-3 text-center font-black text-red-600">${i.stock ?? 0}</td>
+          <td class="px-4 py-3 text-center text-slate-400">${i.stock_minimo ?? 0}</td>
+          <td class="px-4 py-3 text-slate-500">${esc(i.ubicacion || '—')}</td>
+        </tr>`).join('');
+    }
+
+    // ══════════ IMPRESIÓN DEL VALE ══════════
+    let valeActualId = null;
+
+    // Datos fijos del formato (ajústalos si cambian)
+    const FORMATO = {
+      codigo: 'F-SGI-IHS-015',
+      revision: 'Rev1',
+      fecha: '',
+      preparado: 'María Gabriela Moreno',
+      aprobado: 'Antonio Rodríguez',
+      estado: 'Aprobado',
+      puestoResponsable: 'Supervisora de QHSE'
+    };
+    const FILAS_EPP = 9;       // renglones de la tabla de EPP
+    const ALTO_FILA = 30;      // px, debe coincidir con .vp .fila
+
+    async function imprimirVale(id) {
+      const v = valesLista.find(x => x.id === id);
+      if (!v) { aviso('No se encontró el vale', 'error'); return; }
+
+      const items = v.epp_vales_detalle || [];
+      const vacias = Math.max(FILAS_EPP - items.length, 0);
+
+      const filasUsadas = items.map(d => `
+        <tr class="fila">
+          <td>${esc(d.epp_nombre)}${d.talla ? ' — Talla ' + esc(d.talla) : ''}</td>
+          <td class="c">${d.cantidad}</td>
+          <td class="c">${fmtFecha(d.fecha_entrega)}</td>
+        </tr>`).join('');
+
+      const filasVacias = Array.from({ length: vacias }, () =>
+        '<tr class="fila"><td></td><td></td><td></td></tr>').join('');
+
+      // Diagonal sobre los renglones sin usar
+      const diagonal = vacias
+        ? `<svg style="position:absolute; left:0; bottom:0; width:100%; height:${vacias * ALTO_FILA}px; pointer-events:none"
+               viewBox="0 0 100 100" preserveAspectRatio="none">
+             <line x1="0" y1="0" x2="100" y2="100" stroke="#3b82f6" stroke-width="0.8" vector-effect="non-scaling-stroke"/>
+           </svg>`
+        : '';
+
+      const area = document.getElementById('area-impresion');
+      area.innerHTML = `
+        <div class="vp">
+
+          <!-- Encabezado -->
+          <table>
+            <colgroup><col style="width:24%"><col style="width:40%"><col style="width:16%"><col style="width:20%"></colgroup>
+            <tr style="height:26px">
+              <td rowspan="3" class="c">
+                <img src="../assets/images/logo/logo-dark.svg" alt="In Hole Solutions" style="height:44px"
+                     onerror="this.replaceWith(document.createTextNode('IN HOLE SOLUTIONS'))">
+              </td>
+              <td class="c" style="font-weight:700; font-size:13px">Sistema de Gestión Integral</td>
+              <td class="gris">Documento:</td><td class="gris">${esc(FORMATO.codigo)}</td>
+            </tr>
+            <tr style="height:26px">
+              <td rowspan="2" class="c" style="font-weight:700; font-size:16px">RESGUARDO DE EPP</td>
+              <td class="gris">Revisión:</td><td class="gris">${esc(FORMATO.revision)}</td>
+            </tr>
+            <tr style="height:26px">
+              <td class="gris">Fecha:</td><td class="gris">${esc(FORMATO.fecha)}</td>
+            </tr>
+          </table>
+          <table style="margin-top:-1px">
+            <colgroup><col style="width:14%"><col style="width:22%"><col style="width:14%"><col style="width:22%"><col style="width:12%"><col style="width:16%"></colgroup>
+            <tr style="height:24px">
+              <td class="c gris">Preparado por:</td><td class="rojo gris">${esc(FORMATO.preparado)}</td>
+              <td class="c gris">Aprobado por:</td><td class="rojo gris">${esc(FORMATO.aprobado)}</td>
+              <td class="gris">Estado:</td><td class="gris">${esc(FORMATO.estado)}</td>
+            </tr>
+          </table>
+
+          <!-- Datos del trabajador -->
+          <table style="margin-top:6px">
+            <tr><td colspan="2" class="barra">Datos del trabajador</td></tr>
+            <tr><td class="sub" style="width:50%">Nombre</td><td class="sub">Puesto/cargo</td></tr>
+            <tr style="height:28px"><td class="c">${esc(v.trabajador)}</td><td class="c">${esc(v.puesto_nombre || '')}</td></tr>
+          </table>
+
+          <!-- Responsable de la entrega -->
+          <table style="margin-top:-1px">
+            <colgroup><col style="width:40%"><col style="width:35%"><col style="width:25%"></colgroup>
+            <tr>
+              <td colspan="2" class="barra">Datos del responsable quien hace entrega del equipo de protección personal</td>
+              <td class="barra c">Firma</td>
+            </tr>
+            <tr><td class="sub">Nombre</td><td class="sub">Puesto/cargo</td><td rowspan="2"></td></tr>
+            <tr style="height:30px">
+              <td class="c">${esc(v.entregado_por || '')}</td>
+              <td class="c" style="font-weight:700">${esc(FORMATO.puestoResponsable)}</td>
+            </tr>
+          </table>
+
+          <!-- Compromiso -->
+          <table style="margin-top:-1px">
+            <tr><td class="barra">Compromiso del empleado de recibe el equipo de protección personal</td></tr>
+            <tr>
+              <td style="padding:6px 8px; text-align:justify; line-height:1.45">
+                <p style="margin:0 0 8px; font-weight:700">Compromiso sobre el Uso de Equipo de Protección Personal</p>
+                <p style="margin:0 0 6px">Me comprometo a utilizar correctamente y mantener en buen estado los equipos de protección personal (EPP) que me han sido proporcionados durante mi jornada laboral, conforme a las normas y procedimientos establecidos por la empresa en materia de seguridad y salud en el trabajo.</p>
+                <p style="margin:0">Declaro haber recibido:</p>
+                <ul style="margin:2px 0 4px 26px; padding:0; list-style:disc">
+                  <li>Información sobre los riesgos laborales asociados a mi puesto.</li>
+                  <li>Capacitación para el uso, mantenimiento y disposición final del EPP, conforme a las instrucciones del fabricante.</li>
+                </ul>
+                <p style="margin:0 0 6px">Me comprometo a solicitar de inmediato la reposición del equipo en caso de daño o deterioro, notificando a mi supervisor o jefe directo.</p>
+                <p style="margin:0 0 10px">El uso adecuado del EPP representa el cumplimiento de mis obligaciones como trabajador, conforme a lo establecido en la Ley Federal del Trabajo (Art. 134, fracciones I y II), el Reglamento Federal de Seguridad y Salud en el Trabajo (Art. 51), y la NOM-017-STPS-2008, apartado 6.</p>
+                <p style="margin:0 0 4px">Este compromiso será archivado por el Departamento de QHSE como parte del seguimiento a mis obligaciones laborales.</p>
+              </td>
+            </tr>
+          </table>
+
+          <!-- EPP otorgado -->
+          <div style="position:relative; margin-top:8px">
+            <table>
+              <colgroup><col style="width:68%"><col style="width:12%"><col style="width:20%"></colgroup>
+              <tr>
+                <td class="barra c">Descripción del EPP otorgado</td>
+                <td class="barra c">Cant</td>
+                <td class="barra c">Fecha entrega</td>
+              </tr>
+              ${filasUsadas}${filasVacias}
+            </table>
+            ${diagonal}
+          </div>
+
+          ${v.observaciones ? `<p style="margin:6px 0 0"><b>Observaciones:</b> ${esc(v.observaciones)}</p>` : ''}
+
+          <!-- Pie -->
+          <div class="pie">
+            <p><b>©${new Date().getFullYear()} IN HOLE SOLUTIONS - Todos los derechos reservados</b></p>
+            <p>Este documento contiene información confidencial y propiedad de In Hole Solutions, los usuarios de este documento declaran que la información contenida en él no será reproducida, utilizada o divulgada en su totalidad o en parte para ningún fin excepto el especificado y autorizado por In Hole Solutions.</p>
+            <p style="text-align:center; margin-top:8px; font-size:8px">La información de este documento es controlada, y solo será modificable por la autoridad de control.</p>
+            <p style="text-align:right; margin-top:4px">Folio: ${esc(v.folio)}</p>
+          </div>
+        </div>`;
+
+      // Esperar a que cargue el logo
+      const img = area.querySelector('img');
+      if (img && !img.complete) {
+        await new Promise(r => { img.onload = img.onerror = r; setTimeout(r, 1500); });
+      }
+
+      // El nombre del PDF sale del título de la página
+      const tituloOriginal = document.title;
+      document.title = `${v.folio} - ${v.trabajador}`;
+      window.onafterprint = () => {
+        document.title = tituloOriginal;
+        area.innerHTML = '';
+        window.onafterprint = null;
+      };
+      window.print();
+    }
+
     let usuarioActual = null;
 
     async function iniciarEPP() {
@@ -1576,6 +2490,7 @@
       await cargarInventario();
       await cargarMantenimiento();
       await cargarVales();
+      await cargarTrabajadores();
 
       // Recordar la última pestaña usada
       let tab = 'kpis';
