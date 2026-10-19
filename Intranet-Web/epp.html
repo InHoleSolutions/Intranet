@@ -30,7 +30,7 @@
       @page { size: letter portrait; margin: 0; }
       body > *:not(#area-impresion) { display: none !important; }
       body { background: #fff !important; display: block !important; }
-      #area-impresion { display: block !important; padding: 12mm; box-sizing: border-box; }
+      #area-impresion { display: block !important; padding: 12mm 12mm 32mm; box-sizing: border-box; }
       * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
     .vp { font-family: 'Calibri', 'Carlito', Arial, sans-serif; color: #111; font-size: 11px; }
@@ -43,8 +43,39 @@
     .vp .rojo { color: #b91c1c; }
     .vp .fila { height: 30px; }
     .vp .fila td { padding: 0 8px; }
-    .vp .pie { font-size: 7px; line-height: 1.3; margin-top: 18px; }
+    .vp .pie { font-size: 8.5px; line-height: 1.35; margin-top: 18px; }
+    @media print {
+      .vp .pie { position: fixed; left: 12mm; right: 12mm; bottom: 8mm; margin-top: 0; }
+    }
     .vp .pie p { margin: 0; }
+
+    /* Firma del trabajador */
+    .vp .firma-trab { width: 50%; margin: 150px auto 0; border-top: 1.5px solid #111; padding-top: 5px; text-align: center; font-size: 11px; line-height: 1.5; page-break-inside: avoid; }
+    .vp .firma-trab p { margin: 0; }
+
+    /* Compromiso: texto justificado */
+    .vp .compromiso p,
+    .vp .compromiso li { text-align: justify; text-justify: inter-word; hyphens: manual; }
+
+    /* Datos del trabajador y del responsable */
+    .vp .t-dat td { padding: 0 8px; }
+    .vp .t-dat .barra { height: 22px; font-size: 11.5px; }
+    .vp .t-dat .sub { height: 22px; font-size: 12px; }
+    .vp .t-dat .dato { height: 32px; font-size: 13px; text-align: center; }
+    .vp .t-dat .dato.b { font-weight: 700; }
+
+    /* Encabezado en cuadros separados */
+    .vp .enc-top { display: grid; grid-template-columns: 182fr 461fr 123fr 123fr; grid-template-rows: repeat(3, 1fr); gap: 4px; height: 80px; }
+    .vp .enc-bot { display: grid; grid-template-columns: 182fr 461fr 123fr 123fr; gap: 4px; height: 26px; margin-top: 4px; }
+    .vp .enc-bot .mid3 { display: grid; grid-template-columns: 138fr 170fr 143fr; gap: 4px; }
+    .vp .cel { border: 1.5px solid #6b6b6b; display: flex; align-items: center; padding: 0 9px; font-size: 10.5px; color: #404040; box-sizing: border-box; overflow: hidden; }
+    .vp .cel.ctr { justify-content: center; text-align: center; }
+    .vp .cel.rojo { color: #a50021; white-space: nowrap; font-size: 10px; padding: 0 4px; }
+    .vp .logo-cel { grid-row: 1 / 4; justify-content: center; }
+    .vp .mid { grid-row: 1 / 4; display: flex; flex-direction: column; gap: 4px; }
+    .vp .mid .cel { flex: 1; justify-content: center; }
+    .vp .mid .cel.t1 { font-size: 14.5px; font-weight: 700; }
+    .vp .mid .cel.t2 { font-size: 19px; font-weight: 700; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -2320,11 +2351,11 @@
     // Datos fijos del formato (ajústalos si cambian)
     const FORMATO = {
       codigo: 'F-SGI-IHS-015',
-      revision: 'Rev1',
-      fecha: '',
+      revision: 'Rev02',
       preparado: 'María Gabriela Moreno',
       aprobado: 'Antonio Rodríguez',
       estado: 'Aprobado',
+      responsable: 'María Gabriela Moreno Córdova',
       puestoResponsable: 'Supervisora de QHSE'
     };
     const FILAS_EPP = 9;       // renglones de la tabla de EPP
@@ -2335,76 +2366,67 @@
       if (!v) { aviso('No se encontró el vale', 'error'); return; }
 
       const items = v.epp_vales_detalle || [];
-      const vacias = Math.max(FILAS_EPP - items.length, 0);
+      const fechaImpresion = fmtFecha(hoyLocal());   // dd/mm/aaaa, día en que se imprime
 
       const filasUsadas = items.map(d => `
         <tr class="fila">
           <td>${esc(d.epp_nombre)}${d.talla ? ' — Talla ' + esc(d.talla) : ''}</td>
+          <td class="c">${esc(d.motivo || '')}</td>
           <td class="c">${d.cantidad}</td>
           <td class="c">${fmtFecha(d.fecha_entrega)}</td>
         </tr>`).join('');
-
-      const filasVacias = Array.from({ length: vacias }, () =>
-        '<tr class="fila"><td></td><td></td><td></td></tr>').join('');
-
-      // Diagonal sobre los renglones sin usar
-      const diagonal = vacias
-        ? `<svg style="position:absolute; left:0; bottom:0; width:100%; height:${vacias * ALTO_FILA}px; pointer-events:none"
-               viewBox="0 0 100 100" preserveAspectRatio="none">
-             <line x1="0" y1="0" x2="100" y2="100" stroke="#3b82f6" stroke-width="0.8" vector-effect="non-scaling-stroke"/>
-           </svg>`
-        : '';
 
       const area = document.getElementById('area-impresion');
       area.innerHTML = `
         <div class="vp">
 
           <!-- Encabezado -->
-          <table>
-            <colgroup><col style="width:24%"><col style="width:40%"><col style="width:16%"><col style="width:20%"></colgroup>
-            <tr style="height:26px">
-              <td rowspan="3" class="c">
-                <img src="../assets/images/logo/logo-dark.svg" alt="In Hole Solutions" style="height:44px"
-                     onerror="this.replaceWith(document.createTextNode('IN HOLE SOLUTIONS'))">
-              </td>
-              <td class="c" style="font-weight:700; font-size:13px">Sistema de Gestión Integral</td>
-              <td class="gris">Documento:</td><td class="gris">${esc(FORMATO.codigo)}</td>
-            </tr>
-            <tr style="height:26px">
-              <td rowspan="2" class="c" style="font-weight:700; font-size:16px">RESGUARDO DE EPP</td>
-              <td class="gris">Revisión:</td><td class="gris">${esc(FORMATO.revision)}</td>
-            </tr>
-            <tr style="height:26px">
-              <td class="gris">Fecha:</td><td class="gris">${esc(FORMATO.fecha)}</td>
-            </tr>
-          </table>
-          <table style="margin-top:-1px">
-            <colgroup><col style="width:14%"><col style="width:22%"><col style="width:14%"><col style="width:22%"><col style="width:12%"><col style="width:16%"></colgroup>
-            <tr style="height:24px">
-              <td class="c gris">Preparado por:</td><td class="rojo gris">${esc(FORMATO.preparado)}</td>
-              <td class="c gris">Aprobado por:</td><td class="rojo gris">${esc(FORMATO.aprobado)}</td>
-              <td class="gris">Estado:</td><td class="gris">${esc(FORMATO.estado)}</td>
-            </tr>
-          </table>
+          <div class="enc-top">
+            <div class="cel logo-cel">
+              <img src="../assets/images/logo/logo-dark.svg" alt="In Hole Solutions" style="width:88%; height:auto; max-height:62px"
+                   onerror="this.replaceWith(document.createTextNode('IN HOLE SOLUTIONS'))">
+            </div>
+
+            <div class="mid">
+              <div class="cel t1">Sistema de Gestión Integral</div>
+              <div class="cel t2">RESGUARDO DE EPP</div>
+            </div>
+
+            <div class="cel">Documento:</div><div class="cel">${esc(FORMATO.codigo)}</div>
+            <div class="cel">Revisión:</div><div class="cel">${esc(FORMATO.revision)}</div>
+            <div class="cel">Fecha:</div><div class="cel">${fechaImpresion}</div>
+          </div>
+
+          <div class="enc-bot">
+            <div class="cel ctr">Preparado por:</div>
+            <div class="mid3">
+              <div class="cel rojo">${esc(FORMATO.preparado)}</div>
+              <div class="cel ctr">Aprobado por:</div>
+              <div class="cel rojo">${esc(FORMATO.aprobado)}</div>
+            </div>
+            <div class="cel">Estado:</div>
+            <div class="cel">${esc(FORMATO.estado)}</div>
+          </div>
 
           <!-- Datos del trabajador -->
-          <table style="margin-top:6px">
+          <table class="t-dat" style="margin-top:6px">
+            <colgroup><col style="width:49%"><col style="width:51%"></colgroup>
             <tr><td colspan="2" class="barra">Datos del trabajador</td></tr>
-            <tr><td class="sub" style="width:50%">Nombre</td><td class="sub">Puesto/cargo</td></tr>
-            <tr style="height:28px"><td class="c">${esc(v.trabajador)}</td><td class="c">${esc(v.puesto_nombre || '')}</td></tr>
+            <tr><td class="sub">Nombre</td><td class="sub">Puesto/cargo</td></tr>
+            <tr><td class="dato">${esc(v.trabajador)}</td><td class="dato">${esc(v.puesto_nombre || '')}</td></tr>
           </table>
 
           <!-- Responsable de la entrega -->
-          <table style="margin-top:-1px">
-            <colgroup><col style="width:40%"><col style="width:35%"><col style="width:25%"></colgroup>
+          <table class="t-dat" style="margin-top:-1px">
+            <colgroup><col style="width:49%"><col style="width:39%"><col style="width:12%"></colgroup>
             <tr>
               <td colspan="2" class="barra">Datos del responsable quien hace entrega del equipo de protección personal</td>
               <td class="barra c">Firma</td>
             </tr>
             <tr><td class="sub">Nombre</td><td class="sub">Puesto/cargo</td><td rowspan="2"></td></tr>
-            <tr style="height:30px">
-              <td class="c">${esc(v.entregado_por || '')}</td>
-              <td class="c" style="font-weight:700">${esc(FORMATO.puestoResponsable)}</td>
+            <tr>
+              <td class="dato">${esc(FORMATO.responsable)}</td>
+              <td class="dato b">${esc(FORMATO.puestoResponsable)}</td>
             </tr>
           </table>
 
@@ -2412,7 +2434,7 @@
           <table style="margin-top:-1px">
             <tr><td class="barra">Compromiso del empleado de recibe el equipo de protección personal</td></tr>
             <tr>
-              <td style="padding:6px 8px; text-align:justify; line-height:1.45">
+              <td class="compromiso" style="padding:6px 8px; text-align:justify; line-height:1.45">
                 <p style="margin:0 0 8px; font-weight:700">Compromiso sobre el Uso de Equipo de Protección Personal</p>
                 <p style="margin:0 0 6px">Me comprometo a utilizar correctamente y mantener en buen estado los equipos de protección personal (EPP) que me han sido proporcionados durante mi jornada laboral, conforme a las normas y procedimientos establecidos por la empresa en materia de seguridad y salud en el trabajo.</p>
                 <p style="margin:0">Declaro haber recibido:</p>
@@ -2430,25 +2452,30 @@
           <!-- EPP otorgado -->
           <div style="position:relative; margin-top:8px">
             <table>
-              <colgroup><col style="width:68%"><col style="width:12%"><col style="width:20%"></colgroup>
+              <colgroup><col style="width:50%"><col style="width:18%"><col style="width:10%"><col style="width:22%"></colgroup>
               <tr>
                 <td class="barra c">Descripción del EPP otorgado</td>
+                <td class="barra c">Motivo</td>
                 <td class="barra c">Cant</td>
                 <td class="barra c">Fecha entrega</td>
               </tr>
-              ${filasUsadas}${filasVacias}
+              ${filasUsadas}
             </table>
-            ${diagonal}
           </div>
 
           ${v.observaciones ? `<p style="margin:6px 0 0"><b>Observaciones:</b> ${esc(v.observaciones)}</p>` : ''}
+
+          <!-- Firma del trabajador -->
+          <div class="firma-trab">
+            <p>${esc(v.trabajador)}</p>
+            <p>Nombre y firma</p>
+          </div>
 
           <!-- Pie -->
           <div class="pie">
             <p><b>©${new Date().getFullYear()} IN HOLE SOLUTIONS - Todos los derechos reservados</b></p>
             <p>Este documento contiene información confidencial y propiedad de In Hole Solutions, los usuarios de este documento declaran que la información contenida en él no será reproducida, utilizada o divulgada en su totalidad o en parte para ningún fin excepto el especificado y autorizado por In Hole Solutions.</p>
-            <p style="text-align:center; margin-top:8px; font-size:8px">La información de este documento es controlada, y solo será modificable por la autoridad de control.</p>
-            <p style="text-align:right; margin-top:4px">Folio: ${esc(v.folio)}</p>
+            <p style="text-align:center; margin-top:8px; font-size:9.5px">La información de este documento es controlada, y solo será modificable por la autoridad de control.</p>
           </div>
         </div>`;
 
