@@ -237,6 +237,18 @@
 
       </section>
 
+      <!-- ALERTA: CLIENTES EN RIESGO DE PÉRDIDA -->
+      <section id="alertaRiesgo" class="hidden print-card bg-amber-50 border border-amber-300 rounded-2xl p-4 shadow-sm">
+        <div class="flex items-start gap-3">
+          <span class="text-xl leading-none">⚠️</span>
+          <div class="flex-1">
+            <h2 id="alertaRiesgoTitulo" class="text-sm font-semibold text-amber-900">Cliente en riesgo de pérdida</h2>
+            <p class="text-xs text-amber-800 mt-0.5">Llevan 2 o 3 meses sin actividad. A los 4 meses se cuentan como Perdidos.</p>
+            <div id="alertaRiesgoLista" class="flex flex-wrap gap-2 mt-3"></div>
+          </div>
+        </div>
+      </section>
+
       <!-- GRÁFICAS -->
       <section class="grid grid-cols-1 xl:grid-cols-3 gap-4">
 
@@ -536,6 +548,52 @@
       el.textContent = `Datos al ${fecha}`;
     }
 
+    // ─────────────────────────────────────────────
+    // Alerta: clientes en riesgo de pérdida
+    // ─────────────────────────────────────────────
+    // Regla de retención por frecuencia (misma base que "Perdidos"):
+    //  - 2 o 3 meses desde su ultima_aparicion → EN RIESGO (esta alerta)
+    //  - 4 o más meses → PERDIDO (ya se cuenta en la gráfica de Retención)
+    function pintarAlertaRiesgo(clientes) {
+      const caja = document.getElementById('alertaRiesgo');
+      if (!caja) return;
+
+      const MESES_RIESGO = 2;
+      const MESES_PERDIDO = 4;
+      const hoy = new Date();
+
+      const enRiesgo = (clientes || [])
+        .filter(c => c.ultima_aparicion)
+        .map(c => {
+          const f = new Date(c.ultima_aparicion + 'T00:00:00');
+          const meses = (hoy.getFullYear() - f.getFullYear()) * 12 + (hoy.getMonth() - f.getMonth());
+          return { nombre: c.nombre, meses };
+        })
+        .filter(c => c.meses >= MESES_RIESGO && c.meses < MESES_PERDIDO)
+        .sort((a, b) => b.meses - a.meses); // los más atrasados primero
+
+      if (enRiesgo.length === 0) {
+        caja.classList.add('hidden');
+        return;
+      }
+
+      document.getElementById('alertaRiesgoTitulo').textContent =
+        enRiesgo.length === 1
+          ? 'Cliente en riesgo de pérdida'
+          : `${enRiesgo.length} clientes en riesgo de pérdida`;
+
+      const lista = document.getElementById('alertaRiesgoLista');
+      lista.innerHTML = '';
+      enRiesgo.forEach(c => {
+        const chip = document.createElement('span');
+        chip.className = 'inline-flex items-center bg-white border border-amber-300 text-amber-900 text-xs font-medium px-2.5 py-1 rounded-full';
+        chip.textContent = `${c.nombre} · ${c.meses} meses sin actividad`;
+        lista.appendChild(chip);
+      });
+
+      caja.classList.remove('hidden');
+    }
+
     async function cargarDashboard() {
       await cargarOpcionesCliente();
       mostrarUltimaActualizacion();
@@ -555,8 +613,9 @@
       dibujarChartForecastReal(filtrados, ventaRealMensual);
       dibujarChartForecastProbabilidad(filtrados);
       dibujarChartLineaProducto(filtrados);
-      dibujarChartPareto(filtrados);
+      dibujarChartPareto(filtrados, clientes, anio);
       dibujarChartRetencion(clientes, anio);
+      pintarAlertaRiesgo(clientes);
       await dibujarChartCrecimiento(anio);
       dibujarChartComposicion(filtrados);
       await pintarTablaInventario(filtrados);
@@ -820,21 +879,33 @@
     // ─────────────────────────────────────────────
     // Gráfico 3: Pareto de clientes (barras horizontales)
     // ─────────────────────────────────────────────
-    function dibujarChartPareto(filtrados) {
+    function dibujarChartPareto(filtrados, clientes, anio) {
       const porCliente = {};
       filtrados.forEach(r => {
         const monto = Number(r.monto_forecast) || 0;
         porCliente[r.cliente] = (porCliente[r.cliente] || 0) + monto;
       });
 
+      // Clientes cuya primera aparición cae en el año que se está viendo (regla #3).
+      // Se calcula por AÑO completo, sin importar el filtro de mes, para que la etiqueta
+      // no desaparezca al filtrar por un mes distinto al de su primera aparición.
+      const nuevosDelAnio = new Set(
+        (clientes || [])
+          .filter(c => c.primera_aparicion && new Date(c.primera_aparicion + 'T00:00:00').getFullYear() === anio)
+          .map(c => c.nombre)
+      );
+
       const ordenado = Object.entries(porCliente).sort((a, b) => b[1] - a[1]).slice(0, 6);
-      const labels = ordenado.map(([nombre]) => nombre.length > 28 ? nombre.slice(0, 28) + '…' : nombre);
+      const labels = ordenado.map(([nombre]) => {
+        const corto = nombre.length > 28 ? nombre.slice(0, 28) + '…' : nombre;
+        return nuevosDelAnio.has(nombre) ? '🆕 ' + corto : corto;
+      });
       const montos = ordenado.map(([, monto]) => monto);
 
       if (charts.pareto) charts.pareto.destroy();
       charts.pareto = new Chart(document.getElementById('chartPareto'), {
         type: 'bar',
-        data: { labels, datasets: [{ label: 'Monto proyectado', data: montos, backgroundColor: '#2563eb', borderRadius: 6, barThickness: 16 }] },
+        data: { labels, datasets: [{ label: 'Monto proyectado', data: montos, backgroundColor: ordenado.map(([nombre]) => nuevosDelAnio.has(nombre) ? '#22c55e' : '#2563eb'), borderRadius: 6, barThickness: 16 }] },
         options: {
           indexAxis: 'y',
           responsive: true,

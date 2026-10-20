@@ -540,15 +540,10 @@
     // Cliente con autocompletar (consulta la tabla 'clientes')
     // ─────────────────────────────────────────────
     async function cargarClientes() {
-      const { data, error } = await supabaseClient
-        .from('clientes')
-        .select('nombre')
-        .order('nombre');
-
-      if (error) { console.error(error); mostrarToast('No se pudo cargar la lista de clientes.'); return; }
-
-      document.getElementById('listaClientes').innerHTML =
-        data.map(c => `<option value="${c.nombre}"></option>`).join('');
+      await cargarClientesValidos();
+      document.getElementById('listaClientes').innerHTML = clientesValidos
+        .map(n => `<option value="${n.replace(/"/g, '&quot;')}"></option>`)
+        .join('');
     }
 
     document.getElementById('reg_linea').addEventListener('change', (e) => {
@@ -586,25 +581,37 @@
     }
 
     async function sugerirForecast() {
-      const linea = document.getElementById('reg_linea').value;
       const mes = document.getElementById('reg_mes').value;
       const anio = document.getElementById('reg_anio').value;
-      const inputForecast = document.getElementById('reg_forecast');
       const hint = document.getElementById('reg_forecast_hint');
 
-      if (!linea || !mes || !anio) return;
+      if (!mes || !anio) return;
 
-      hint.innerHTML = '<i class="fas fa-circle-notch fa-spin-loading"></i> Calculando forecast estacional...';
+      hint.innerHTML = '<i class="fas fa-circle-notch fa-spin-loading"></i> Calculando referencia del mes...';
 
-      const { promedio, anios } = await calcularForecastEstacional(linea, Number(mes), Number(anio));
+      const { promedio, anios } = await calcularForecastEstacional(null, Number(mes), Number(anio));
 
       if (promedio === null) {
         hint.textContent = `Sin historial previo de ${nombreMes[Number(mes)]} en años anteriores — captura el forecast manualmente.`;
         return;
       }
 
-      inputForecast.value = promedio.toFixed(2);
-      hint.textContent = `Forecast estacional: promedio de ${nombreMes[Number(mes)]} (toda la empresa) de ${anios.join(', ')}. Es un estimado general, no específico de este cliente/línea — puedes editarlo.`;
+      // Cuánto forecast ya se capturó para ese mes
+      const { data, error } = await supabaseClient
+        .from('forecast_registros')
+        .select('monto_forecast')
+        .eq('anio', Number(anio))
+        .eq('mes', Number(mes));
+
+      if (error) { console.error(error); mostrarToast('No se pudo calcular la referencia del mes.'); return; }
+
+      const capturado = (data || []).reduce((suma, r) => suma + (Number(r.monto_forecast) || 0), 0);
+      const disponible = Math.max(0, promedio - capturado);
+      const fmt = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+      hint.textContent =
+        `Referencia de ${nombreMes[Number(mes)]} (promedio de ${anios.join(', ')}, toda la empresa): ${fmt(promedio)} · ` +
+        `Ya capturado este mes: ${fmt(capturado)} · Disponible por repartir: ${fmt(disponible)}.`;
     }
 
     document.getElementById('reg_linea').addEventListener('change', sugerirForecast);
@@ -959,128 +966,378 @@
     // ─────────────────────────────────────────────
     // Descargar plantilla de Excel para importación masiva
     // ─────────────────────────────────────────────
-        document.getElementById('btnDescargarPlantilla').addEventListener('click', async () => {
+      document.getElementById('btnDescargarPlantilla').addEventListener('click', async () => {
+          const clientesOk = await cargarClientesValidos();
+          if (!clientesOk) mostrarToast('No se pudo leer la lista actual de clientes; la plantilla usará la lista base.');
       const libro = new ExcelJS.Workbook();
       libro.creator = 'In Hole Solutions';
       libro.created = new Date();
 
-      // Pestaña de instrucciones (guía de llenado)
-      const hojaGuia = libro.addWorksheet('Instrucciones', { views: [{ showGridLines: false }] });
-      hojaGuia.columns = [{ width: 28 }, { width: 70 }];
-
-      hojaGuia.mergeCells('A1:B1');
-      const guiaTitulo = hojaGuia.getCell('A1');
-      guiaTitulo.value = 'CÓMO LLENAR ESTA PLANTILLA';
-      guiaTitulo.font = { size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
-      guiaTitulo.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F3864' } };
-      guiaTitulo.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
-      hojaGuia.getRow(1).height = 26;
-
-      const filasGuia = [
-        ['Campo', 'Qué debes escribir'],
-        ['Año', 'El año del registro, por ejemplo 2026. Escríbelo como número, sin puntos ni comas.'],
-        ['Mes', 'Elige el mes del menú desplegable (no lo escribas a mano). Es obligatorio.'],
-        ['Cliente', 'Elige el cliente del menú desplegable. Si el cliente es nuevo y no aparece en la lista, escríbelo tal cual (respetando mayúsculas y el nombre completo de la razón social) — Excel te mostrará una advertencia amarilla, pero puedes continuar. Se agregará automáticamente a la lista oficial al importar, y aparecerá disponible para los siguientes meses.'],
-        ['Línea de Producto', 'Elige la línea de producto del menú desplegable. Este campo SÍ debe coincidir exactamente con una de las 6 líneas oficiales (Cementing, CHC, Gas Lift, Safety System, Sand Control, Servicios de Taller) — no se permiten líneas nuevas desde aquí.'],
-        ['Servicio', 'Elige el servicio del menú desplegable, o escribe uno nuevo si no aparece en la lista (verás una advertencia amarilla, puedes continuar). Debe describir el servicio específico dentro de la línea de producto elegida. Se agregará automáticamente a la lista al importar.'],
-        ['Pozo / Relación de Venta', 'Nombre del pozo, contrato o referencia de la venta. Déjalo en blanco si no aplica — es opcional.'],
-        ['Forecast (USD)', 'Normalmente déjalo en blanco: el sistema calcula la predicción automáticamente con base en el historial de meses/años anteriores de esa línea. Solo escribe un monto aquí si quieres forzar un valor manual (por ejemplo, ya sabes que viene un pedido especial). Solo el número, sin signo de $ ni comas (ej. 45000).'],
-      ];
-
-      const CARACTERES_POR_LINEA = 62; // recalibrado: Excel ajusta por palabra completa, no por letra
-      const ALTO_POR_LINEA = 15;
-      const ALTO_MINIMO = 20;
-      const MARGEN_SEGURIDAD = 1; // una línea extra de colchón, para no volver a cortar texto
-
-      filasGuia.forEach((fila, i) => {
-        const renglon = hojaGuia.getRow(i + 3);
-        renglon.values = fila;
-
-        const textoLargo = fila[1] || '';
-        const lineasEstimadas = Math.max(1, Math.ceil(textoLargo.length / CARACTERES_POR_LINEA)) + MARGEN_SEGURIDAD;
-        renglon.height = Math.max(ALTO_MINIMO, lineasEstimadas * ALTO_POR_LINEA);
-        if (i === 0) {
-          renglon.eachCell(celda => {
-            celda.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-            celda.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } };
-            celda.alignment = { vertical: 'middle', indent: 1 };
-          });
-        } else {
-          renglon.getCell(1).font = { bold: true };
-          renglon.getCell(1).alignment = { vertical: 'top', wrapText: true };
-          renglon.getCell(2).alignment = { vertical: 'top', wrapText: true };
-          if (i % 2 === 0) {
-            renglon.eachCell(c => c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF2F2F2' } });
-          }
-        }
+      // ═══════════════════════════════════════════════
+      // HOJA DE INSTRUCCIONES (diseño premium)
+      // ═══════════════════════════════════════════════
+      const hojaGuia = libro.addWorksheet('Instrucciones', {
+        views: [{ showGridLines: false }],
+        properties: { tabColor: { argb: 'FF2563EB' } },
+        pageSetup: { orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0 }
       });
 
-      const filaNota = 3 + filasGuia.length + 1;
-      hojaGuia.mergeCells(`A${filaNota}:B${filaNota}`);
-      const notaFinal = hojaGuia.getCell(`A${filaNota}`);
-      notaFinal.value = '⚠️ No cambies los nombres de las columnas ni su orden en la pestaña "Plantilla Forecast". Borra la fila de ejemplo antes de importar.';
-      notaFinal.font = { italic: true, size: 10, color: { argb: 'FFC00000' } };
-      notaFinal.alignment = { wrapText: true, vertical: 'top' };
-      hojaGuia.getRow(filaNota).height = 30;
+      hojaGuia.columns = [
+        { width: 3 },   // A: margen
+        { width: 6 },   // B: número
+        { width: 26 },  // C: campo
+        { width: 64 },  // D: descripción
+        { width: 15 },  // E: requisito
+        { width: 32 },  // F: ejemplo
+        { width: 3 },   // G: margen
+      ];
 
+      const rel = (argb) => ({ type: 'pattern', pattern: 'solid', fgColor: { argb } });
+      const bordeSuave = { style: 'thin', color: { argb: 'FFE2E8F0' } };
+      const columnasGuia = ['B', 'C', 'D', 'E', 'F'];
+      let fg = 1; // fila actual
+
+      const espacio = (alto = 12) => { hojaGuia.getRow(fg).height = alto; fg++; };
+
+      const etiquetaSeccion = (texto) => {
+        hojaGuia.mergeCells(`B${fg}:F${fg}`);
+        const c = hojaGuia.getCell(`B${fg}`);
+        c.value = texto;
+        c.font = { bold: true, size: 11, color: { argb: 'FF2563EB' } };
+        c.alignment = { vertical: 'middle' };
+        columnasGuia.forEach(col => {
+          hojaGuia.getCell(`${col}${fg}`).border = { bottom: { style: 'medium', color: { argb: 'FF2563EB' } } };
+        });
+        hojaGuia.getRow(fg).height = 24;
+        fg++;
+      };
+
+      // ── Banner ──
+      espacio(10);
+
+      hojaGuia.mergeCells(`B${fg}:F${fg}`);
+      const gTitulo = hojaGuia.getCell(`B${fg}`);
+      gTitulo.value = 'GUÍA DE LLENADO · PLANTILLA DE FORECAST';
+      gTitulo.font = { size: 20, bold: true, color: { argb: 'FFFFFFFF' } };
+      gTitulo.fill = rel('FF0F172A');
+      gTitulo.alignment = { vertical: 'middle', horizontal: 'left', indent: 2 };
+      hojaGuia.getRow(fg).height = 44;
+      fg++;
+
+      hojaGuia.mergeCells(`B${fg}:F${fg}`);
+      const gSub = hojaGuia.getCell(`B${fg}`);
+      gSub.value = 'In Hole Solutions  ·  Sigue estos pasos y tu importación saldrá a la primera';
+      gSub.font = { size: 11, color: { argb: 'FF93C5FD' } };
+      gSub.fill = rel('FF0F172A');
+      gSub.alignment = { vertical: 'middle', horizontal: 'left', indent: 2 };
+      hojaGuia.getRow(fg).height = 24;
+      fg++;
+
+      hojaGuia.mergeCells(`B${fg}:F${fg}`);
+      hojaGuia.getCell(`B${fg}`).fill = rel('FF2563EB');
+      hojaGuia.getRow(fg).height = 5;
+      fg++;
+
+      espacio(14);
+
+      // ── Pasos rápidos ──
+      etiquetaSeccion('PASOS RÁPIDOS');
+      espacio(6);
+
+      const pasosRapidos = [
+        'Llena la pestaña "Plantilla Forecast": una fila por cada registro de venta.',
+        'Usa los menús desplegables siempre que aparezcan, así evitas errores de escritura.',
+        'Borra la fila de ejemplo y sube el archivo en la sección "Importar Registros desde Excel".',
+      ];
+
+      pasosRapidos.forEach((texto, i) => {
+        const celdaNum = hojaGuia.getCell(`B${fg}`);
+        celdaNum.value = i + 1;
+        celdaNum.font = { bold: true, size: 14, color: { argb: 'FFFFFFFF' } };
+        celdaNum.fill = rel('FF2563EB');
+        celdaNum.alignment = { vertical: 'middle', horizontal: 'center' };
+
+        hojaGuia.mergeCells(`C${fg}:F${fg}`);
+        const celdaTxt = hojaGuia.getCell(`C${fg}`);
+        celdaTxt.value = texto;
+        celdaTxt.font = { size: 11, color: { argb: 'FF1E293B' } };
+        celdaTxt.fill = rel('FFEFF6FF');
+        celdaTxt.alignment = { vertical: 'middle', horizontal: 'left', indent: 1, wrapText: true };
+
+        columnasGuia.forEach(col => {
+          hojaGuia.getCell(`${col}${fg}`).border = { bottom: { style: 'medium', color: { argb: 'FFFFFFFF' } } };
+        });
+        hojaGuia.getRow(fg).height = 30;
+        fg++;
+      });
+
+      espacio(16);
+
+      // ── Detalle de cada columna ──
+      etiquetaSeccion('DETALLE DE CADA COLUMNA');
+      espacio(6);
+
+      const encabezados = ['#', 'Campo', 'Qué debes escribir', 'Requisito', 'Ejemplo'];
+      columnasGuia.forEach((col, i) => {
+        const c = hojaGuia.getCell(`${col}${fg}`);
+        c.value = encabezados[i];
+        c.font = { bold: true, size: 11, color: { argb: 'FFFFFFFF' } };
+        c.fill = rel('FF1F3864');
+        c.alignment = { vertical: 'middle', horizontal: (i === 0 || i === 3) ? 'center' : 'left', indent: (i === 0 || i === 3) ? 0 : 1 };
+      });
+      hojaGuia.getRow(fg).height = 26;
+      fg++;
+
+      const estilosRequisito = {
+        'Obligatorio': { fondo: 'FFFEE2E2', texto: 'FFB91C1C' },
+        'Opcional':    { fondo: 'FFE0F2FE', texto: 'FF0369A1' },
+        'Automático':  { fondo: 'FFDCFCE7', texto: 'FF15803D' },
+      };
+
+      const camposGuia = [
+        ['Año', 'Escríbelo como número, sin puntos ni comas. Debe estar entre 2000 y 2100.', 'Obligatorio', '2026'],
+        ['Mes', 'Elígelo del menú desplegable (no lo escribas a mano).', 'Obligatorio', 'Enero'],
+        ['Cliente', 'Elígelo del menú desplegable. Si es nuevo, escríbelo tal cual con su razón social completa; Excel mostrará una advertencia amarilla, pero puedes continuar. Se agregará a la lista oficial al importar.', 'Obligatorio', 'BAKER HUGHES DE MEXICO S. DE R.L. DE C.V.'],
+        ['Línea de Producto', 'Elígela del menú. Debe coincidir exactamente con una de las 6 oficiales: Cementing, CHC, Gas Lift, Safety System, Sand Control, Servicios de Taller. No se permiten líneas nuevas.', 'Obligatorio', 'Cementing'],
+        ['Servicio', 'Elígelo del menú o escribe uno nuevo (verás una advertencia amarilla, puedes continuar). Debe describir el servicio específico dentro de la línea elegida.', 'Obligatorio', 'Centradores de Cementación'],
+        ['Pozo / Relación de Venta', 'Nombre del pozo, contrato o referencia de la venta. Déjalo en blanco si no aplica.', 'Opcional', 'Pozo Ayin-1'],
+        ['Forecast (USD)', 'Normalmente déjalo vacío: el sistema toma el promedio histórico de ese mes y lo reparte entre las filas sin monto. Escribe un monto solo si quieres forzar un valor manual. Solo el número, sin signo $ ni comas.', 'Automático', '45000'],
+        ['Nivel de Confianza', 'Elige P50, P70 o P90 del menú. Indica la probabilidad de cumplimiento del forecast. Déjalo vacío si no aplica.', 'Opcional', 'P70'],
+      ];
+
+      camposGuia.forEach(([campo, desc, req, ejemplo], i) => {
+        const fondo = i % 2 === 0 ? 'FFFFFFFF' : 'FFF8FAFC';
+
+        const cNum = hojaGuia.getCell(`B${fg}`);
+        cNum.value = i + 1;
+        cNum.font = { bold: true, size: 11, color: { argb: 'FF2563EB' } };
+        cNum.alignment = { vertical: 'middle', horizontal: 'center' };
+
+        const cCampo = hojaGuia.getCell(`C${fg}`);
+        cCampo.value = campo;
+        cCampo.font = { bold: true, size: 11, color: { argb: 'FF0F172A' } };
+        cCampo.alignment = { vertical: 'middle', horizontal: 'left', indent: 1, wrapText: true };
+
+        const cDesc = hojaGuia.getCell(`D${fg}`);
+        cDesc.value = desc;
+        cDesc.font = { size: 10.5, color: { argb: 'FF334155' } };
+        cDesc.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+
+        const cReq = hojaGuia.getCell(`E${fg}`);
+        cReq.value = req;
+        cReq.font = { bold: true, size: 10, color: { argb: estilosRequisito[req].texto } };
+        cReq.alignment = { vertical: 'middle', horizontal: 'center' };
+
+        const cEj = hojaGuia.getCell(`F${fg}`);
+        cEj.value = ejemplo;
+        cEj.font = { name: 'Consolas', size: 10, color: { argb: 'FF475569' } };
+        cEj.alignment = { vertical: 'middle', horizontal: 'left', indent: 1, wrapText: true };
+
+        columnasGuia.forEach(col => {
+          const c = hojaGuia.getCell(`${col}${fg}`);
+          c.fill = rel(col === 'E' ? estilosRequisito[req].fondo : fondo);
+          c.border = { bottom: bordeSuave };
+        });
+
+        // Altura automática según el texto más largo de la fila
+        const lineas = Math.max(1, Math.ceil(desc.length / 60), Math.ceil(ejemplo.length / 28));
+        hojaGuia.getRow(fg).height = Math.max(30, lineas * 15 + 10);
+        fg++;
+      });
+
+      espacio(16);
+
+      // ── Antes de importar ──
+      etiquetaSeccion('ANTES DE IMPORTAR');
+      espacio(6);
+
+      const avisos = [
+        ['⚠️', 'No cambies los nombres de las columnas ni su orden en la pestaña "Plantilla Forecast".'],
+        ['🗑️', 'Borra la fila de ejemplo antes de subir el archivo.'],
+        ['✅', 'Las filas con advertencia amarilla sí se importan; las filas con error rojo no.'],
+      ];
+
+      avisos.forEach(([icono, texto]) => {
+        const cIcono = hojaGuia.getCell(`B${fg}`);
+        cIcono.value = icono;
+        cIcono.alignment = { vertical: 'middle', horizontal: 'center' };
+        cIcono.font = { size: 13 };
+
+        hojaGuia.mergeCells(`C${fg}:F${fg}`);
+        const cTxt = hojaGuia.getCell(`C${fg}`);
+        cTxt.value = texto;
+        cTxt.font = { size: 10.5, color: { argb: 'FF92400E' } };
+        cTxt.alignment = { vertical: 'middle', horizontal: 'left', indent: 1, wrapText: true };
+
+        columnasGuia.forEach(col => {
+          const c = hojaGuia.getCell(`${col}${fg}`);
+          c.fill = rel('FFFFFBEB');
+          c.border = { bottom: { style: 'medium', color: { argb: 'FFFFFFFF' } } };
+        });
+        hojaGuia.getRow(fg).height = 26;
+        fg++;
+      });
+
+      espacio(14);
+
+      // ── Pie ──
+      hojaGuia.mergeCells(`B${fg}:F${fg}`);
+      const gPie = hojaGuia.getCell(`B${fg}`);
+      gPie.value = 'PreDix Forecast  ·  In Hole Solutions';
+      gPie.font = { italic: true, size: 9, color: { argb: 'FF94A3B8' } };
+      gPie.alignment = { horizontal: 'center', vertical: 'middle' };
+      hojaGuia.getRow(fg).height = 18;
+
+      // ═══════════════════════════════════════════════
+      // HOJA "PLANTILLA FORECAST" (diseño premium)
+      // ═══════════════════════════════════════════════
       const hoja = libro.addWorksheet('Plantilla Forecast', {
-        views: [{ state: 'frozen', ySplit: 4 }]
+        views: [{ state: 'frozen', ySplit: 4, showGridLines: false }],
+        properties: { tabColor: { argb: 'FF0F172A' } },
+        pageSetup: { orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0 }
       });
 
-      // Ancho de columnas
       hoja.columns = [
-        { width: 8 }, { width: 12 }, { width: 42 }, { width: 18 },
-        { width: 30 }, { width: 22 }, { width: 16 },
-        { width: 20 }, { width: 20 }
+        { width: 9 },   // A: Año
+        { width: 15 },  // B: Mes
+        { width: 48 },  // C: Cliente
+        { width: 22 },  // D: Línea de Producto
+        { width: 34 },  // E: Servicio
+        { width: 28 },  // F: Pozo / Relación
+        { width: 18 },  // G: Forecast
+        { width: 20 },  // H: Nivel de Confianza
       ];
 
-      // Barra de título con marca (fila 1)
+      const relleno = (argb) => ({ type: 'pattern', pattern: 'solid', fgColor: { argb } });
+      const colsPlantilla = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+      const bordeFino = { style: 'thin', color: { argb: 'FFE2E8F0' } };
+
+      // ── Banner superior ──
       hoja.mergeCells('A1:H1');
-      const titulo = hoja.getCell('A1');
-      titulo.value = 'PLANTILLA DE CARGA · FORECAST IN HOLE SOLUTIONS';
-      titulo.font = { name: 'Calibri', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
-      titulo.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F3864' } };
-      titulo.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
-      hoja.getRow(1).height = 28;
+      const pTitulo = hoja.getCell('A1');
+      pTitulo.value = 'PLANTILLA DE CARGA · FORECAST IN HOLE SOLUTIONS';
+      pTitulo.font = { size: 20, bold: true, color: { argb: 'FFFFFFFF' } };
+      pTitulo.alignment = { vertical: 'middle', horizontal: 'left', indent: 2 };
+      hoja.getRow(1).height = 44;
 
-      // Instrucciones (fila 2)
       hoja.mergeCells('A2:H2');
-      const instrucciones = hoja.getCell('A2');
-      instrucciones.value = 'Completa una fila por registro. No cambies los nombres ni el orden de las columnas. Borra la fila de ejemplo antes de importar.';
-      instrucciones.font = { italic: true, size: 10, color: { argb: 'FF595959' } };
-      hoja.getRow(2).height = 18;
+      const pSub = hoja.getCell('A2');
+      pSub.value = 'Una fila por registro  ·  Usa los menús desplegables  ·  Borra la fila de ejemplo (amarilla) antes de importar';
+      pSub.font = { size: 11, color: { argb: 'FF93C5FD' } };
+      pSub.alignment = { vertical: 'middle', horizontal: 'left', indent: 2 };
+      hoja.getRow(2).height = 24;
 
-      hoja.getRow(3).height = 6; // respiro visual
+      colsPlantilla.forEach(col => {
+        hoja.getCell(`${col}1`).fill = relleno('FF0F172A');
+        hoja.getCell(`${col}2`).fill = relleno('FF0F172A');
+        hoja.getCell(`${col}2`).border = { bottom: { style: 'thick', color: { argb: 'FF2563EB' } } };
+      });
 
-      // Etiqueta de grupo "PROBABILIDAD" encima de la columna H
-      hoja.mergeCells('H3:H3');
-      const grupoProbabilidad = hoja.getCell('H3');
-      grupoProbabilidad.value = 'PROBABILIDAD';
-      grupoProbabilidad.font = { bold: true, size: 9, color: { argb: 'FFFFFFFF' } };
-      grupoProbabilidad.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } };
-      grupoProbabilidad.alignment = { vertical: 'middle', horizontal: 'center' };
-      hoja.getRow(3).height = 16;
+      // ── Fila 3: bandas de color que indican qué es obligatorio ──
+      const bandas = [
+        { desde: 'A', hasta: 'E', texto: 'OBLIGATORIO', fondo: 'FFB91C1C' },
+        { desde: 'F', hasta: 'F', texto: 'OPCIONAL',    fondo: 'FF0369A1' },
+        { desde: 'G', hasta: 'G', texto: 'AUTOMÁTICO',  fondo: 'FF15803D' },
+        { desde: 'H', hasta: 'H', texto: 'OPCIONAL',    fondo: 'FF0369A1' },
+      ];
 
-      // Tabla nativa de Excel: encabezado, bandeado de colores y filtro los pone Excel solo
-      hoja.addTable({
-        name: 'TablaForecast',
-        ref: 'A4',
-        headerRow: true,
-        totalsRow: false,
-        style: { theme: 'TableStyleMedium9', showRowStripes: true },
-        columns: [
-          { name: 'Año' }, { name: 'Mes' }, { name: 'Cliente' }, { name: 'Línea de Producto' },
-          { name: 'Servicio' }, { name: 'Pozo / Relación de Venta' },
-          { name: 'Forecast (USD)' },
-          { name: 'Nivel de Confianza' }
-        ],
-        rows: [
-          [2026, 'Enero', 'BAKER HUGHES DE MEXICO S. DE R.L. DE C.V.', 'Cementing',
-          'Centradores de Cementación', 'Pozo Ayin-1', 45000, 'P70']
+      bandas.forEach(b => {
+        if (b.desde !== b.hasta) hoja.mergeCells(`${b.desde}3:${b.hasta}3`);
+        const maestra = hoja.getCell(`${b.desde}3`);
+        maestra.value = b.texto;
+        maestra.font = { bold: true, size: 9, color: { argb: 'FFFFFFFF' } };
+        maestra.alignment = { vertical: 'middle', horizontal: 'center' };
+
+        const i0 = colsPlantilla.indexOf(b.desde);
+        const i1 = colsPlantilla.indexOf(b.hasta);
+        colsPlantilla.slice(i0, i1 + 1).forEach(col => {
+          hoja.getCell(`${col}3`).fill = relleno(b.fondo);
+        });
+        hoja.getCell(`${b.hasta}3`).border = { right: { style: 'medium', color: { argb: 'FFFFFFFF' } } };
+      });
+      hoja.getRow(3).height = 18;
+
+      // ── Fila 4: encabezados (los nombres NO se tocan, el importador depende de ellos) ──
+      const encabezadosPlantilla = [
+        'Año', 'Mes', 'Cliente', 'Línea de Producto',
+        'Servicio', 'Pozo / Relación de Venta', 'Forecast (USD)', 'Nivel de Confianza'
+      ];
+
+      encabezadosPlantilla.forEach((texto, i) => {
+        const centrada = [0, 1, 6, 7].includes(i);
+        const c = hoja.getCell(`${colsPlantilla[i]}4`);
+        c.value = texto;
+        c.font = { bold: true, size: 11, color: { argb: 'FFFFFFFF' } };
+        c.fill = relleno('FF1F3864');
+        c.alignment = { vertical: 'middle', horizontal: centrada ? 'center' : 'left', indent: centrada ? 0 : 1, wrapText: true };
+        c.border = { bottom: { style: 'thick', color: { argb: 'FF2563EB' } } };
+      });
+      hoja.getRow(4).height = 34;
+
+      // ── Filas de captura (5 a 200): bandeado, bordes suaves y formatos ──
+      for (let i = 5; i <= 200; i++) {
+        const fondo = i % 2 === 0 ? 'FFFFFFFF' : 'FFF1F5F9';
+
+        colsPlantilla.forEach((col, idx) => {
+          const c = hoja.getCell(`${col}${i}`);
+          c.font = { size: 11, color: { argb: 'FF1E293B' } };
+          c.fill = relleno(fondo);
+          c.border = { top: bordeFino, bottom: bordeFino, left: bordeFino, right: bordeFino };
+
+          let horizontal = 'left';
+          if ([0, 1, 7].includes(idx)) horizontal = 'center';
+          if (idx === 6) horizontal = 'right';
+          c.alignment = { vertical: 'middle', horizontal, indent: [2, 3, 4, 5, 6].includes(idx) ? 1 : 0 };
+        });
+
+        hoja.getCell(`A${i}`).numFmt = '0';
+        hoja.getCell(`G${i}`).numFmt = '$#,##0.00';
+        hoja.getRow(i).height = 22;
+      }
+
+      // ── Fila de ejemplo (amarilla, para que se note que hay que borrarla) ──
+      const filaEjemplo = [
+        2026, 'Enero', 'BAKER HUGHES DE MEXICO S. DE R.L. DE C.V.', 'Cementing',
+        'Centradores de Cementación', 'Pozo Ayin-1', 45000, 'P70'
+      ];
+      filaEjemplo.forEach((valor, idx) => {
+        const c = hoja.getCell(`${colsPlantilla[idx]}5`);
+        c.value = valor;
+        c.fill = relleno('FFFEF9C3');
+        c.font = { italic: true, size: 11, color: { argb: 'FF92400E' } };
+      });
+
+      // ── Colores automáticos para el Nivel de Confianza (igual que en el panel web) ──
+      hoja.addConditionalFormatting({
+        ref: 'H5:H200',
+        rules: [
+          {
+            type: 'cellIs', operator: 'equal', formulae: ['"P50"'],
+            style: { font: { bold: true, color: { argb: 'FF92400E' } }, fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFFDE68A' } } }
+          },
+          {
+            type: 'cellIs', operator: 'equal', formulae: ['"P70"'],
+            style: { font: { bold: true, color: { argb: 'FF155E75' } }, fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFA5F3FC' } } }
+          },
+          {
+            type: 'cellIs', operator: 'equal', formulae: ['"P90"'],
+            style: { font: { bold: true, color: { argb: 'FF6B21A8' } }, fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFE9D5FF' } } }
+          },
         ]
       });
-      hoja.getRow(4).height = 24;
-      hoja.getRow(5).font = { italic: true, color: { argb: 'FF808080' } };
+
+      // ── Resalta en rojo suave los campos obligatorios que falten en una fila ya iniciada ──
+      hoja.addConditionalFormatting({
+        ref: 'A5:E200',
+        rules: [{
+          type: 'expression',
+          formulae: ['AND(COUNTA($A5:$H5)>0,A5="")'],
+          style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFFECACA' } } }
+        }]
+      });
+
+      // ── Filtros en los encabezados ──
+      hoja.autoFilter = 'A4:H200';
 
       // Hoja oculta con las listas oficiales, para los menús desplegables
       const hojaListas = libro.addWorksheet('Listas');
@@ -1169,7 +1426,8 @@
     // ─────────────────────────────────────────────
     // Importar Excel: leer, validar y mostrar vista previa
     // ─────────────────────────────────────────────
-    const clientesValidos = [
+    // Lista base de respaldo: solo se usa si Supabase falla o la tabla 'clientes' está vacía
+    const clientesIniciales = [
       'PETROLEOS MEXICANOS',
       'DOWELL SCHLUMBERGER DE MEXICO S.A. DE C.V.',
       'WEATHERFORD DE MEXICO S DE RL DE CV.',
@@ -1179,6 +1437,33 @@
       'ENERGY DRILLING MARINE SERVICES S.A.P.I de C.V.',
       'WELL SOLUTIONS EQUIPMENT S.A. de C.V.',
     ];
+
+    // Lista viva: se actualiza desde la tabla 'clientes' de Supabase
+    let clientesValidos = [...clientesIniciales];
+
+    // Lee la tabla 'clientes' y actualiza clientesValidos. Devuelve true si Supabase respondió bien.
+    async function cargarClientesValidos() {
+      const [rForecast, rClientes] = await Promise.all([
+        supabaseClient.from('forecast_clientes').select('nombre'),
+        supabaseClient.from('clientes').select('nombre'),
+      ]);
+
+      if (rForecast.error) console.error('forecast_clientes:', rForecast.error);
+      if (rClientes.error) console.error('clientes:', rClientes.error);
+
+      // Une ambas fuentes y quita duplicados ignorando mayúsculas y espacios sobrantes
+      const vistos = new Map();
+      [...(rForecast.data || []), ...(rClientes.data || [])].forEach(c => {
+        const nombre = (c.nombre || '').trim();
+        const clave = nombre.toUpperCase();
+        if (nombre && !vistos.has(clave)) vistos.set(clave, nombre);
+      });
+
+      const lista = [...vistos.values()].sort((a, b) => a.localeCompare(b, 'es'));
+      if (lista.length > 0) clientesValidos = lista;
+
+      return !(rForecast.error && rClientes.error); // false solo si fallaron las dos
+    }
 
     const lineasValidas = ['Cementing', 'CHC', 'Gas Lift', 'Safety System', 'Sand Control', 'Servicios de Taller'];
 
@@ -1214,7 +1499,7 @@
       const forecast = fila['Forecast (USD)'] !== undefined && fila['Forecast (USD)'] !== '' ? Number(fila['Forecast (USD)']) : null;
 
       // Nivel de confianza único: P50, P70 o P90
-      const confianzaTexto = String(fila['Nivel de Confianza (P50/P70/P90)'] || '').trim().toUpperCase();
+      const confianzaTexto = String(fila['Nivel de Confianza'] || '').trim().toUpperCase();
       const confianza = ['P50', 'P70', 'P90'].includes(confianzaTexto) ? confianzaTexto : null;
       if (confianzaTexto && !confianza) errores.push('Nivel de Confianza debe ser P50, P70 o P90');
 
@@ -1276,6 +1561,7 @@
 
       const lector = new FileReader();
       lector.onload = async (evento) => {
+        await cargarClientesValidos();
         const datos = new Uint8Array(evento.target.result);
         const libro = XLSX.read(datos, { type: 'array' });
         const nombreHojaDatos = libro.SheetNames.includes('Plantilla Forecast')
@@ -1310,6 +1596,7 @@
 
         filasImportacion = filasSinEjemplo.map(validarFila);
         await marcarDuplicados(filasImportacion);
+        await repartirForecastAutomatico(filasImportacion.filter(f => f.estado !== 'error'));
         mostrarVistaPrevia();
       };
       lector.readAsArrayBuffer(archivo);
@@ -1392,7 +1679,11 @@
           <td class="py-2 px-3">${f.linea || '—'}</td>
           <td class="py-2 px-3">${f.servicio || '—'}</td>
           <td class="py-2 px-3">${f.pozo || '—'}</td>
-          <td class="py-2 px-3">${f.forecast != null ? f.forecast.toLocaleString('en-US') : '(auto)'}</td>
+          <td class="py-2 px-3">${f.forecast != null
+            ? f.forecast.toLocaleString('en-US')
+            : (f.forecastAuto != null
+                ? '<span class="text-accent2 font-medium">' + f.forecastAuto.toLocaleString('en-US') + '</span> <span class="text-[10px] text-gray-400">auto</span>'
+                : '<span class="text-gray-400">sin historial</span>')}</td>
           <td class="py-2 px-3">${f.confianza || '—'}</td>
           <td class="py-2 px-3 text-gray-500">${[...f.errores, ...f.advertencias].join('; ') || '—'}</td>
         </tr>`).join('');
@@ -1402,12 +1693,41 @@
     }
 
     // ─────────────────────────────────────────────
-    // Calcula el Forecast automático para una fila sin forecast manual
-    // (mismo criterio que sugerirForecast(): promedio estacional de la Venta Real Mensual)
+    // Reparte el forecast estacional de cada mes entre las filas que no traen monto manual.
+    // Total del mes = promedio histórico de ese mes. Se descuentan los montos manuales
+    // del archivo y lo restante se divide en partes iguales entre las filas sin monto.
+    // Guarda el resultado en f.forecastAuto (no toca f.forecast, que es el manual).
     // ─────────────────────────────────────────────
-    async function calcularForecastAutomatico(linea, mes, anio) {
-      const { promedio } = await calcularForecastEstacional(linea, mes, anio);
-      return promedio !== null ? Number(promedio.toFixed(2)) : null;
+    async function repartirForecastAutomatico(filas) {
+      const grupos = {};
+      filas.forEach(f => {
+        f.forecastAuto = null;
+        if (!f.anio || !f.mes) return;
+        (grupos[`${f.anio}-${f.mes}`] = grupos[`${f.anio}-${f.mes}`] || []).push(f);
+      });
+
+      for (const clave of Object.keys(grupos)) {
+        const filasMes = grupos[clave];
+        const sinManual = filasMes.filter(f => f.forecast === null);
+        if (sinManual.length === 0) continue;
+
+        const { anio, mes } = filasMes[0];
+        const { promedio } = await calcularForecastEstacional(null, mes, anio);
+        if (promedio === null) continue; // sin historial: quedan sin forecast
+
+        const totalManual = filasMes
+          .filter(f => f.forecast !== null)
+          .reduce((suma, f) => suma + f.forecast, 0);
+
+        const restante = Math.max(0, promedio - totalManual);
+        const porFila = Math.floor((restante / sinManual.length) * 100) / 100;
+
+        sinManual.forEach(f => { f.forecastAuto = porFila; });
+
+        // La última fila absorbe los centavos del redondeo para que el total cuadre exacto
+        const centavos = Math.round((restante - porFila * sinManual.length) * 100) / 100;
+        sinManual[sinManual.length - 1].forecastAuto = Math.round((porFila + centavos) * 100) / 100;
+      }
     }
 
     // ─────────────────────────────────────────────
@@ -1454,10 +1774,7 @@
             onConflict: 'linea_producto,nombre', ignoreDuplicates: true
           });
         // Si la fila no trajo Forecast manual, lo calculamos con el historial estacional
-        let forecast = f.forecast;
-        if (forecast === null) {
-          forecast = await calcularForecastAutomatico(f.linea, f.mes, f.anio);
-        }
+        const forecast = f.forecast !== null ? f.forecast : (f.forecastAuto ?? null);
 
         const payload = {
           anio: f.anio,
@@ -1518,6 +1835,7 @@
       cargarHistorialImportaciones();
       cargarHistorialAuditoria();
       mostrarUltimaActualizacion();
+      cargarClientes();
       // Limpiamos el input para permitir subir otro archivo después
       document.getElementById('inputExcel').value = '';
     });
