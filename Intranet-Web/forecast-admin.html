@@ -461,13 +461,18 @@
       window.usuarioActual = session.user.email;
     }
 
+    function escapeHtml(valor) {
+      return String(valor ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
     // Muestra una notificación discreta (toast) al usuario; tipo: 'error' | 'success'
     function mostrarToast(mensaje, tipo = 'error') {
       const contenedor = document.getElementById('toastContainer');
       const toast = document.createElement('div');
       const icono = tipo === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check';
       toast.className = `toast toast-${tipo}`;
-      toast.innerHTML = `<i class="fas ${icono}"></i><span>${mensaje}</span>`;
+      toast.innerHTML = `<i class="fas ${icono}"></i><span></span>`;
+      toast.querySelector('span').textContent = mensaje;
       contenedor.appendChild(toast);
       setTimeout(() => {
         toast.style.opacity = '0';
@@ -532,7 +537,7 @@
 
       if (error) { console.error(error); mostrarToast('No se pudo cargar la lista de servicios.'); return; }
 
-      datalist.innerHTML = data.map(s => `<option value="${s.nombre}"></option>`).join('');
+      datalist.innerHTML = data.map(s => `<option value="${escapeHtml(s.nombre)}"></option>`).join('');
       hint.textContent = `${data.length} servicio(s) registrados en ${linea}. Si escribes uno nuevo, se agregará a la lista al guardar.`;
     }
 
@@ -542,7 +547,7 @@
     async function cargarClientes() {
       await cargarClientesValidos();
       document.getElementById('listaClientes').innerHTML = clientesValidos
-        .map(n => `<option value="${n.replace(/"/g, '&quot;')}"></option>`)
+        .map(n => `<option value="${escapeHtml(n)}"></option>`)
         .join('');
     }
 
@@ -641,15 +646,24 @@
     // Guardar el registro en Supabase
     // ─────────────────────────────────────────────
     // Busca si ya existe un registro con el mismo Cliente + Línea + Mes + Año
-    async function buscarRegistroExistente({ anio, mes, cliente, linea_producto }) {
-      const { data, error } = await supabaseClient
+    async function buscarRegistroExistente({ anio, mes, cliente, linea_producto, servicio, pozo_relacion_venta }) {
+      let consulta = supabaseClient
         .from('forecast_registros')
         .select('id')
         .eq('anio', anio)
         .eq('mes', mes)
         .eq('cliente', cliente)
         .eq('linea_producto', linea_producto)
-        .limit(1);
+        .ilike('servicio', servicio.trim().replace(/[\\%_]/g, '\\$&'));
+
+      // Sin pozo se compara contra registros sin pozo (null), no contra cualquiera
+      // ilike sin comodines = comparación exacta ignorando mayúsculas.
+      // Se escapan \ % _ para que no se interpreten como comodines.
+      consulta = pozo_relacion_venta
+        ? consulta.ilike('pozo_relacion_venta', pozo_relacion_venta.trim().replace(/[\\%_]/g, '\\$&'))
+        : consulta.is('pozo_relacion_venta', null);
+
+      const { data, error } = await consulta.limit(1);
 
       if (error) { console.error(error); mostrarToast('No se pudo verificar si el registro ya existía.'); return null; }
       return (data && data.length > 0) ? data[0].id : null;
@@ -682,7 +696,7 @@
       };
 
       // Registra o actualiza este cliente en la tabla 'clientes' (para Nuevos/Activos/Retenidos/Perdidos)
-      await registrarCliente(payload.cliente);
+      await registrarCliente(payload.cliente, payload.anio, payload.mes);
 
       // Si el servicio escrito no existía para esta línea, lo agregamos al catálogo
 
@@ -697,7 +711,7 @@
 
       if (idExistente) {
         const confirmar = window.confirm(
-          `Ya existe un registro para ${payload.cliente} · ${payload.linea_producto} · ${nombreMes[payload.mes]} ${payload.anio}.\n\n¿Deseas actualizarlo con estos nuevos valores?`
+          `Ya existe un registro para ${payload.cliente} · ${payload.linea_producto} · ${payload.servicio}${payload.pozo_relacion_venta ? ' · ' + payload.pozo_relacion_venta : ''} · ${nombreMes[payload.mes]} ${payload.anio}.\n\n¿Deseas actualizarlo con estos nuevos valores?`
         );
         if (!confirmar) {
           status.textContent = 'Guardado cancelado — el registro existente no se modificó.';
@@ -766,15 +780,19 @@
     // Registro de Clientes (para Nuevos / Activos / Retenidos / Perdidos)
     // ─────────────────────────────────────────────
 
-    // Registra o actualiza UN cliente. Si es la primera vez que se ve, crea su
-    // primera_aparicion = hoy. Si ya existía, solo mueve su ultima_aparicion a hoy.
-    async function registrarCliente(nombreCliente) {
+    // Registra o actualiza UN cliente usando el periodo del registro (no la fecha de hoy).
+    // primera_aparicion = la fecha más antigua vista, ultima_aparicion = la más reciente.
+    // Los meses futuros se topan a hoy, para que un forecast adelantado no cuente como actividad.
+    async function registrarCliente(nombreCliente, anio, mes) {
       if (!nombreCliente) return;
-      const hoy = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
+      const hoyTexto = new Date().toISOString().slice(0, 10);
+      let fecha = `${anio}-${String(mes).padStart(2, '0')}-01`;
+      if (!anio || !mes || fecha > hoyTexto) fecha = hoyTexto;
 
       const { data: existente, error: errBusqueda } = await supabaseClient
         .from('clientes')
-        .select('nombre')
+        .select('nombre, primera_aparicion, ultima_aparicion')
         .eq('nombre', nombreCliente)
         .maybeSingle();
 
@@ -783,12 +801,18 @@
       if (!existente) {
         const { error } = await supabaseClient
           .from('clientes')
-          .insert({ nombre: nombreCliente, primera_aparicion: hoy, ultima_aparicion: hoy });
+          .insert({ nombre: nombreCliente, primera_aparicion: fecha, ultima_aparicion: fecha });
         if (error) { console.error('Error al registrar cliente nuevo:', error); mostrarToast('El forecast se guardó, pero el cliente no quedó registrado.'); }
-      } else {
+        return;
+      }
+
+      const primera = existente.primera_aparicion && existente.primera_aparicion < fecha ? existente.primera_aparicion : fecha;
+      const ultima = existente.ultima_aparicion && existente.ultima_aparicion > fecha ? existente.ultima_aparicion : fecha;
+
+      if (primera !== existente.primera_aparicion || ultima !== existente.ultima_aparicion) {
         const { error } = await supabaseClient
           .from('clientes')
-          .update({ ultima_aparicion: hoy })
+          .update({ primera_aparicion: primera, ultima_aparicion: ultima })
           .eq('nombre', nombreCliente);
         if (error) console.error('Error al actualizar cliente:', error);
       }
@@ -887,9 +911,9 @@
       } else {
         tbody.innerHTML = data.map(r => `
           <tr>
-            <td class="py-2 px-3">${r.cliente}</td>
-            <td class="py-2 px-3">${r.linea_producto}</td>
-            <td class="py-2 px-3">${r.servicio}</td>
+            <td class="py-2 px-3">${escapeHtml(r.cliente)}</td>
+            <td class="py-2 px-3">${escapeHtml(r.linea_producto)}</td>
+            <td class="py-2 px-3">${escapeHtml(r.servicio)}</td>
             <td class="py-2 px-3">${r.monto_forecast != null ? Number(r.monto_forecast).toLocaleString('en-US') : '—'}</td>
           </tr>`).join('');
       }
@@ -1596,11 +1620,55 @@
 
         filasImportacion = filasSinEjemplo.map(validarFila);
         await marcarDuplicados(filasImportacion);
+        marcarDuplicadosEnArchivo(filasImportacion);
         await repartirForecastAutomatico(filasImportacion.filter(f => f.estado !== 'error'));
         mostrarVistaPrevia();
       };
       lector.readAsArrayBuffer(archivo);
     });
+
+    // Normaliza el pozo para compararlo: sin espacios sobrantes ni diferencias de mayúsculas
+    function normalizarPozo(valor) {
+      return String(valor ?? '').trim().toLowerCase();
+    }
+
+    // Normaliza cualquier texto para compararlo: sin espacios sobrantes ni diferencias de mayúsculas
+    function normalizarTexto(valor) {
+      return String(valor ?? '').trim().toLowerCase();
+    }
+
+    // Marca como error las filas repetidas dentro del mismo archivo.
+    // La primera aparición se conserva; las siguientes no se importarán.
+    function marcarDuplicadosEnArchivo(filas) {
+      const vistas = new Set();
+      filas.forEach(f => {
+        if (f.estado === 'error' || !f.anio || !f.mes) return;
+        const clave = [f.anio, f.mes, f.cliente, f.linea, normalizarTexto(f.servicio), normalizarPozo(f.pozo)].join('|');
+        if (vistas.has(clave)) {
+          f.errores.push('Repetida en el archivo (mismo cliente, línea, servicio y pozo que una fila de arriba)');
+          f.estado = 'error';
+        } else {
+          vistas.add(clave);
+        }
+      });
+    }
+
+    // Supabase devuelve máximo 1000 filas por consulta; esto pide por páginas hasta traer todo.
+    async function traerTodo(construirConsulta) {
+      const TAM = 1000;
+      let todo = [];
+      for (let desde = 0; ; desde += TAM) {
+        const { data, error } = await construirConsulta().range(desde, desde + TAM - 1);
+        if (error) {
+          console.error('Error al paginar:', error);
+          mostrarToast('No se pudieron revisar todos los duplicados, revisa la vista previa con cuidado.');
+          return null;
+        }
+        todo = todo.concat(data || []);
+        if (!data || data.length < TAM) break;
+      }
+      return todo;
+    }
 
     // Revisa, contra forecast_registros y forecast_importaciones, si ya existe
     // algo para los mismos Año+Mes presentes en el archivo que se está subiendo.
@@ -1628,13 +1696,16 @@
         return `and(anio.eq.${anio},mes.eq.${mes})`;
       }).join(',');
 
-      const { data: registrosExistentes } = await supabaseClient
-        .from('forecast_registros')
-        .select('id, anio, mes, cliente, linea_producto, servicio')
-        .or(condiciones);
+      const registrosExistentes = await traerTodo(() =>
+        supabaseClient
+          .from('forecast_registros')
+          .select('id, anio, mes, cliente, linea_producto, servicio, pozo_relacion_venta')
+          .or(condiciones)
+          .order('id')
+      );
 
       const idsExistentes = new Map(
-        (registrosExistentes || []).map(r => [`${r.anio}-${r.mes}-${r.cliente}-${r.linea_producto}-${r.servicio}`, r.id])
+        (registrosExistentes || []).map(r => [`${r.anio}-${r.mes}-${r.cliente}-${r.linea_producto}-${normalizarTexto(r.servicio)}-${normalizarPozo(r.pozo_relacion_venta)}`, r.id])
       );
 
       filas.forEach(f => {
@@ -1647,7 +1718,7 @@
         }
 
         // Aviso a nivel de fila exacta (esa combinación específica ya existe)
-        const clave = `${f.anio}-${f.mes}-${f.cliente}-${f.linea}-${f.servicio}`;
+        const clave = `${f.anio}-${f.mes}-${f.cliente}-${f.linea}-${normalizarTexto(f.servicio)}-${normalizarPozo(f.pozo)}`;
         if (idsExistentes.has(clave)) {
           f.idExistente = idsExistentes.get(clave);
           f.advertencias.push('Ya existe un registro idéntico — se actualizará en vez de duplicarse');
@@ -1675,10 +1746,10 @@
           <td class="py-2 px-3">${badgeEstado(f.estado)}</td>
           <td class="py-2 px-3">${f.anio || '—'}</td>
           <td class="py-2 px-3">${f.mes ? nombreMes[f.mes] : '—'}</td>
-          <td class="py-2 px-3">${f.cliente || '—'}</td>
-          <td class="py-2 px-3">${f.linea || '—'}</td>
-          <td class="py-2 px-3">${f.servicio || '—'}</td>
-          <td class="py-2 px-3">${f.pozo || '—'}</td>
+          <td class="py-2 px-3">${escapeHtml(f.cliente) || '—'}</td>
+          <td class="py-2 px-3">${escapeHtml(f.linea) || '—'}</td>
+          <td class="py-2 px-3">${escapeHtml(f.servicio) || '—'}</td>
+          <td class="py-2 px-3">${escapeHtml(f.pozo) || '—'}</td>
           <td class="py-2 px-3">${f.forecast != null
             ? f.forecast.toLocaleString('en-US')
             : (f.forecastAuto != null
@@ -1740,16 +1811,26 @@
       const filasAImportar = filasImportacion.filter(f => f.estado !== 'error');
       if (filasAImportar.length === 0) return;
 
-      const filasConAdvertencia = filasAImportar.filter(f => f.estado === 'advertencia');
-      if (filasConAdvertencia.length > 0) {
-        const confirmar = window.confirm(
-          `${filasConAdvertencia.length} de ${filasAImportar.length} fila(s) tienen advertencia de posible duplicado ` +
-          `(mismo Cliente+Línea+Servicio+Mes+Año, o ese período ya fue importado antes).\n\n` +
-          `Si continúas, esas filas se agregarán como registros NUEVOS (no reemplazan a los existentes).\n\n` +
-          `¿Deseas continuar con la importación de todas formas?`
-        );
-        if (!confirmar) {
-          status.textContent = 'Importación cancelada — revisa las filas marcadas con advertencia.';
+      // Cuántas filas se crearán y cuántas actualizarán un registro que ya existe
+      const aActualizar = filasAImportar.filter(f => f.idExistente).length;
+      const aCrear = filasAImportar.length - aActualizar;
+      const periodoRepetido = filasAImportar.some(f =>
+        f.advertencias.some(a => a.includes('ya fue importado antes'))
+      );
+
+      if (aActualizar > 0 || periodoRepetido) {
+        let mensaje =
+          `Se van a procesar ${filasAImportar.length} fila(s):\n\n` +
+          `• ${aCrear} se crearán como registros nuevos.\n` +
+          `• ${aActualizar} ya existen (mismo Cliente + Línea + Servicio + Pozo + Mes + Año) y se ACTUALIZARÁN con los valores del archivo.\n`;
+
+        if (periodoRepetido) {
+          mensaje += `\nAviso: alguno de los meses de este archivo ya se había importado antes.\n`;
+        }
+        mensaje += `\n¿Deseas continuar?`;
+
+        if (!window.confirm(mensaje)) {
+          status.textContent = 'Importación cancelada — no se modificó ningún registro.';
           status.className = 'text-sm ml-3 text-amber-600';
           return;
         }
@@ -1757,6 +1838,7 @@
 
       boton.disabled = true;
       let exitosas = 0;
+      let actualizadas = 0;
       let fallidas = 0;
 
       for (let i = 0; i < filasAImportar.length; i++) {
@@ -1765,7 +1847,7 @@
         status.className = 'text-sm ml-3 text-gray-500';
 
         // Registra o actualiza este cliente en la tabla 'clientes' (para Nuevos/Activos/Retenidos/Perdidos)
-        await registrarCliente(f.cliente);
+        await registrarCliente(f.cliente, f.anio, f.mes);
 
         // Si el Servicio es nuevo, se agrega a su catálogo. Usamos upsert con
         // ignoreDuplicates para que, si ya existía, Supabase no lance error 409 en consola.
@@ -1801,6 +1883,7 @@
           fallidas++;
         } else {
           exitosas++;
+          if (f.idExistente) actualizadas++;
           // Deja constancia de quién hizo este cambio, para el Historial de Cambios
           await registrarAuditoria({
             accion: f.idExistente ? 'Actualización' : 'Creación',
@@ -1815,7 +1898,7 @@
         }
       }
 
-      status.textContent = `✓ Importación terminada: ${exitosas} registros guardados` + (fallidas > 0 ? `, ${fallidas} fallaron (revisa la consola)` : '.');
+      status.textContent = `✓ Importación terminada: ${exitosas - actualizadas} nuevos, ${actualizadas} actualizados` + (fallidas > 0 ? `, ${fallidas} fallaron (revisa la consola)` : '.');
       status.className = 'text-sm ml-3 ' + (fallidas > 0 ? 'text-amber-600' : 'text-green-600');
       boton.disabled = false;
       boton.innerHTML = '<i class="fas fa-upload mr-1"></i> Confirmar Importación';
@@ -1884,7 +1967,7 @@
       tbody.innerHTML = data.map(imp => `
         <tr class="text-gray-700">
           <td class="py-2.5 pr-4 font-medium">${nombreMes[imp.mes]} ${imp.anio}</td>
-          <td class="py-2.5 pr-4">${imp.usuario_email}</td>
+          <td class="py-2.5 pr-4">${escapeHtml(imp.usuario_email)}</td>
           <td class="py-2.5 pr-4">${imp.cantidad_registros}</td>
           <td class="py-2.5 pr-4 text-gray-500">${new Date(imp.created_at).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })}</td>
         </tr>`).join('');
@@ -1912,8 +1995,8 @@
       tbody.innerHTML = data.map(a => `
         <tr class="text-gray-700">
           <td class="py-2.5 pr-4 font-medium ${colorAccion[a.accion] || ''}">${a.accion}</td>
-          <td class="py-2.5 pr-4">${a.usuario_email || '—'}</td>
-          <td class="py-2.5 pr-4">${a.cliente || '—'} · ${a.linea_producto || '—'}</td>
+          <td class="py-2.5 pr-4">${escapeHtml(a.usuario_email) || '—'}</td>
+          <td class="py-2.5 pr-4">${escapeHtml(a.cliente) || '—'} · ${escapeHtml(a.linea_producto) || '—'}</td>
           <td class="py-2.5 pr-4">${a.mes ? nombreMes[a.mes] : '—'} ${a.anio || ''}</td>
           <td class="py-2.5 pr-4 text-gray-500">${new Date(a.created_at).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })}</td>
         </tr>`).join('');

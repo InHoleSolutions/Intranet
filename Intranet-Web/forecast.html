@@ -427,31 +427,30 @@
     // Trae TODOS los registros del año seleccionado (una sola consulta,
     // filtramos el resto en el navegador para que los filtros se sientan instantáneos)
     // ─────────────────────────────────────────────
-    async function traerRegistros(anio) {
-      const { data, error } = await supabaseClient
-        .from('forecast_registros')
-        .select('*')
-        .eq('anio', anio);
-
-      if (error) {
-        console.error('Error al traer registros:', error);
-        return [];
+    // Supabase devuelve máximo 1000 filas por consulta. Este ayudante pide por páginas
+    // hasta traer todo. 'construirConsulta' debe incluir un .order() estable.
+    async function traerTodo(construirConsulta) {
+      const TAM = 1000;
+      let todo = [];
+      for (let desde = 0; ; desde += TAM) {
+        const { data, error } = await construirConsulta().range(desde, desde + TAM - 1);
+        if (error) { console.error('Error al paginar:', error); return null; }
+        todo = todo.concat(data || []);
+        if (!data || data.length < TAM) break;
       }
+      return todo;
+    }
+
+    async function traerRegistros(anio) {
+      const data = await traerTodo(() =>
+        supabaseClient.from('forecast_registros').select('*').eq('anio', anio).order('id')
+      );
       return data || [];
     }
 
-    // También traemos el año anterior completo, para poder calcular Crecimiento YoY y Retención
+    // También traemos el año anterior completo, para Crecimiento YoY y Retención
     async function traerRegistrosAnioAnterior(anio) {
-      const { data, error } = await supabaseClient
-        .from('forecast_registros')
-        .select('*')
-        .eq('anio', anio - 1);
-
-      if (error) {
-        console.error('Error al traer año anterior:', error);
-        return [];
-      }
-      return data || [];
+      return traerRegistros(anio - 1);
     }
 
     // Trae la tabla de clientes (nombre, primera_aparicion, ultima_aparicion) para
@@ -633,6 +632,60 @@
       return hoy.getMonth() + 1;                       // año en curso: mes actual (1-12)
     }
 
+    // Convierte el filtro de Mes ("Enero", "Febrero"...) a número 1-12; null = todo el año
+    function mesFiltroNumero() {
+      const valor = document.getElementById('filtroMes').value;
+      return valor === 'todos' ? null : nombreMes.indexOf(valor);
+    }
+
+    // Rango de meses que cubre el filtro: un mes, un quarter, o todo el año
+    function rangoMesesFiltro() {
+      const mes = mesFiltroNumero();
+      if (mes) return [mes, mes];
+
+      const q = document.getElementById('filtroQuarter').value;
+      if (q !== 'todos') {
+        const n = Number(q.replace('Q', ''));
+        return [(n - 1) * 3 + 1, n * 3];
+      }
+      return [1, 12];
+    }
+
+    function diferenciaEnMeses(fechaTexto, referencia) {
+      const f = new Date(fechaTexto + 'T00:00:00');
+      return (referencia.getFullYear() - f.getFullYear()) * 12 + (referencia.getMonth() - f.getMonth());
+    }
+
+    // Clasifica a los clientes al corte del año que se está viendo:
+    // - Año en curso: el corte es hoy. Año pasado: el corte es el 31 de diciembre de ese año.
+    // - Solo cuentan los clientes que ya existían a esa fecha.
+    function clasificarClientes(clientes, anio) {
+      const hoy = new Date();
+      const referencia = anio < hoy.getFullYear() ? new Date(anio, 11, 31) : hoy;
+      const [mesDesde, mesHasta] = rangoMesesFiltro();
+
+      const existentes = clientes.filter(c =>
+        c.primera_aparicion && new Date(c.primera_aparicion + 'T00:00:00') <= referencia
+      );
+
+      const nuevos = existentes.filter(c => {
+        const f = new Date(c.primera_aparicion + 'T00:00:00');
+        const m = f.getMonth() + 1;
+        return f.getFullYear() === anio && m >= mesDesde && m <= mesHasta;
+      });
+      const nuevosSet = new Set(nuevos.map(c => c.nombre));
+
+      const perdidos = existentes.filter(c =>
+        c.ultima_aparicion && diferenciaEnMeses(c.ultima_aparicion, referencia) >= 4
+      );
+      const perdidosSet = new Set(perdidos.map(c => c.nombre));
+
+      const retenidos = existentes.filter(c => !nuevosSet.has(c.nombre) && !perdidosSet.has(c.nombre));
+      const activos = existentes.filter(c => !perdidosSet.has(c.nombre));
+
+      return { existentes, nuevos, perdidos, retenidos, activos };
+    }
+
     async function pintarKPIs(filtrados, registrosAnterior, anio, registrosAnioSinFiltroPeriodo, ventaRealMensual, ventaRealMensualAnterior, clientes) {
       const transcurridos = mesesTranscurridos(anio);
 
@@ -663,38 +716,8 @@
       }
       const crecimientoYoY = totalAnteriorMismoRango ? ((totalRealHastaFecha - totalAnteriorMismoRango) / totalAnteriorMismoRango) * 100 : 0;
 
-      // Nuevos / Activos / Retenidos / Perdidos: basado en cuándo se registró cada cliente
-      // en la tabla 'clientes' (primera_aparicion / ultima_aparicion), NO en si tuvo venta real.
-      // - Nuevo: su primera_aparicion cae dentro del Año/mes que se está viendo en el dashboard.
-      // - Perdido: han pasado 4 o más meses desde su ultima_aparicion (respecto a hoy).
-      // - Retenido: ya existía antes de este período y no está perdido.
-      const hoy = new Date();
-      const mesFiltrado = Number(document.getElementById('filtroMes')?.value) || null; // null = todo el año
-
-      function diferenciaEnMeses(fechaTexto, referencia) {
-        const f = new Date(fechaTexto + 'T00:00:00');
-        return (referencia.getFullYear() - f.getFullYear()) * 12 + (referencia.getMonth() - f.getMonth());
-      }
-
-      const nuevosLista = clientes.filter(c => {
-        const f = new Date(c.primera_aparicion + 'T00:00:00');
-        const mismoAnio = f.getFullYear() === anio;
-        const mismoMes = mesFiltrado ? (f.getMonth() + 1) === mesFiltrado : true;
-        return mismoAnio && mismoMes;
-      });
-
-      const perdidos = clientes.filter(c => diferenciaEnMeses(c.ultima_aparicion, hoy) >= 4);
-      const perdidosSet = new Set(perdidos.map(c => c.nombre));
-
-      const retenidos = clientes.filter(c => {
-        const esNuevo = nuevosLista.some(n => n.nombre === c.nombre);
-        return !esNuevo && !perdidosSet.has(c.nombre);
-      });
-
-      const activos = clientes.filter(c => !perdidosSet.has(c.nombre));
-
-      const nuevos = nuevosLista; // se mantiene el nombre "nuevos" para no romper las líneas de abajo
-      const retencionPct = clientes.length > 0 ? (retenidos.length / clientes.length) * 100 : 0;
+      const { existentes, nuevos, retenidos } = clasificarClientes(clientes, anio);
+      const retencionPct = existentes.length > 0 ? (retenidos.length / existentes.length) * 100 : 0;
 
       // Totales de Probabilidad (P50/P70/P90) del período ya filtrado (año/quarter/mes/cliente/línea)
       const totalP50 = filtrados.reduce((a, r) => a + (Number(r.monto_p50) || 0), 0);
@@ -936,34 +959,11 @@
     // Nota: ya no usa monto_real_usd. Clasifica según la tabla 'clientes'
     // (primera_aparicion / ultima_aparicion), igual que en pintarKPIs.
     function dibujarChartRetencion(clientes, anio) {
-      const hoy = new Date();
-      const mesFiltrado = Number(document.getElementById('filtroMes')?.value) || null;
-
-      function diferenciaEnMeses(fechaTexto, referencia) {
-        const f = new Date(fechaTexto + 'T00:00:00');
-        return (referencia.getFullYear() - f.getFullYear()) * 12 + (referencia.getMonth() - f.getMonth());
-      }
-
-      const nuevosLista = clientes.filter(c => {
-        const f = new Date(c.primera_aparicion + 'T00:00:00');
-        const mismoAnio = f.getFullYear() === anio;
-        const mismoMes = mesFiltrado ? (f.getMonth() + 1) === mesFiltrado : true;
-        return mismoAnio && mismoMes;
-      });
-
-      const perdidosLista = clientes.filter(c => diferenciaEnMeses(c.ultima_aparicion, hoy) >= 4);
-      const perdidosSet = new Set(perdidosLista.map(c => c.nombre));
-
-      const retenidosLista = clientes.filter(c => {
-        const esNuevo = nuevosLista.some(n => n.nombre === c.nombre);
-        return !esNuevo && !perdidosSet.has(c.nombre);
-      });
-
-      const nuevos = nuevosLista.length;
-      const retenidos = retenidosLista.length;
-      const perdidos = perdidosLista.length;
-      const activos = clientes.length - perdidos;
-
+      const clasif = clasificarClientes(clientes, anio);
+      const nuevos = clasif.nuevos.length;
+      const retenidos = clasif.retenidos.length;
+      const perdidos = clasif.perdidos.length;
+      const activos = clasif.activos.length;
       if (charts.retencion) charts.retencion.destroy();
       charts.retencion = new Chart(document.getElementById('chartRetencion'), {
         type: 'bar',
@@ -1085,9 +1085,13 @@
       });
     }
 
-        // ─────────────────────────────────────────────
+    // ─────────────────────────────────────────────
     // Inventario real — catalogo_herramientas agrupado por línea de Forecast
     // ─────────────────────────────────────────────
+    function escapeHtml(valor) {
+      return String(valor ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
     function nivelStock(total) {
       if (total < 20) return { texto: 'Stock bajo', clase: 'bg-red-50 text-red-600' };
       if (total < 50) return { texto: 'Stock medio', clase: 'bg-amber-50 text-amber-600' };
@@ -1131,7 +1135,7 @@
         const nivel = nivelStock(stock);
         return `
           <tr class="text-gray-700">
-            <td class="py-2.5 pr-4 font-medium">${linea}</td>
+            <td class="py-2.5 pr-4 font-medium">${escapeHtml(linea)}</td>
             <td class="py-2.5 pr-4">${stock.toLocaleString('en-US')} u. <span class="text-gray-400 text-xs">(${tipos} servicios)</span></td>
             <td class="py-2.5 pr-4">${fmtUSD(forecast)}</td>
             <td class="py-2.5 pr-4">
