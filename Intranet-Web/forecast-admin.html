@@ -316,6 +316,46 @@
 
         <div id="resumenImportacion" class="hidden mt-4 flex items-center gap-4 text-sm"></div>
 
+        <!-- Resumen visual de lo que se va a importar -->
+        <div id="resumenTarjetas" class="hidden mt-4 space-y-4">
+          <div id="resEstado" class="hidden items-start gap-3 bg-green-50 border border-green-200 rounded-xl p-4 text-sm text-green-800"></div>
+          <div id="resAviso" class="hidden items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800"></div>
+          <div id="resErrorHistorico" class="hidden items-start gap-3 bg-red-50 border border-red-200 rounded-x1 p-4 text-sm text-red-800"></div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="border border-border rounded-xl p-4 bg-white">
+              <p class="text-xs text-gray-400 font-medium">Forecast total a cargar</p>
+              <p id="resTotal" class="text-2xl font-bold text-gray-900 mt-1">$0</p>
+              <p id="resTotalNota" class="text-xs text-gray-500 mt-1"></p>
+            </div>
+            <div class="border border-border rounded-xl p-4 bg-white">
+              <p class="text-xs text-gray-400 font-medium">Clientes</p>
+              <p id="resClientes" class="text-2xl font-bold text-gray-900 mt-1">0</p>
+              <p id="resClientesNota" class="text-xs text-gray-500 mt-1"></p>
+            </div>
+            <div class="border border-border rounded-xl p-4 bg-white">
+              <p class="text-xs text-gray-400 font-medium">Registros</p>
+              <p id="resRegistros" class="text-2xl font-bold text-gray-900 mt-1">0</p>
+              <p id="resRegistrosNota" class="text-xs text-gray-500 mt-1"></p>
+            </div>
+            <div class="border border-border rounded-xl p-4 bg-white">
+              <p class="text-xs text-gray-400 font-medium">Calidad del archivo</p>
+              <p id="resCalidad" class="text-2xl font-bold mt-1">0%</p>
+              <p id="resCalidadNota" class="text-xs text-gray-500 mt-1"></p>
+            </div>
+          </div>
+
+          <div class="border border-border rounded-xl p-4 bg-white">
+            <p class="text-sm font-semibold text-gray-800">Forecast por línea de producto</p>
+            <p id="resPeriodo" class="text-xs text-gray-500 mb-3"></p>
+            <div id="resLineas" class="space-y-2.5"></div>
+            <div class="border-t border-border mt-4 pt-4">
+              <p class="text-sm font-semibold text-gray-800">Cargado vs referencia histórica</p>
+              <p class="text-xs text-gray-500 mb-3">La barra completa equivale al promedio histórico de ese mes (toda la empresa, años anteriores).</p>
+              <div id="resReferencia" class="space-y-3"></div>
+            </div>
+          </div>
+        </div>
+
         <div id="contenedorVistaPrevia" class="hidden mt-4">
           <div class="overflow-x-auto max-h-[400px] overflow-y-auto border border-border rounded-xl">
             <table class="w-full text-xs">
@@ -677,7 +717,7 @@
       status.className = 'text-sm text-gray-500';
 
       const linea = document.getElementById('reg_linea').value;
-      const servicio = document.getElementById('reg_servicio').value.trim();
+      const servicio = await resolverServicioCatalogo(linea, document.getElementById('reg_servicio').value);
 
       const payload = {
         anio: Number(document.getElementById('reg_anio').value),
@@ -699,13 +739,12 @@
       await registrarCliente(payload.cliente, payload.anio, payload.mes);
 
       // Si el servicio escrito no existía para esta línea, lo agregamos al catálogo
-
       // (el "unique" de la tabla evita duplicados si ya existía)
       await supabaseClient
         .from('forecast_servicios')
-        .insert({ linea_producto: linea, nombre: servicio })
-        .select();
-
+        .upsert({ linea_producto: linea, nombre: servicio }, {
+          onConflict: 'linea_producto,nombre', ignoreDuplicates: true
+        });
       // Revisamos si ya existe un registro para este Cliente + Línea + Mes + Año
       const idExistente = await buscarRegistroExistente(payload);
 
@@ -1637,6 +1676,23 @@
       return String(valor ?? '').trim().toLowerCase();
     }
 
+    // Devuelve el nombre oficial del servicio si ya existe en el catálogo de esa línea
+    // (ignorando mayúsculas y espacios); si no existe, devuelve el texto limpio tal cual.
+    async function resolverServicioCatalogo(linea, nombre) {
+      const limpio = String(nombre ?? '').trim();
+      if (!limpio) return limpio;
+
+      const { data, error } = await supabaseClient
+        .from('forecast_servicios')
+        .select('nombre')
+        .eq('linea_producto', linea)
+        .ilike('nombre', limpio.replace(/[\\%_]/g, '\\$&'))
+        .limit(1);
+
+      if (error) { console.error('No se pudo consultar el catálogo de servicios:', error); return limpio; }
+      return (data && data.length > 0) ? data[0].nombre : limpio;
+    }
+
     // Marca como error las filas repetidas dentro del mismo archivo.
     // La primera aparición se conserva; las siguientes no se importarán.
     function marcarDuplicadosEnArchivo(filas) {
@@ -1727,6 +1783,186 @@
       });
     }
 
+    // Resumen visual previo a la importación: totales, clientes, calidad y desglose por línea
+    function pintarResumenImportacion() {
+      const caja = document.getElementById('resumenTarjetas');
+      if (filasImportacion.length === 0) { caja.classList.add('hidden'); return; }
+
+      const importables = filasImportacion.filter(f => f.estado !== 'error');
+      const montoDe = (f) => f.forecast != null ? f.forecast : (f.forecastAuto ?? 0);
+      const fmt = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+      // Forecast total
+      const total = importables.reduce((suma, f) => suma + montoDe(f), 0);
+      const manuales = importables.filter(f => f.forecast != null).length;
+      const automaticas = importables.filter(f => f.forecast == null && f.forecastAuto != null).length;
+      const sinMonto = importables.length - manuales - automaticas - sinCupo;
+
+      document.getElementById('resTotal').textContent = fmt(total);
+      document.getElementById('resTotalNota').textContent =
+        `${manuales} manual(es) · ${automaticas} automático(s)` + 
+        (sinMonto > 0 ? ` · ${sinMonto} sin historial` : '') +
+        (sinCupo > 0 ? ` · ${sinCupo} sin cupo` : '');
+
+      // Clientes (únicos, ignorando mayúsculas) y cuántos son nuevos en la lista oficial
+      const oficiales = new Set(clientesValidos.map(normalizarTexto));
+      const unicos = new Map();
+      importables.forEach(f => unicos.set(normalizarTexto(f.cliente), f.cliente));
+      const nuevos = [...unicos.keys()].filter(k => !oficiales.has(k)).length;
+
+      document.getElementById('resClientes').textContent = unicos.size;
+      document.getElementById('resClientesNota').textContent =
+        nuevos > 0 ? `${nuevos} nuevo(s) se agregarán a la lista` : 'Todos ya existen en la lista';
+
+      // Registros nuevos vs actualizados
+      const aActualizar = importables.filter(f => f.idExistente).length;
+      document.getElementById('resRegistros').textContent = importables.length;
+      document.getElementById('resRegistrosNota').textContent =
+        `${importables.length - aActualizar} nuevos · ${aActualizar} actualizados`;
+
+      // Calidad: porcentaje de filas que sí se pueden importar
+      const pctCalidad = Math.round((importables.length / filasImportacion.length) * 100);
+      const elCalidad = document.getElementById('resCalidad');
+      elCalidad.textContent = pctCalidad + '%';
+      elCalidad.className = 'text-2xl font-bold mt-1 ' +
+        (pctCalidad >= 90 ? 'text-green-600' : pctCalidad >= 70 ? 'text-amber-500' : 'text-red-500');
+      const conError = filasImportacion.length - importables.length;
+      document.getElementById('resCalidadNota').textContent =
+        conError === 0 ? 'Todas las filas son válidas' : `${conError} fila(s) con error no se importarán`;
+
+      // Periodo cubierto
+      const periodos = [...new Set(
+        importables.filter(f => f.anio && f.mes).map(f => `${f.anio}-${String(f.mes).padStart(2, '0')}`)
+      )].sort().map(p => { const [a, m] = p.split('-'); return `${nombreMes[Number(m)]} ${a}`; });
+      document.getElementById('resPeriodo').textContent =
+        periodos.length ? `Periodo: ${periodos.join(', ')}` : '';
+
+      // Desglose por línea, con barras
+      const colorLinea = {
+        'Cementing': '#2563eb', 'CHC': '#0891b2', 'Gas Lift': '#22c55e',
+        'Safety System': '#f59e0b', 'Sand Control': '#a855f7', 'Servicios de Taller': '#64748b'
+      };
+      const porLinea = {};
+      importables.forEach(f => {
+        const l = f.linea || 'Sin línea';
+        porLinea[l] = porLinea[l] || { monto: 0, filas: 0 };
+        porLinea[l].monto += montoDe(f);
+        porLinea[l].filas += 1;
+      });
+
+      const ordenadas = Object.entries(porLinea).sort((a, b) => b[1].monto - a[1].monto || b[1].filas - a[1].filas);
+      const maximo = Math.max(...ordenadas.map(([, v]) => v.monto), 0);
+
+      document.getElementById('resLineas').innerHTML = ordenadas.length === 0
+        ? '<p class="text-xs text-gray-400">No hay filas válidas para resumir.</p>'
+        : ordenadas.map(([linea, v]) => {
+            const ancho = maximo ? Math.max(2, (v.monto / maximo) * 100) : 0;
+            const pct = total ? ((v.monto / total) * 100).toFixed(1) : '0.0';
+            return `
+              <div>
+                <div class="flex items-center justify-between text-xs mb-1">
+                  <span class="font-medium text-gray-700">${escapeHtml(linea)} <span class="text-gray-400 font-normal">· ${v.filas} registro(s)</span></span>
+                  <span class="text-gray-600">${fmt(v.monto)} <span class="text-gray-400">(${pct}%)</span></span>
+                </div>
+                <div class="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full" style="width:${ancho}%; background:${colorLinea[linea] || '#94a3b8'}"></div>
+                </div>
+              </div>`;
+          }).join('');
+
+      // Un resumen nuevo siempre es de un archivo aún no importado
+      document.getElementById('resEstado').classList.add('hidden');
+      document.getElementById('resEstado').classList.remove('flex');
+
+        // Avisos: filas sin historial (sin forecast) y filas sin cupo (forecast en $0)
+        const sinCupo = importables.filter(f => f.sinCupo).length;
+        const aviso = document.getElementById('resAviso');
+        const mensajes = [];
+
+        if (sinMonto > 0) {
+          mensajes.push(
+            `<p class="font-medium">${sinMonto} fila(s) se guardarán SIN forecast</p>` +
+            '<p class="mt-0.5 text-amber-700">Su mes no tiene venta real de años anteriores para calcular el promedio. ' +
+            'Si lo necesitas, captura el monto a mano en la columna Forecast (USD) del Excel.</p>'
+          );
+        }
+        if (sinCupo > 0) {
+          mensajes.push(
+            `<p class="font-medium">${sinCupo} fila(s) se guardarán SIN forecast (vacío)</p>` +
+            '<p class="mt-0.5 text-amber-700">Los montos manuales de su mes ya igualan o superan el promedio histórico, ' +
+            'así que no queda nada por repartir. Revisa si los montos manuales son correctos o captura el monto de esas filas.</p>'
+          );
+        }
+
+        if (mensajes.length > 0) {
+          aviso.innerHTML = '<i class="fas fa-triangle-exclamation mt-0.5"></i><div class="space-y-2">' + mensajes.join('') + '</div>';
+          aviso.classList.remove('hidden');
+          aviso.classList.add('flex');
+        } else {
+          aviso.classList.add('hidden');
+          aviso.classList.remove('flex');
+        }
+
+      // Error al consultar el histórico: se bloquea la confirmación para no importar montos incompletos
+      const errorHist = document.getElementById('resErrorHistorico');
+      if (falloHistorico) {
+        errorHist.innerHTML =
+          '<i class="fas fa-circle-xmark mt-0.5"></i>' +
+          '<div><p class="font-medium">No se pudo consultar el histórico de venta real</p>' +
+          '<p class="mt-0.5 text-red-700">Los montos automáticos no son confiables y la importación está bloqueada. ' +
+          'Revisa tu conexión y vuelve a subir el archivo.</p></div>';
+        errorHist.classList.remove('hidden');
+        errorHist.classList.add('flex');
+      } else {
+        errorHist.classList.add('hidden');
+        errorHist.classList.remove('flex');
+      }
+
+      // Cargado vs referencia histórica, mes por mes
+      const cargadoPorMes = {};
+      importables.forEach(f => {
+        if (!f.anio || !f.mes) return;
+        const k = `${f.anio}-${f.mes}`;
+        cargadoPorMes[k] = (cargadoPorMes[k] || 0) + montoDe(f);
+      });
+
+      const clavesMes = Object.keys(cargadoPorMes).sort((x, y) => {
+        const [xa, xm] = x.split('-').map(Number);
+        const [ya, ym] = y.split('-').map(Number);
+        return xa - ya || xm - ym;
+      });
+
+      document.getElementById('resReferencia').innerHTML = clavesMes.map(k => {
+        const [a, m] = k.split('-').map(Number);
+        const cargado = cargadoPorMes[k];
+        const ref = referenciaPorMes[k];
+        const titulo = `${nombreMes[m]} ${a}`;
+
+        if (ref == null) {
+          return `<div class="text-xs"><span class="font-medium text-gray-700">${titulo}</span> <span class="text-gray-400">· sin referencia histórica para comparar</span></div>`;
+        }
+
+        const pctRef = ref ? (cargado / ref) * 100 : 0;
+        const supera = pctRef > 100.5;
+        const detalle = supera
+          ? `supera la referencia por ${fmt(cargado - ref)}`
+          : `${Math.round(pctRef)}% de la referencia (${fmt(ref)})`;
+
+        return `
+          <div>
+            <div class="flex items-center justify-between text-xs mb-1">
+              <span class="font-medium text-gray-700">${titulo}</span>
+              <span class="${supera ? 'text-amber-600 font-medium' : 'text-gray-600'}">${fmt(cargado)} · ${detalle}</span>
+            </div>
+            <div class="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+              <div class="h-full rounded-full" style="width:${Math.min(100, pctRef)}%; background:${supera ? '#f59e0b' : '#2563eb'}"></div>
+            </div>
+          </div>`;
+      }).join('');
+
+      caja.classList.remove('hidden');
+    }
+
     function mostrarVistaPrevia() {
       const validas = filasImportacion.filter(f => f.estado === 'valido').length;
       const advertencia = filasImportacion.filter(f => f.estado === 'advertencia').length;
@@ -1753,38 +1989,64 @@
           <td class="py-2 px-3">${f.forecast != null
             ? f.forecast.toLocaleString('en-US')
             : (f.forecastAuto != null
-                ? '<span class="text-accent2 font-medium">' + f.forecastAuto.toLocaleString('en-US') + '</span> <span class="text-[10px] text-gray-400">auto</span>'
-                : '<span class="text-gray-400">sin historial</span>')}</td>
+                ? '<span class="text-accent2 font-medium">' + f.forecastAuto.toLocaleString('en-US') + '</span> <span class="text-[10px] text-gray-400">auto</span>' + (f.sinCupo ? ' <span class="text-[10px] text-amber-600 font-medium">sin cupo</span>' : '')
+                : (f.sinCupo ? '<span class="text-amber-600 font-medium">sin cupo</span>' : '<span class="text-gray-400">sin historial</span>'))}</td>
           <td class="py-2 px-3">${f.confianza || '—'}</td>
           <td class="py-2 px-3 text-gray-500">${[...f.errores, ...f.advertencias].join('; ') || '—'}</td>
         </tr>`).join('');
 
       document.getElementById('contenedorVistaPrevia').classList.remove('hidden');
-      document.getElementById('btnConfirmarImportacion').disabled = validas + advertencia === 0;
+      document.getElementById('btnConfirmarImportacion').disabled = (validas + advertencia === 0) || falloHistorico;
+      document.getElementById('btnConfirmarImportacion').innerHTML = '<i class="fas fa-upload mr-1"></i> Confirmar Importación';
+      document.getElementById('importStatus').textContent = '';
+      pintarResumenImportacion();
     }
 
-    // ─────────────────────────────────────────────
-    // Reparte el forecast estacional de cada mes entre las filas que no traen monto manual.
-    // Total del mes = promedio histórico de ese mes. Se descuentan los montos manuales
-    // del archivo y lo restante se divide en partes iguales entre las filas sin monto.
-    // Guarda el resultado en f.forecastAuto (no toca f.forecast, que es el manual).
-    // ─────────────────────────────────────────────
+    let referenciaPorMes = {}; // 'año-mes' → promedio histórico (null = sin historial)
+    let falloHistorico = false; // true si no se pudo consultar el histórico de venta real
+
     async function repartirForecastAutomatico(filas) {
+      referenciaPorMes = {};
+      falloHistorico = false;
       const grupos = {};
       filas.forEach(f => {
         f.forecastAuto = null;
+        f.sinCupo = false;
         if (!f.anio || !f.mes) return;
         (grupos[`${f.anio}-${f.mes}`] = grupos[`${f.anio}-${f.mes}`] || []).push(f);
       });
 
-      for (const clave of Object.keys(grupos)) {
-        const filasMes = grupos[clave];
-        const sinManual = filasMes.filter(f => f.forecast === null);
-        if (sinManual.length === 0) continue;
+      const claves = Object.keys(grupos);
+      if (claves.length === 0) return;
 
+      // Una sola consulta con el histórico de todos los meses del archivo
+      const meses = [...new Set(claves.map(k => Number(k.split('-')[1])))];
+      const anioMax = Math.max(...claves.map(k => Number(k.split('-')[0])));
+
+      const { data: historico, error } = await supabaseClient
+        .from('forecast_venta_real_mensual')
+        .select('anio, mes, monto_real_usd')
+        .in('mes', meses)
+        .lt('anio', anioMax);
+
+      if (error) {
+        console.error(error);
+        falloHistorico = true;
+        mostrarToast('No se pudo calcular el forecast automático.');
+      }
+
+      for (const clave of claves) {
+        const filasMes = grupos[clave];
         const { anio, mes } = filasMes[0];
-        const { promedio } = await calcularForecastEstacional(null, mes, anio);
-        if (promedio === null) continue; // sin historial: quedan sin forecast
+
+        const previos = (historico || []).filter(r => r.mes === mes && r.anio < anio);
+        const promedio = previos.length
+          ? previos.reduce((s, r) => s + Number(r.monto_real_usd), 0) / previos.length
+          : null;
+        referenciaPorMes[clave] = promedio;
+
+        const sinManual = filasMes.filter(f => f.forecast === null);
+        if (sinManual.length === 0 || promedio === null) continue;
 
         const totalManual = filasMes
           .filter(f => f.forecast !== null)
@@ -1792,6 +2054,12 @@
 
         const restante = Math.max(0, promedio - totalManual);
         const porFila = Math.floor((restante / sinManual.length) * 100) / 100;
+
+        // Sin cupo: no queda nada por repartir, así que esas filas se guardan vacías (no en $0)
+        if (restante === 0) {
+          sinManual.forEach(f => { f.sinCupo = true; });
+          continue;
+        }
 
         sinManual.forEach(f => { f.forecastAuto = porFila; });
 
@@ -1837,6 +2105,13 @@
       }
 
       boton.disabled = true;
+      // Catálogo actual de servicios: clave "línea|servicio en minúsculas" → nombre oficial
+      const { data: catalogoActual } = await supabaseClient
+        .from('forecast_servicios')
+        .select('linea_producto, nombre');
+      const catalogoMapa = new Map(
+        (catalogoActual || []).map(s => [`${s.linea_producto}|${normalizarTexto(s.nombre)}`, s.nombre])
+      );
       let exitosas = 0;
       let actualizadas = 0;
       let fallidas = 0;
@@ -1851,10 +2126,15 @@
 
         // Si el Servicio es nuevo, se agrega a su catálogo. Usamos upsert con
         // ignoreDuplicates para que, si ya existía, Supabase no lance error 409 en consola.
-        await supabaseClient.from('forecast_servicios')
-          .upsert({ linea_producto: f.linea, nombre: f.servicio }, {
-            onConflict: 'linea_producto,nombre', ignoreDuplicates: true
-          });
+        const claveServicio = `${f.linea}|${normalizarTexto(f.servicio)}`;
+        if (!catalogoMapa.has(claveServicio)) {
+          await supabaseClient.from('forecast_servicios')
+            .upsert({ linea_producto: f.linea, nombre: f.servicio }, {
+              onConflict: 'linea_producto,nombre', ignoreDuplicates: true
+            });
+          catalogoMapa.set(claveServicio, f.servicio);
+        }
+        const servicioOficial = catalogoMapa.get(claveServicio);
         // Si la fila no trajo Forecast manual, lo calculamos con el historial estacional
         const forecast = f.forecast !== null ? f.forecast : (f.forecastAuto ?? null);
 
@@ -1864,7 +2144,7 @@
           mes: f.mes,
           cliente: f.cliente,
           linea_producto: f.linea,
-          servicio: f.servicio,
+          servicio: servicioOficial,
           pozo_relacion_venta: f.pozo,
           monto_forecast: forecast,
           confianza: f.confianza,
@@ -1900,8 +2180,23 @@
 
       status.textContent = `✓ Importación terminada: ${exitosas - actualizadas} nuevos, ${actualizadas} actualizados` + (fallidas > 0 ? `, ${fallidas} fallaron (revisa la consola)` : '.');
       status.className = 'text-sm ml-3 ' + (fallidas > 0 ? 'text-amber-600' : 'text-green-600');
-      boton.disabled = false;
-      boton.innerHTML = '<i class="fas fa-upload mr-1"></i> Confirmar Importación';
+      // Tras importar, el botón se bloquea: volver a confirmar duplicaría los registros
+      boton.disabled = true;
+      boton.innerHTML = '<i class="fas fa-check mr-1"></i> Importación completada';
+
+      const nuevosCreados = exitosas - actualizadas;
+      const estado = document.getElementById('resEstado');
+      estado.innerHTML =
+        '<i class="fas fa-circle-check mt-0.5"></i>' +
+        `<div><p class="font-medium">Importación completada</p>` +
+        `<p class="mt-0.5">${nuevosCreados} nuevos · ${actualizadas} actualizados` +
+        (fallidas > 0
+          ? ` · ${fallidas} fallaron. Vuelve a subir el archivo: lo ya guardado se actualizará, no se duplicará.`
+          : '. Sube otro archivo para hacer una nueva importación.') +
+        '</p></div>';
+      estado.classList.remove('hidden');
+      estado.classList.add('flex');
+      document.getElementById('resRegistrosNota').textContent = `${nuevosCreados} creados · ${actualizadas} actualizados`;
 
       // Registramos en el historial cada Año+Mes distinto que trajo este archivo
       const paresAnioMes = [...new Set(filasAImportar.map(f => `${f.anio}-${f.mes}`))];
