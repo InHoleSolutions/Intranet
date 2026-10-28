@@ -60,6 +60,13 @@
 
   <div id="toastContainer"></div>
 
+  <!-- Modal general (confirmación, progreso y resultado) -->
+  <div id="modalOverlay" class="hidden fixed inset-0 z-[150] bg-slate-900/60 items-center justify-center px-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+      <div id="modalContenido"></div>
+    </div>
+  </div>
+
   <!-- Pantalla de acceso denegado (oculta por defecto) -->
   <div id="overlayAccesoDenegado" class="hidden fixed inset-0 z-[100] bg-white flex items-center justify-center px-6">
     <div class="max-w-md w-full text-center">
@@ -521,6 +528,148 @@
       }, 4500);
     }
 
+    // ─────────────────────────────────────────────
+    // Modal propio: confirmación, progreso y resultado
+    // ─────────────────────────────────────────────
+    let modalCierreBloqueado = false;
+
+    function abrirModal(html, { bloqueado = false } = {}) {
+      modalCierreBloqueado = bloqueado;
+      document.getElementById('modalContenido').innerHTML = html;
+      const overlay = document.getElementById('modalOverlay');
+      overlay.classList.remove('hidden');
+      overlay.classList.add('flex');
+    }
+
+    function cerrarModal() {
+      modalCierreBloqueado = false;
+      const overlay = document.getElementById('modalOverlay');
+      overlay.classList.add('hidden');
+      overlay.classList.remove('flex');
+      document.getElementById('modalContenido').innerHTML = '';
+    }
+
+    // Esc o clic fuera del modal = cancelar (salvo mientras se importa)
+    function cierreSuaveModal() {
+      if (modalCierreBloqueado) return;
+      const btn = document.querySelector('#modalContenido [data-modal-cancelar]')
+              || document.querySelector('#modalContenido [data-modal-confirmar]');
+      if (btn) btn.click();
+    }
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cierreSuaveModal(); });
+    document.getElementById('modalOverlay').addEventListener('click', (e) => {
+      if (e.target.id === 'modalOverlay') cierreSuaveModal();
+    });
+
+    // Confirmación: devuelve una promesa con true (confirmó) o false (canceló).
+    // cuerpoHtml debe venir ya escapado por quien lo llama.
+    function confirmarModal({ icono = 'fa-circle-question', tono = 'azul', titulo, cuerpoHtml = '', textoConfirmar = 'Aceptar', textoCancelar = 'Cancelar', soloAceptar = false }) {
+      const tonos = {
+        azul:  { fondo: 'bg-blue-50',  texto: 'text-accent',    boton: 'bg-accent hover:bg-blue-700' },
+        ambar: { fondo: 'bg-amber-50', texto: 'text-amber-500', boton: 'bg-amber-500 hover:bg-amber-600' },
+        rojo:  { fondo: 'bg-red-50',   texto: 'text-red-500',   boton: 'bg-red-600 hover:bg-red-700' },
+      };
+      const t = tonos[tono] || tonos.azul;
+
+      return new Promise(resolve => {
+        abrirModal(`
+          <div class="p-6">
+            <div class="flex items-start gap-3 mb-4">
+              <div class="w-10 h-10 shrink-0 rounded-full ${t.fondo} flex items-center justify-center">
+                <i class="fas ${icono} ${t.texto}"></i>
+              </div>
+              <h3 class="text-base font-semibold text-gray-900 pt-2">${escapeHtml(titulo)}</h3>
+            </div>
+            <div class="text-sm text-gray-600">${cuerpoHtml}</div>
+          </div>
+          <div class="flex justify-end gap-2 bg-gray-50 border-t border-border px-6 py-3">
+            ${soloAceptar ? '' : `<button type="button" data-modal-cancelar class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-border rounded-lg hover:bg-gray-50 transition">${escapeHtml(textoCancelar)}</button>`}
+            <button type="button" data-modal-confirmar class="px-4 py-2 text-sm font-medium text-white rounded-lg transition ${t.boton}">${escapeHtml(textoConfirmar)}</button>
+          </div>`);
+
+        const contenido = document.getElementById('modalContenido');
+        const btnConfirmar = contenido.querySelector('[data-modal-confirmar]');
+        const btnCancelar = contenido.querySelector('[data-modal-cancelar]');
+
+        btnConfirmar.addEventListener('click', () => { cerrarModal(); resolve(true); });
+        if (btnCancelar) btnCancelar.addEventListener('click', () => { cerrarModal(); resolve(false); });
+        btnConfirmar.focus();
+      });
+    }
+
+    // Modal de progreso: no se puede cerrar mientras importa
+    function abrirModalProgreso(total) {
+      abrirModal(`
+        <div class="p-6">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-10 h-10 shrink-0 rounded-full bg-blue-50 flex items-center justify-center">
+              <i class="fas fa-circle-notch fa-spin-loading text-accent"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-semibold text-gray-900">Importando registros...</h3>
+              <p class="text-xs text-gray-500">No cierres ni recargues la página hasta que termine.</p>
+            </div>
+          </div>
+          <div class="h-3 bg-gray-100 rounded-full overflow-hidden">
+            <div id="mpBarra" class="h-full rounded-full bg-accent" style="width:0%; transition: width .25s ease"></div>
+          </div>
+          <div class="flex items-center justify-between text-xs text-gray-500 mt-2 gap-3">
+            <span id="mpTexto" class="truncate">Preparando...</span>
+            <span id="mpPct" class="font-medium text-gray-700 shrink-0">0%</span>
+          </div>
+        </div>`, { bloqueado: true });
+
+      return {
+        avanzar(hechas, texto) {
+          const pct = total ? Math.round((hechas / total) * 100) : 100;
+          document.getElementById('mpBarra').style.width = pct + '%';
+          document.getElementById('mpPct').textContent = pct + '%';
+          document.getElementById('mpTexto').textContent = texto;
+        }
+      };
+    }
+
+    // Resultado final de la importación, dentro del mismo modal
+    function mostrarResultadoModal({ nuevos, actualizados, fallidas, fallos, errorFatal }) {
+      const hayProblema = fallidas > 0 || !!errorFatal;
+      const tono = hayProblema
+        ? { fondo: 'bg-amber-50', texto: 'text-amber-500', icono: 'fa-triangle-exclamation', titulo: 'Importación terminada con avisos' }
+        : { fondo: 'bg-green-50', texto: 'text-green-600', icono: 'fa-circle-check', titulo: 'Importación completada' };
+
+      const listaFallos = fallos.slice(0, 5).map(f => `<li class="truncate">${escapeHtml(f)}</li>`).join('');
+      const masFallos = fallos.length > 5 ? `<li class="text-gray-400">...y ${fallos.length - 5} más (revisa la consola)</li>` : '';
+
+      abrirModal(`
+        <div class="p-6">
+          <div class="flex items-start gap-3 mb-4">
+            <div class="w-10 h-10 shrink-0 rounded-full ${tono.fondo} flex items-center justify-center">
+              <i class="fas ${tono.icono} ${tono.texto}"></i>
+            </div>
+            <h3 class="text-base font-semibold text-gray-900 pt-2">${tono.titulo}</h3>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 mb-4">
+            <div class="rounded-xl bg-green-50 p-3 text-center"><p class="text-xl font-bold text-green-700">${nuevos}</p><p class="text-[11px] text-green-700">creados</p></div>
+            <div class="rounded-xl bg-amber-50 p-3 text-center"><p class="text-xl font-bold text-amber-700">${actualizados}</p><p class="text-[11px] text-amber-700">actualizados</p></div>
+            <div class="rounded-xl ${fallidas > 0 ? 'bg-red-50' : 'bg-gray-50'} p-3 text-center"><p class="text-xl font-bold ${fallidas > 0 ? 'text-red-600' : 'text-gray-400'}">${fallidas}</p><p class="text-[11px] ${fallidas > 0 ? 'text-red-600' : 'text-gray-400'}">con error</p></div>
+          </div>
+
+          ${errorFatal ? `<div class="rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs p-3 mb-3">La importación se interrumpió: ${escapeHtml(errorFatal.message || String(errorFatal))}. Lo ya guardado se conserva.</div>` : ''}
+          ${fallos.length > 0 ? `<ul class="rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs p-3 space-y-1 mb-3">${listaFallos}${masFallos}</ul>` : ''}
+          ${hayProblema ? '<p class="text-xs text-gray-500">Para completar lo que faltó, vuelve a subir el mismo archivo: lo ya guardado se actualizará, no se duplicará.</p>' : ''}
+        </div>
+        <div class="flex justify-end bg-gray-50 border-t border-border px-6 py-3">
+          <button type="button" data-modal-cancelar class="px-4 py-2 text-sm font-medium text-white bg-accent rounded-lg hover:bg-blue-700 transition">Cerrar</button>
+        </div>`);
+
+      document.querySelector('#modalContenido [data-modal-cancelar]').addEventListener('click', cerrarModal);
+    }
+
+    function bloquearSalidaDuranteImportacion(e) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+
     // Genera filas <tr> de skeleton para tablas mientras cargan datos de Supabase
     function filasEsqueleto(numColumnas, numFilas = 3) {
       const celda = '<td class="py-2 px-3"><span class="skeleton-bar" style="width:80%"></span></td>';
@@ -629,6 +778,7 @@
       const mes = document.getElementById('reg_mes').value;
       const anio = document.getElementById('reg_anio').value;
       const hint = document.getElementById('reg_forecast_hint');
+      const campo = document.getElementById('reg_forecast');
 
       if (!mes || !anio) return;
 
@@ -637,7 +787,9 @@
       const { promedio, anios } = await calcularForecastEstacional(null, Number(mes), Number(anio));
 
       if (promedio === null) {
-        hint.textContent = `Sin historial previo de ${nombreMes[Number(mes)]} en años anteriores — captura el forecast manualmente.`;
+        // Sin historial: se limpia una sugerencia anterior (pero nunca un monto que tú escribiste)
+        if (!campo.dataset.manual) campo.value = '';
+        hint.textContent = `Sin historial previo de ${nombreMes[Number(mes)]} — captura el forecast manualmente o déjalo vacío.`;
         return;
       }
 
@@ -654,13 +806,24 @@
       const disponible = Math.max(0, promedio - capturado);
       const fmt = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
+      // Se autocompleta solo si el usuario no ha escrito su propio monto
+      if (!campo.dataset.manual) campo.value = disponible > 0 ? disponible.toFixed(2) : '';
+
       hint.textContent =
         `Referencia de ${nombreMes[Number(mes)]} (promedio de ${anios.join(', ')}, toda la empresa): ${fmt(promedio)} · ` +
-        `Ya capturado este mes: ${fmt(capturado)} · Disponible por repartir: ${fmt(disponible)}.`;
+        `Ya capturado: ${fmt(capturado)} · Disponible: ${fmt(disponible)}. ` +
+        (disponible > 0 ? 'Sugerido arriba; ajústalo si este registro es solo una parte.' : 'No queda cupo: captura el monto a mano.');
     }
 
     document.getElementById('reg_linea').addEventListener('change', sugerirForecast);
     document.getElementById('reg_mes').addEventListener('change', sugerirForecast);
+    document.getElementById('reg_anio').addEventListener('change', sugerirForecast);
+
+    // Si el usuario escribe un monto, ya no se le pisa con la sugerencia
+    document.getElementById('reg_forecast').addEventListener('input', (e) => {
+      if (e.target.value === '') delete e.target.dataset.manual;
+      else e.target.dataset.manual = '1';
+    });
 
     document.querySelectorAll('.btn-confianza').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -719,20 +882,23 @@
       const linea = document.getElementById('reg_linea').value;
       const servicio = await resolverServicioCatalogo(linea, document.getElementById('reg_servicio').value);
 
+      const montoForm = document.getElementById('reg_forecast').value !== ''
+        ? Number(document.getElementById('reg_forecast').value) : null;
+      const nivelConfianza = document.getElementById('reg_confianza').value || null;
+
       const payload = {
         anio: Number(document.getElementById('reg_anio').value),
         quarter: Number(document.getElementById('reg_quarter').value),
         mes: Number(document.getElementById('reg_mes').value),
-        cliente: document.getElementById('reg_cliente').value,
+        cliente: resolverClienteOficial(document.getElementById('reg_cliente').value).nombre,
         linea_producto: linea,
         servicio: servicio,
         pozo_relacion_venta: document.getElementById('reg_pozo').value || null,
-        monto_forecast: document.getElementById('reg_forecast').value
-          ? Number(document.getElementById('reg_forecast').value) : null,
-        confianza: document.getElementById('reg_confianza').value || null,
-        monto_p50: document.getElementById('reg_confianza').value === 'P50' ? Number(document.getElementById('reg_forecast').value) : null,
-        monto_p70: document.getElementById('reg_confianza').value === 'P70' ? Number(document.getElementById('reg_forecast').value) : null,
-        monto_p90: document.getElementById('reg_confianza').value === 'P90' ? Number(document.getElementById('reg_forecast').value) : null,
+        monto_forecast: montoForm,
+        confianza: nivelConfianza,
+        monto_p50: nivelConfianza === 'P50' ? montoForm : null,
+        monto_p70: nivelConfianza === 'P70' ? montoForm : null,
+        monto_p90: nivelConfianza === 'P90' ? montoForm : null,
       };
 
       // Registra o actualiza este cliente en la tabla 'clientes' (para Nuevos/Activos/Retenidos/Perdidos)
@@ -749,9 +915,16 @@
       const idExistente = await buscarRegistroExistente(payload);
 
       if (idExistente) {
-        const confirmar = window.confirm(
-          `Ya existe un registro para ${payload.cliente} · ${payload.linea_producto} · ${payload.servicio}${payload.pozo_relacion_venta ? ' · ' + payload.pozo_relacion_venta : ''} · ${nombreMes[payload.mes]} ${payload.anio}.\n\n¿Deseas actualizarlo con estos nuevos valores?`
-        );
+        const confirmar = await confirmarModal({
+          icono: 'fa-pen-to-square',
+          tono: 'ambar',
+          titulo: 'Ya existe este registro',
+          cuerpoHtml:
+            `<p class="mb-2"><b>${escapeHtml(payload.cliente)}</b> · ${escapeHtml(payload.linea_producto)} · ${escapeHtml(payload.servicio)}` +
+            `${payload.pozo_relacion_venta ? ' · ' + escapeHtml(payload.pozo_relacion_venta) : ''} · ${nombreMes[payload.mes]} ${payload.anio}</p>` +
+            '<p>¿Deseas actualizarlo con estos nuevos valores?</p>',
+          textoConfirmar: 'Sí, actualizar',
+        });
         if (!confirmar) {
           status.textContent = 'Guardado cancelado — el registro existente no se modificó.';
           status.className = 'text-sm text-gray-500';
@@ -783,12 +956,14 @@
         monto_forecast: payload.monto_forecast,
       });
       cargarHistorialAuditoria();
+      cargarClientes(); // refresca la lista para que un cliente recién creado ya cuente como oficial
 
       status.textContent = idExistente
         ? '✓ Registro actualizado correctamente'
         : `✓ Registro guardado correctamente (${payload.cliente} registrado en el historial de clientes)`;
       status.className = 'text-sm text-green-600';
       document.getElementById('formRegistro').reset();
+      delete document.getElementById('reg_forecast').dataset.manual;
       document.getElementById('reg_servicio').innerHTML = '<option value="">Elige una línea primero</option>';
       document.getElementById('reg_servicio').disabled = true;
       document.getElementById('reg_mes').innerHTML = '<option value="">Elige un Quarter primero</option>';
@@ -1445,7 +1620,7 @@
           errorTitle: 'Línea no válida', error: 'Elige una línea de producto de la lista.'
         };
         hoja.getCell(`E${i}`).dataValidation = {
-          type: 'list', allowBlank: true, formulae: [`Listas!$D$1:$D$${serviciosValidos.length}`],
+          type: 'list', allowBlank: true, formulae: [`Listas!$D$1:$D$${Math.max(1, serviciosValidos.length)}`],
           showErrorMessage: true, errorStyle: 'warning',
           errorTitle: 'Servicio nuevo', error: 'Este servicio no está en la lista conocida. Si es un servicio nuevo, puedes continuar — se agregará automáticamente al importar.'
         };
@@ -1537,6 +1712,24 @@
 
     let filasImportacion = []; // guarda las filas ya validadas, listas para insertar
 
+    // Primera escritura vista, en este archivo, de cada cliente que NO está en la lista oficial
+    let clientesVistosEnArchivo = new Map();
+
+    // Clave de comparación: minúsculas y sin espacios sobrantes (ni dobles en medio)
+    function claveCliente(valor) {
+      return String(valor ?? '').replace(/\s+/g, ' ').trim().toLowerCase();
+    }
+
+    // Si el cliente ya existe en la lista oficial (sin importar mayúsculas), devuelve el nombre oficial
+    function resolverClienteOficial(valor) {
+      const limpio = String(valor ?? '').replace(/\s+/g, ' ').trim();
+      if (!limpio) return { nombre: limpio, oficial: false };
+
+      const clave = claveCliente(limpio);
+      const oficial = clientesValidos.find(c => claveCliente(c) === clave);
+      return oficial ? { nombre: oficial, oficial: true } : { nombre: limpio, oficial: false };
+    }
+
     function validarFila(fila) {
       const errores = [];
       const advertencias = [];
@@ -1548,9 +1741,21 @@
       const mes = nombreAMes[mesTexto];
       if (!mes) errores.push('Mes no reconocido (usa Enero, Febrero, etc.)');
 
-      const cliente = String(fila['Cliente'] || '').trim();
-      if (!cliente) errores.push('Falta el Cliente');
-      else if (!clientesValidos.includes(cliente)) advertencias.push('Cliente no está en la lista oficial, se guardará tal cual');
+      const escritoOriginal = String(fila['Cliente'] || '').trim();
+      const resultadoCliente = resolverClienteOficial(escritoOriginal);
+      let cliente = resultadoCliente.nombre;
+
+      if (!cliente) {
+        errores.push('Falta el Cliente');
+      } else if (resultadoCliente.oficial) {
+        if (cliente !== escritoOriginal) advertencias.push('Cliente ajustado al nombre oficial de la lista');
+      } else {
+        // Cliente nuevo: si ya apareció en el archivo con otra capitalización, se usa la primera escritura
+        const clave = claveCliente(cliente);
+        if (clientesVistosEnArchivo.has(clave)) cliente = clientesVistosEnArchivo.get(clave);
+        else clientesVistosEnArchivo.set(clave, cliente);
+        advertencias.push('Cliente no está en la lista oficial, se guardará tal cual');
+      }
 
       const linea = String(fila['Línea de Producto'] || '').trim();
       if (!linea) errores.push('Falta la Línea de Producto');
@@ -1636,7 +1841,14 @@
         const indiceEncabezado = todasLasFilas.findIndex(fila => fila.includes('Año'));
 
         if (indiceEncabezado === -1) {
-          alert('No se encontró la fila de encabezados (debe existir una columna llamada exactamente "Año"). Revisa que no hayas renombrado esa columna.');
+          await confirmarModal({
+            icono: 'fa-file-circle-exclamation',
+            tono: 'rojo',
+            titulo: 'No se encontró la fila de encabezados',
+            cuerpoHtml: '<p>Debe existir una columna llamada exactamente <b>"Año"</b>. Revisa que no hayas renombrado ni borrado esa columna, o descarga la plantilla otra vez.</p>',
+            textoConfirmar: 'Entendido',
+            soloAceptar: true,
+          });
           return;
         }
 
@@ -1657,6 +1869,7 @@
           Number(fila['Forecast (USD)']) === 45000
         ));
 
+        clientesVistosEnArchivo = new Map();
         filasImportacion = filasSinEjemplo.map(validarFila);
         await marcarDuplicados(filasImportacion);
         marcarDuplicadosEnArchivo(filasImportacion);
@@ -1796,6 +2009,7 @@
       const total = importables.reduce((suma, f) => suma + montoDe(f), 0);
       const manuales = importables.filter(f => f.forecast != null).length;
       const automaticas = importables.filter(f => f.forecast == null && f.forecastAuto != null).length;
+      const sinCupo = importables.filter(f => f.sinCupo).length;
       const sinMonto = importables.length - manuales - automaticas - sinCupo;
 
       document.getElementById('resTotal').textContent = fmt(total);
@@ -1875,7 +2089,6 @@
       document.getElementById('resEstado').classList.remove('flex');
 
         // Avisos: filas sin historial (sin forecast) y filas sin cupo (forecast en $0)
-        const sinCupo = importables.filter(f => f.sinCupo).length;
         const aviso = document.getElementById('resAviso');
         const mensajes = [];
 
@@ -2069,42 +2282,66 @@
       }
     }
 
-    // ─────────────────────────────────────────────
-    // Confirmar Importación: inserta a Supabase las filas válidas/con advertencia
-    // ─────────────────────────────────────────────
     document.getElementById('btnConfirmarImportacion').addEventListener('click', async () => {
-      const boton = document.getElementById('btnConfirmarImportacion');
-      const status = document.getElementById('importStatus');
+    const boton = document.getElementById('btnConfirmarImportacion');
+    const status = document.getElementById('importStatus');
+    const etiquetaOriginal = '<i class="fas fa-upload mr-1"></i> Confirmar Importación';
 
-      const filasAImportar = filasImportacion.filter(f => f.estado !== 'error');
-      if (filasAImportar.length === 0) return;
+    if (falloHistorico) return;
+    const filasAImportar = filasImportacion.filter(f => f.estado !== 'error');
+    if (filasAImportar.length === 0) return;
 
-      // Cuántas filas se crearán y cuántas actualizarán un registro que ya existe
-      const aActualizar = filasAImportar.filter(f => f.idExistente).length;
-      const aCrear = filasAImportar.length - aActualizar;
-      const periodoRepetido = filasAImportar.some(f =>
-        f.advertencias.some(a => a.includes('ya fue importado antes'))
-      );
+    boton.disabled = true; // evita abrir dos modales con doble clic
 
-      if (aActualizar > 0 || periodoRepetido) {
-        let mensaje =
-          `Se van a procesar ${filasAImportar.length} fila(s):\n\n` +
-          `• ${aCrear} se crearán como registros nuevos.\n` +
-          `• ${aActualizar} ya existen (mismo Cliente + Línea + Servicio + Pozo + Mes + Año) y se ACTUALIZARÁN con los valores del archivo.\n`;
+    // ── 1) Modal de confirmación ──
+    const fmt = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+    const aActualizar = filasAImportar.filter(f => f.idExistente).length;
+    const aCrear = filasAImportar.length - aActualizar;
+    const periodoRepetido = filasAImportar.some(f => f.advertencias.some(a => a.includes('ya fue importado antes')));
+    const sinForecast = filasAImportar.filter(f => f.forecast === null && f.forecastAuto == null).length;
+    const totalForecast = filasAImportar.reduce((s, f) => s + (f.forecast ?? f.forecastAuto ?? 0), 0);
 
-        if (periodoRepetido) {
-          mensaje += `\nAviso: alguno de los meses de este archivo ya se había importado antes.\n`;
-        }
-        mensaje += `\n¿Deseas continuar?`;
+    const avisos = [];
+    if (aActualizar > 0) avisos.push(`${aActualizar} fila(s) ya existen (mismo Cliente + Línea + Servicio + Pozo + Mes + Año) y se <b>actualizarán</b> con los valores del archivo.`);
+    if (periodoRepetido) avisos.push('Alguno de los meses de este archivo ya se había importado antes.');
+    if (sinForecast > 0) avisos.push(`${sinForecast} fila(s) se guardarán sin forecast.`);
 
-        if (!window.confirm(mensaje)) {
-          status.textContent = 'Importación cancelada — no se modificó ningún registro.';
-          status.className = 'text-sm ml-3 text-amber-600';
-          return;
-        }
-      }
+    const cuerpoConfirmacion = `
+      <div class="grid grid-cols-3 gap-2 mb-4">
+        <div class="rounded-xl bg-green-50 p-3 text-center"><p class="text-xl font-bold text-green-700">${aCrear}</p><p class="text-[11px] text-green-700">se crearán</p></div>
+        <div class="rounded-xl bg-amber-50 p-3 text-center"><p class="text-xl font-bold text-amber-700">${aActualizar}</p><p class="text-[11px] text-amber-700">se actualizarán</p></div>
+        <div class="rounded-xl bg-blue-50 p-3 text-center"><p class="text-base font-bold text-blue-700 leading-8">${fmt(totalForecast)}</p><p class="text-[11px] text-blue-700">forecast total</p></div>
+      </div>
+      ${avisos.length ? `<ul class="list-disc pl-5 space-y-1 text-xs text-gray-600 mb-1">${avisos.map(a => `<li>${a}</li>`).join('')}</ul>` : ''}`;
 
-      boton.disabled = true;
+    const confirmado = await confirmarModal({
+      icono: avisos.length ? 'fa-triangle-exclamation' : 'fa-file-import',
+      tono: (aActualizar > 0 || periodoRepetido) ? 'ambar' : 'azul',
+      titulo: `¿Importar ${filasAImportar.length} registro(s)?`,
+      cuerpoHtml: cuerpoConfirmacion,
+      textoConfirmar: 'Sí, importar',
+    });
+
+    if (!confirmado) {
+      boton.disabled = false;
+      status.textContent = 'Importación cancelada — no se modificó ningún registro.';
+      status.className = 'text-sm ml-3 text-amber-600';
+      return;
+    }
+
+    // ── 2) Importación con barra de progreso ──
+    status.textContent = '';
+    const progreso = abrirModalProgreso(filasAImportar.length);
+    window.addEventListener('beforeunload', bloquearSalidaDuranteImportacion);
+
+    let exitosas = 0;
+    let actualizadas = 0;
+    let fallidas = 0;
+    const fallos = [];
+    const filasExitosas = [];
+    let errorFatal = null;
+
+    try {
       // Catálogo actual de servicios: clave "línea|servicio en minúsculas" → nombre oficial
       const { data: catalogoActual } = await supabaseClient
         .from('forecast_servicios')
@@ -2112,59 +2349,56 @@
       const catalogoMapa = new Map(
         (catalogoActual || []).map(s => [`${s.linea_producto}|${normalizarTexto(s.nombre)}`, s.nombre])
       );
-      let exitosas = 0;
-      let actualizadas = 0;
-      let fallidas = 0;
+      const clientesRegistrados = new Set(); // evita repetir consultas: cliente + año + mes
 
       for (let i = 0; i < filasAImportar.length; i++) {
         const f = filasAImportar[i];
-        status.textContent = `Importando ${i + 1} de ${filasAImportar.length}...`;
-        status.className = 'text-sm ml-3 text-gray-500';
+        progreso.avanzar(i, `${i + 1} de ${filasAImportar.length} · ${f.cliente}`);
 
-        // Registra o actualiza este cliente en la tabla 'clientes' (para Nuevos/Activos/Retenidos/Perdidos)
-        await registrarCliente(f.cliente, f.anio, f.mes);
+        try {
+          const claveCliente = `${f.cliente}|${f.anio}|${f.mes}`;
+          if (!clientesRegistrados.has(claveCliente)) {
+            await registrarCliente(f.cliente, f.anio, f.mes);
+            clientesRegistrados.add(claveCliente);
+          }
 
-        // Si el Servicio es nuevo, se agrega a su catálogo. Usamos upsert con
-        // ignoreDuplicates para que, si ya existía, Supabase no lance error 409 en consola.
-        const claveServicio = `${f.linea}|${normalizarTexto(f.servicio)}`;
-        if (!catalogoMapa.has(claveServicio)) {
-          await supabaseClient.from('forecast_servicios')
-            .upsert({ linea_producto: f.linea, nombre: f.servicio }, {
-              onConflict: 'linea_producto,nombre', ignoreDuplicates: true
-            });
-          catalogoMapa.set(claveServicio, f.servicio);
-        }
-        const servicioOficial = catalogoMapa.get(claveServicio);
-        // Si la fila no trajo Forecast manual, lo calculamos con el historial estacional
-        const forecast = f.forecast !== null ? f.forecast : (f.forecastAuto ?? null);
+          const claveServicio = `${f.linea}|${normalizarTexto(f.servicio)}`;
+          if (!catalogoMapa.has(claveServicio)) {
+            await supabaseClient.from('forecast_servicios')
+              .upsert({ linea_producto: f.linea, nombre: f.servicio }, {
+                onConflict: 'linea_producto,nombre', ignoreDuplicates: true
+              });
+            catalogoMapa.set(claveServicio, f.servicio);
+          }
+          const servicioOficial = catalogoMapa.get(claveServicio);
 
-        const payload = {
-          anio: f.anio,
-          quarter: f.quarter,
-          mes: f.mes,
-          cliente: f.cliente,
-          linea_producto: f.linea,
-          servicio: servicioOficial,
-          pozo_relacion_venta: f.pozo,
-          monto_forecast: forecast,
-          confianza: f.confianza,
-          monto_p50: f.confianza === 'P50' ? forecast : null,
-          monto_p70: f.confianza === 'P70' ? forecast : null,
-          monto_p90: f.confianza === 'P90' ? forecast : null,
-        };
+          const forecast = f.forecast !== null ? f.forecast : (f.forecastAuto ?? null);
 
-        const { data: guardado, error } = f.idExistente
-          ? await supabaseClient.from('forecast_registros').update(payload).eq('id', f.idExistente).select('id').single()
-          : await supabaseClient.from('forecast_registros').insert(payload).select('id').single();
+          const payload = {
+            anio: f.anio,
+            quarter: f.quarter,
+            mes: f.mes,
+            cliente: f.cliente,
+            linea_producto: f.linea,
+            servicio: servicioOficial,
+            pozo_relacion_venta: f.pozo,
+            monto_forecast: forecast,
+            confianza: f.confianza,
+            monto_p50: f.confianza === 'P50' ? forecast : null,
+            monto_p70: f.confianza === 'P70' ? forecast : null,
+            monto_p90: f.confianza === 'P90' ? forecast : null,
+          };
 
-        if (error) {
-          console.error('Error importando fila:', f, error);
-          mostrarToast(`Falló la fila de ${f.cliente || 'un registro'} (revisa el resumen al terminar).`);
-          fallidas++;
-        } else {
+          const { data: guardado, error } = f.idExistente
+            ? await supabaseClient.from('forecast_registros').update(payload).eq('id', f.idExistente).select('id').single()
+            : await supabaseClient.from('forecast_registros').insert(payload).select('id').single();
+
+          if (error) throw error;
+
           exitosas++;
           if (f.idExistente) actualizadas++;
-          // Deja constancia de quién hizo este cambio, para el Historial de Cambios
+          filasExitosas.push(f);
+
           await registrarAuditoria({
             accion: f.idExistente ? 'Actualización' : 'Creación',
             registro_id: guardado ? guardado.id : f.idExistente,
@@ -2175,48 +2409,69 @@
             anio: payload.anio,
             monto_forecast: payload.monto_forecast,
           });
+        } catch (errFila) {
+          console.error('Error importando fila:', f, errFila);
+          fallidas++;
+          fallos.push(`${f.cliente} · ${f.servicio} (${nombreMes[f.mes]} ${f.anio}): ${errFila.message || errFila}`);
         }
       }
 
-      status.textContent = `✓ Importación terminada: ${exitosas - actualizadas} nuevos, ${actualizadas} actualizados` + (fallidas > 0 ? `, ${fallidas} fallaron (revisa la consola)` : '.');
-      status.className = 'text-sm ml-3 ' + (fallidas > 0 ? 'text-amber-600' : 'text-green-600');
-      // Tras importar, el botón se bloquea: volver a confirmar duplicaría los registros
-      boton.disabled = true;
-      boton.innerHTML = '<i class="fas fa-check mr-1"></i> Importación completada';
+      progreso.avanzar(filasAImportar.length, 'Guardando historial de la carga...');
 
-      const nuevosCreados = exitosas - actualizadas;
-      const estado = document.getElementById('resEstado');
-      estado.innerHTML =
-        '<i class="fas fa-circle-check mt-0.5"></i>' +
-        `<div><p class="font-medium">Importación completada</p>` +
-        `<p class="mt-0.5">${nuevosCreados} nuevos · ${actualizadas} actualizados` +
-        (fallidas > 0
-          ? ` · ${fallidas} fallaron. Vuelve a subir el archivo: lo ya guardado se actualizará, no se duplicará.`
-          : '. Sube otro archivo para hacer una nueva importación.') +
-        '</p></div>';
-      estado.classList.remove('hidden');
-      estado.classList.add('flex');
-      document.getElementById('resRegistrosNota').textContent = `${nuevosCreados} creados · ${actualizadas} actualizados`;
-
-      // Registramos en el historial cada Año+Mes distinto que trajo este archivo
-      const paresAnioMes = [...new Set(filasAImportar.map(f => `${f.anio}-${f.mes}`))];
+      // Historial de cargas: solo con las filas que sí se guardaron
+      const paresAnioMes = [...new Set(filasExitosas.map(f => `${f.anio}-${f.mes}`))];
       for (const par of paresAnioMes) {
         const [anio, mes] = par.split('-').map(Number);
-        const cantidad = filasAImportar.filter(f => f.anio === anio && f.mes === mes).length;
+        const cantidad = filasExitosas.filter(f => f.anio === anio && f.mes === mes).length;
         await supabaseClient.from('forecast_importaciones').insert({
           anio, mes,
           usuario_email: window.usuarioActual || 'desconocido',
           cantidad_registros: cantidad,
         });
       }
-
-      cargarHistorialImportaciones();
-      cargarHistorialAuditoria();
-      mostrarUltimaActualizacion();
-      cargarClientes();
-      // Limpiamos el input para permitir subir otro archivo después
+    } catch (err) {
+      console.error('La importación se interrumpió:', err);
+      errorFatal = err;
+    } finally {
+      window.removeEventListener('beforeunload', bloquearSalidaDuranteImportacion);
       document.getElementById('inputExcel').value = '';
-    });
+    }
+
+    // ── 3) Resultado ──
+    const nuevosCreados = exitosas - actualizadas;
+    const hayProblema = fallidas > 0 || !!errorFatal;
+
+    if (exitosas === 0) {
+      // No se guardó nada: se puede reintentar sin riesgo de duplicar
+      boton.disabled = false;
+      boton.innerHTML = etiquetaOriginal;
+    } else {
+      // Ya hay registros guardados: volver a confirmar los duplicaría
+      boton.disabled = true;
+      boton.innerHTML = '<i class="fas fa-check mr-1"></i> Importación completada';
+    }
+
+    const estado = document.getElementById('resEstado');
+    estado.className = (hayProblema
+      ? 'bg-amber-50 border-amber-200 text-amber-800'
+      : 'bg-green-50 border-green-200 text-green-800') +
+      ' flex items-start gap-3 border rounded-xl p-4 text-sm';
+    estado.innerHTML =
+      `<i class="fas ${hayProblema ? 'fa-triangle-exclamation' : 'fa-circle-check'} mt-0.5"></i>` +
+      `<div><p class="font-medium">${hayProblema ? 'Importación terminada con avisos' : 'Importación completada'}</p>` +
+      `<p class="mt-0.5">${nuevosCreados} nuevos · ${actualizadas} actualizados` +
+      (fallidas > 0 ? ` · ${fallidas} con error. Vuelve a subir el archivo: lo ya guardado se actualizará, no se duplicará.` : '') +
+      (errorFatal ? ' · La importación se interrumpió; vuelve a subir el archivo.' : '') +
+      '</p></div>';
+    document.getElementById('resRegistrosNota').textContent = `${nuevosCreados} creados · ${actualizadas} actualizados`;
+
+    mostrarResultadoModal({ nuevos: nuevosCreados, actualizados: actualizadas, fallidas, fallos, errorFatal });
+
+    cargarHistorialImportaciones();
+    cargarHistorialAuditoria();
+    mostrarUltimaActualizacion();
+    cargarClientes();
+  });
 
     // ─────────────────────────────────────────────
     // Historial de importaciones
