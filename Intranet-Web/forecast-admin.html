@@ -303,6 +303,26 @@
         </div>
       </section>
 
+      <!-- CARGA DE HISTORIAL DE VENTA REAL -->
+      <section id="seccionHistorialVentaReal" class="bg-panel border border-border rounded-2xl p-6 shadow-sm">
+        <h2 class="text-lg font-semibold text-gray-900 mb-1">Carga de Historial de Venta Real</h2>
+        <p class="text-sm text-gray-500 mb-4">Captura de una vez el total vendido de cada mes de los años anteriores. Con este historial el sistema calcula el forecast. Los meses vacíos se ignoran, y los que ya tenían monto aparecen precargados.</p>
+
+        <div class="overflow-x-auto border border-border rounded-xl">
+          <table class="w-full text-xs">
+            <thead id="histHead" class="bg-gray-50"></thead>
+            <tbody id="histBody" class="divide-y divide-border"></tbody>
+          </table>
+        </div>
+
+        <div class="flex items-center gap-3 mt-4">
+          <button id="btnGuardarHistorial" type="button" class="bg-accent text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-blue-700 transition">
+            <i class="fas fa-save mr-1"></i> Guardar Historial
+          </button>
+          <span id="hist_status" class="text-sm"></span>
+        </div>
+      </section>
+
       <!-- IMPORTAR EXCEL -->
       <section class="bg-panel border border-border rounded-2xl p-6 shadow-sm">
         <div class="flex items-center justify-between mb-1">
@@ -357,7 +377,7 @@
             <div id="resLineas" class="space-y-2.5"></div>
             <div class="border-t border-border mt-4 pt-4">
               <p class="text-sm font-semibold text-gray-800">Cargado vs referencia histórica</p>
-              <p class="text-xs text-gray-500 mb-3">La barra completa equivale al promedio histórico de ese mes (toda la empresa, años anteriores).</p>
+              <p class="text-xs text-gray-500 mb-3">La barra completa equivale al forecast calculado para ese mes (venta real del año anterior ajustada por el crecimiento de la empresa).</p>
               <div id="resReferencia" class="space-y-3"></div>
             </div>
           </div>
@@ -481,6 +501,7 @@
       mostrarUltimaActualizacion();
       revisarMesesPendientes();
       revisarRecordatorioMensual();
+      construirTablaHistorial();
     });
     cargarComponente('footer.html', 'footer-slot');
 
@@ -744,34 +765,74 @@
       cargarServiciosDeLinea(e.target.value);
     });
 
-    // ─────────────────────────────────────────────
-    // Forecast sugerido = promedio de los últimos 3 registros
-    // de este mismo Cliente + Línea (regla del documento)
-    // ─────────────────────────────────────────────
-    // Forecast estacional: promedio del concentrado de Venta Real Mensual de TODA la empresa
-    // para ese mismo mes calendario (ej. todos los "agostos" anteriores), considerando TODOS
-    // los años ya cerrados y capturados en forecast_venta_real_mensual. Entre más meses
-    // captures con el tiempo, más preciso se vuelve este promedio automáticamente.
-    async function calcularForecastEstacional(linea, mes, anioObjetivo) {
+    // Trae todo el historial de venta real mensual (son pocas filas: 12 por año)
+    async function traerHistoricoVentaReal() {
       const { data, error } = await supabaseClient
         .from('forecast_venta_real_mensual')
-        .select('monto_real_usd, anio')
-        .eq('mes', mes)
-        .lt('anio', anioObjetivo);
+        .select('anio, mes, monto_real_usd');
 
-      if (error) { console.error(error); mostrarToast('No se pudo calcular el forecast sugerido.'); return { promedio: null, anios: [] }; }
-      if (!data || data.length === 0) return { promedio: null, anios: [] };
+      if (error) {
+        console.error(error);
+        mostrarToast('No se pudo consultar el historial de venta real.');
+        return null;
+      }
+      return (data || []).map(r => ({ anio: r.anio, mes: r.mes, monto_real_usd: Number(r.monto_real_usd) }));
+    }
 
-      // Un solo total por año para ese mes (ya viene concentrado, no hace falta sumar por cliente)
-      const totalesPorAnio = {};
-      data.forEach(r => {
-        totalesPorAnio[r.anio] = Number(r.monto_real_usd);
-      });
+    // Crecimiento de la empresa: compara los meses cerrados de un año contra los mismos meses del anterior.
+    // Primero intenta el año objetivo (ej. 2026 vs 2025); si no hay al menos 3 meses en común,
+    // usa el año previo (2025 vs 2024). Sin datos suficientes, el factor es 1 (sin ajuste).
+    function estimarCrecimiento(filas, anioObjetivo, mesExcluido) {
+      const porAnio = {};
+      filas.forEach(r => { (porAnio[r.anio] = porAnio[r.anio] || {})[r.mes] = r.monto_real_usd; });
 
-      const anios = Object.keys(totalesPorAnio).sort();
-      const promedio = anios.reduce((a, y) => a + totalesPorAnio[y], 0) / anios.length;
+      for (const a of [anioObjetivo, anioObjetivo - 1]) {
+        const act = porAnio[a];
+        const prev = porAnio[a - 1];
+        if (!act || !prev) continue;
 
-      return { promedio, anios };
+        const comunes = Object.keys(act).map(Number).filter(m => prev[m] != null && !(a === anioObjetivo && m === mesExcluido));
+        if (comunes.length < 3) continue;
+
+        const sumaAct = comunes.reduce((s, m) => s + act[m], 0);
+        const sumaPrev = comunes.reduce((s, m) => s + prev[m], 0);
+        if (sumaPrev <= 0) continue;
+
+        const factor = Math.min(2, Math.max(0.5, sumaAct / sumaPrev));
+        return { factor, comparacion: `${a} vs ${a - 1}`, meses: comunes.length };
+      }
+      return { factor: 1, comparacion: null, meses: 0 };
+    }
+
+    // Forecast = venta real del mismo mes del año anterior × crecimiento de la empresa.
+    // Si ese mes no existe en el año anterior, usa el año más reciente que sí lo tenga, sin ajuste.
+    // Se mantiene el nombre "promedio" en el resultado para no tocar el resto del código.
+    function calcularForecastDesdeHistorico(filas, mes, anioObjetivo) {
+      const previos = filas
+        .filter(r => r.mes === mes && r.anio < anioObjetivo)
+        .sort((a, b) => b.anio - a.anio);
+
+      if (previos.length === 0) return { promedio: null, anios: [] };
+
+      const base = previos[0];
+      const crec = base.anio === anioObjetivo - 1
+        ? estimarCrecimiento(filas, anioObjetivo, mes)
+        : { factor: 1, comparacion: null, meses: 0 };
+
+      return {
+        promedio: base.monto_real_usd * crec.factor,
+        anios: previos.map(r => r.anio).sort(),
+        anioBase: base.anio,
+        base: base.monto_real_usd,
+        factor: crec.factor,
+        comparacion: crec.comparacion,
+      };
+    }
+
+    async function calcularForecastEstacional(linea, mes, anioObjetivo) {
+      const filas = await traerHistoricoVentaReal();
+      if (!filas) return { promedio: null, anios: [] };
+      return calcularForecastDesdeHistorico(filas, mes, anioObjetivo);
     }
 
     async function sugerirForecast() {
@@ -784,7 +845,7 @@
 
       hint.innerHTML = '<i class="fas fa-circle-notch fa-spin-loading"></i> Calculando referencia del mes...';
 
-      const { promedio, anios } = await calcularForecastEstacional(null, Number(mes), Number(anio));
+      const { promedio, anios, anioBase, factor, comparacion } = await calcularForecastEstacional(null, Number(mes), Number(anio));
 
       if (promedio === null) {
         // Sin historial: se limpia una sugerencia anterior (pero nunca un monto que tú escribiste)
@@ -809,8 +870,12 @@
       // Se autocompleta solo si el usuario no ha escrito su propio monto
       if (!campo.dataset.manual) campo.value = disponible > 0 ? disponible.toFixed(2) : '';
 
+      const detalleCalculo = (anioBase === Number(anio) - 1 && comparacion)
+        ? `${nombreMes[Number(mes)]} ${anioBase} × ${factor.toFixed(2)} (crecimiento ${comparacion})`
+        : `${nombreMes[Number(mes)]} ${anioBase} (sin ajuste de crecimiento)`;
+
       hint.textContent =
-        `Referencia de ${nombreMes[Number(mes)]} (promedio de ${anios.join(', ')}, toda la empresa): ${fmt(promedio)} · ` +
+        `Forecast de ${nombreMes[Number(mes)]} (toda la empresa): ${fmt(promedio)} = ${detalleCalculo} · ` +
         `Ya capturado: ${fmt(capturado)} · Disponible: ${fmt(disponible)}. ` +
         (disponible > 0 ? 'Sugerido arriba; ajústalo si este registro es solo una parte.' : 'No queda cupo: captura el monto a mano.');
     }
@@ -1185,6 +1250,95 @@
       revisarMesesPendientes();
     });
 
+    // ─────────────────────────────────────────────
+    // Carga masiva del historial de venta real (años anteriores)
+    // ─────────────────────────────────────────────
+    const ANIO_INICIO_HISTORIAL = 2024;
+
+    async function construirTablaHistorial() {
+      const hoy = new Date();
+      const anioActual = hoy.getFullYear();
+      const mesActual = hoy.getMonth() + 1;
+
+      const { data, error } = await supabaseClient
+        .from('forecast_venta_real_mensual')
+        .select('anio, mes, monto_real_usd');
+
+      if (error) { console.error(error); mostrarToast('No se pudo cargar el historial de venta real.'); return; }
+
+      const mapa = {};
+      (data || []).forEach(r => { mapa[`${r.anio}-${r.mes}`] = r.monto_real_usd; });
+
+      const abrev = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+      document.getElementById('histHead').innerHTML =
+        '<tr class="text-left text-gray-500 border-b border-border"><th class="py-2 px-3 font-medium">Año</th>' +
+        abrev.map(a => `<th class="py-2 px-1 font-medium text-center">${a}</th>`).join('') + '</tr>';
+
+      let filas = '';
+      for (let anio = ANIO_INICIO_HISTORIAL; anio <= anioActual; anio++) {
+        let celdas = '';
+        for (let mes = 1; mes <= 12; mes++) {
+          const bloqueado = anio === anioActual && mes >= mesActual; // mes en curso o futuro: aún no cierra
+          const valor = mapa[`${anio}-${mes}`] ?? '';
+          celdas += `<td class="p-1"><input type="number" step="0.01" min="0" data-anio="${anio}" data-mes="${mes}" value="${valor}" ${bloqueado ? 'disabled' : ''}
+            class="w-24 bg-white border border-border rounded-md px-2 py-1.5 text-xs disabled:bg-gray-100 disabled:text-gray-300"></td>`;
+        }
+        filas += `<tr><td class="py-2 px-3 font-semibold text-gray-700">${anio}</td>${celdas}</tr>`;
+      }
+      document.getElementById('histBody').innerHTML = filas;
+    }
+
+    document.getElementById('btnGuardarHistorial').addEventListener('click', async () => {
+      const status = document.getElementById('hist_status');
+      const filas = [];
+      let invalido = false;
+
+      document.querySelectorAll('#histBody input:not(:disabled)').forEach(c => {
+        c.classList.remove('border-red-400');
+        if (c.value === '') return;
+        const n = Number(c.value);
+        if (isNaN(n) || n < 0) { invalido = true; c.classList.add('border-red-400'); return; }
+        filas.push({
+          anio: Number(c.dataset.anio),
+          mes: Number(c.dataset.mes),
+          monto_real_usd: n,
+          capturado_por: window.usuarioActual || null,
+          capturado_en: new Date().toISOString(),
+        });
+      });
+
+      if (invalido) {
+        status.textContent = 'Hay montos no válidos (marcados en rojo).';
+        status.className = 'text-sm text-red-600';
+        return;
+      }
+      if (filas.length === 0) {
+        status.textContent = 'Captura al menos un monto.';
+        status.className = 'text-sm text-gray-500';
+        return;
+      }
+
+      status.textContent = 'Guardando...';
+      status.className = 'text-sm text-gray-500';
+
+      const { error } = await supabaseClient
+        .from('forecast_venta_real_mensual')
+        .upsert(filas, { onConflict: 'anio,mes' });
+
+      if (error) {
+        console.error(error);
+        mostrarToast('No se pudo guardar el historial, intenta de nuevo.');
+        status.textContent = 'Error al guardar: ' + error.message;
+        status.className = 'text-sm text-red-600';
+        return;
+      }
+
+      status.textContent = `✓ ${filas.length} mes(es) guardados correctamente.`;
+      status.className = 'text-sm text-green-600';
+      document.getElementById('alertaMesesPendientes').classList.add('hidden');
+      revisarMesesPendientes();
+    });
+
     // Acordeón: la sección de Historial de Cargas empieza colapsada
     document.getElementById('btnToggleHistorial').addEventListener('click', () => {
       const contenido = document.getElementById('contenidoHistorial');
@@ -1339,7 +1493,7 @@
         ['Línea de Producto', 'Elígela del menú. Debe coincidir exactamente con una de las 6 oficiales: Cementing, CHC, Gas Lift, Safety System, Sand Control, Servicios de Taller. No se permiten líneas nuevas.', 'Obligatorio', 'Cementing'],
         ['Servicio', 'Elígelo del menú o escribe uno nuevo (verás una advertencia amarilla, puedes continuar). Debe describir el servicio específico dentro de la línea elegida.', 'Obligatorio', 'Centradores de Cementación'],
         ['Pozo / Relación de Venta', 'Nombre del pozo, contrato o referencia de la venta. Déjalo en blanco si no aplica.', 'Opcional', 'Pozo Ayin-1'],
-        ['Forecast (USD)', 'Normalmente déjalo vacío: el sistema toma el promedio histórico de ese mes y lo reparte entre las filas sin monto. Escribe un monto solo si quieres forzar un valor manual. Solo el número, sin signo $ ni comas.', 'Automático', '45000'],
+        ['Forecast (USD)', 'Normalmente déjalo vacío: el sistema calcula el forecast del mes con la venta real del año anterior ajustada por el crecimiento de la empresa, y lo reparte entre las filas sin monto. Escribe un monto solo si quieres forzar un valor manual. Solo el número, sin signo $ ni comas.', 'Automático', '45000'],
         ['Nivel de Confianza', 'Elige P50, P70 o P90 del menú. Indica la probabilidad de cumplimiento del forecast. Déjalo vacío si no aplica.', 'Opcional', 'P70'],
       ];
 
@@ -2232,30 +2386,15 @@
       const claves = Object.keys(grupos);
       if (claves.length === 0) return;
 
-      // Una sola consulta con el histórico de todos los meses del archivo
-      const meses = [...new Set(claves.map(k => Number(k.split('-')[1])))];
-      const anioMax = Math.max(...claves.map(k => Number(k.split('-')[0])));
-
-      const { data: historico, error } = await supabaseClient
-        .from('forecast_venta_real_mensual')
-        .select('anio, mes, monto_real_usd')
-        .in('mes', meses)
-        .lt('anio', anioMax);
-
-      if (error) {
-        console.error(error);
-        falloHistorico = true;
-        mostrarToast('No se pudo calcular el forecast automático.');
-      }
+      // Una sola consulta con todo el historial (el toast de error ya lo muestra la función)
+      const historico = await traerHistoricoVentaReal();
+      if (historico === null) falloHistorico = true;
 
       for (const clave of claves) {
         const filasMes = grupos[clave];
         const { anio, mes } = filasMes[0];
 
-        const previos = (historico || []).filter(r => r.mes === mes && r.anio < anio);
-        const promedio = previos.length
-          ? previos.reduce((s, r) => s + Number(r.monto_real_usd), 0) / previos.length
-          : null;
+        const { promedio } = calcularForecastDesdeHistorico(historico || [], mes, anio);
         referenciaPorMes[clave] = promedio;
 
         const sinManual = filasMes.filter(f => f.forecast === null);
