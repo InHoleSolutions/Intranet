@@ -183,7 +183,7 @@
             <span class="text-lg">🎯</span>
           </div>
           <p id="kpiCumplimiento" class="text-2xl font-bold text-accent2">0%</p>
-          <span class="text-xs text-gray-500">Real vs Proyectado</span>
+          <span class="text-xs text-gray-500">Venta real vs forecast de meses cerrados</span>
         </div>
 
         <div class="print-card bg-panel border border-border rounded-2xl p-4 flex flex-col gap-2 shadow-sm">
@@ -740,7 +740,20 @@
       });
       const totalCierre = baseCierre.reduce((a, r) => a + (Number(r.monto_forecast) || 0), 0);
 
-      const cumplimiento = totalCierre ? (totalRealHastaFecha / totalCierre) * 100 : 0;
+      // Cumplimiento: venta real de los meses cerrados vs forecast de ESOS mismos meses.
+      // El mes en curso aún no cierra, así que no entra en ninguno de los dos lados.
+      const hoyKpi = new Date();
+      const mesesCerradosAnio = anio < hoyKpi.getFullYear() ? 12 : (anio === hoyKpi.getFullYear() ? hoyKpi.getMonth() : 0);
+
+      let realCerrado = 0;
+      for (let m = 1; m <= mesesCerradosAnio; m++) {
+        realCerrado += ventaRealMensual[m] || 0;
+      }
+      const forecastCerrado = baseCierre
+        .filter(r => r.mes <= mesesCerradosAnio)
+        .reduce((a, r) => a + (Number(r.monto_forecast) || 0), 0);
+
+      const cumplimiento = forecastCerrado ? (realCerrado / forecastCerrado) * 100 : 0;
 
       // Crecimiento acumulado: mismos meses transcurridos, este año vs año anterior
       let totalAnteriorMismoRango = 0;
