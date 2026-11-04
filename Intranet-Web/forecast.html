@@ -321,6 +321,38 @@
         </div>
 
         <div class="print-card xl:col-span-3 bg-panel border border-border rounded-2xl p-5 shadow-sm">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
+            <div>
+              <h2 class="text-sm font-semibold text-gray-800">Forecast vs Venta Real</h2>
+              <p class="text-xs text-gray-500">Solo meses ya cerrados · respeta los filtros de arriba</p>
+            </div>
+            <div id="tabsCumplimiento" class="inline-flex border border-border rounded-lg overflow-hidden text-xs font-medium">
+              <button type="button" data-vista="servicio" class="px-3 py-1.5">Por servicio</button>
+              <button type="button" data-vista="linea" class="px-3 py-1.5 border-l border-border">Por línea</button>
+              <button type="button" data-vista="cliente" class="px-3 py-1.5 border-l border-border">Por cliente</button>
+            </div>
+          </div>
+
+          <div id="cumplResumen" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3"></div>
+          <div id="cumplAviso" class="hidden bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl px-3 py-2 mb-3"></div>
+
+          <div class="overflow-x-auto max-h-[420px] overflow-y-auto border border-border rounded-xl">
+            <table class="w-full text-sm">
+              <thead class="sticky top-0 bg-gray-50">
+                <tr class="text-left text-gray-500 border-b border-border">
+                  <th id="cumplColNombre" class="py-2 px-3 font-medium">Servicio</th>
+                  <th class="py-2 px-3 font-medium text-right">Forecast</th>
+                  <th class="py-2 px-3 font-medium text-right">Venta Real</th>
+                  <th class="py-2 px-3 font-medium text-right">Diferencia</th>
+                  <th class="py-2 px-3 font-medium w-48">Cumplimiento</th>
+                </tr>
+              </thead>
+              <tbody id="cumplBody" class="divide-y divide-border"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="print-card xl:col-span-3 bg-panel border border-border rounded-2xl p-5 shadow-sm">
           <h2 class="text-sm font-semibold text-gray-800">Inventario por Línea</h2>
           <p class="text-xs text-gray-500 mb-3">Relación entre ventas esperadas y disponibilidad de stock</p>
           <div class="overflow-x-auto">
@@ -617,6 +649,7 @@
       pintarAlertaRiesgo(clientes);
       await dibujarChartCrecimiento(anio);
       dibujarChartComposicion(filtrados);
+      pintarCumplimiento(filtrados);
       await pintarTablaInventario(filtrados);
     }
 
@@ -1144,6 +1177,115 @@
           </tr>`;
       }).join('');
     }
+
+    // ─────────────────────────────────────────────
+    // Forecast vs Venta Real: por servicio, línea o cliente (solo meses cerrados)
+    // ─────────────────────────────────────────────
+    let vistaCumplimiento = 'servicio';
+    let registrosCumplimiento = [];
+
+    function pintarCumplimiento(filtrados) {
+      if (filtrados) registrosCumplimiento = filtrados;
+
+      const hoy = new Date();
+      const cerrado = (r) => r.anio < hoy.getFullYear() || (r.anio === hoy.getFullYear() && r.mes < hoy.getMonth() + 1);
+      const cerrados = registrosCumplimiento.filter(cerrado);
+
+      // Pestañas
+      document.querySelectorAll('#tabsCumplimiento button').forEach(b => {
+        const activo = b.dataset.vista === vistaCumplimiento;
+        b.className = 'px-3 py-1.5 ' + (b.dataset.vista !== 'servicio' ? 'border-l border-border ' : '') +
+          (activo ? 'bg-accent text-white' : 'bg-white text-gray-600 hover:bg-gray-50');
+      });
+      document.getElementById('cumplColNombre').textContent =
+        { servicio: 'Servicio', linea: 'Línea de producto', cliente: 'Cliente' }[vistaCumplimiento];
+
+      // Agrupar según la pestaña
+      const llave = {
+        servicio: r => `${r.linea_producto}|||${r.servicio}`,
+        linea:    r => r.linea_producto,
+        cliente:  r => r.cliente,
+      }[vistaCumplimiento];
+
+      const grupos = {};
+      cerrados.forEach(r => {
+        const k = llave(r);
+        if (!grupos[k]) {
+          grupos[k] = {
+            nombre: vistaCumplimiento === 'servicio' ? r.servicio : (vistaCumplimiento === 'linea' ? r.linea_producto : r.cliente),
+            sub: vistaCumplimiento === 'servicio' ? r.linea_producto : '',
+            forecast: 0, real: 0,
+          };
+        }
+        grupos[k].forecast += Number(r.monto_forecast) || 0;
+        grupos[k].real += Number(r.monto_real_usd) || 0;
+      });
+
+      // Totales y resumen
+      const totalF = cerrados.reduce((s, r) => s + (Number(r.monto_forecast) || 0), 0);
+      const totalR = cerrados.reduce((s, r) => s + (Number(r.monto_real_usd) || 0), 0);
+      const difTotal = totalR - totalF;
+      const cumplTotal = totalF > 0 ? (totalR / totalF) * 100 : null;
+      const colorDif = difTotal >= 0 ? 'text-green-600' : 'text-red-600';
+
+      const tarjeta = (titulo, valor, clase = 'text-gray-900') =>
+        `<div class="border border-border rounded-xl p-3 bg-white"><p class="text-[11px] text-gray-400 font-medium">${titulo}</p><p class="text-lg font-bold ${clase}">${valor}</p></div>`;
+
+      document.getElementById('cumplResumen').innerHTML =
+        tarjeta('Forecast (meses cerrados)', fmtUSD(totalF)) +
+        tarjeta('Venta Real', fmtUSD(totalR)) +
+        tarjeta('Diferencia', (difTotal >= 0 ? '+' : '-') + fmtUSD(Math.abs(difTotal)), colorDif) +
+        tarjeta('Cumplimiento', cumplTotal === null ? '—' : fmtPct(cumplTotal), 'text-accent2');
+
+      // Aviso: registros de meses cerrados sin venta real capturada
+      const sinReal = cerrados.filter(r => r.monto_real_usd == null).length;
+      const aviso = document.getElementById('cumplAviso');
+      if (sinReal > 0) {
+        aviso.textContent = `${sinReal} de ${cerrados.length} registro(s) de meses cerrados no tienen venta real capturada y cuentan como $0.`;
+        aviso.classList.remove('hidden');
+      } else {
+        aviso.classList.add('hidden');
+      }
+
+      // Tabla
+      const tbody = document.getElementById('cumplBody');
+      const lista = Object.values(grupos).sort((a, b) => Math.max(b.forecast, b.real) - Math.max(a.forecast, a.real));
+
+      if (lista.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="py-4 px-3 text-center text-gray-400 text-sm">No hay meses cerrados con los filtros actuales.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = lista.map(g => {
+        const dif = g.real - g.forecast;
+        const pct = g.forecast > 0 ? (g.real / g.forecast) * 100 : null;
+        const colorBarra = pct === null ? '#94a3b8' : pct >= 100 ? '#22c55e' : pct >= 70 ? '#f59e0b' : '#ef4444';
+        const ancho = pct === null ? 0 : Math.min(100, pct);
+
+        return `
+          <tr class="text-gray-700">
+            <td class="py-2 px-3">
+              <span class="font-medium">${escapeHtml(g.nombre)}</span>
+              ${g.sub ? `<span class="block text-[11px] text-gray-400">${escapeHtml(g.sub)}</span>` : ''}
+            </td>
+            <td class="py-2 px-3 text-right">${fmtUSD(g.forecast)}</td>
+            <td class="py-2 px-3 text-right">${fmtUSD(g.real)}</td>
+            <td class="py-2 px-3 text-right font-medium ${dif >= 0 ? 'text-green-600' : 'text-red-600'}">${dif >= 0 ? '+' : '-'}${fmtUSD(Math.abs(dif))}</td>
+            <td class="py-2 px-3">
+              <div class="flex items-center gap-2">
+                <div class="h-2 flex-1 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full" style="width:${ancho}%; background:${colorBarra}"></div>
+                </div>
+                <span class="text-xs text-gray-600 w-16 text-right">${pct === null ? 'sin forecast' : fmtPct(pct)}</span>
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    document.querySelectorAll('#tabsCumplimiento button').forEach(b => {
+      b.addEventListener('click', () => { vistaCumplimiento = b.dataset.vista; pintarCumplimiento(); });
+    });
 
     // ─────────────────────────────────────────────
     // Filtros: cada vez que cambian, recargamos el dashboard

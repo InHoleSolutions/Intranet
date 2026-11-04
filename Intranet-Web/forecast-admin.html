@@ -225,6 +225,13 @@
             </div>
           </div>
 
+          <div>
+            <label class="text-xs font-medium text-gray-600">Venta Real (USD) <span class="text-gray-400">— solo mes cerrado</span></label>
+            <input id="reg_real" type="number" step="0.01" min="0" disabled placeholder="Elige año y mes"
+              class="w-full mt-1 bg-white border border-border rounded-lg px-3 py-2 text-sm disabled:bg-gray-100 disabled:text-gray-400">
+            <p id="reg_real_hint" class="text-xs text-gray-400 mt-1"></p>
+          </div>
+
           <div class="md:col-span-3 flex items-center gap-3 pt-3">
             <button type="submit" class="bg-accent text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-blue-700 transition">
               <i class="fas fa-save mr-1"></i> Guardar Registro
@@ -303,6 +310,37 @@
         </div>
       </section>
 
+      <!-- CUADRE: venta real por servicio vs total mensual -->
+      <section id="seccionCuadre" class="bg-panel border border-border rounded-2xl p-6 shadow-sm">
+        <div class="flex items-start justify-between gap-3 mb-1">
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900 mb-1">Cuadre de Venta Real</h2>
+            <p class="text-sm text-gray-500">Compara, mes por mes, el total de "Cierre de Venta Real Mensual" contra la suma de la Venta Real de los registros por servicio.</p>
+          </div>
+          <label class="flex items-center gap-2 text-xs text-gray-600 shrink-0 mt-1 cursor-pointer">
+            <input id="cuadreSoloDif" type="checkbox" class="rounded"> Solo diferencias
+          </label>
+        </div>
+
+        <div id="cuadreResumen" class="text-sm my-3"></div>
+
+        <div class="overflow-x-auto max-h-[360px] overflow-y-auto border border-border rounded-xl">
+          <table class="w-full text-xs">
+            <thead class="sticky top-0 bg-gray-50">
+              <tr class="text-left text-gray-500 border-b border-border">
+                <th class="py-2 px-3 font-medium">Mes</th>
+                <th class="py-2 px-3 font-medium text-right">Total mensual</th>
+                <th class="py-2 px-3 font-medium text-right">Suma por servicio</th>
+                <th class="py-2 px-3 font-medium text-right">Diferencia</th>
+                <th class="py-2 px-3 font-medium">Estado</th>
+              </tr>
+            </thead>
+            <tbody id="cuadreBody" class="divide-y divide-border"></tbody>
+          </table>
+        </div>
+        <p class="text-xs text-gray-400 mt-2">Diferencia = suma por servicio − total mensual. Positiva: el detalle supera al total. Negativa: al detalle le falta venta por capturar.</p>
+      </section>
+
       <!-- CARGA DE HISTORIAL DE VENTA REAL -->
       <section id="seccionHistorialVentaReal" class="bg-panel border border-border rounded-2xl p-6 shadow-sm">
         <h2 class="text-lg font-semibold text-gray-900 mb-1">Carga de Historial de Venta Real</h2>
@@ -347,7 +385,7 @@
         <div id="resumenTarjetas" class="hidden mt-4 space-y-4">
           <div id="resEstado" class="hidden items-start gap-3 bg-green-50 border border-green-200 rounded-xl p-4 text-sm text-green-800"></div>
           <div id="resAviso" class="hidden items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800"></div>
-          <div id="resErrorHistorico" class="hidden items-start gap-3 bg-red-50 border border-red-200 rounded-x1 p-4 text-sm text-red-800"></div>
+          <div id="resErrorHistorico" class="hidden items-start gap-3 bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-800"></div>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div class="border border-border rounded-xl p-4 bg-white">
               <p class="text-xs text-gray-400 font-medium">Forecast total a cargar</p>
@@ -397,6 +435,7 @@
                   <th class="py-2 px-3 font-medium">Pozo</th>
                   <th class="py-2 px-3 font-medium">Forecast</th>
                   <th class="py-2 px-3 font-medium">Confianza</th>
+                  <th class="py-2 px-3 font-medium">Venta Real</th>
                   <th class="py-2 px-3 font-medium">Detalle</th>
                 </tr>
               </thead>
@@ -713,11 +752,16 @@
       if (!meses) {
         selectMes.innerHTML = '<option value="">Elige un Quarter primero</option>';
         selectMes.disabled = true;
+        aplicarReglaPeriodo();
         return;
       }
 
       selectMes.innerHTML = meses.map(([valor, nombre]) => `<option value="${valor}">${nombre}</option>`).join('');
       selectMes.disabled = false;
+
+      // El mes se selecciona solo y no dispara "change", así que se aplica la regla a mano
+      aplicarReglaPeriodo();
+      sugerirForecast();
     });
 
     // Línea de producto → Servicio con autocompletar (consulta forecast_servicios)
@@ -884,6 +928,41 @@
     document.getElementById('reg_mes').addEventListener('change', sugerirForecast);
     document.getElementById('reg_anio').addEventListener('change', sugerirForecast);
 
+    // Mes cerrado: se captura Venta Real (el forecast lo calcula el sistema).
+    // Mes sin cerrar: se captura Forecast (no hay Venta Real todavía).
+    function aplicarReglaPeriodo() {
+      const anio = Number(document.getElementById('reg_anio').value);
+      const mes = Number(document.getElementById('reg_mes').value);
+      const campoF = document.getElementById('reg_forecast');
+      const campoR = document.getElementById('reg_real');
+      const hintR = document.getElementById('reg_real_hint');
+
+      if (!anio || !mes) {
+        campoF.disabled = false;
+        campoR.disabled = true; campoR.value = '';
+        campoR.placeholder = 'Elige año y mes';
+        hintR.textContent = '';
+        return;
+      }
+
+      const hoy = new Date();
+      const cerrado = anio < hoy.getFullYear() || (anio === hoy.getFullYear() && mes < hoy.getMonth() + 1);
+
+      campoR.disabled = !cerrado;
+      campoR.placeholder = cerrado ? 'Monto realmente vendido' : 'Ese mes aún no cierra';
+      if (!cerrado) campoR.value = '';
+
+      const bloquearForecast = cerrado && BLOQUEAR_FORECAST_MES_CERRADO;
+      campoF.disabled = bloquearForecast;
+      if (bloquearForecast) delete campoF.dataset.manual;
+
+      hintR.textContent = cerrado
+        ? 'Mes cerrado: captura aquí lo vendido. El forecast se calcula solo y no se edita.'
+        : 'Mes sin cerrar: captura el Forecast; la venta real se registra cuando el mes cierre.';
+    }
+    document.getElementById('reg_anio').addEventListener('change', aplicarReglaPeriodo);
+    document.getElementById('reg_mes').addEventListener('change', aplicarReglaPeriodo);
+
     // Si el usuario escribe un monto, ya no se le pisa con la sugerencia
     document.getElementById('reg_forecast').addEventListener('input', (e) => {
       if (e.target.value === '') delete e.target.dataset.manual;
@@ -966,6 +1045,9 @@
         monto_p90: nivelConfianza === 'P90' ? montoForm : null,
       };
 
+      const realForm = document.getElementById('reg_real').value;
+      if (realForm !== '') payload.monto_real_usd = Number(realForm);
+
       // Registra o actualiza este cliente en la tabla 'clientes' (para Nuevos/Activos/Retenidos/Perdidos)
       await registrarCliente(payload.cliente, payload.anio, payload.mes);
 
@@ -1022,6 +1104,7 @@
       });
       cargarHistorialAuditoria();
       cargarClientes(); // refresca la lista para que un cliente recién creado ya cuente como oficial
+      revisarCuadreVentaReal();
 
       status.textContent = idExistente
         ? '✓ Registro actualizado correctamente'
@@ -1033,6 +1116,7 @@
       document.getElementById('reg_servicio').disabled = true;
       document.getElementById('reg_mes').innerHTML = '<option value="">Elige un Quarter primero</option>';
       document.getElementById('reg_mes').disabled = true;
+      aplicarReglaPeriodo();
     });
 
     // ─────────────────────────────────────────────
@@ -1248,12 +1332,14 @@
       // Refresca la alerta por si este mes era uno de los pendientes
       document.getElementById('alertaMesesPendientes').classList.add('hidden');
       revisarMesesPendientes();
+      revisarCuadreVentaReal();
     });
 
     // ─────────────────────────────────────────────
     // Carga masiva del historial de venta real (años anteriores)
     // ─────────────────────────────────────────────
     const ANIO_INICIO_HISTORIAL = 2024;
+    let historialGuardado = new Set(); // meses que hoy existen en la base de datos
 
     async function construirTablaHistorial() {
       const hoy = new Date();
@@ -1268,6 +1354,7 @@
 
       const mapa = {};
       (data || []).forEach(r => { mapa[`${r.anio}-${r.mes}`] = r.monto_real_usd; });
+      historialGuardado = new Set((data || []).map(r => `${r.anio}-${r.mes}`));
 
       const abrev = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
       document.getElementById('histHead').innerHTML =
@@ -1291,11 +1378,18 @@
     document.getElementById('btnGuardarHistorial').addEventListener('click', async () => {
       const status = document.getElementById('hist_status');
       const filas = [];
+      const aBorrar = [];
       let invalido = false;
 
       document.querySelectorAll('#histBody input:not(:disabled)').forEach(c => {
         c.classList.remove('border-red-400');
-        if (c.value === '') return;
+        if (c.value === '') {
+          // Casilla vacía que antes tenía monto = el usuario la borró
+          if (historialGuardado.has(`${c.dataset.anio}-${c.dataset.mes}`)) {
+            aBorrar.push({ anio: Number(c.dataset.anio), mes: Number(c.dataset.mes) });
+          }
+          return;
+        }
         const n = Number(c.value);
         if (isNaN(n) || n < 0) { invalido = true; c.classList.add('border-red-400'); return; }
         filas.push({
@@ -1312,18 +1406,50 @@
         status.className = 'text-sm text-red-600';
         return;
       }
-      if (filas.length === 0) {
+      if (filas.length === 0 && aBorrar.length === 0) {
         status.textContent = 'Captura al menos un monto.';
         status.className = 'text-sm text-gray-500';
         return;
       }
 
+      if (aBorrar.length > 0) {
+        const lista = aBorrar.map(m => `${nombreMes[m.mes]} ${m.anio}`).join(', ');
+        const confirmado = await confirmarModal({
+          icono: 'fa-trash',
+          tono: 'rojo',
+          titulo: `¿Eliminar ${aBorrar.length} mes(es) del historial?`,
+          cuerpoHtml: `<p class="mb-2">Se borrará la venta real de: <b>${escapeHtml(lista)}</b>.</p>` +
+            '<p>Esto cambia el cálculo del forecast. La acción no se puede deshacer.</p>',
+          textoConfirmar: 'Sí, eliminar',
+        });
+        if (!confirmado) {
+          status.textContent = 'Guardado cancelado — no se modificó nada.';
+          status.className = 'text-sm text-gray-500';
+          return;
+        }
+      }
+
       status.textContent = 'Guardando...';
       status.className = 'text-sm text-gray-500';
 
-      const { error } = await supabaseClient
-        .from('forecast_venta_real_mensual')
-        .upsert(filas, { onConflict: 'anio,mes' });
+      let error = null;
+
+      if (filas.length > 0) {
+        ({ error } = await supabaseClient
+          .from('forecast_venta_real_mensual')
+          .upsert(filas, { onConflict: 'anio,mes' }));
+      }
+
+      if (!error) {
+        for (const m of aBorrar) {
+          const res = await supabaseClient
+            .from('forecast_venta_real_mensual')
+            .delete()
+            .eq('anio', m.anio)
+            .eq('mes', m.mes);
+          if (res.error) { error = res.error; break; }
+        }
+      }
 
       if (error) {
         console.error(error);
@@ -1333,11 +1459,112 @@
         return;
       }
 
-      status.textContent = `✓ ${filas.length} mes(es) guardados correctamente.`;
+      status.textContent = `✓ ${filas.length} mes(es) guardados` + (aBorrar.length ? `, ${aBorrar.length} eliminado(s)` : '') + '.';
+      construirTablaHistorial(); // refresca qué meses existen ahora
       status.className = 'text-sm text-green-600';
       document.getElementById('alertaMesesPendientes').classList.add('hidden');
       revisarMesesPendientes();
+      revisarCuadreVentaReal();
     });
+
+    // ─────────────────────────────────────────────
+    // Cuadre: venta real por servicio vs total mensual capturado
+    // ─────────────────────────────────────────────
+    let cuadreFilas = [];
+
+    async function revisarCuadreVentaReal() {
+      document.getElementById('cuadreBody').innerHTML = filasEsqueleto(5);
+
+      const [detalle, resTotales] = await Promise.all([
+        traerTodo(() => supabaseClient
+          .from('forecast_registros')
+          .select('anio, mes, monto_real_usd')
+          .not('monto_real_usd', 'is', null)
+          .order('id')),
+        supabaseClient.from('forecast_venta_real_mensual').select('anio, mes, monto_real_usd'),
+      ]);
+
+      if (detalle === null || resTotales.error) {
+        if (resTotales.error) console.error(resTotales.error);
+        document.getElementById('cuadreBody').innerHTML =
+          '<tr><td colspan="5" class="py-3 px-3 text-center text-red-500">No se pudo calcular el cuadre.</td></tr>';
+        return;
+      }
+
+      const sumaDetalle = {};
+      const totalMensual = {};
+      detalle.forEach(r => {
+        const k = `${r.anio}-${r.mes}`;
+        sumaDetalle[k] = (sumaDetalle[k] || 0) + Number(r.monto_real_usd);
+      });
+      (resTotales.data || []).forEach(r => { totalMensual[`${r.anio}-${r.mes}`] = Number(r.monto_real_usd); });
+
+      const claves = [...new Set([...Object.keys(sumaDetalle), ...Object.keys(totalMensual)])];
+      cuadreFilas = claves.map(k => {
+        const [anio, mes] = k.split('-').map(Number);
+        const total = totalMensual[k];
+        const suma = sumaDetalle[k];
+        let estado, diff = null;
+        if (total === undefined) estado = 'sin_total';
+        else if (suma === undefined) estado = 'sin_detalle';
+        else { diff = suma - total; estado = Math.abs(diff) <= 1 ? 'cuadra' : 'diferencia'; }
+        return { anio, mes, total, suma, diff, estado };
+      }).sort((a, b) => b.anio - a.anio || b.mes - a.mes);
+
+      pintarCuadre();
+    }
+
+    function pintarCuadre() {
+      const soloDif = document.getElementById('cuadreSoloDif').checked;
+      const fmt = (n) => n == null ? '—' : n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+      const etiquetas = {
+        cuadra:      ['Cuadra',                    'text-green-600', 'fa-circle-check'],
+        diferencia:  ['Diferencia',                'text-red-600',   'fa-circle-xmark'],
+        sin_total:   ['Falta el total mensual',    'text-amber-600', 'fa-triangle-exclamation'],
+        sin_detalle: ['Sin detalle por servicio',  'text-gray-400',  'fa-minus'],
+      };
+      const cuenta = (e) => cuadreFilas.filter(f => f.estado === e).length;
+
+      // Resumen
+      const nDif = cuenta('diferencia');
+      const nSinTotal = cuenta('sin_total');
+      const resumen = document.getElementById('cuadreResumen');
+      if (cuadreFilas.length === 0) {
+        resumen.innerHTML = '<span class="text-gray-400">Aún no hay venta real capturada para comparar.</span>';
+      } else if (nDif + nSinTotal > 0) {
+        resumen.innerHTML =
+          '<span class="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg px-3 py-2">' +
+          '<i class="fas fa-triangle-exclamation"></i>' +
+          `${nDif} mes(es) con diferencia · ${nSinTotal} sin total mensual · ${cuenta('cuadra')} cuadran</span>`;
+      } else {
+        resumen.innerHTML =
+          '<span class="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-800 rounded-lg px-3 py-2">' +
+          `<i class="fas fa-circle-check"></i>Todo cuadra (${cuenta('cuadra')} mes(es) comparados)</span>`;
+      }
+
+      // Tabla
+      const filas = cuadreFilas.filter(f => !soloDif || f.estado === 'diferencia' || f.estado === 'sin_total');
+      const tbody = document.getElementById('cuadreBody');
+      if (filas.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="py-3 px-3 text-center text-gray-400">No hay meses para mostrar.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filas.map(f => {
+        const [txt, color, icono] = etiquetas[f.estado];
+        const diffTxt = f.diff == null ? '—' : (f.diff > 0 ? '+' : '') + fmt(f.diff);
+        return `
+          <tr>
+            <td class="py-2 px-3 font-medium text-gray-700">${nombreMes[f.mes]} ${f.anio}</td>
+            <td class="py-2 px-3 text-right">${fmt(f.total)}</td>
+            <td class="py-2 px-3 text-right">${fmt(f.suma)}</td>
+            <td class="py-2 px-3 text-right ${f.estado === 'diferencia' ? 'text-red-600 font-medium' : ''}">${diffTxt}</td>
+            <td class="py-2 px-3 ${color}"><i class="fas ${icono} mr-1"></i>${txt}</td>
+          </tr>`;
+      }).join('');
+    }
+
+    document.getElementById('cuadreSoloDif').addEventListener('change', pintarCuadre);
 
     // Acordeón: la sección de Historial de Cargas empieza colapsada
     document.getElementById('btnToggleHistorial').addEventListener('click', () => {
@@ -1493,8 +1720,9 @@
         ['Línea de Producto', 'Elígela del menú. Debe coincidir exactamente con una de las 6 oficiales: Cementing, CHC, Gas Lift, Safety System, Sand Control, Servicios de Taller. No se permiten líneas nuevas.', 'Obligatorio', 'Cementing'],
         ['Servicio', 'Elígelo del menú o escribe uno nuevo (verás una advertencia amarilla, puedes continuar). Debe describir el servicio específico dentro de la línea elegida.', 'Obligatorio', 'Centradores de Cementación'],
         ['Pozo / Relación de Venta', 'Nombre del pozo, contrato o referencia de la venta. Déjalo en blanco si no aplica.', 'Opcional', 'Pozo Ayin-1'],
-        ['Forecast (USD)', 'Normalmente déjalo vacío: el sistema calcula el forecast del mes con la venta real del año anterior ajustada por el crecimiento de la empresa, y lo reparte entre las filas sin monto. Escribe un monto solo si quieres forzar un valor manual. Solo el número, sin signo $ ni comas.', 'Automático', '45000'],
+        ['Forecast (USD)', 'Solo para meses que aún no cierran. Normalmente déjalo vacío: el sistema calcula el forecast con la venta real del año anterior ajustada por el crecimiento de la empresa. NUNCA escribas aquí lo vendido: eso va en Venta Real. En meses ya cerrados este campo no se acepta. Solo el número, sin $ ni comas.', 'Automático', '45000'],
         ['Nivel de Confianza', 'Elige P50, P70 o P90 del menú. Indica la probabilidad de cumplimiento del forecast. Déjalo vacío si no aplica.', 'Opcional', 'P70'],
+        ['Venta Real (USD)', 'Lo realmente vendido en esa fila. Solo para meses que ya cerraron; en meses sin cerrar no se acepta. Solo el número, sin $ ni comas.', 'Opcional', '45000'],
       ];
 
       camposGuia.forEach(([campo, desc, req, ejemplo], i) => {
@@ -1547,6 +1775,7 @@
         ['⚠️', 'No cambies los nombres de las columnas ni su orden en la pestaña "Plantilla Forecast".'],
         ['🗑️', 'Borra la fila de ejemplo antes de subir el archivo.'],
         ['✅', 'Las filas con advertencia amarilla sí se importan; las filas con error rojo no.'],
+        ['💡', 'Mes cerrado → llena Venta Real. Mes sin cerrar → llena Forecast (o déjalo vacío). Nunca pongas lo vendido en la columna Forecast.'],
       ];
 
       avisos.forEach(([icono, texto]) => {
@@ -1598,21 +1827,22 @@
         { width: 28 },  // F: Pozo / Relación
         { width: 18 },  // G: Forecast
         { width: 20 },  // H: Nivel de Confianza
+        { width: 20 },  // I: Venta Real
       ];
 
       const relleno = (argb) => ({ type: 'pattern', pattern: 'solid', fgColor: { argb } });
-      const colsPlantilla = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+      const colsPlantilla = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
       const bordeFino = { style: 'thin', color: { argb: 'FFE2E8F0' } };
 
       // ── Banner superior ──
-      hoja.mergeCells('A1:H1');
+      hoja.mergeCells('A1:I1');
       const pTitulo = hoja.getCell('A1');
       pTitulo.value = 'PLANTILLA DE CARGA · FORECAST IN HOLE SOLUTIONS';
       pTitulo.font = { size: 20, bold: true, color: { argb: 'FFFFFFFF' } };
       pTitulo.alignment = { vertical: 'middle', horizontal: 'left', indent: 2 };
       hoja.getRow(1).height = 44;
 
-      hoja.mergeCells('A2:H2');
+      hoja.mergeCells('A2:I2');
       const pSub = hoja.getCell('A2');
       pSub.value = 'Una fila por registro  ·  Usa los menús desplegables  ·  Borra la fila de ejemplo (amarilla) antes de importar';
       pSub.font = { size: 11, color: { argb: 'FF93C5FD' } };
@@ -1631,6 +1861,7 @@
         { desde: 'F', hasta: 'F', texto: 'OPCIONAL',    fondo: 'FF0369A1' },
         { desde: 'G', hasta: 'G', texto: 'AUTOMÁTICO',  fondo: 'FF15803D' },
         { desde: 'H', hasta: 'H', texto: 'OPCIONAL',    fondo: 'FF0369A1' },
+        { desde: 'I', hasta: 'I', texto: 'MES CERRADO', fondo: 'FF0F766E' },
       ];
 
       bandas.forEach(b => {
@@ -1652,11 +1883,11 @@
       // ── Fila 4: encabezados (los nombres NO se tocan, el importador depende de ellos) ──
       const encabezadosPlantilla = [
         'Año', 'Mes', 'Cliente', 'Línea de Producto',
-        'Servicio', 'Pozo / Relación de Venta', 'Forecast (USD)', 'Nivel de Confianza'
+        'Servicio', 'Pozo / Relación de Venta', 'Forecast (USD)', 'Nivel de Confianza', 'Venta Real (USD)'
       ];
 
       encabezadosPlantilla.forEach((texto, i) => {
-        const centrada = [0, 1, 6, 7].includes(i);
+        const centrada = [0, 1, 6, 7, 8].includes(i);
         const c = hoja.getCell(`${colsPlantilla[i]}4`);
         c.value = texto;
         c.font = { bold: true, size: 11, color: { argb: 'FFFFFFFF' } };
@@ -1678,7 +1909,7 @@
 
           let horizontal = 'left';
           if ([0, 1, 7].includes(idx)) horizontal = 'center';
-          if (idx === 6) horizontal = 'right';
+          if (idx === 6 || idx === 8) horizontal = 'right';
           c.alignment = { vertical: 'middle', horizontal, indent: [2, 3, 4, 5, 6].includes(idx) ? 1 : 0 };
         });
 
@@ -1690,7 +1921,7 @@
       // ── Fila de ejemplo (amarilla, para que se note que hay que borrarla) ──
       const filaEjemplo = [
         2026, 'Enero', 'BAKER HUGHES DE MEXICO S. DE R.L. DE C.V.', 'Cementing',
-        'Centradores de Cementación', 'Pozo Ayin-1', 45000, 'P70'
+        'Centradores de Cementación', 'Pozo Ayin-1', null, null, 45000
       ];
       filaEjemplo.forEach((valor, idx) => {
         const c = hoja.getCell(`${colsPlantilla[idx]}5`);
@@ -1723,13 +1954,13 @@
         ref: 'A5:E200',
         rules: [{
           type: 'expression',
-          formulae: ['AND(COUNTA($A5:$H5)>0,A5="")'],
+          formulae: ['AND(COUNTA($A5:$I5)>0,A5="")'],
           style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFFECACA' } } }
         }]
       });
 
       // ── Filtros en los encabezados ──
-      hoja.autoFilter = 'A4:H200';
+      hoja.autoFilter = 'A4:I200';
 
       // Hoja oculta con las listas oficiales, para los menús desplegables
       const hojaListas = libro.addWorksheet('Listas');
@@ -1746,6 +1977,26 @@
       // Formato de moneda y menús desplegables (bordes y color alternado ya los pone la tabla)
       for (let i = 5; i <= 200; i++) {
         hoja.getCell(`G${i}`).numFmt = '$#,##0.00';
+
+        hoja.getCell(`I${i}`).numFmt = '$#,##0.00';
+
+        // Al seleccionar la celda de Forecast aparece un recordatorio
+        hoja.getCell(`G${i}`).dataValidation = {
+          type: 'decimal', operator: 'greaterThanOrEqual', allowBlank: true, formulae: [0],
+          showInputMessage: true,
+          promptTitle: 'Solo forecast (proyección)',
+          prompt: 'Déjalo vacío para que se calcule solo. NO escribas aquí lo vendido: usa la columna Venta Real.',
+          showErrorMessage: true, errorStyle: 'stop',
+          errorTitle: 'Monto no válido', error: 'Escribe solo un número mayor o igual a 0.'
+        };
+        hoja.getCell(`I${i}`).dataValidation = {
+          type: 'decimal', operator: 'greaterThanOrEqual', allowBlank: true, formulae: [0],
+          showInputMessage: true,
+          promptTitle: 'Venta real (mes cerrado)',
+          prompt: 'Lo realmente vendido. Solo para meses que ya cerraron.',
+          showErrorMessage: true, errorStyle: 'stop',
+          errorTitle: 'Monto no válido', error: 'Escribe solo un número mayor o igual a 0.'
+        };
 
         hoja.getCell(`H${i}`).dataValidation = {
           type: 'list', allowBlank: true, formulae: ['"P50,P70,P90"'],
@@ -1782,7 +2033,7 @@
 
       // Desbloquear solo las celdas donde se captura información
       for (let i = 5; i <= 200; i++) {
-        ['A','B','C','D','E','F','G','H'].forEach(col => {
+        ['A','B','C','D','E','F','G','H','I'].forEach(col => {
           hoja.getCell(`${col}${i}`).protection = { locked: false };
         });
       }
@@ -1859,6 +2110,10 @@
 
     const lineasValidas = ['Cementing', 'CHC', 'Gas Lift', 'Safety System', 'Sand Control', 'Servicios de Taller'];
 
+    // true = un Forecast manual en un mes ya cerrado se marca como error (se calcula solo).
+    // Ponlo en false si alguna vez necesitas cargar forecasts históricos a mano.
+    const BLOQUEAR_FORECAST_MES_CERRADO = true;
+
     const nombreAMes = {
       'enero':1,'febrero':2,'marzo':3,'abril':4,'mayo':5,'junio':6,
       'julio':7,'agosto':8,'septiembre':9,'octubre':10,'noviembre':11,'diciembre':12
@@ -1927,11 +2182,29 @@
 
       if (fila['Forecast (USD)'] && isNaN(forecast)) errores.push('Forecast no es un número válido');
 
+      // Venta real por fila (opcional)
+      const ventaTexto = fila['Venta Real (USD)'];
+      const ventaReal = (ventaTexto !== undefined && String(ventaTexto).trim() !== '') ? Number(ventaTexto) : null;
+      if (ventaReal !== null && (isNaN(ventaReal) || ventaReal < 0)) errores.push('Venta Real no es un número válido');
+
+      // Regla: meses cerrados → Venta Real; meses sin cerrar → Forecast
+      const hoy = new Date();
+      const anioHoy = hoy.getFullYear();
+      const mesHoy = hoy.getMonth() + 1;
+      const mesCerrado = anio && mes && (anio < anioHoy || (anio === anioHoy && mes < mesHoy));
+
+      if (forecast !== null && !isNaN(forecast) && mesCerrado && BLOQUEAR_FORECAST_MES_CERRADO) {
+        errores.push('Ese mes ya cerró: el Forecast se calcula solo. Si el monto es lo vendido, ponlo en "Venta Real (USD)" y deja el Forecast vacío');
+      }
+      if (ventaReal !== null && !isNaN(ventaReal) && anio && mes && !mesCerrado) {
+        errores.push('Ese mes aún no cierra: no puede tener Venta Real. Si es un monto proyectado, ponlo en "Forecast (USD)"');
+      }
+
       return {
         anio, mes, quarter: mes ? Math.ceil(mes / 3) : null,
         cliente, linea, servicio,
         pozo: String(fila['Pozo / Relación de Venta'] || '').trim() || null,
-        forecast, confianza,
+        forecast, confianza, ventaReal,
         errores, advertencias,
         estado: errores.length > 0 ? 'error' : (advertencias.length > 0 ? 'advertencia' : 'valido'),
       };
@@ -2020,7 +2293,7 @@
           String(fila['Año']) === '2026' &&
           String(fila['Mes']).trim().toLowerCase() === 'enero' &&
           String(fila['Cliente']).trim() === 'BAKER HUGHES DE MEXICO S. DE R.L. DE C.V.' &&
-          Number(fila['Forecast (USD)']) === 45000
+          Number(fila['Venta Real (USD)']) === 45000
         ));
 
         clientesVistosEnArchivo = new Map();
@@ -2084,7 +2357,7 @@
         const { data, error } = await construirConsulta().range(desde, desde + TAM - 1);
         if (error) {
           console.error('Error al paginar:', error);
-          mostrarToast('No se pudieron revisar todos los duplicados, revisa la vista previa con cuidado.');
+          mostrarToast('No se pudieron leer todos los datos, revisa los resultados con cuidado.');
           return null;
         }
         todo = todo.concat(data || []);
@@ -2359,6 +2632,7 @@
                 ? '<span class="text-accent2 font-medium">' + f.forecastAuto.toLocaleString('en-US') + '</span> <span class="text-[10px] text-gray-400">auto</span>' + (f.sinCupo ? ' <span class="text-[10px] text-amber-600 font-medium">sin cupo</span>' : '')
                 : (f.sinCupo ? '<span class="text-amber-600 font-medium">sin cupo</span>' : '<span class="text-gray-400">sin historial</span>'))}</td>
           <td class="py-2 px-3">${f.confianza || '—'}</td>
+          <td class="py-2 px-3">${f.ventaReal != null ? f.ventaReal.toLocaleString('en-US') : '—'}</td>
           <td class="py-2 px-3 text-gray-500">${[...f.errores, ...f.advertencias].join('; ') || '—'}</td>
         </tr>`).join('');
 
@@ -2526,6 +2800,7 @@
             monto_p50: f.confianza === 'P50' ? forecast : null,
             monto_p70: f.confianza === 'P70' ? forecast : null,
             monto_p90: f.confianza === 'P90' ? forecast : null,
+            ...(f.ventaReal != null ? { monto_real_usd: f.ventaReal } : {}),
           };
 
           const { data: guardado, error } = f.idExistente
@@ -2610,6 +2885,7 @@
     cargarHistorialAuditoria();
     mostrarUltimaActualizacion();
     cargarClientes();
+    revisarCuadreVentaReal();
   });
 
     // ─────────────────────────────────────────────
