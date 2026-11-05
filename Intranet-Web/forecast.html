@@ -745,10 +745,20 @@
       const hoyKpi = new Date();
       const mesesCerradosAnio = anio < hoyKpi.getFullYear() ? 12 : (anio === hoyKpi.getFullYear() ? hoyKpi.getMonth() : 0);
 
+      // Venta real por servicio (respeta filtros de Cliente y Línea).
+      // Si un mes no tiene detalle capturado, se usa el total mensual solo cuando no hay filtros activos.
+      const hayFiltroCL = cliente !== 'todos' || linea !== 'todos';
       let realCerrado = 0;
       for (let m = 1; m <= mesesCerradosAnio; m++) {
-        realCerrado += ventaRealMensual[m] || 0;
+        const detalleMes = baseCierre
+          .filter(r => r.mes === m && r.monto_real_usd != null)
+          .reduce((a, r) => a + Number(r.monto_real_usd), 0);
+        const hayDetalle = baseCierre.some(r => r.mes === m && r.monto_real_usd != null);
+
+        if (hayDetalle) realCerrado += detalleMes;
+        else if (!hayFiltroCL) realCerrado += ventaRealMensual[m] || 0;
       }
+
       const forecastCerrado = baseCierre
         .filter(r => r.mes <= mesesCerradosAnio)
         .reduce((a, r) => a + (Number(r.monto_forecast) || 0), 0);
