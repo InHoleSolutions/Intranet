@@ -722,14 +722,6 @@
     async function pintarKPIs(filtrados, registrosAnterior, anio, registrosAnioSinFiltroPeriodo, ventaRealMensual, ventaRealMensualAnterior, clientes) {
       const transcurridos = mesesTranscurridos(anio);
 
-      // "Resultado Actual" = suma del concentrado de Venta Real Mensual, solo de meses ya transcurridos.
-      // Nota: el concentrado es un total de TODA la empresa por mes (no distingue Cliente/Línea),
-      // así que este KPI ya no responde a los filtros de Cliente/Línea.
-      let totalRealHastaFecha = 0;
-      for (let m = 1; m <= transcurridos; m++) {
-        totalRealHastaFecha += ventaRealMensual[m] || 0;
-      }
-
       // "Cierre" = Forecast del año COMPLETO (12 meses), respetando Cliente/Línea pero ignorando Quarter/Mes
       const cliente = document.getElementById('filtroCliente').value;
       const linea = document.getElementById('filtroLinea').value;
@@ -740,25 +732,29 @@
       });
       const totalCierre = baseCierre.reduce((a, r) => a + (Number(r.monto_forecast) || 0), 0);
 
+      // Venta real de un mes: suma de servicios si hay detalle; si no, el total mensual capturado.
+      // Con filtro de Cliente/Línea solo se puede usar el detalle (el total es de toda la empresa).
+      const hayFiltroCL = cliente !== 'todos' || linea !== 'todos';
+      const ventaRealDelMes = (m) => {
+        const conDetalle = baseCierre.filter(r => r.mes === m && r.monto_real_usd != null);
+        if (conDetalle.length > 0) return conDetalle.reduce((a, r) => a + Number(r.monto_real_usd), 0);
+        return hayFiltroCL ? 0 : (ventaRealMensual[m] || 0);
+      };
+
+      let totalRealHastaFecha = 0;
+      for (let m = 1; m <= transcurridos; m++) {
+        totalRealHastaFecha += ventaRealDelMes(m);
+      }
+
       // Cumplimiento: venta real de los meses cerrados vs forecast de ESOS mismos meses.
       // El mes en curso aún no cierra, así que no entra en ninguno de los dos lados.
       const hoyKpi = new Date();
       const mesesCerradosAnio = anio < hoyKpi.getFullYear() ? 12 : (anio === hoyKpi.getFullYear() ? hoyKpi.getMonth() : 0);
 
-      // Venta real por servicio (respeta filtros de Cliente y Línea).
-      // Si un mes no tiene detalle capturado, se usa el total mensual solo cuando no hay filtros activos.
-      const hayFiltroCL = cliente !== 'todos' || linea !== 'todos';
       let realCerrado = 0;
       for (let m = 1; m <= mesesCerradosAnio; m++) {
-        const detalleMes = baseCierre
-          .filter(r => r.mes === m && r.monto_real_usd != null)
-          .reduce((a, r) => a + Number(r.monto_real_usd), 0);
-        const hayDetalle = baseCierre.some(r => r.mes === m && r.monto_real_usd != null);
-
-        if (hayDetalle) realCerrado += detalleMes;
-        else if (!hayFiltroCL) realCerrado += ventaRealMensual[m] || 0;
+        realCerrado += ventaRealDelMes(m);
       }
-
       const forecastCerrado = baseCierre
         .filter(r => r.mes <= mesesCerradosAnio)
         .reduce((a, r) => a + (Number(r.monto_forecast) || 0), 0);
