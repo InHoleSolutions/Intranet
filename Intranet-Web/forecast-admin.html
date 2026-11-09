@@ -288,6 +288,7 @@
                   <th class="py-2 px-3 font-medium">Línea</th>
                   <th class="py-2 px-3 font-medium">Servicio</th>
                   <th class="py-2 px-3 font-medium">Forecast</th>
+                  <th class="py-2 px-3 font-medium">Venta Real</th>
                 </tr>
               </thead>
               <tbody id="registrosMesBody" class="divide-y divide-border"></tbody>
@@ -1261,7 +1262,7 @@
 
       const { data, error } = await supabaseClient
         .from('forecast_registros')
-        .select('cliente, linea_producto, servicio, monto_forecast')
+        .select('cliente, linea_producto, servicio, monto_forecast, monto_real_usd')
         .eq('anio', anio)
         .eq('mes', mes)
         .order('cliente');
@@ -1270,7 +1271,7 @@
 
       const tbody = document.getElementById('registrosMesBody');
       if (!data || data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="py-3 px-3 text-gray-400 text-center">No hay registros guardados para ${nombreMes[mes]} ${anio}.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="py-3 px-3 text-gray-400 text-center">No hay registros guardados para ${nombreMes[mes]} ${anio}.</td></tr>`;
       } else {
         tbody.innerHTML = data.map(r => `
           <tr>
@@ -1278,6 +1279,7 @@
             <td class="py-2 px-3">${escapeHtml(r.linea_producto)}</td>
             <td class="py-2 px-3">${escapeHtml(r.servicio)}</td>
             <td class="py-2 px-3">${r.monto_forecast != null ? Number(r.monto_forecast).toLocaleString('en-US') : '—'}</td>
+            <td class="py-2 px-3">${r.monto_real_usd != null ? Number(r.monto_real_usd).toLocaleString('en-US') : '—'}</td>
           </tr>`).join('');
       }
 
@@ -1304,6 +1306,57 @@
         status.textContent = 'Ingresa un monto válido.';
         status.className = 'text-sm mt-2 block text-red-600';
         return;
+      }
+
+      // Compara el total contra la suma de la venta real por servicio de ese mes
+      status.textContent = 'Verificando contra el detalle por servicio...';
+      status.className = 'text-sm mt-2 block text-gray-500';
+
+      const detalleMes = await traerTodo(() => supabaseClient
+        .from('forecast_registros')
+        .select('monto_real_usd')
+        .eq('anio', anio)
+        .eq('mes', mes)
+        .not('monto_real_usd', 'is', null)
+        .order('id'));
+
+      if (detalleMes === null) {
+        status.textContent = 'No se pudo verificar contra el detalle, intenta de nuevo.';
+        status.className = 'text-sm mt-2 block text-red-600';
+        return;
+      }
+
+      if (detalleMes.length > 0) {
+        const sumaDetalle = detalleMes.reduce((s, r) => s + Number(r.monto_real_usd), 0);
+        const diff = Number(monto) - sumaDetalle;
+
+        if (Math.abs(diff) > 1) {
+          const fmtM = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+          const confirmarDif = await confirmarModal({
+            icono: 'fa-scale-unbalanced',
+            tono: 'ambar',
+            titulo: 'El total no coincide con el detalle',
+            cuerpoHtml:
+              `<p class="mb-3">${nombreMes[mes]} ${anio}: la suma de los servicios no es igual al total que vas a guardar.</p>` +
+              '<div class="grid grid-cols-3 gap-2 mb-3">' +
+              `<div class="rounded-xl bg-blue-50 p-3 text-center"><p class="text-sm font-bold text-blue-700">${fmtM(Number(monto))}</p><p class="text-[11px] text-blue-700">total a guardar</p></div>` +
+              `<div class="rounded-xl bg-gray-50 p-3 text-center"><p class="text-sm font-bold text-gray-700">${fmtM(sumaDetalle)}</p><p class="text-[11px] text-gray-600">suma de ${detalleMes.length} servicio(s)</p></div>` +
+              `<div class="rounded-xl bg-amber-50 p-3 text-center"><p class="text-sm font-bold text-amber-700">${diff > 0 ? '+' : ''}${fmtM(diff)}</p><p class="text-[11px] text-amber-700">diferencia</p></div>` +
+              '</div>' +
+              (diff > 0
+                ? '<p class="text-xs text-gray-600">El total es mayor: probablemente faltan servicios por capturar.</p>'
+                : '<p class="text-xs text-gray-600">El total es menor que el detalle: revisa si algún monto de servicio está de más.</p>') +
+              '<p class="text-xs text-gray-500 mt-2">Mientras no coincidan, "Resultado Actual" y "Cumplimiento" usarán la suma de servicios de este mes.</p>',
+            textoConfirmar: 'Guardar de todos modos',
+            textoCancelar: 'Revisar primero',
+          });
+
+          if (!confirmarDif) {
+            status.textContent = 'Guardado cancelado — revisa el detalle por servicio.';
+            status.className = 'text-sm mt-2 block text-amber-600';
+            return;
+          }
+        }
       }
 
       status.textContent = 'Guardando...';

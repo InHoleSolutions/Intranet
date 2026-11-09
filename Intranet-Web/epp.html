@@ -120,9 +120,6 @@
           <button class="tab-btn px-4 py-4 text-xs font-black uppercase tracking-widest transition" data-tab="inventario" onclick="cambiarTab('inventario')">
             <i class="fas fa-boxes-stacked mr-2"></i>Inventario
           </button>
-          <button class="tab-btn px-4 py-4 text-xs font-black uppercase tracking-widest transition" data-tab="mantenimiento" onclick="cambiarTab('mantenimiento')">
-            <i class="fas fa-screwdriver-wrench mr-2"></i>Mantenimiento
-          </button>
         </nav>
       </div>
 
@@ -239,9 +236,9 @@
 
           <!-- Disponibilidad -->
           <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">
-            <i class="fas fa-boxes-stacked mr-1"></i>Disponibilidad, estado y mantenimiento
+            <i class="fas fa-boxes-stacked mr-1"></i>Disponibilidad y estado
           </p>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
             <div class="rounded-2xl bg-red-50 border border-red-100 p-4">
               <p class="text-[10px] font-black uppercase tracking-widest text-red-400">Bajo stock mínimo</p>
               <p id="kpi-disp-bajo" class="text-3xl font-black text-red-600 mt-1">0</p>
@@ -254,10 +251,6 @@
               <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Dañado / Baja</p>
               <p id="kpi-disp-danado" class="text-3xl font-black text-slate-700 mt-1">0</p>
             </div>
-            <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4">
-              <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Mantenimientos vencidos</p>
-              <p id="kpi-disp-mantvenc" class="text-3xl font-black text-slate-700 mt-1">0</p>
-            </div>
           </div>
           <div class="table-container overflow-x-auto rounded-2xl border border-slate-100">
             <table class="w-full text-sm text-left">
@@ -267,11 +260,10 @@
                   <th class="px-4 py-3">Talla</th>
                   <th class="px-4 py-3 text-center">Stock</th>
                   <th class="px-4 py-3 text-center">Mínimo</th>
-                  <th class="px-4 py-3">Ubicación</th>
                 </tr>
               </thead>
               <tbody id="kpi-tabla-bajo" class="divide-y divide-slate-100 text-slate-600">
-                <tr><td colspan="5" class="px-4 py-6 text-center text-slate-300">Cargando...</td></tr>
+                <tr><td colspan="4" class="px-4 py-6 text-center text-slate-300">Cargando...</td></tr>
               </tbody>
             </table>
           </div>
@@ -544,7 +536,7 @@
           <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
             <div>
               <h3 class="text-lg font-bold text-slate-800">Inventario de EPP</h3>
-              <p class="text-xs text-slate-400 mt-0.5">Existencias, estado y ubicación del equipo.</p>
+              <p class="text-xs text-slate-400 mt-0.5">Existencias y estado del equipo.</p>
             </div>
             <button onclick="abrirModalInventario()" class="bg-[#e31e24] hover:bg-[#b3161b] text-white text-xs font-black uppercase tracking-widest px-4 py-2.5 rounded-xl transition">
               <i class="fas fa-plus mr-2"></i>Agregar al inventario
@@ -592,47 +584,15 @@
                   <th class="px-4 py-3 text-center">Stock</th>
                   <th class="px-4 py-3 text-center">Mínimo</th>
                   <th class="px-4 py-3">Estado</th>
-                  <th class="px-4 py-3">Ubicación</th>
                   <th class="px-4 py-3 w-24"></th>
                 </tr>
               </thead>
               <tbody id="inventario-body" class="divide-y divide-slate-100 text-slate-600">
-                <tr><td colspan="7" class="px-4 py-8 text-center text-slate-300">Cargando...</td></tr>
+                <tr><td colspan="6" class="px-4 py-8 text-center text-slate-300">Cargando...</td></tr>
               </tbody>
             </table>
           </div>
         </section>
-
-        <section id="tab-mantenimiento" class="tab-panel">
-          <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
-            <div>
-              <h3 class="text-lg font-bold text-slate-800">Mantenimiento e inspección</h3>
-              <p class="text-xs text-slate-400 mt-0.5">Limpieza, inspecciones, reparaciones y certificaciones del equipo.</p>
-            </div>
-            <button onclick="abrirModalMantenimiento()" class="bg-[#e31e24] hover:bg-[#b3161b] text-white text-xs font-black uppercase tracking-widest px-4 py-2.5 rounded-xl transition">
-              <i class="fas fa-plus mr-2"></i>Registrar mantenimiento
-            </button>
-          </div>
-          <div class="table-container overflow-x-auto rounded-2xl border border-slate-100">
-            <table class="w-full text-sm text-left">
-              <thead class="bg-slate-50 text-slate-400 uppercase tracking-widest text-[10px] font-black">
-                <tr>
-                  <th class="px-4 py-3">Fecha</th>
-                  <th class="px-4 py-3">Equipo</th>
-                  <th class="px-4 py-3">Tipo</th>
-                  <th class="px-4 py-3">Próxima</th>
-                  <th class="px-4 py-3">Responsable</th>
-                  <th class="px-4 py-3">Observaciones</th>
-                  <th class="px-4 py-3 w-12"></th>
-                </tr>
-              </thead>
-              <tbody id="mantenimiento-body" class="divide-y divide-slate-100 text-slate-600">
-                <tr><td colspan="7" class="px-4 py-8 text-center text-slate-300">Cargando...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
       </div>
     </div>
   </main>
@@ -687,15 +647,9 @@
           <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">EPP</label>
           <select id="inv-epp" class="input-ihs mt-1" onchange="ajustarTallaInventario()"></select>
         </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Talla</label>
-            <input id="inv-talla" class="input-ihs mt-1" placeholder="Ej. 32, M, 27.5">
-          </div>
-          <div>
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Ubicación</label>
-            <input id="inv-ubicacion" class="input-ihs mt-1" placeholder="Ej. Almacén Villahermosa">
-          </div>
+        <div>
+          <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Talla</label>
+          <input id="inv-talla" class="input-ihs mt-1" placeholder="Ej. 32, M, 27.5">
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
@@ -721,57 +675,7 @@
     </div>
   </div>
 
-  <!-- Modal: Mantenimiento -->
-  <div id="modal-mantenimiento" class="hidden fixed inset-0 z-[300] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-      <h3 class="text-lg font-bold text-slate-800 mb-4">Registrar mantenimiento</h3>
-      <div class="space-y-3">
-        <div>
-          <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Equipo</label>
-          <select id="mant-inventario" class="input-ihs mt-1"></select>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Tipo</label>
-            <select id="mant-tipo" class="input-ihs mt-1">
-              <option>Inspección</option><option>Limpieza</option><option>Reparación</option><option>Certificación</option>
-            </select>
-          </div>
-          <div>
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Fecha</label>
-            <input id="mant-fecha" type="date" class="input-ihs mt-1">
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Próxima fecha</label>
-            <input id="mant-proxima" type="date" class="input-ihs mt-1">
-          </div>
-          <div>
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Estado después</label>
-            <select id="mant-estado" class="input-ihs mt-1">
-              <option value="">Sin cambio</option>
-              <option>Disponible</option><option>En mantenimiento</option><option>Dañado</option><option>Baja</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Responsable</label>
-          <input id="mant-responsable" class="input-ihs mt-1">
-        </div>
-        <div>
-          <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Observaciones</label>
-          <textarea id="mant-obs" rows="2" class="input-ihs mt-1"></textarea>
-        </div>
-      </div>
-      <div class="flex gap-2 mt-6">
-        <button onclick="cerrarModal('modal-mantenimiento')" class="flex-1 text-slate-500 font-semibold py-2.5 rounded-xl hover:bg-slate-100 transition">Cancelar</button>
-        <button onclick="guardarMantenimiento()" class="flex-1 bg-[#e31e24] hover:bg-[#b3161b] text-white font-bold py-2.5 rounded-xl transition">Guardar</button>
-      </div>
-    </div>
-  </div>
-
-    <!-- Modal: Confirmación -->
+  <!-- Modal: Confirmación -->
   <div id="modal-confirmar" class="hidden fixed inset-0 z-[500] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-7 text-center" style="animation: fadeIn 0.2s ease-out;">
       <div id="confirmar-icono-wrap" class="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
@@ -1269,7 +1173,7 @@
         (!q || (i.epp_catalogo?.nombre || '').toLowerCase().includes(q)));
 
       if (!lista.length) {
-        tb.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-slate-300">Sin registros en el inventario</td></tr>';
+        tb.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-slate-300">Sin registros en el inventario</td></tr>';
         return;
       }
 
@@ -1287,7 +1191,6 @@
             </td>
             <td class="px-4 py-3 text-center text-slate-400">${i.stock_minimo ?? 0}</td>
             <td class="px-4 py-3">${badgeEstado(i.estado)}</td>
-            <td class="px-4 py-3 text-slate-500">${esc(i.ubicacion || '—')}</td>
             <td class="px-4 py-3 text-right whitespace-nowrap">
               <button onclick="abrirModalInventario('${i.id}')" class="text-slate-400 hover:text-blue-600 mr-3" title="Editar"><i class="fas fa-pen"></i></button>
               <button onclick="eliminarInventario('${i.id}')" class="text-slate-400 hover:text-red-600" title="Eliminar"><i class="fas fa-trash"></i></button>
@@ -1319,7 +1222,6 @@
       if (i) document.getElementById('inv-epp').value = i.epp_id;
       document.getElementById('inv-epp').disabled = !!i; // al editar no se cambia el EPP
       document.getElementById('inv-talla').value = i?.talla || '';
-      document.getElementById('inv-ubicacion').value = i?.ubicacion || '';
       document.getElementById('inv-stock').value = i?.stock ?? 0;
       document.getElementById('inv-minimo').value = i?.stock_minimo ?? 0;
       document.getElementById('inv-estado').value = i?.estado || 'Disponible';
@@ -1346,7 +1248,6 @@
         stock: Math.max(0, parseInt(document.getElementById('inv-stock').value) || 0),
         stock_minimo: Math.max(0, parseInt(document.getElementById('inv-minimo').value) || 0),
         estado,
-        ubicacion: document.getElementById('inv-ubicacion').value.trim() || null,
         updated_at: new Date().toISOString()
       };
 
@@ -1363,120 +1264,14 @@
     async function eliminarInventario(id) {
       if (!await confirmar({
         titulo: 'Eliminar del inventario',
-        mensaje: 'Se borrará este registro y también su historial de mantenimiento. Esta acción no se puede deshacer.'
+        mensaje: 'Se borrará este registro. Esta acción no se puede deshacer.'
       })) return;
       const { error } = await supabaseClient.from('epp_inventario').delete().eq('id', id);
       if (error) { console.error(error); aviso('No se pudo eliminar', 'error'); return; }
       await cargarInventario();
-      await cargarMantenimiento();
     }
 
-    // ══════════ MANTENIMIENTO ══════════
-    let mantenimientos = [];
-
-    async function cargarMantenimiento() {
-      const { data, error } = await supabaseClient
-        .from('epp_mantenimiento')
-        .select('*, epp_inventario(talla, ubicacion, epp_catalogo(nombre))')
-        .order('fecha', { ascending: false });
-      if (error) { console.error(error); aviso('Error al cargar mantenimientos', 'error'); return; }
-      mantenimientos = data || [];
-      renderMantenimiento();
-      renderKPIs();
-    }
-
-    function renderMantenimiento() {
-      const tb = document.getElementById('mantenimiento-body');
-      if (!mantenimientos.length) {
-        tb.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-slate-300">Sin registros de mantenimiento</td></tr>';
-        return;
-      }
-      const hoy = new Date(hoyLocal() + 'T00:00:00');
-
-      tb.innerHTML = mantenimientos.map(m => {
-        const inv = m.epp_inventario;
-        const equipo = inv ? `${inv.epp_catalogo?.nombre || '—'}${inv.talla ? ' · T. ' + inv.talla : ''}` : '— (eliminado)';
-
-        let proxima = '<span class="text-slate-300">—</span>';
-        if (m.proxima_fecha) {
-          const dias = Math.round((new Date(m.proxima_fecha + 'T00:00:00') - hoy) / 86400000);
-          const cls = dias < 0 ? 'bg-red-50 text-red-700' : dias <= 30 ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-600';
-          const txt = dias < 0 ? `Vencido hace ${Math.abs(dias)} d` : dias === 0 ? 'Hoy' : `En ${dias} d`;
-          proxima = `<span class="${cls} px-2 py-0.5 rounded-full text-[10px] font-bold">${esc(m.proxima_fecha)} · ${txt}</span>`;
-        }
-
-        return `
-          <tr class="hover:bg-slate-50 transition-colors">
-            <td class="px-4 py-3 whitespace-nowrap text-slate-500">${esc(m.fecha)}</td>
-            <td class="px-4 py-3 font-semibold text-slate-700">${esc(equipo)}</td>
-            <td class="px-4 py-3"><span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px] font-bold">${esc(m.tipo || '—')}</span></td>
-            <td class="px-4 py-3 whitespace-nowrap">${proxima}</td>
-            <td class="px-4 py-3">${esc(m.responsable || '—')}</td>
-            <td class="px-4 py-3 text-slate-500 max-w-[260px] truncate" title="${esc(m.observaciones || '')}">${esc(m.observaciones || '—')}</td>
-            <td class="px-4 py-3 text-right">
-              <button onclick="eliminarMantenimiento('${m.id}')" class="text-slate-400 hover:text-red-600" title="Eliminar"><i class="fas fa-trash"></i></button>
-            </td>
-          </tr>`;
-      }).join('');
-    }
-
-    function abrirModalMantenimiento() {
-      const activos = inventario.filter(i => i.estado !== 'Baja');
-      if (!activos.length) { aviso('Primero agrega equipo al Inventario', 'error'); return; }
-      document.getElementById('mant-inventario').innerHTML = activos.map(i =>
-        `<option value="${i.id}">${esc(i.epp_catalogo?.nombre || '—')}${i.talla ? ' · T. ' + esc(i.talla) : ''}${i.ubicacion ? ' · ' + esc(i.ubicacion) : ''} (${esc(i.estado)})</option>`
-      ).join('');
-      document.getElementById('mant-tipo').value = 'Inspección';
-      document.getElementById('mant-fecha').value = hoyLocal();
-      document.getElementById('mant-proxima').value = '';
-      document.getElementById('mant-estado').value = '';
-      document.getElementById('mant-responsable').value = usuarioActual?.nombre_completo || '';
-      document.getElementById('mant-obs').value = '';
-      abrirModal('modal-mantenimiento');
-    }
-
-    async function guardarMantenimiento() {
-      const inventarioId = document.getElementById('mant-inventario').value;
-      const fecha = document.getElementById('mant-fecha').value;
-      const proxima = document.getElementById('mant-proxima').value || null;
-      if (!inventarioId || !fecha) { aviso('Selecciona el equipo y la fecha', 'error'); return; }
-      if (proxima && proxima < fecha) { aviso('La próxima fecha no puede ser anterior a la fecha del mantenimiento', 'error'); return; }
-
-      const { error } = await supabaseClient.from('epp_mantenimiento').insert({
-        inventario_id: inventarioId,
-        tipo: document.getElementById('mant-tipo').value,
-        fecha,
-        proxima_fecha: proxima,
-        responsable: document.getElementById('mant-responsable').value.trim() || null,
-        observaciones: document.getElementById('mant-obs').value.trim() || null
-      });
-      if (error) { console.error(error); aviso('No se pudo guardar: ' + error.message, 'error'); return; }
-
-      // Si se eligió un nuevo estado, se actualiza el inventario
-      const nuevoEstado = document.getElementById('mant-estado').value;
-      if (nuevoEstado) {
-        const { error: e2 } = await supabaseClient.from('epp_inventario')
-          .update({ estado: nuevoEstado, updated_at: new Date().toISOString() }).eq('id', inventarioId);
-        if (e2) { console.error(e2); aviso('El mantenimiento se guardó, pero no se pudo cambiar el estado: ' + e2.message, 'error'); }
-      }
-
-      cerrarModal('modal-mantenimiento');
-      aviso('Mantenimiento registrado', 'exito');
-      await cargarInventario();
-      await cargarMantenimiento();
-    }
-
-    async function eliminarMantenimiento(id) {
-      if (!await confirmar({
-        titulo: 'Eliminar mantenimiento',
-        mensaje: 'Se borrará este registro de mantenimiento. Esta acción no se puede deshacer.'
-      })) return;
-      const { error } = await supabaseClient.from('epp_mantenimiento').delete().eq('id', id);
-      if (error) { console.error(error); aviso('No se pudo eliminar', 'error'); return; }
-      await cargarMantenimiento();
-    }
-
-        // ══════════ VALE F-SGI-IHS-015 ══════════
+    // ══════════ VALE F-SGI-IHS-015 ══════════
     let filasVale = [];
     let guardandoVale = false;
     const MOTIVOS_VALE = ['Entrega inicial', 'Reposición', 'Desgaste', 'Pérdida', 'Daño'];
@@ -2320,19 +2115,9 @@
       document.getElementById('kpi-disp-mant').textContent = inventario.filter(i => i.estado === 'En mantenimiento').length;
       document.getElementById('kpi-disp-danado').textContent = inventario.filter(i => i.estado === 'Dañado' || i.estado === 'Baja').length;
 
-      // Mantenimientos vencidos: solo cuenta el registro más reciente de cada equipo
-      const ultimo = {};
-      mantenimientos.forEach(m => {
-        if (!m.inventario_id) return;
-        const prev = ultimo[m.inventario_id];
-        if (!prev || m.fecha > prev.fecha) ultimo[m.inventario_id] = m;
-      });
-      const vencidos = Object.values(ultimo).filter(m => m.proxima_fecha && diasHasta(m.proxima_fecha) < 0).length;
-      document.getElementById('kpi-disp-mantvenc').textContent = vencidos;
-
       const tb = document.getElementById('kpi-tabla-bajo');
       if (!bajos.length) {
-        tb.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-center text-slate-300">Todo el equipo está por encima del stock mínimo</td></tr>';
+        tb.innerHTML = '<tr><td colspan="4" class="px-4 py-6 text-center text-slate-300">Todo el equipo está por encima del stock mínimo</td></tr>';
         return;
       }
       tb.innerHTML = bajos.map(i => `
@@ -2341,7 +2126,6 @@
           <td class="px-4 py-3">${esc(i.talla || '—')}</td>
           <td class="px-4 py-3 text-center font-black text-red-600">${i.stock ?? 0}</td>
           <td class="px-4 py-3 text-center text-slate-400">${i.stock_minimo ?? 0}</td>
-          <td class="px-4 py-3 text-slate-500">${esc(i.ubicacion || '—')}</td>
         </tr>`).join('');
     }
 
@@ -2515,13 +2299,13 @@
       // Cargar catálogo, puestos y matriz (los usan varias pestañas)
       await cargarBaseEPP();
       await cargarInventario();
-      await cargarMantenimiento();
       await cargarVales();
       await cargarTrabajadores();
 
       // Recordar la última pestaña usada
       let tab = 'kpis';
       try { tab = localStorage.getItem('eppTabActual') || 'kpis'; } catch (e) {}
+      if (tab === 'mantenimiento') tab = 'kpis';
       cambiarTab(tab);
     }
   </script>
