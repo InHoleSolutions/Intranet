@@ -241,6 +241,26 @@
         </form>
       </section>
 
+      <!-- FORECAST AUTOMÁTICO -->
+      <section id="seccionForecastAuto" class="bg-panel border border-border rounded-2xl p-6 shadow-sm">
+        <h2 class="text-lg font-semibold text-gray-900 mb-1">Forecast Automático</h2>
+        <p class="text-sm text-gray-500 mb-4">Genera el forecast de un mes abierto a partir de los registros del año anterior, ajustados por el crecimiento de la empresa. No necesitas capturar montos.</p>
+        <div class="flex flex-wrap items-end gap-3">
+          <div>
+            <label class="text-xs font-medium text-gray-600">Año</label>
+            <select id="auto_anio" class="block mt-1 bg-white border border-border rounded-lg px-3 py-2 text-sm"></select>
+          </div>
+          <div>
+            <label class="text-xs font-medium text-gray-600">Mes</label>
+            <select id="auto_mes" class="block mt-1 bg-white border border-border rounded-lg px-3 py-2 text-sm"></select>
+          </div>
+          <button type="button" id="btnForecastAuto" class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
+            Generar forecast
+          </button>
+          <span id="auto_status" class="text-sm"></span>
+        </div>
+      </section>
+
       <!-- CIERRE DE VENTA REAL MENSUAL -->
       <section id="seccionCierreVentaReal" class="bg-panel border border-border rounded-2xl p-6 shadow-sm">
         <h2 class="text-lg font-semibold text-gray-900 mb-1">Cierre de Venta Real Mensual</h2>
@@ -836,7 +856,9 @@
         const prev = porAnio[a - 1];
         if (!act || !prev) continue;
 
-        const comunes = Object.keys(act).map(Number).filter(m => prev[m] != null && !(a === anioObjetivo && m === mesExcluido));
+        // Solo meses ANTERIORES al mes que se pronostica: es lo que se sabía en ese momento.
+        // (Antes se usaban todos los meses del año salvo el propio, incluso los posteriores.)
+        const comunes = Object.keys(act).map(Number).filter(m => prev[m] != null && !(a === anioObjetivo && m >= mesExcluido));
         if (comunes.length < 3) continue;
 
         const sumaAct = comunes.reduce((s, m) => s + act[m], 0);
@@ -1139,6 +1161,146 @@
     }
 
     const nombreMes = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+    // ─────────────────────────────────────────────
+    // FORECAST AUTOMÁTICO: crea el forecast de un mes abierto desde los registros del año base
+    // ─────────────────────────────────────────────
+    // Debe tener el mismo valor que DIAS_GRACIA_BASELINE en forecast.html
+    const DIAS_GRACIA_BASELINE = 5;
+
+    (function iniciarForecastAuto() {
+      const hoy = new Date();
+      const selAnio = document.getElementById('auto_anio');
+      const selMes = document.getElementById('auto_mes');
+      [hoy.getFullYear(), hoy.getFullYear() + 1].forEach(a => selAnio.add(new Option(a, a)));
+      for (let m = 1; m <= 12; m++) selMes.add(new Option(nombreMes[m], m));
+      // Por defecto, el mes siguiente
+      const sig = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 1);
+      selAnio.value = sig.getFullYear();
+      selMes.value = sig.getMonth() + 1;
+      document.getElementById('btnForecastAuto').addEventListener('click', generarForecastAutomatico);
+    })();
+
+    async function generarForecastAutomatico() {
+      const status = document.getElementById('auto_status');
+      const anio = Number(document.getElementById('auto_anio').value);
+      const mes = Number(document.getElementById('auto_mes').value);
+      const hoy = new Date();
+
+      // 1) Solo meses abiertos
+      const mesCerrado = anio < hoy.getFullYear() || (anio === hoy.getFullYear() && mes < hoy.getMonth() + 1);
+      if (mesCerrado) {
+        mostrarToast('Ese mes ya cerró: un forecast generado ahora no sería un pronóstico a tiempo.');
+        return;
+      }
+
+      status.textContent = 'Calculando...';
+      status.className = 'text-sm text-gray-500';
+
+      // 2) Año base y factor de crecimiento (misma lógica del forecast sugerido)
+      const historico = await traerHistoricoVentaReal();
+      if (!historico) { status.textContent = ''; return; }
+      const calc = calcularForecastDesdeHistorico(historico, mes, anio);
+      if (calc.promedio == null) {
+        status.textContent = `No hay historial de ${nombreMes[mes]} en años anteriores.`;
+        status.className = 'text-sm text-amber-600';
+        return;
+      }
+
+      // 3) Registros del mes en el año base (los que tuvieron venta real)
+      const { data: base, error: errBase } = await supabaseClient
+        .from('forecast_registros')
+        .select('cliente, linea_producto, servicio, pozo_relacion_venta, confianza, monto_real_usd')
+        .eq('anio', calc.anioBase)
+        .eq('mes', mes)
+        .gt('monto_real_usd', 0);
+
+      if (errBase) {
+        console.error(errBase);
+        status.textContent = 'No se pudieron leer los registros del año base.';
+        status.className = 'text-sm text-red-600';
+        return;
+      }
+      if (!base || base.length === 0) {
+        status.textContent = `No hay registros de ${nombreMes[mes]} ${calc.anioBase} para tomar como base.`;
+        status.className = 'text-sm text-amber-600';
+        return;
+      }
+
+      // 4) Propuesta: cada registro × factor
+      const propuesta = base.map(r => ({
+        ...r,
+        monto: Math.round(Number(r.monto_real_usd) * calc.factor * 100) / 100,
+      }));
+      const total = propuesta.reduce((s, r) => s + r.monto, 0);
+      const totalTxt = '$' + total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      // 5) Aviso si ya pasó el plazo para que cuente como forecast "a tiempo"
+      const limite = new Date(anio, mes - 1, 1 + DIAS_GRACIA_BASELINE);
+      const tarde = hoy > limite;
+
+      const confirmar = await confirmarModal({
+        icono: 'fa-wand-magic-sparkles',
+        tono: tarde ? 'ambar' : 'azul',
+        titulo: `Generar forecast de ${nombreMes[mes]} ${anio}`,
+        cuerpoHtml:
+          `<p class="mb-2">Se crearán hasta <b>${propuesta.length}</b> registros, basados en ${nombreMes[mes]} ${calc.anioBase}.</p>` +
+          `<p class="mb-2">Factor de crecimiento: <b>${calc.factor.toFixed(3)}</b>${calc.comparacion ? ` (${escapeHtml(calc.comparacion)})` : ' (sin ajuste)'}.</p>` +
+          `<p class="mb-2">Forecast total: <b>${totalTxt}</b></p>` +
+          `<p class="text-xs text-gray-500">Los registros que ya existan no se modifican.</p>` +
+          (tarde ? `<p class="mt-2 text-sm text-amber-700">Ya pasó el plazo (día ${DIAS_GRACIA_BASELINE} del mes): este forecast no contará para el Cumplimiento.</p>` : ''),
+        textoConfirmar: 'Generar',
+      });
+      if (!confirmar) {
+        status.textContent = 'Generación cancelada.';
+        status.className = 'text-sm text-gray-500';
+        return;
+      }
+
+      // 6) Crear los registros
+      status.textContent = 'Generando...';
+      let creados = 0, omitidos = 0, fallidos = 0;
+
+      for (const r of propuesta) {
+        const payload = {
+          anio,
+          quarter: Math.ceil(mes / 3),
+          mes,
+          cliente: r.cliente,
+          linea_producto: r.linea_producto,
+          servicio: r.servicio,
+          pozo_relacion_venta: r.pozo_relacion_venta,
+          monto_forecast: r.monto,
+          confianza: r.confianza,
+          monto_p50: r.confianza === 'P50' ? r.monto : null,
+          monto_p70: r.confianza === 'P70' ? r.monto : null,
+          monto_p90: r.confianza === 'P90' ? r.monto : null,
+        };
+
+        // No se pisa lo que ya exista (por ejemplo, un forecast manual)
+        const existente = await buscarRegistroExistente(payload);
+        if (existente) { omitidos++; continue; }
+
+        const { data: guardado, error } = await supabaseClient
+          .from('forecast_registros').insert(payload).select('id').single();
+        if (error) { console.error(error); fallidos++; continue; }
+
+        creados++;
+        await registrarAuditoria({
+          accion: 'Creación',
+          registro_id: guardado.id,
+          cliente: payload.cliente,
+          linea_producto: payload.linea_producto,
+          servicio: payload.servicio,
+          mes: payload.mes,
+          anio: payload.anio,
+          monto_forecast: payload.monto_forecast,
+        });
+      }
+
+      status.textContent = `Listo: ${creados} creado(s), ${omitidos} ya existían${fallidos ? `, ${fallidos} con error` : ''}.`;
+      status.className = fallidos ? 'text-sm text-amber-600' : 'text-sm text-green-600';
+    }
 
     // ─────────────────────────────────────────────
     // Registro de Clientes (para Nuevos / Activos / Retenidos / Perdidos)
@@ -2683,7 +2845,7 @@
             ? f.forecast.toLocaleString('en-US')
             : (f.forecastAuto != null
                 ? '<span class="text-accent2 font-medium">' + f.forecastAuto.toLocaleString('en-US') + '</span> <span class="text-[10px] text-gray-400">auto</span>' + (f.sinCupo ? ' <span class="text-[10px] text-amber-600 font-medium">sin cupo</span>' : '')
-                : (f.sinCupo ? '<span class="text-amber-600 font-medium">sin cupo</span>' : '<span class="text-gray-400">sin historial</span>'))}</td>
+                : (f.mesCerrado ? '<span class="text-gray-400">mes cerrado</span>' : f.sinCupo ? '<span class="text-amber-600 font-medium">sin cupo</span>' : '<span class="text-gray-400">sin historial</span>'))}</td>
           <td class="py-2 px-3">${f.confianza || '—'}</td>
           <td class="py-2 px-3">${f.ventaReal != null ? f.ventaReal.toLocaleString('en-US') : '—'}</td>
           <td class="py-2 px-3 text-gray-500">${[...f.errores, ...f.advertencias].join('; ') || '—'}</td>
@@ -2706,6 +2868,7 @@
       filas.forEach(f => {
         f.forecastAuto = null;
         f.sinCupo = false;
+        f.mesCerrado = false;
         if (!f.anio || !f.mes) return;
         (grupos[`${f.anio}-${f.mes}`] = grupos[`${f.anio}-${f.mes}`] || []).push(f);
       });
@@ -2723,6 +2886,16 @@
 
         const { promedio } = calcularForecastDesdeHistorico(historico || [], mes, anio);
         referenciaPorMes[clave] = promedio;
+
+        // Mes cerrado: un forecast calculado ahora sería "después de los hechos".
+        // No se genera; el forecast real de ese mes es el que quedó congelado en su momento.
+        const hoyAuto = new Date();
+        const mesCerradoAuto = anio < hoyAuto.getFullYear()
+          || (anio === hoyAuto.getFullYear() && mes < hoyAuto.getMonth() + 1);
+        if (mesCerradoAuto) {
+          filasMes.filter(f => f.forecast === null).forEach(f => { f.mesCerrado = true; });
+          continue;
+        }
 
         const sinManual = filasMes.filter(f => f.forecast === null);
         if (sinManual.length === 0 || promedio === null) continue;
@@ -2855,6 +3028,15 @@
             monto_p90: f.confianza === 'P90' ? forecast : null,
             ...(f.ventaReal != null ? { monto_real_usd: f.ventaReal } : {}),
           };
+
+          // Mes cerrado sin forecast en el archivo: se conserva el forecast que ya tenía el registro
+          if (f.mesCerrado && f.idExistente) {
+            delete payload.monto_forecast;
+            delete payload.confianza;
+            delete payload.monto_p50;
+            delete payload.monto_p70;
+            delete payload.monto_p90;
+          }
 
           const { data: guardado, error } = f.idExistente
             ? await supabaseClient.from('forecast_registros').update(payload).eq('id', f.idExistente).select('id').single()

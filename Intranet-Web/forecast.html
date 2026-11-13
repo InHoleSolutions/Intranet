@@ -59,6 +59,7 @@
         padding-bottom: 16px;
         border-bottom: 3px solid #2563eb;
       }
+
       #encabezadoReporte img { height: 56px; width: auto; }
       #encabezadoReporte .textos h1 { font-size: 20px; font-weight: 700; color: #111827; margin: 0; }
       #encabezadoReporte .textos p { font-size: 11px; color: #6b7280; margin: 2px 0 0 0; }
@@ -161,11 +162,11 @@
 
         <div class="print-card bg-panel border border-border rounded-2xl p-4 flex flex-col gap-2 shadow-sm">
           <div class="flex items-center justify-between">
-            <span class="text-xs text-gray-400 font-medium">Cierre (Forecast Año)</span>
+            <span class="text-xs text-gray-400 font-medium">Cierre proyectado del año</span>
             <span class="text-lg">📈</span>
           </div>
           <p id="kpiProyectado" class="text-2xl font-bold text-gray-900">$0</p>
-          <span class="text-xs text-gray-500">Suma proyectada de los 12 meses del año</span>
+          <span class="text-xs text-gray-500">Venta real de meses cerrados + forecast de meses abiertos</span>
         </div>
 
         <div class="print-card bg-panel border border-border rounded-2xl p-4 flex flex-col gap-2 shadow-sm">
@@ -183,7 +184,7 @@
             <span class="text-lg">🎯</span>
           </div>
           <p id="kpiCumplimiento" class="text-2xl font-bold text-accent2">0%</p>
-          <span class="text-xs text-gray-500">Venta real vs forecast de meses cerrados</span>
+          <span class="text-xs text-gray-500">Venta real vs forecast congelado al inicio de cada mes.</span>
         </div>
 
         <div class="print-card bg-panel border border-border rounded-2xl p-4 flex flex-col gap-2 shadow-sm">
@@ -192,7 +193,7 @@
             <span class="text-lg">📊</span>
           </div>
           <p id="kpiCrecimiento" class="text-2xl font-bold text-green-500">0%</p>
-          <span class="text-xs text-gray-500">Vs. mismo período año anterior</span>
+          <span class="text-xs text-gray-500">Meses cerrados vs mismos meses del año anterior.</span>
         </div>
 
         <div class="print-card bg-panel border border-border rounded-2xl p-4 flex flex-col gap-2 shadow-sm">
@@ -324,7 +325,7 @@
           <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
             <div>
               <h2 class="text-sm font-semibold text-gray-800">Forecast vs Venta Real</h2>
-              <p class="text-xs text-gray-500">Solo meses ya cerrados · respeta los filtros de arriba</p>
+              <p class="text-xs text-gray-500">Meses cerrados con forecast congelado al inicio del mes · respeta los filtros de arriba</p>
             </div>
             <div id="tabsCumplimiento" class="inline-flex border border-border rounded-lg overflow-hidden text-xs font-medium">
               <button type="button" data-vista="servicio" class="px-3 py-1.5">Por servicio</button>
@@ -534,7 +535,7 @@
         return true;
       });
     }
-
+    
     // ─────────────────────────────────────────────
     // Punto de entrada: carga todo el dashboard según filtros actuales
     // ─────────────────────────────────────────────
@@ -625,18 +626,54 @@
       caja.classList.remove('hidden');
     }
 
+    // ─────────────────────────────────────────────
+    // Forecast congelado: lo que estaba pronosticado ANTES de que empezara el mes
+    // ─────────────────────────────────────────────
+    // Días después del día 1 en que aún se acepta un forecast como "a tiempo".
+    // 0 = estricto (solo lo guardado antes del día 1). 5 = hasta el día 5 inclusive.
+    const DIAS_GRACIA_BASELINE = 5;
+
+    let forecastCongeladoMap = new Map(); // registro_id -> monto congelado
+
+    function forecastCongelado(r) {
+      return forecastCongeladoMap.get(r.id) || 0;
+    }
+
+    async function traerForecastCongelado(anio) {
+      const filas = await traerTodo(() =>
+        supabaseClient
+          .from('forecast_historial')
+          .select('registro_id, mes, monto_forecast, creado_en')
+          .eq('anio', anio)
+          .order('creado_en', { ascending: true })
+          .order('id', { ascending: true })
+      );
+
+      // Por cada registro nos quedamos con la ÚLTIMA versión guardada antes del corte de su mes
+      const mapa = new Map();
+      (filas || []).forEach(v => {
+        const corte = new Date(anio, v.mes - 1, 1 + DIAS_GRACIA_BASELINE);
+        if (new Date(v.creado_en) <= corte) {
+          mapa.set(v.registro_id, Number(v.monto_forecast) || 0);
+        }
+      });
+      return mapa;
+    }
+
     async function cargarDashboard() {
       await cargarOpcionesCliente();
       mostrarUltimaActualizacion();
       const anio = Number(document.getElementById('filtroAnio').value);
 
-      const [registrosAnio, registrosAnterior, ventaRealMensual, ventaRealMensualAnterior, clientes] = await Promise.all([
+      const [registrosAnio, registrosAnterior, ventaRealMensual, ventaRealMensualAnterior, clientes, forecastCongeladoAnio] = await Promise.all([
         traerRegistros(anio),
         traerRegistrosAnioAnterior(anio),
         traerVentaRealMensual(anio),
         traerVentaRealMensual(anio - 1),
-        traerClientes()
+        traerClientes(),
+        traerForecastCongelado(anio)
       ]);
+      forecastCongeladoMap = forecastCongeladoAnio;
 
       const filtrados = aplicarFiltros(registrosAnio);
 
@@ -730,7 +767,7 @@
         if (linea !== 'todos' && r.linea_producto !== linea) return false;
         return true;
       });
-      const totalCierre = baseCierre.reduce((a, r) => a + (Number(r.monto_forecast) || 0), 0);
+      let totalCierre = 0; // se calcula más abajo, cuando ya se conocen los meses cerrados
 
       // Venta real de un mes: suma de servicios si hay detalle; si no, el total mensual capturado.
       // Con filtro de Cliente/Línea solo se puede usar el detalle (el total es de toda la empresa).
@@ -751,22 +788,58 @@
       const hoyKpi = new Date();
       const mesesCerradosAnio = anio < hoyKpi.getFullYear() ? 12 : (anio === hoyKpi.getFullYear() ? hoyKpi.getMonth() : 0);
 
+      // Solo cuentan los meses cerrados que tienen forecast congelado a tiempo.
+      // Así real y forecast se comparan sobre los mismos meses.
       let realCerrado = 0;
+      let forecastCerrado = 0;
       for (let m = 1; m <= mesesCerradosAnio; m++) {
+        const fMes = baseCierre
+          .filter(r => r.mes === m)
+          .reduce((a, r) => a + forecastCongelado(r), 0);
+        if (fMes <= 0) continue; // mes sin forecast hecho a tiempo: no se mide
+        forecastCerrado += fMes;
         realCerrado += ventaRealDelMes(m);
       }
-      const forecastCerrado = baseCierre
-        .filter(r => r.mes <= mesesCerradosAnio)
-        .reduce((a, r) => a + (Number(r.monto_forecast) || 0), 0);
 
-      const cumplimiento = forecastCerrado ? (realCerrado / forecastCerrado) * 100 : 0;
+      const cumplimiento = forecastCerrado > 0 ? (realCerrado / forecastCerrado) * 100 : null;
 
-      // Crecimiento acumulado: mismos meses transcurridos, este año vs año anterior
-      let totalAnteriorMismoRango = 0;
-      for (let m = 1; m <= transcurridos; m++) {
-        totalAnteriorMismoRango += ventaRealMensualAnterior[m] || 0;
+      // Cierre proyectado = lo que ya pasó + lo que falta por pasar:
+      //  · mes cerrado → venta real (si aún no se captura, se usa el forecast congelado)
+      //  · mes abierto → forecast vigente
+      for (let m = 1; m <= 12; m++) {
+        const regsMes = baseCierre.filter(r => r.mes === m);
+        if (m <= mesesCerradosAnio) {
+          const real = ventaRealDelMes(m);
+          totalCierre += real > 0
+            ? real
+            : regsMes.reduce((a, r) => a + forecastCongelado(r), 0);
+        } else {
+          totalCierre += regsMes.reduce((a, r) => a + (Number(r.monto_forecast) || 0), 0);
+        }
       }
-      const crecimientoYoY = totalAnteriorMismoRango ? ((totalRealHastaFecha - totalAnteriorMismoRango) / totalAnteriorMismoRango) * 100 : 0;
+
+      // Crecimiento YoY: solo meses CERRADOS, este año vs los mismos meses del año anterior.
+      // (El mes en curso aún no tiene su venta completa, compararlo da una caída falsa.)
+      // Venta real del año anterior en un mes. Con filtro de Cliente/Línea se usa el detalle
+      // de registros (el total mensual es de toda la empresa); sin filtro, el total mensual.
+      const ventaRealAnteriorDelMes = (m) => {
+        if (!hayFiltroCL) return ventaRealMensualAnterior[m] || 0;
+        return registrosAnterior
+          .filter(r => r.mes === m
+            && (cliente === 'todos' || r.cliente === cliente)
+            && (linea === 'todos' || r.linea_producto === linea))
+          .reduce((a, r) => a + (Number(r.monto_real_usd) || 0), 0);
+      };
+
+      let totalRealCerradoYoY = 0;
+      let totalAnteriorCerradoYoY = 0;
+      for (let m = 1; m <= mesesCerradosAnio; m++) {
+        totalRealCerradoYoY += ventaRealDelMes(m);
+        totalAnteriorCerradoYoY += ventaRealAnteriorDelMes(m);
+      }
+      const crecimientoYoY = totalAnteriorCerradoYoY > 0
+        ? ((totalRealCerradoYoY - totalAnteriorCerradoYoY) / totalAnteriorCerradoYoY) * 100
+        : null;
 
       const { existentes, nuevos, retenidos } = clasificarClientes(clientes, anio);
       const retencionPct = existentes.length > 0 ? (retenidos.length / existentes.length) * 100 : 0;
@@ -778,8 +851,12 @@
 
       document.getElementById('kpiProyectado').textContent = fmtUSD(totalCierre);
       document.getElementById('kpiReal').textContent = fmtUSD(totalRealHastaFecha);
-      document.getElementById('kpiCumplimiento').textContent = fmtPct(cumplimiento);
-      document.getElementById('kpiCrecimiento').textContent = fmtPct(crecimientoYoY);
+      document.getElementById('kpiCumplimiento').textContent = cumplimiento === null ? '—' : fmtPct(cumplimiento);
+      const elYoY = document.getElementById('kpiCrecimiento');
+      elYoY.textContent = crecimientoYoY === null ? '—' : fmtPct(crecimientoYoY);
+      // Verde si crece, rojo si cae (antes siempre salía verde)
+      elYoY.classList.toggle('text-green-500', crecimientoYoY === null || crecimientoYoY >= 0);
+      elYoY.classList.toggle('text-red-500', crecimientoYoY !== null && crecimientoYoY < 0);
       document.getElementById('kpiRetencion').textContent = fmtPct(retencionPct);
       document.getElementById('kpiNuevos').textContent = nuevos.length;
       document.getElementById('kpiP50').textContent = fmtUSD(totalP50);
@@ -797,10 +874,22 @@
       const forecastPorMes = Array(12).fill(0);
       const realPorMes = Array(12).fill(null);
 
+      // Meses cerrados → forecast congelado al inicio del mes.
+      // Meses abiertos → forecast vigente (todavía puede cambiar).
+      const anioSel = Number(document.getElementById('filtroAnio').value);
+      const hoyG = new Date();
+      const mesesCerradosG = anioSel < hoyG.getFullYear() ? 12 : (anioSel === hoyG.getFullYear() ? hoyG.getMonth() : 0);
+
       filtrados.forEach(r => {
         const idx = r.mes - 1;
-        forecastPorMes[idx] = (forecastPorMes[idx] || 0) + (Number(r.monto_forecast) || 0);
+        const monto = r.mes <= mesesCerradosG ? forecastCongelado(r) : (Number(r.monto_forecast) || 0);
+        forecastPorMes[idx] = (forecastPorMes[idx] || 0) + monto;
       });
+
+      // Mes cerrado sin forecast a tiempo: hueco en la línea, no un 0 engañoso
+      for (let m = 1; m <= mesesCerradosG; m++) {
+        if (forecastPorMes[m - 1] <= 0) forecastPorMes[m - 1] = null;
+      }
 
       for (let m = 1; m <= 12; m++) {
         if (ventaRealMensual[m] != null) {
@@ -1037,12 +1126,23 @@
     // ─────────────────────────────────────────────
     async function dibujarChartCrecimiento(anioActual) {
       const anios = [2024, 2025, 2026];
-      const totales = await Promise.all(anios.map(async (a) => {
-        const { data } = await supabaseClient.from('forecast_venta_real_mensual').select('monto_real_usd').eq('anio', a);
-        return (data || []).reduce((sum, r) => sum + (Number(r.monto_real_usd) || 0), 0);
+      const filasPorAnio = await Promise.all(anios.map(async (a) => {
+        const { data } = await supabaseClient.from('forecast_venta_real_mensual').select('mes, monto_real_usd').eq('anio', a);
+        return data || [];
       }));
+      const sumar = (filas, hastaMes = 12) =>
+        filas.filter(f => f.mes <= hastaMes).reduce((s, f) => s + (Number(f.monto_real_usd) || 0), 0);
+      const totales = filasPorAnio.map(f => sumar(f));
 
-      const crecimientos = totales.map((v, i) => i === 0 ? null : (totales[i-1] ? ((v - totales[i-1]) / totales[i-1]) * 100 : null));
+      // Año en curso: se compara solo contra los mismos meses cerrados del año anterior
+      const hoyC = new Date();
+      const crecimientos = totales.map((v, i) => {
+        if (i === 0) return null;
+        const hasta = anios[i] === hoyC.getFullYear() ? hoyC.getMonth() : 12;
+        const actual = sumar(filasPorAnio[i], hasta);
+        const previo = sumar(filasPorAnio[i - 1], hasta);
+        return previo ? ((actual - previo) / previo) * 100 : null;
+      });
 
       if (charts.crecimiento) charts.crecimiento.destroy();
       charts.crecimiento = new Chart(document.getElementById('chartCrecimiento'), {
@@ -1208,7 +1308,16 @@
 
       const hoy = new Date();
       const cerrado = (r) => r.anio < hoy.getFullYear() || (r.anio === hoy.getFullYear() && r.mes < hoy.getMonth() + 1);
-      const cerrados = registrosCumplimiento.filter(cerrado);
+      const cerradosTodos = registrosCumplimiento.filter(cerrado);
+
+      // Solo se miden los meses que tienen al menos un forecast congelado a tiempo
+      // (misma regla que el KPI de Cumplimiento, para que ambos coincidan)
+      const claveMes = (r) => `${r.anio}-${r.mes}`;
+      const mesesMedibles = new Set(cerradosTodos.filter(r => forecastCongelado(r) > 0).map(claveMes));
+      const cerrados = cerradosTodos.filter(r => mesesMedibles.has(claveMes(r)));
+      const mesesExcluidos = new Set(
+        cerradosTodos.filter(r => !mesesMedibles.has(claveMes(r))).map(claveMes)
+      ).size;
 
       // Pestañas
       document.querySelectorAll('#tabsCumplimiento button').forEach(b => {
@@ -1236,12 +1345,12 @@
             forecast: 0, real: 0,
           };
         }
-        grupos[k].forecast += Number(r.monto_forecast) || 0;
+        grupos[k].forecast += forecastCongelado(r);
         grupos[k].real += Number(r.monto_real_usd) || 0;
       });
 
       // Totales y resumen
-      const totalF = cerrados.reduce((s, r) => s + (Number(r.monto_forecast) || 0), 0);
+      const totalF = cerrados.reduce((s, r) => s + forecastCongelado(r), 0);
       const totalR = cerrados.reduce((s, r) => s + (Number(r.monto_real_usd) || 0), 0);
       const difTotal = totalR - totalF;
       const cumplTotal = totalF > 0 ? (totalR / totalF) * 100 : null;
@@ -1251,16 +1360,27 @@
         `<div class="border border-border rounded-xl p-3 bg-white"><p class="text-[11px] text-gray-400 font-medium">${titulo}</p><p class="text-lg font-bold ${clase}">${valor}</p></div>`;
 
       document.getElementById('cumplResumen').innerHTML =
-        tarjeta('Forecast (meses cerrados)', fmtUSD(totalF)) +
+        tarjeta('Forecast congelado', fmtUSD(totalF)) +
         tarjeta('Venta Real', fmtUSD(totalR)) +
         tarjeta('Diferencia', (difTotal >= 0 ? '+' : '-') + fmtUSD(Math.abs(difTotal)), colorDif) +
         tarjeta('Cumplimiento', cumplTotal === null ? '—' : fmtPct(cumplTotal), 'text-accent2');
 
-      // Aviso: registros de meses cerrados sin venta real capturada
+      // Avisos: qué se dejó fuera y qué cuenta como $0
+      const avisos = [];
+      if (mesesExcluidos > 0) {
+        avisos.push(`${mesesExcluidos} mes(es) cerrado(s) no se miden porque no tenían forecast congelado antes de iniciar el mes.`);
+      }
+      const sinForecast = cerrados.filter(r => forecastCongelado(r) <= 0).length;
+      if (sinForecast > 0) {
+        avisos.push(`${sinForecast} de ${cerrados.length} registro(s) no tenían forecast a tiempo y cuentan como $0 de forecast.`);
+      }
       const sinReal = cerrados.filter(r => r.monto_real_usd == null).length;
-      const aviso = document.getElementById('cumplAviso');
       if (sinReal > 0) {
-        aviso.textContent = `${sinReal} de ${cerrados.length} registro(s) de meses cerrados no tienen venta real capturada y cuentan como $0.`;
+        avisos.push(`${sinReal} de ${cerrados.length} registro(s) de meses cerrados no tienen venta real capturada y cuentan como $0.`);
+      }
+      const aviso = document.getElementById('cumplAviso');
+      if (avisos.length > 0) {
+        aviso.innerHTML = avisos.map(a => escapeHtml(a)).join('<br>');
         aviso.classList.remove('hidden');
       } else {
         aviso.classList.add('hidden');
@@ -1271,7 +1391,7 @@
       const lista = Object.values(grupos).sort((a, b) => Math.max(b.forecast, b.real) - Math.max(a.forecast, a.real));
 
       if (lista.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="py-4 px-3 text-center text-gray-400 text-sm">No hay meses cerrados con los filtros actuales.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="py-4 px-3 text-center text-gray-400 text-sm">No hay meses cerrados con forecast congelado a tiempo para estos filtros.</td></tr>';
         return;
       }
 
