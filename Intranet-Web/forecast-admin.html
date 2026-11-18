@@ -1066,6 +1066,7 @@
         monto_p50: nivelConfianza === 'P50' ? montoForm : null,
         monto_p70: nivelConfianza === 'P70' ? montoForm : null,
         monto_p90: nivelConfianza === 'P90' ? montoForm : null,
+        forecast_provisional: false,
       };
 
       const realForm = document.getElementById('reg_real').value;
@@ -1275,6 +1276,7 @@
           monto_p50: r.confianza === 'P50' ? r.monto : null,
           monto_p70: r.confianza === 'P70' ? r.monto : null,
           monto_p90: r.confianza === 'P90' ? r.monto : null,
+          forecast_provisional: true,
         };
 
         // No se pisa lo que ya exista (por ejemplo, un forecast manual)
@@ -2610,13 +2612,13 @@
       const registrosExistentes = await traerTodo(() =>
         supabaseClient
           .from('forecast_registros')
-          .select('id, anio, mes, cliente, linea_producto, servicio, pozo_relacion_venta')
+          .select('id, anio, mes, cliente, linea_producto, servicio, pozo_relacion_venta, monto_forecast, forecast_provisional')
           .or(condiciones)
           .order('id')
       );
 
       const idsExistentes = new Map(
-        (registrosExistentes || []).map(r => [`${r.anio}-${r.mes}-${r.cliente}-${r.linea_producto}-${normalizarTexto(r.servicio)}-${normalizarPozo(r.pozo_relacion_venta)}`, r.id])
+        (registrosExistentes || []).map(r => [`${r.anio}-${r.mes}-${r.cliente}-${r.linea_producto}-${normalizarTexto(r.servicio)}-${normalizarPozo(r.pozo_relacion_venta)}`, r])
       );
 
       filas.forEach(f => {
@@ -2631,7 +2633,9 @@
         // Aviso a nivel de fila exacta (esa combinación específica ya existe)
         const clave = `${f.anio}-${f.mes}-${f.cliente}-${f.linea}-${normalizarTexto(f.servicio)}-${normalizarPozo(f.pozo)}`;
         if (idsExistentes.has(clave)) {
-          f.idExistente = idsExistentes.get(clave);
+          const regExistente = idsExistentes.get(clave);
+          f.idExistente = regExistente.id;
+          f.forecastExistente = regExistente.monto_forecast != null ? Number(regExistente.monto_forecast) : null;
           f.advertencias.push('Ya existe un registro idéntico — se actualizará en vez de duplicarse');
           if (f.estado === 'valido') f.estado = 'advertencia';
         }
@@ -2845,7 +2849,7 @@
             ? f.forecast.toLocaleString('en-US')
             : (f.forecastAuto != null
                 ? '<span class="text-accent2 font-medium">' + f.forecastAuto.toLocaleString('en-US') + '</span> <span class="text-[10px] text-gray-400">auto</span>' + (f.sinCupo ? ' <span class="text-[10px] text-amber-600 font-medium">sin cupo</span>' : '')
-                : (f.mesCerrado ? '<span class="text-gray-400">mes cerrado</span>' : f.sinCupo ? '<span class="text-amber-600 font-medium">sin cupo</span>' : '<span class="text-gray-400">sin historial</span>'))}</td>
+                : (f.mesCerrado ? '<span class="text-gray-400">mes cerrado</span>' : f.conservarForecast ? '<span class="text-blue-500">se conserva</span>' : f.sinCupo ? '<span class="text-amber-600 font-medium">sin cupo</span>' : '<span class="text-gray-400">sin historial</span>'))}</td>
           <td class="py-2 px-3">${f.confianza || '—'}</td>
           <td class="py-2 px-3">${f.ventaReal != null ? f.ventaReal.toLocaleString('en-US') : '—'}</td>
           <td class="py-2 px-3 text-gray-500">${[...f.errores, ...f.advertencias].join('; ') || '—'}</td>
@@ -2869,6 +2873,7 @@
         f.forecastAuto = null;
         f.sinCupo = false;
         f.mesCerrado = false;
+        f.conservarForecast = false;
         if (!f.anio || !f.mes) return;
         (grupos[`${f.anio}-${f.mes}`] = grupos[`${f.anio}-${f.mes}`] || []).push(f);
       });
@@ -2897,12 +2902,18 @@
           continue;
         }
 
-        const sinManual = filasMes.filter(f => f.forecast === null);
+        // Fila que ya existe con forecast (p. ej. el provisional del cron) y no trae forecast en el archivo:
+        // se conserva ese monto y cuenta como ya asignado en el reparto.
+        filasMes.forEach(f => {
+          f.conservarForecast = f.forecast === null && !!f.idExistente && f.forecastExistente != null;
+        });
+
+        const sinManual = filasMes.filter(f => f.forecast === null && !f.conservarForecast);
         if (sinManual.length === 0 || promedio === null) continue;
 
         const totalManual = filasMes
-          .filter(f => f.forecast !== null)
-          .reduce((suma, f) => suma + f.forecast, 0);
+          .filter(f => f.forecast !== null || f.conservarForecast)
+          .reduce((suma, f) => suma + (f.forecast !== null ? f.forecast : f.forecastExistente), 0);
 
         const restante = Math.max(0, promedio - totalManual);
         const porFila = Math.floor((restante / sinManual.length) * 100) / 100;
@@ -2937,7 +2948,7 @@
     const aActualizar = filasAImportar.filter(f => f.idExistente).length;
     const aCrear = filasAImportar.length - aActualizar;
     const periodoRepetido = filasAImportar.some(f => f.advertencias.some(a => a.includes('ya fue importado antes')));
-    const sinForecast = filasAImportar.filter(f => f.forecast === null && f.forecastAuto == null).length;
+    const sinForecast = filasAImportar.filter(f => f.forecast === null && f.forecastAuto == null && !f.conservarForecast).length;
     const totalForecast = filasAImportar.reduce((s, f) => s + (f.forecast ?? f.forecastAuto ?? 0), 0);
 
     const avisos = [];
@@ -3026,16 +3037,18 @@
             monto_p50: f.confianza === 'P50' ? forecast : null,
             monto_p70: f.confianza === 'P70' ? forecast : null,
             monto_p90: f.confianza === 'P90' ? forecast : null,
+            forecast_provisional: false,
             ...(f.ventaReal != null ? { monto_real_usd: f.ventaReal } : {}),
           };
 
           // Mes cerrado sin forecast en el archivo: se conserva el forecast que ya tenía el registro
-          if (f.mesCerrado && f.idExistente) {
+          if ((f.mesCerrado || f.conservarForecast) && f.idExistente) {
             delete payload.monto_forecast;
             delete payload.confianza;
             delete payload.monto_p50;
             delete payload.monto_p70;
             delete payload.monto_p90;
+            delete payload.forecast_provisional;
           }
 
           const { data: guardado, error } = f.idExistente
@@ -3046,6 +3059,7 @@
 
           exitosas++;
           if (f.idExistente) actualizadas++;
+          f.idGuardado = guardado ? guardado.id : f.idExistente;
           filasExitosas.push(f);
 
           await registrarAuditoria({
@@ -3063,6 +3077,29 @@
           fallidas++;
           fallos.push(`${f.cliente} · ${f.servicio} (${nombreMes[f.mes]} ${f.anio}): ${errFila.message || errFila}`);
         }
+      }
+
+      // El archivo reemplaza el forecast provisional del sistema: por cada Cliente + Línea + Mes ABIERTO
+      // que vino en el archivo, los provisionales que NO vinieron dejan de contar como forecast.
+      // No se borra nada: la versión anterior queda en forecast_historial.
+      const hoyImp = new Date();
+      const combos = new Map();
+      filasExitosas.forEach(f => {
+        const cerrado = f.anio < hoyImp.getFullYear() || (f.anio === hoyImp.getFullYear() && f.mes < hoyImp.getMonth() + 1);
+        if (cerrado) return;
+        const k = `${f.anio}|${f.mes}|${f.cliente}|${f.linea}`;
+        if (!combos.has(k)) combos.set(k, { anio: f.anio, mes: f.mes, cliente: f.cliente, linea: f.linea, ids: [] });
+        combos.get(k).ids.push(f.idGuardado);
+      });
+      for (const c of combos.values()) {
+        let q = supabaseClient.from('forecast_registros')
+          .update({ monto_forecast: null, confianza: null, monto_p50: null, monto_p70: null, monto_p90: null, forecast_provisional: false })
+          .eq('anio', c.anio).eq('mes', c.mes)
+          .eq('cliente', c.cliente).eq('linea_producto', c.linea)
+          .eq('forecast_provisional', true);
+        if (c.ids.length) q = q.not('id', 'in', `(${c.ids.join(',')})`);
+        const { error: errLimp } = await q;
+        if (errLimp) console.error('No se pudo reemplazar el forecast provisional:', errLimp);
       }
 
       progreso.avanzar(filasAImportar.length, 'Guardando historial de la carga...');

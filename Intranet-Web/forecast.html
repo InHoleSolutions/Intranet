@@ -1125,7 +1125,7 @@
     // Gráfico 5: Crecimiento Anual (2024, 2025, 2026 — sin filtros, siempre los 3 años)
     // ─────────────────────────────────────────────
     async function dibujarChartCrecimiento(anioActual) {
-      const anios = [2024, 2025, 2026];
+      const anios = Array.from({ length: new Date().getFullYear() - 2024 + 1 }, (_, i) => 2024 + i);
       const filasPorAnio = await Promise.all(anios.map(async (a) => {
         const { data } = await supabaseClient.from('forecast_venta_real_mensual').select('mes, monto_real_usd').eq('anio', a);
         return data || [];
