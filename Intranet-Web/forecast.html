@@ -175,7 +175,7 @@
             <span class="text-lg">💰</span>
           </div>
           <p id="kpiReal" class="text-2xl font-bold text-gray-900">$0</p>
-          <span class="text-xs text-gray-500">Venta real acumulada hasta la fecha</span>
+          <span class="text-xs text-gray-500">Venta real acumulada de meses cerrados</span>
         </div>
 
         <div class="print-card bg-panel border border-border rounded-2xl p-4 flex flex-col gap-2 shadow-sm">
@@ -306,7 +306,7 @@
         </div>
 
         <div class="print-card bg-panel border border-border rounded-2xl p-5 shadow-sm">
-          <h2 class="text-sm font-semibold text-gray-800">Crecimiento Anual (2024–2026)</h2>
+          <h2 id="tituloCrecimiento" class="text-sm font-semibold text-gray-800">Crecimiento Anual</h2>
           <p class="text-xs text-gray-500 mb-3">Comparativo de ventas y % de crecimiento</p>
           <div class="h-64">
             <canvas id="chartCrecimiento"></canvas>
@@ -757,8 +757,6 @@
     }
 
     async function pintarKPIs(filtrados, registrosAnterior, anio, registrosAnioSinFiltroPeriodo, ventaRealMensual, ventaRealMensualAnterior, clientes) {
-      const transcurridos = mesesTranscurridos(anio);
-
       // "Cierre" = Forecast del año COMPLETO (12 meses), respetando Cliente/Línea pero ignorando Quarter/Mes
       const cliente = document.getElementById('filtroCliente').value;
       const linea = document.getElementById('filtroLinea').value;
@@ -778,8 +776,14 @@
         return hayFiltroCL ? 0 : (ventaRealMensual[m] || 0);
       };
 
+      // Solo meses cerrados, igual que Cumplimiento y Crecimiento YoY
+      const hoyReal = new Date();
+      const mesesCerradosReal = anio < hoyReal.getFullYear()
+        ? 12
+        : (anio === hoyReal.getFullYear() ? hoyReal.getMonth() : 0);
+
       let totalRealHastaFecha = 0;
-      for (let m = 1; m <= transcurridos; m++) {
+      for (let m = 1; m <= mesesCerradosReal; m++) {
         totalRealHastaFecha += ventaRealDelMes(m);
       }
 
@@ -834,7 +838,9 @@
       let totalRealCerradoYoY = 0;
       let totalAnteriorCerradoYoY = 0;
       for (let m = 1; m <= mesesCerradosAnio; m++) {
-        totalRealCerradoYoY += ventaRealDelMes(m);
+        const realMes = ventaRealDelMes(m);
+        if (realMes <= 0) continue; // mes cerrado sin venta real capturada: no se compara
+        totalRealCerradoYoY += realMes;
         totalAnteriorCerradoYoY += ventaRealAnteriorDelMes(m);
       }
       const crecimientoYoY = totalAnteriorCerradoYoY > 0
@@ -1122,10 +1128,12 @@
     }
 
     // ─────────────────────────────────────────────
-    // Gráfico 5: Crecimiento Anual (2024, 2025, 2026 — sin filtros, siempre los 3 años)
+    // Gráfico 5: Crecimiento Anual (desde 2024 hasta el año en curso)
     // ─────────────────────────────────────────────
     async function dibujarChartCrecimiento(anioActual) {
       const anios = Array.from({ length: new Date().getFullYear() - 2024 + 1 }, (_, i) => 2024 + i);
+      document.getElementById('tituloCrecimiento').textContent =
+        `Crecimiento Anual (${anios[0]}–${anios[anios.length - 1]})`;
       const filasPorAnio = await Promise.all(anios.map(async (a) => {
         const { data } = await supabaseClient.from('forecast_venta_real_mensual').select('mes, monto_real_usd').eq('anio', a);
         return data || [];
