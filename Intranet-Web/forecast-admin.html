@@ -2862,6 +2862,76 @@
       pintarResumenImportacion();
     }
 
+    // Venta real por cliente/línea/servicio del mismo mes en el año base.
+    // Sirve para repartir el forecast según la participación histórica.
+    async function traerPesosHistoricos(anioBase, mes) {
+      const filas = await traerTodo(() =>
+        supabaseClient
+          .from('forecast_registros')
+          .select('cliente, linea_producto, servicio, monto_real_usd')
+          .eq('anio', anioBase)
+          .eq('mes', mes)
+          .gt('monto_real_usd', 0)
+          .order('id')
+      );
+      if (filas === null) return null;
+
+      const exacto = new Map();       // cliente|línea|servicio
+      const clienteLinea = new Map(); // cliente|línea
+      const cliente = new Map();      // cliente
+      const sumar = (mapa, k, v) => mapa.set(k, (mapa.get(k) || 0) + v);
+
+      filas.forEach(r => {
+        const c = claveCliente(r.cliente);
+        const m = Number(r.monto_real_usd) || 0;
+        sumar(exacto, `${c}|${r.linea_producto}|${normalizarTexto(r.servicio)}`, m);
+        sumar(clienteLinea, `${c}|${r.linea_producto}`, m);
+        sumar(cliente, c, m);
+      });
+
+      return { exacto, clienteLinea, cliente };
+    }
+
+    // Devuelve un peso por fila. Busca la mejor coincidencia histórica:
+    // 1) cliente+línea+servicio  2) cliente+línea  3) cliente  4) promedio de los demás pesos.
+    // Si no hay historial para nadie, reparte en partes iguales (comportamiento anterior).
+    function calcularPesosReparto(filas, hist) {
+      const parejos = filas.map(() => 1);
+      if (!hist) return parejos;
+
+      const kE  = f => `${claveCliente(f.cliente)}|${f.linea}|${normalizarTexto(f.servicio)}`;
+      const kCL = f => `${claveCliente(f.cliente)}|${f.linea}`;
+      const kC  = f => claveCliente(f.cliente);
+
+      const nivel = filas.map(f =>
+        hist.exacto.has(kE(f)) ? 1 :
+        hist.clienteLinea.has(kCL(f)) ? 2 :
+        hist.cliente.has(kC(f)) ? 3 : 0
+      );
+
+      // Cuántas filas comparten cada clave (para no duplicar el peso histórico)
+      const contar = (nv, fn) => {
+        const m = new Map();
+        filas.forEach((f, i) => { if (nivel[i] === nv) m.set(fn(f), (m.get(fn(f)) || 0) + 1); });
+        return m;
+      };
+      const nE = contar(1, kE), nCL = contar(2, kCL), nC = contar(3, kC);
+
+      const pesos = filas.map((f, i) => {
+        if (nivel[i] === 1) return hist.exacto.get(kE(f)) / nE.get(kE(f));
+        if (nivel[i] === 2) return hist.clienteLinea.get(kCL(f)) / nCL.get(kCL(f));
+        if (nivel[i] === 3) return hist.cliente.get(kC(f)) / nC.get(kC(f));
+        return 0;
+      });
+
+      const positivos = pesos.filter(p => p > 0);
+      if (positivos.length === 0) return parejos;
+      const promedio = positivos.reduce((a, b) => a + b, 0) / positivos.length;
+
+      // Filas sin ningún historial: reciben el peso promedio del resto
+      return pesos.map(p => (p > 0 ? p : promedio));
+    }
+
     let referenciaPorMes = {}; // 'año-mes' → promedio histórico (null = sin historial)
     let falloHistorico = false; // true si no se pudo consultar el histórico de venta real
 
@@ -2889,7 +2959,7 @@
         const filasMes = grupos[clave];
         const { anio, mes } = filasMes[0];
 
-        const { promedio } = calcularForecastDesdeHistorico(historico || [], mes, anio);
+        const { promedio, anioBase } = calcularForecastDesdeHistorico(historico || [], mes, anio);
         referenciaPorMes[clave] = promedio;
 
         // Mes cerrado: un forecast calculado ahora sería "después de los hechos".
@@ -2916,7 +2986,6 @@
           .reduce((suma, f) => suma + (f.forecast !== null ? f.forecast : f.forecastExistente), 0);
 
         const restante = Math.max(0, promedio - totalManual);
-        const porFila = Math.floor((restante / sinManual.length) * 100) / 100;
 
         // Sin cupo: no queda nada por repartir, así que esas filas se guardan vacías (no en $0)
         if (restante === 0) {
@@ -2924,11 +2993,24 @@
           continue;
         }
 
-        sinManual.forEach(f => { f.forecastAuto = porFila; });
+        // Reparto proporcional a la participación histórica (venta real del mismo mes en el año base)
+        const pesosHist = anioBase ? await traerPesosHistoricos(anioBase, mes) : null;
+        if (anioBase && pesosHist === null) { falloHistorico = true; continue; }
 
-        // La última fila absorbe los centavos del redondeo para que el total cuadre exacto
-        const centavos = Math.round((restante - porFila * sinManual.length) * 100) / 100;
-        sinManual[sinManual.length - 1].forecastAuto = Math.round((porFila + centavos) * 100) / 100;
+        const pesos = calcularPesosReparto(sinManual, pesosHist);
+        const sumaPesos = pesos.reduce((a, b) => a + b, 0);
+
+        let asignado = 0;
+        sinManual.forEach((f, i) => {
+          const monto = Math.floor(((restante * pesos[i]) / sumaPesos) * 100) / 100;
+          f.forecastAuto = monto;
+          asignado += monto;
+        });
+
+        // La fila de mayor peso absorbe los centavos del redondeo para que el total cuadre exacto
+        const centavos = Math.round((restante - asignado) * 100) / 100;
+        const iMayor = pesos.indexOf(Math.max(...pesos));
+        sinManual[iMayor].forecastAuto = Math.round((sinManual[iMayor].forecastAuto + centavos) * 100) / 100;
       }
     }
 
