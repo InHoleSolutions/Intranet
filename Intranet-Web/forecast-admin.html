@@ -205,20 +205,20 @@
           </div>
 
           <div>
-            <label class="text-xs font-medium text-gray-600">Probabilidad de Cumplimiento <span class="text-gray-400">— opcional</span></label>
+            <label class="text-xs font-medium text-gray-600">Nivel de Confianza <span class="text-gray-400">— opcional (sin elegir = sin clasificar)</span></label>
             <div class="mt-1 border border-border rounded-lg p-2 bg-gray-50">
               <div class="grid grid-cols-3 gap-2" id="grupoConfianza">
-                <button type="button" data-nivel="P50"
-                  class="btn-confianza border border-border rounded-lg px-2 py-1.5 text-sm font-medium bg-white text-gray-500 hover:bg-amber-50">
-                  P50 <span class="block text-[10px] font-normal">50%</span>
+                <button type="button" data-nivel="P90"
+                  class="btn-confianza border border-border rounded-lg px-2 py-1.5 text-sm font-medium bg-white text-gray-500 hover:bg-purple-50">
+                  Alta <span class="block text-[10px] font-normal">peso 90%</span>
                 </button>
                 <button type="button" data-nivel="P70"
                   class="btn-confianza border border-border rounded-lg px-2 py-1.5 text-sm font-medium bg-white text-gray-500 hover:bg-cyan-50">
-                  P70 <span class="block text-[10px] font-normal">70%</span>
+                  Media <span class="block text-[10px] font-normal">peso 70%</span>
                 </button>
-                <button type="button" data-nivel="P90"
-                  class="btn-confianza border border-border rounded-lg px-2 py-1.5 text-sm font-medium bg-white text-gray-500 hover:bg-purple-50">
-                  P90 <span class="block text-[10px] font-normal">100%</span>
+                <button type="button" data-nivel="P50"
+                  class="btn-confianza border border-border rounded-lg px-2 py-1.5 text-sm font-medium bg-white text-gray-500 hover:bg-amber-50">
+                  Baja <span class="block text-[10px] font-normal">peso 50%</span>
                 </button>
               </div>
               <input type="hidden" id="reg_confianza" value="">
@@ -1938,7 +1938,7 @@
         ['Servicio', 'Elígelo del menú o escribe uno nuevo (verás una advertencia amarilla, puedes continuar). Debe describir el servicio específico dentro de la línea elegida.', 'Obligatorio', 'Centradores de Cementación'],
         ['Pozo / Relación de Venta', 'Nombre del pozo, contrato o referencia de la venta. Déjalo en blanco si no aplica.', 'Opcional', 'Pozo Ayin-1'],
         ['Forecast (USD)', 'Solo para meses que aún no cierran. Normalmente déjalo vacío: el sistema calcula el forecast con la venta real del año anterior ajustada por el crecimiento de la empresa. NUNCA escribas aquí lo vendido: eso va en Venta Real. En meses ya cerrados este campo no se acepta. Solo el número, sin $ ni comas.', 'Automático', '45000'],
-        ['Nivel de Confianza', 'Elige P50, P70 o P90 del menú. Indica la probabilidad de cumplimiento del forecast. Déjalo vacío si no aplica.', 'Opcional', 'P70'],
+        ['Nivel de Confianza', 'Elige Alta, Media o Baja del menú. Indica qué tan seguro es que el forecast se cumpla. Déjalo vacío si aún no está clasificado.', 'Opcional', 'Media'],
         ['Venta Real (USD)', 'Lo realmente vendido en esa fila. Solo para meses que ya cerraron; en meses sin cerrar no se acepta. Solo el número, sin $ ni comas.', 'Opcional', '45000'],
       ];
 
@@ -2152,15 +2152,15 @@
         ref: 'H5:H200',
         rules: [
           {
-            type: 'cellIs', operator: 'equal', formulae: ['"P50"'],
+            type: 'cellIs', operator: 'equal', formulae: ['"Baja"'],
             style: { font: { bold: true, color: { argb: 'FF92400E' } }, fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFFDE68A' } } }
           },
           {
-            type: 'cellIs', operator: 'equal', formulae: ['"P70"'],
+            type: 'cellIs', operator: 'equal', formulae: ['"Media"'],
             style: { font: { bold: true, color: { argb: 'FF155E75' } }, fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFA5F3FC' } } }
           },
           {
-            type: 'cellIs', operator: 'equal', formulae: ['"P90"'],
+            type: 'cellIs', operator: 'equal', formulae: ['"Alta"'],
             style: { font: { bold: true, color: { argb: 'FF6B21A8' } }, fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFE9D5FF' } } }
           },
         ]
@@ -2216,9 +2216,9 @@
         };
 
         hoja.getCell(`H${i}`).dataValidation = {
-          type: 'list', allowBlank: true, formulae: ['"P50,P70,P90"'],
+          type: 'list', allowBlank: true, formulae: ['"Alta,Media,Baja"'],
           showErrorMessage: true, errorStyle: 'stop',
-          errorTitle: 'Nivel no válido', error: 'Elige P50, P70 o P90 de la lista.'
+          errorTitle: 'Nivel no válido', error: 'Elige Alta, Media o Baja de la lista.'
         };
 
         hoja.getCell(`A${i}`).dataValidation = {
@@ -2392,10 +2392,11 @@
 
       const forecast = fila['Forecast (USD)'] !== undefined && fila['Forecast (USD)'] !== '' ? Number(fila['Forecast (USD)']) : null;
 
-      // Nivel de confianza único: P50, P70 o P90
+      // Nivel de confianza: Alta / Media / Baja (también acepta los códigos viejos P90/P70/P50)
       const confianzaTexto = String(fila['Nivel de Confianza'] || '').trim().toUpperCase();
-      const confianza = ['P50', 'P70', 'P90'].includes(confianzaTexto) ? confianzaTexto : null;
-      if (confianzaTexto && !confianza) errores.push('Nivel de Confianza debe ser P50, P70 o P90');
+      const equivalencias = { 'ALTA': 'P90', 'MEDIA': 'P70', 'BAJA': 'P50', 'P90': 'P90', 'P70': 'P70', 'P50': 'P50' };
+      const confianza = equivalencias[confianzaTexto] || null;
+      if (confianzaTexto && !confianza) errores.push('Nivel de Confianza debe ser Alta, Media o Baja');
 
       if (fila['Forecast (USD)'] && isNaN(forecast)) errores.push('Forecast no es un número válido');
 

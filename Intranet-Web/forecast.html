@@ -158,7 +158,7 @@
       </header>
 
       <!-- KPIs -->
-      <section id="kpiSection" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-4">
+      <section id="kpiSection" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
 
         <div class="print-card bg-panel border border-border rounded-2xl p-4 flex flex-col gap-2 shadow-sm">
           <div class="flex items-center justify-between">
@@ -214,28 +214,50 @@
           <span class="text-xs text-gray-500">Desde enero del año en curso</span>
         </div>
 
-        <div class="print-card bg-panel border border-border rounded-2xl p-4 flex flex-col gap-2 shadow-sm">
-          <div class="flex items-center justify-between">
-            <span class="text-xs text-gray-400 font-medium">Forecast por Nivel de Confianza</span>
-            <span class="text-lg">🎲</span>
-          </div>
-          <div class="grid grid-cols-3 gap-2 mt-1">
-            <div>
-              <p id="kpiP50" class="text-base font-bold" style="color:#f59e0b">$0</p>
-              <span class="text-[10px] text-gray-400">P50</span>
-            </div>
-            <div>
-              <p id="kpiP70" class="text-base font-bold" style="color:#0891b2">$0</p>
-              <span class="text-[10px] text-gray-400">P70</span>
-            </div>
-            <div>
-              <p id="kpiP90" class="text-base font-bold" style="color:#a855f7">$0</p>
-              <span class="text-[10px] text-gray-400">P90</span>
-            </div>
-          </div>
-          <span class="text-xs text-gray-500">Forecast agrupado por P50/P70/P90</span>
+      </section>
+
+      <section id="kpiConfianza" class="print-card bg-panel border border-border rounded-2xl p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-gray-400 font-medium">Forecast por Nivel de Confianza</span>
+          <span class="text-lg">🎲</span>
         </div>
 
+        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mt-3">
+          <div>
+            <span class="flex items-center gap-2 text-xs text-gray-500">
+              <span class="w-2 h-2 rounded-full" style="background:#a855f7"></span>Alta
+            </span>
+            <p id="kpiAlta" class="text-xl font-bold tabular-nums whitespace-nowrap mt-1" style="color:#a855f7">$0</p>
+          </div>
+          <div>
+            <span class="flex items-center gap-2 text-xs text-gray-500">
+              <span class="w-2 h-2 rounded-full" style="background:#0891b2"></span>Media
+            </span>
+            <p id="kpiMedia" class="text-xl font-bold tabular-nums whitespace-nowrap mt-1" style="color:#0891b2">$0</p>
+          </div>
+          <div>
+            <span class="flex items-center gap-2 text-xs text-gray-500">
+              <span class="w-2 h-2 rounded-full" style="background:#f59e0b"></span>Baja
+            </span>
+            <p id="kpiBaja" class="text-xl font-bold tabular-nums whitespace-nowrap mt-1" style="color:#f59e0b">$0</p>
+          </div>
+          <div>
+            <span class="flex items-center gap-2 text-xs text-gray-500">
+              <span class="w-2 h-2 rounded-full" style="background:#9ca3af"></span>Sin clasificar
+            </span>
+            <p id="kpiSinClasif" class="text-xl font-bold tabular-nums whitespace-nowrap text-gray-500 mt-1">$0</p>
+          </div>
+          <div class="xl:border-l xl:border-border xl:pl-4">
+            <span class="text-xs text-gray-500">Total forecast</span>
+            <p id="kpiForecastTotal" class="text-xl font-bold tabular-nums whitespace-nowrap text-gray-900 mt-1">$0</p>
+          </div>
+          <div>
+            <span class="text-xs text-gray-500">Ponderado</span>
+            <p id="kpiPonderado" class="text-xl font-bold tabular-nums whitespace-nowrap text-gray-900 mt-1">$0</p>
+          </div>
+        </div>
+
+        <span id="kpiPesosNota" class="block text-[10px] text-gray-400 mt-3"></span>
       </section>
 
       <!-- ALERTA: CLIENTES EN RIESGO DE PÉRDIDA -->
@@ -440,6 +462,8 @@
     // Utilidades de formato
     // ─────────────────────────────────────────────
     const fmtUSD = (n) => '$' + Math.round(n).toLocaleString('en-US');
+    // Peso de cada nivel para el forecast ponderado (monto × probabilidad). Ajusta aquí si cambian.
+    const PESOS_CONFIANZA = { alta: 0.9, media: 0.7, baja: 0.5, sinClasificar: 0 };
     const fmtPct = (n) => Math.round(n * 10) / 10 + '%';
 
     const nombreMes = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -850,10 +874,19 @@
       const { existentes, nuevos, retenidos } = clasificarClientes(clientes, anio);
       const retencionPct = existentes.length > 0 ? (retenidos.length / existentes.length) * 100 : 0;
 
-      // Totales de Probabilidad (P50/P70/P90) del período ya filtrado (año/quarter/mes/cliente/línea)
-      const totalP50 = filtrados.reduce((a, r) => a + (Number(r.monto_p50) || 0), 0);
-      const totalP70 = filtrados.reduce((a, r) => a + (Number(r.monto_p70) || 0), 0);
-      const totalP90 = filtrados.reduce((a, r) => a + (Number(r.monto_p90) || 0), 0);
+      // Confianza: Alta = P90, Media = P70, Baja = P50 (valores guardados). Sin clasificar = ningún nivel.
+      const totalAlta  = filtrados.reduce((a, r) => a + (Number(r.monto_p90) || 0), 0);
+      const totalMedia = filtrados.reduce((a, r) => a + (Number(r.monto_p70) || 0), 0);
+      const totalBaja  = filtrados.reduce((a, r) => a + (Number(r.monto_p50) || 0), 0);
+      const totalSinClasif = filtrados
+        .filter(r => !r.monto_p50 && !r.monto_p70 && !r.monto_p90)
+        .reduce((a, r) => a + (Number(r.monto_forecast) || 0), 0);
+      const totalForecastConf = totalAlta + totalMedia + totalBaja + totalSinClasif;
+      const forecastPonderado =
+        totalAlta * PESOS_CONFIANZA.alta +
+        totalMedia * PESOS_CONFIANZA.media +
+        totalBaja * PESOS_CONFIANZA.baja +
+        totalSinClasif * PESOS_CONFIANZA.sinClasificar;
 
       document.getElementById('kpiProyectado').textContent = fmtUSD(totalCierre);
       document.getElementById('kpiReal').textContent = fmtUSD(totalRealHastaFecha);
@@ -865,9 +898,14 @@
       elYoY.classList.toggle('text-red-500', crecimientoYoY !== null && crecimientoYoY < 0);
       document.getElementById('kpiRetencion').textContent = fmtPct(retencionPct);
       document.getElementById('kpiNuevos').textContent = nuevos.length;
-      document.getElementById('kpiP50').textContent = fmtUSD(totalP50);
-      document.getElementById('kpiP70').textContent = fmtUSD(totalP70);
-      document.getElementById('kpiP90').textContent = fmtUSD(totalP90);
+      document.getElementById('kpiAlta').textContent = fmtUSD(totalAlta);
+      document.getElementById('kpiMedia').textContent = fmtUSD(totalMedia);
+      document.getElementById('kpiBaja').textContent = fmtUSD(totalBaja);
+      document.getElementById('kpiSinClasif').textContent = fmtUSD(totalSinClasif);
+      document.getElementById('kpiForecastTotal').textContent = fmtUSD(totalForecastConf);
+      document.getElementById('kpiPonderado').textContent = fmtUSD(forecastPonderado);
+      document.getElementById('kpiPesosNota').textContent =
+        `Ponderado = Alta×${PESOS_CONFIANZA.alta * 100}% + Media×${PESOS_CONFIANZA.media * 100}% + Baja×${PESOS_CONFIANZA.baja * 100}% + Sin clasificar×${PESOS_CONFIANZA.sinClasificar * 100}%`;
     }
 
     // ─────────────────────────────────────────────
@@ -932,15 +970,19 @@
     // Gráfico 1b: Forecast por Nivel de Confianza (P50/P70/P90), por mes
     // ─────────────────────────────────────────────
     function dibujarChartForecastProbabilidad(filtrados) {
-      const p50PorMes = Array(12).fill(0);
-      const p70PorMes = Array(12).fill(0);
-      const p90PorMes = Array(12).fill(0);
+      const altaPorMes = Array(12).fill(0);
+      const mediaPorMes = Array(12).fill(0);
+      const bajaPorMes = Array(12).fill(0);
+      const sinClasifPorMes = Array(12).fill(0);
 
       filtrados.forEach(r => {
         const idx = r.mes - 1;
-        p50PorMes[idx] = (p50PorMes[idx] || 0) + (Number(r.monto_p50) || 0);
-        p70PorMes[idx] = (p70PorMes[idx] || 0) + (Number(r.monto_p70) || 0);
-        p90PorMes[idx] = (p90PorMes[idx] || 0) + (Number(r.monto_p90) || 0);
+        altaPorMes[idx]  += Number(r.monto_p90) || 0;
+        mediaPorMes[idx] += Number(r.monto_p70) || 0;
+        bajaPorMes[idx]  += Number(r.monto_p50) || 0;
+        if (!r.monto_p50 && !r.monto_p70 && !r.monto_p90) {
+          sinClasifPorMes[idx] += Number(r.monto_forecast) || 0;
+        }
       });
 
       if (charts.forecastProbabilidad) charts.forecastProbabilidad.destroy();
@@ -949,9 +991,10 @@
         data: {
           labels: abrevMes.slice(1),
           datasets: [
-            { label: 'P50', data: p50PorMes, borderColor: '#f59e0b', backgroundColor: '#f59e0b20', borderDash: [5, 5], tension: 0.35, fill: false, pointRadius: 3 },
-            { label: 'P70', data: p70PorMes, borderColor: '#0891b2', backgroundColor: '#0891b220', borderDash: [5, 5], tension: 0.35, fill: false, pointRadius: 3 },
-            { label: 'P90', data: p90PorMes, borderColor: '#a855f7', backgroundColor: '#a855f720', borderDash: [5, 5], tension: 0.35, fill: false, pointRadius: 3 }
+            { label: 'Alta', data: altaPorMes, borderColor: '#a855f7', backgroundColor: '#a855f720', borderDash: [5, 5], tension: 0.35, fill: false, pointRadius: 3 },
+            { label: 'Media', data: mediaPorMes, borderColor: '#0891b2', backgroundColor: '#0891b220', borderDash: [5, 5], tension: 0.35, fill: false, pointRadius: 3 },
+            { label: 'Baja', data: bajaPorMes, borderColor: '#f59e0b', backgroundColor: '#f59e0b20', borderDash: [5, 5], tension: 0.35, fill: false, pointRadius: 3 },
+            { label: 'Sin clasificar', data: sinClasifPorMes, borderColor: '#9ca3af', backgroundColor: '#9ca3af20', borderDash: [2, 4], tension: 0.35, fill: false, pointRadius: 3 }
           ]
         },
         options: {
@@ -980,8 +1023,8 @@
       },
       {
         wrapper: 'wrapChartForecastProbabilidad',
-        titulo: 'Forecast por Probabilidad',
-        subtitulo: 'Nivel de confianza asignado — P50 (50%) · P70 (70%) · P90 (100%)'
+        titulo: 'Forecast por Nivel de Confianza',
+        subtitulo: 'Monto por nivel asignado — Alta · Media · Baja · Sin clasificar'
       }
     ];
     let vistaGraficoActual = 0;
