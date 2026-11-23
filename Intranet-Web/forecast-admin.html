@@ -1073,7 +1073,7 @@
       if (realForm !== '') payload.monto_real_usd = Number(realForm);
 
       // Registra o actualiza este cliente en la tabla 'clientes' (para Nuevos/Activos/Retenidos/Perdidos)
-      await registrarCliente(payload.cliente, payload.anio, payload.mes);
+      await registrarCliente(payload.cliente, payload.anio, payload.mes, payload.monto_real_usd > 0);
 
       // Si el servicio escrito no existía para esta línea, lo agregamos al catálogo
       // (el "unique" de la tabla evita duplicados si ya existía)
@@ -1308,15 +1308,18 @@
     // Registro de Clientes (para Nuevos / Activos / Retenidos / Perdidos)
     // ─────────────────────────────────────────────
 
-    // Registra o actualiza UN cliente usando el periodo del registro (no la fecha de hoy).
-    // primera_aparicion = la fecha más antigua vista, ultima_aparicion = la más reciente.
-    // Los meses futuros se topan a hoy, para que un forecast adelantado no cuente como actividad.
-    async function registrarCliente(nombreCliente, anio, mes) {
+    // Registra o actualiza UN cliente.
+    // - Siempre se asegura de que el cliente exista en la tabla 'clientes'.
+    // - primera_aparicion / ultima_aparicion SOLO se mueven con VENTA REAL (tieneVentaReal = true)
+    //   de un periodo que ya ocurrió. Un registro que es solo forecast no cuenta como actividad.
+    async function registrarCliente(nombreCliente, anio, mes, tieneVentaReal = false) {
       if (!nombreCliente) return;
 
       const hoyTexto = new Date().toISOString().slice(0, 10);
-      let fecha = `${anio}-${String(mes).padStart(2, '0')}-01`;
-      if (!anio || !mes || fecha > hoyTexto) fecha = hoyTexto;
+      const fechaReal = (tieneVentaReal && anio && mes)
+        ? `${anio}-${String(mes).padStart(2, '0')}-01`
+        : null;
+      const cuentaComoActividad = !!fechaReal && fechaReal <= hoyTexto;
 
       const { data: existente, error: errBusqueda } = await supabaseClient
         .from('clientes')
@@ -1329,13 +1332,20 @@
       if (!existente) {
         const { error } = await supabaseClient
           .from('clientes')
-          .insert({ nombre: nombreCliente, primera_aparicion: fecha, ultima_aparicion: fecha });
+          .insert({
+            nombre: nombreCliente,
+            primera_aparicion: cuentaComoActividad ? fechaReal : null,
+            ultima_aparicion: cuentaComoActividad ? fechaReal : null
+          });
         if (error) { console.error('Error al registrar cliente nuevo:', error); mostrarToast('El forecast se guardó, pero el cliente no quedó registrado.'); }
         return;
       }
 
-      const primera = existente.primera_aparicion && existente.primera_aparicion < fecha ? existente.primera_aparicion : fecha;
-      const ultima = existente.ultima_aparicion && existente.ultima_aparicion > fecha ? existente.ultima_aparicion : fecha;
+      // Sin venta real (o de un mes futuro): no se tocan las fechas
+      if (!cuentaComoActividad) return;
+
+      const primera = existente.primera_aparicion && existente.primera_aparicion < fechaReal ? existente.primera_aparicion : fechaReal;
+      const ultima = existente.ultima_aparicion && existente.ultima_aparicion > fechaReal ? existente.ultima_aparicion : fechaReal;
 
       if (primera !== existente.primera_aparicion || ultima !== existente.ultima_aparicion) {
         const { error } = await supabaseClient
@@ -3089,9 +3099,10 @@
         progreso.avanzar(i, `${i + 1} de ${filasAImportar.length} · ${f.cliente}`);
 
         try {
-          const claveCliente = `${f.cliente}|${f.anio}|${f.mes}`;
+          const conVentaReal = f.ventaReal != null && f.ventaReal > 0;
+          const claveCliente = `${f.cliente}|${f.anio}|${f.mes}|${conVentaReal}`;
           if (!clientesRegistrados.has(claveCliente)) {
-            await registrarCliente(f.cliente, f.anio, f.mes);
+            await registrarCliente(f.cliente, f.anio, f.mes, conVentaReal);
             clientesRegistrados.add(claveCliente);
           }
 

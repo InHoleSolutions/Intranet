@@ -266,7 +266,7 @@
           <span class="text-xl leading-none">⚠️</span>
           <div class="flex-1">
             <h2 id="alertaRiesgoTitulo" class="text-sm font-semibold text-amber-900">Cliente en riesgo de pérdida</h2>
-            <p class="text-xs text-amber-800 mt-0.5">Llevan 2 o 3 meses sin actividad. A los 4 meses se cuentan como Perdidos.</p>
+            <p class="text-xs text-amber-800 mt-0.5">Llevan más tiempo sin comprar de lo habitual para su ritmo. Si siguen así, pasarán a Perdidos.</p>
             <div id="alertaRiesgoLista" class="flex flex-wrap gap-2 mt-3"></div>
           </div>
         </div>
@@ -510,8 +510,38 @@
       return traerRegistros(anio - 1);
     }
 
-    // Trae la tabla de clientes (nombre, primera_aparicion, ultima_aparicion) para
-    // clasificar Nuevos / Activos / Retenidos / Perdidos según cuándo se registraron.
+    // Cadencia propia de un cliente = mediana de meses entre compras reales consecutivas.
+    // Recibe un Set de "índices de mes" (año*12 + mes-1). Necesita al menos 3 meses distintos
+    // con venta real (2 intervalos); con menos historia devuelve null.
+    function calcularCadenciaMeses(setMeses) {
+      if (!setMeses || setMeses.size < 3) return null;
+      const orden = [...setMeses].sort((a, b) => a - b);
+      const saltos = [];
+      for (let i = 1; i < orden.length; i++) saltos.push(orden[i] - orden[i - 1]);
+      saltos.sort((a, b) => a - b);
+      const mitad = Math.floor(saltos.length / 2);
+      const mediana = saltos.length % 2 ? saltos[mitad] : (saltos[mitad - 1] + saltos[mitad]) / 2;
+      return Math.max(1, mediana);
+    }
+
+    // Mínimos de meses sin compra para pasar a "en riesgo" / "perdido".
+    // Se usan tal cual cuando el cliente no tiene historia suficiente para medir su cadencia.
+    const MESES_RIESGO_MIN = 2;
+    const MESES_PERDIDO_MIN = 4;
+    const FACTOR_RIESGO = 1.5;   // en riesgo al superar 1.5 × su cadencia
+    const FACTOR_PERDIDO = 2.5;  // perdido al superar 2.5 × su cadencia
+
+    function umbralesCliente(c) {
+      const cad = c.cadencia_meses;
+      if (!cad) return { riesgo: MESES_RIESGO_MIN, perdido: MESES_PERDIDO_MIN };
+      return {
+        riesgo: Math.max(MESES_RIESGO_MIN, Math.ceil(cad * FACTOR_RIESGO)),
+        perdido: Math.max(MESES_PERDIDO_MIN, Math.ceil(cad * FACTOR_PERDIDO))
+      };
+    }
+
+    // Trae la tabla de clientes (nombre, primera_aparicion, ultima_aparicion) y le agrega
+    // a cada uno su cadencia de compra, calculada con sus meses de venta real.
     async function traerClientes() {
       const { data, error } = await supabaseClient
         .from('clientes')
@@ -521,7 +551,25 @@
         console.error('Error al traer clientes:', error);
         return [];
       }
-      return data || [];
+
+      const compras = await traerTodo(() =>
+        supabaseClient.from('forecast_registros')
+          .select('id, cliente, anio, mes')
+          .gt('monto_real_usd', 0)
+          .order('id')
+      );
+
+      const mesesPorCliente = new Map();
+      (compras || []).forEach(r => {
+        if (!r.cliente || !r.anio || !r.mes) return;
+        if (!mesesPorCliente.has(r.cliente)) mesesPorCliente.set(r.cliente, new Set());
+        mesesPorCliente.get(r.cliente).add(r.anio * 12 + (r.mes - 1));
+      });
+
+      return (data || []).map(c => ({
+        ...c,
+        cadencia_meses: calcularCadenciaMeses(mesesPorCliente.get(c.nombre))
+      }));
     }
 
     // Venta Real concentrada por mes (capturada manualmente al cierre de cada mes).
@@ -607,15 +655,14 @@
     // ─────────────────────────────────────────────
     // Alerta: clientes en riesgo de pérdida
     // ─────────────────────────────────────────────
-    // Regla de retención por frecuencia (misma base que "Perdidos"):
-    //  - 2 o 3 meses desde su ultima_aparicion → EN RIESGO (esta alerta)
-    //  - 4 o más meses → PERDIDO (ya se cuenta en la gráfica de Retención)
+    // Regla de retención medida contra la cadencia propia de cada cliente
+    // (ver umbralesCliente). Sin historia suficiente: 2-3 meses = en riesgo, 4+ = perdido.
+    //  - Entre su umbral de riesgo y su umbral de perdido → EN RIESGO (esta alerta)
+    //  - Desde su umbral de perdido → PERDIDO (ya se cuenta en la gráfica de Retención)
     function pintarAlertaRiesgo(clientes) {
       const caja = document.getElementById('alertaRiesgo');
       if (!caja) return;
 
-      const MESES_RIESGO = 2;
-      const MESES_PERDIDO = 4;
       const hoy = new Date();
 
       const enRiesgo = (clientes || [])
@@ -623,9 +670,10 @@
         .map(c => {
           const f = new Date(c.ultima_aparicion + 'T00:00:00');
           const meses = (hoy.getFullYear() - f.getFullYear()) * 12 + (hoy.getMonth() - f.getMonth());
-          return { nombre: c.nombre, meses };
+          const u = umbralesCliente(c);
+          return { nombre: c.nombre, meses, cadencia: c.cadencia_meses, riesgo: u.riesgo, perdido: u.perdido };
         })
-        .filter(c => c.meses >= MESES_RIESGO && c.meses < MESES_PERDIDO)
+        .filter(c => c.meses >= c.riesgo && c.meses < c.perdido)
         .sort((a, b) => b.meses - a.meses); // los más atrasados primero
 
       if (enRiesgo.length === 0) {
@@ -643,7 +691,8 @@
       enRiesgo.forEach(c => {
         const chip = document.createElement('span');
         chip.className = 'inline-flex items-center bg-white border border-amber-300 text-amber-900 text-xs font-medium px-2.5 py-1 rounded-full';
-        chip.textContent = `${c.nombre} · ${c.meses} meses sin actividad`;
+        const nota = c.cadencia ? ` (suele comprar cada ~${Math.round(c.cadencia * 10) / 10} meses)` : '';
+        chip.textContent = `${c.nombre} · ${c.meses} meses sin compra${nota}`;
         lista.appendChild(chip);
       });
 
@@ -770,7 +819,7 @@
       const nuevosSet = new Set(nuevos.map(c => c.nombre));
 
       const perdidos = existentes.filter(c =>
-        c.ultima_aparicion && diferenciaEnMeses(c.ultima_aparicion, referencia) >= 4
+        c.ultima_aparicion && diferenciaEnMeses(c.ultima_aparicion, referencia) >= umbralesCliente(c).perdido
       );
       const perdidosSet = new Set(perdidos.map(c => c.nombre));
 
