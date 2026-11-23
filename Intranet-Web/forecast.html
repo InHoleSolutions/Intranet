@@ -280,6 +280,10 @@
             <div>
               <h2 id="tituloGraficoForecast" class="text-sm font-semibold text-gray-800">Forecast vs Resultado Real</h2>
               <p id="subtituloGraficoForecast" class="text-xs text-gray-500">Tendencia mensual — Azul: Forecast · Verde: Real</p>
+              <p id="avisoRealTotalEmpresa" class="hidden text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-1 mt-1">
+                <i class="fas fa-info-circle mr-1"></i>
+                La línea "Real" es el total de la empresa y no cambia con los filtros de Cliente o Línea. El Forecast sí está filtrado.
+              </p>
             </div>
             <div class="flex items-center gap-2 shrink-0">
               <button id="btnGraficoAnterior" type="button" title="Ver gráfica anterior"
@@ -990,6 +994,12 @@
         }
       }
 
+      // Aviso: con filtro de Cliente/Línea, "Real" sigue siendo el total de la empresa
+      const hayFiltroCLGrafico =
+        document.getElementById('filtroCliente').value !== 'todos' ||
+        document.getElementById('filtroLinea').value !== 'todos';
+      document.getElementById('avisoRealTotalEmpresa').classList.toggle('hidden', !hayFiltroCLGrafico);
+
       if (charts.forecastReal) charts.forecastReal.destroy();
       charts.forecastReal = new Chart(document.getElementById('chartForecastReal'), {
         type: 'line',
@@ -997,7 +1007,7 @@
           labels: abrevMes.slice(1),
           datasets: [
             { label: 'Forecast', data: forecastPorMes, borderColor: '#2563eb', backgroundColor: '#2563eb20', tension: 0.35, fill: false, pointRadius: 3 },
-            { label: 'Real', data: realPorMes, borderColor: '#22c55e', backgroundColor: '#22c55e20', tension: 0.35, fill: false, pointRadius: 3, spanGaps: false }
+            { label: hayFiltroCLGrafico ? 'Real (total empresa)' : 'Real', data: realPorMes, borderColor: '#22c55e', backgroundColor: '#22c55e20', tension: 0.35, fill: false, pointRadius: 3, spanGaps: false, borderDash: hayFiltroCLGrafico ? [6, 4] : [] }
           ]
         },
         options: {
@@ -1013,6 +1023,7 @@
           }
         }
       });
+      // La pantalla avisa de esto con #avisoRealTotalEmpresa y rotulando la línea como "Real (total empresa)".
     }
 
     // ─────────────────────────────────────────────
