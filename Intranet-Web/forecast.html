@@ -380,19 +380,21 @@
         </div>
 
         <div class="print-card xl:col-span-3 bg-panel border border-border rounded-2xl p-5 shadow-sm">
-          <h2 class="text-sm font-semibold text-gray-800">Inventario por Línea</h2>
-          <p class="text-xs text-gray-500 mb-3">Relación entre ventas esperadas y disponibilidad de stock</p>
+          <h2 class="text-sm font-semibold text-gray-800">Servicios por Línea</h2>
+          <p class="text-xs text-gray-500 mb-3">Tipos de servicio distintos planeados vs. realizados, con su monto de Forecast y Real, para comparar contra el ERP. Cumplimiento = Real ÷ Forecast congelado, solo de meses cerrados.</p>
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="text-left text-gray-500 border-b border-border">
                   <th class="py-2 pr-4 font-medium">Línea</th>
-                  <th class="py-2 pr-4 font-medium">Stock Disponible</th>
-                  <th class="py-2 pr-4 font-medium">Forecast (USD)</th>
-                  <th class="py-2 pr-4 font-medium">Nivel</th>
+                  <th class="py-2 pr-4 font-medium text-right">Tipos de servicio planeados</th>
+                  <th class="py-2 pr-4 font-medium text-right">Tipos de servicio realizados</th>
+                  <th class="py-2 pr-4 font-medium text-right">Forecast (USD)</th>
+                  <th class="py-2 pr-4 font-medium text-right">Real (USD)</th>
+                  <th class="py-2 pr-4 font-medium text-right">Cumplimiento</th>
                 </tr>
               </thead>
-              <tbody id="tablaInventarioBody" class="divide-y divide-border"></tbody>
+              <tbody id="tablaServiciosLineaBody" class="divide-y divide-border"></tbody>
             </table>
           </div>
         </div>
@@ -764,7 +766,7 @@
       await dibujarChartCrecimiento(anio);
       dibujarChartComposicion(filtrados);
       pintarCumplimiento(filtrados);
-      await pintarTablaInventario(filtrados);
+      pintarTablaServiciosPorLinea(filtrados);
     }
 
     // ─────────────────────────────────────────────
@@ -1355,57 +1357,72 @@
       return String(valor ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     }
 
-    function nivelStock(total) {
-      if (total < 20) return { texto: 'Stock bajo', clase: 'bg-red-50 text-red-600' };
-      if (total < 50) return { texto: 'Stock medio', clase: 'bg-amber-50 text-amber-600' };
-      return { texto: 'Stock alto', clase: 'bg-green-50 text-green-600' };
-    }
+    // ─────────────────────────────────────────────
+    // Servicios por Línea: tipos de servicio planeados vs realizados + cumplimiento
+    // ─────────────────────────────────────────────
+    function pintarTablaServiciosPorLinea(filtrados) {
+      const tbody = document.getElementById('tablaServiciosLineaBody');
 
-    async function pintarTablaInventario(filtrados) {
-      const tbody = document.getElementById('tablaInventarioBody');
-      tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-400 text-sm">Cargando inventario...</td></tr>`;
+      // Meses cerrados → forecast congelado; meses abiertos → forecast vigente (igual que la gráfica principal)
+      const anioSel = Number(document.getElementById('filtroAnio').value);
+      const hoy = new Date();
+      const mesesCerrados = anioSel < hoy.getFullYear() ? 12 : (anioSel === hoy.getFullYear() ? hoy.getMonth() : 0);
 
-      const { data: servicios, error } = await supabaseClient
-        .from('forecast_servicios')
-        .select('linea_producto, stock_disponible');
+      const nuevoGrupo = () => ({
+        planeados: new Set(), realizados: new Set(),
+        forecast: 0, real: 0,
+        forecastCerrado: 0, realCerrado: 0
+      });
 
-      if (error) {
-        console.error(error);
-        tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-red-500 text-sm">Error al cargar inventario</td></tr>`;
+      const porLinea = {};
+      const total = nuevoGrupo();
+
+      filtrados.forEach(r => {
+        const linea = r.linea_producto || 'Sin línea';
+        if (!porLinea[linea]) porLinea[linea] = nuevoGrupo();
+
+        const forecast = r.mes <= mesesCerrados ? forecastCongelado(r) : (Number(r.monto_forecast) || 0);
+        const real = Number(r.monto_real_usd) || 0;
+        const cerrado = r.mes <= mesesCerrados;
+        const clave = `${linea}|${r.servicio}`;
+
+        [porLinea[linea], total].forEach(g => {
+          if (forecast > 0) g.planeados.add(clave);
+          if (real > 0) g.realizados.add(clave);
+          g.forecast += forecast;
+          g.real += real;
+          if (cerrado) {
+            g.forecastCerrado += forecast;
+            g.realCerrado += real;
+          }
+        });
+      });
+
+      const lineas = Object.keys(porLinea).sort((a, b) => porLinea[b].forecast - porLinea[a].forecast);
+
+      if (lineas.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-gray-400 text-sm">Sin servicios para los filtros seleccionados</td></tr>`;
         return;
       }
 
-      // Agrupamos: stock total y número de servicios distintos, por línea
-      const porLinea = {};
-      servicios.forEach(s => {
-        const linea = s.linea_producto;
-        if (!porLinea[linea]) porLinea[linea] = { stock: 0, tipos: 0 };
-        porLinea[linea].stock += Number(s.stock_disponible) || 0;
-        porLinea[linea].tipos += 1;
-      });
+      const cumplimientoHtml = g => {
+        if (g.forecastCerrado <= 0) return '<span class="text-gray-400">—</span>';
+        const pct = (g.realCerrado / g.forecastCerrado) * 100;
+        const clase = pct >= 100 ? 'text-green-600' : (pct >= 80 ? 'text-amber-600' : 'text-red-600');
+        return `<span class="font-semibold ${clase}">${pct.toFixed(0)}%</span>`;
+      };
 
-      // Forecast en USD por línea (respetando los filtros activos)
-      const forecastPorLinea = {};
-      filtrados.forEach(r => {
-        forecastPorLinea[r.linea_producto] = (forecastPorLinea[r.linea_producto] || 0) + (Number(r.monto_forecast) || 0);
-      });
+      const filaHtml = (nombre, g, esTotal) => `
+        <tr class="text-gray-700 ${esTotal ? 'font-semibold bg-gray-50' : ''}">
+          <td class="py-2.5 pr-4 ${esTotal ? '' : 'font-medium'}">${escapeHtml(nombre)}</td>
+          <td class="py-2.5 pr-4 text-right">${g.planeados.size.toLocaleString('en-US')}</td>
+          <td class="py-2.5 pr-4 text-right">${g.realizados.size.toLocaleString('en-US')}</td>
+          <td class="py-2.5 pr-4 text-right">${fmtUSD(g.forecast)}</td>
+          <td class="py-2.5 pr-4 text-right">${fmtUSD(g.real)}</td>
+          <td class="py-2.5 pr-4 text-right">${cumplimientoHtml(g)}</td>
+        </tr>`;
 
-      const lineas = Object.keys(porLinea).sort((a, b) => a.localeCompare(b));
-
-      tbody.innerHTML = lineas.map(linea => {
-        const { stock, tipos } = porLinea[linea];
-        const forecast = forecastPorLinea[linea] || 0;
-        const nivel = nivelStock(stock);
-        return `
-          <tr class="text-gray-700">
-            <td class="py-2.5 pr-4 font-medium">${escapeHtml(linea)}</td>
-            <td class="py-2.5 pr-4">${stock.toLocaleString('en-US')} u. <span class="text-gray-400 text-xs">(${tipos} servicios)</span></td>
-            <td class="py-2.5 pr-4">${fmtUSD(forecast)}</td>
-            <td class="py-2.5 pr-4">
-              <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${nivel.clase}">${nivel.texto}</span>
-            </td>
-          </tr>`;
-      }).join('');
+      tbody.innerHTML = lineas.map(l => filaHtml(l, porLinea[l], false)).join('') + filaHtml('Total', total, true);
     }
 
     // ─────────────────────────────────────────────
