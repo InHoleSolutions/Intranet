@@ -102,9 +102,6 @@
         <!-- FILTROS -->
         <div id="filtrosContenedor" class="flex flex-wrap gap-3 bg-panel border border-border rounded-2xl p-3 shadow-sm">
           <select id="filtroAnio" class="bg-white border border-border text-sm rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-accent">
-            <option value="2024">Año: 2024</option>
-            <option value="2025">Año: 2025</option>
-            <option value="2026" selected>Año: 2026</option>
           </select>
 
           <select id="filtroQuarter" class="bg-white border border-border text-sm rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-accent">
@@ -426,6 +423,17 @@
         })
         .catch(err => console.error(err));
     }
+
+    // Primer año con datos. Los selects y la gráfica de crecimiento parten de aquí hasta el año en curso.
+    const ANIO_INICIO = 2024;
+
+    function llenarSelectAnios(idSelect, { anioFin, prefijo = '' }) {
+      const sel = document.getElementById(idSelect);
+      sel.innerHTML = '';
+      for (let a = ANIO_INICIO; a <= anioFin; a++) sel.add(new Option(prefijo + a, a));
+      sel.value = new Date().getFullYear(); // por defecto, el año en curso
+    }
+    llenarSelectAnios('filtroAnio', { anioFin: new Date().getFullYear(), prefijo: 'Año: ' });
 
     document.addEventListener('supabaseListo', () => {
       cargarComponente('header.html', 'header-slot');
@@ -1236,7 +1244,7 @@
     // Gráfico 5: Crecimiento Anual (desde 2024 hasta el año en curso)
     // ─────────────────────────────────────────────
     async function dibujarChartCrecimiento(anioActual) {
-      const anios = Array.from({ length: new Date().getFullYear() - 2024 + 1 }, (_, i) => 2024 + i);
+      const anios = Array.from({ length: new Date().getFullYear() - ANIO_INICIO + 1 }, (_, i) => ANIO_INICIO + i);
       document.getElementById('tituloCrecimiento').textContent =
         `Crecimiento Anual (${anios[0]}–${anios[anios.length - 1]})`;
       const filasPorAnio = await Promise.all(anios.map(async (a) => {

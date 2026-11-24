@@ -127,9 +127,6 @@
           <div>
             <label class="text-xs font-medium text-gray-600">Año</label>
             <select id="reg_anio" required class="w-full mt-1 bg-white border border-border rounded-lg px-3 py-2 text-sm">
-              <option value="2024">2024</option>
-              <option value="2025">2025</option>
-              <option value="2026" selected>2026</option>
             </select>
           </div>
 
@@ -278,9 +275,6 @@
           <div>
             <label class="text-xs font-medium text-gray-600">Año</label>
             <select id="cierre_anio" class="w-full mt-1 bg-white border border-border rounded-lg px-3 py-2 text-sm">
-              <option value="2024">2024</option>
-              <option value="2025">2025</option>
-              <option value="2026" selected>2026</option>
             </select>
           </div>
           <div>
@@ -551,6 +545,19 @@
         })
         .catch(err => console.error(err));
     }
+
+    // Primer año con datos. Los selects de año parten de aquí.
+    const ANIO_INICIO = 2024;
+
+    function llenarSelectAnios(idSelect, { anioFin }) {
+      const sel = document.getElementById(idSelect);
+      sel.innerHTML = '';
+      for (let a = ANIO_INICIO; a <= anioFin; a++) sel.add(new Option(a, a));
+      sel.value = new Date().getFullYear(); // por defecto, el año en curso
+    }
+    // Hasta el año siguiente: en diciembre se captura forecast de enero (igual que el forecast automático)
+    llenarSelectAnios('reg_anio', { anioFin: new Date().getFullYear() + 1 });
+    llenarSelectAnios('cierre_anio', { anioFin: new Date().getFullYear() + 1 });
 
     document.addEventListener('supabaseListo', () => {
       cargarComponente('header.html', 'header-slot');
@@ -1565,7 +1572,7 @@
     // ─────────────────────────────────────────────
     // Carga masiva del historial de venta real (años anteriores)
     // ─────────────────────────────────────────────
-    const ANIO_INICIO_HISTORIAL = 2024;
+    const ANIO_INICIO_HISTORIAL = ANIO_INICIO;
     let historialGuardado = new Set(); // meses que hoy existen en la base de datos
 
     async function construirTablaHistorial() {
