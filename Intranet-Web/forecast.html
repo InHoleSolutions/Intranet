@@ -747,22 +747,77 @@
       return mapa;
     }
 
-    async function cargarDashboard() {
-      await cargarOpcionesCliente();
-      mostrarUltimaActualizacion();
-      const anio = Number(document.getElementById('filtroAnio').value);
+    // ─────────────────────────────────────────────
+    // Caché en memoria: los filtros de Quarter/Mes/Cliente/Línea NO consultan a Supabase
+    // ─────────────────────────────────────────────
+    const CACHE_MAX_MIN = 5; // minutos antes de volver a consultar aunque no cambie el año
 
-      const [registrosAnio, registrosAnterior, ventaRealMensual, ventaRealMensualAnterior, clientes, forecastCongeladoAnio] = await Promise.all([
+    const cacheDash = {
+      anio: null,                  // año cuyos datos están en memoria
+      cargadoEn: 0,
+      registrosAnio: [],
+      ventaRealMensual: Array(13).fill(null),
+      ventaRealMensualAnterior: Array(13).fill(null),
+      registrosAnterior: null,     // null = aún no descargado (solo se necesita con filtro de Cliente/Línea)
+      clientes: null,
+      filasCrecimiento: null
+    };
+
+    // Descarga lo que depende del año. Si ya está en memoria y no caducó, no hace nada.
+    async function cargarDatosDashboard(anio) {
+      const vencido = (Date.now() - cacheDash.cargadoEn) > CACHE_MAX_MIN * 60 * 1000;
+      if (cacheDash.anio === anio && !vencido) return;
+
+      const [registrosAnio, ventaRealMensual, ventaRealMensualAnterior, congelado, clientes] = await Promise.all([
         traerRegistros(anio),
-        traerRegistrosAnioAnterior(anio),
         traerVentaRealMensual(anio),
         traerVentaRealMensual(anio - 1),
-        traerClientes(),
-        traerForecastCongelado(anio)
+        traerForecastCongelado(anio),
+        (vencido || !cacheDash.clientes) ? traerClientes() : cacheDash.clientes // no depende del año
       ]);
-      forecastCongeladoMap = forecastCongeladoAnio;
+
+      if (vencido) cacheDash.filasCrecimiento = null;
+      Object.assign(cacheDash, {
+        anio, cargadoEn: Date.now(),
+        registrosAnio, ventaRealMensual, ventaRealMensualAnterior, clientes,
+        registrosAnterior: null
+      });
+      forecastCongeladoMap = congelado;
+      mostrarUltimaActualizacion(); // solo cuando de verdad se recargaron los datos
+    }
+
+    // El año anterior solo se necesita para el YoY con filtro de Cliente/Línea: se baja una vez y se reutiliza
+    async function obtenerRegistrosAnterior(anio) {
+      if (!cacheDash.registrosAnterior) cacheDash.registrosAnterior = await traerRegistrosAnioAnterior(anio);
+      return cacheDash.registrosAnterior;
+    }
+
+    // Ventas reales por año para la gráfica de Crecimiento (no depende de los filtros)
+    async function obtenerFilasCrecimiento(anios) {
+      if (!cacheDash.filasCrecimiento || cacheDash.filasCrecimiento.length !== anios.length) {
+        cacheDash.filasCrecimiento = await Promise.all(anios.map(async (a) => {
+          const { data } = await supabaseClient.from('forecast_venta_real_mensual').select('mes, monto_real_usd').eq('anio', a);
+          return data || [];
+        }));
+      }
+      return cacheDash.filasCrecimiento;
+    }
+
+    async function cargarDashboard() {
+      await cargarOpcionesCliente();
+      const anio = Number(document.getElementById('filtroAnio').value);
+
+      // Solo consulta a Supabase el cambió el año o el caché caducó
+      await cargarDatosDashboard(anio);
+      const { registrosAnio, ventaRealMensual, ventaRealMensualAnterior, clientes } = cacheDash;
 
       const filtrados = aplicarFiltros(registrosAnio);
+
+      // El año anterior solo se usa en el YoY cuando hay filtro de Cliente o Línea
+      const hayFiltroCL =
+        document.getElementById('filtroCliente').value !== 'todos' ||
+        document.getElementById('filtroLinea').value !== 'todos';
+      const registrosAnterior = hayFiltroCL ? await obtenerRegistrosAnterior(anio) : [];
 
       await pintarKPIs(filtrados, registrosAnterior, anio, registrosAnio, ventaRealMensual, ventaRealMensualAnterior, clientes);
       dibujarChartForecastReal(filtrados, ventaRealMensual);
@@ -1247,10 +1302,7 @@
       const anios = Array.from({ length: new Date().getFullYear() - ANIO_INICIO + 1 }, (_, i) => ANIO_INICIO + i);
       document.getElementById('tituloCrecimiento').textContent =
         `Crecimiento Anual (${anios[0]}–${anios[anios.length - 1]})`;
-      const filasPorAnio = await Promise.all(anios.map(async (a) => {
-        const { data } = await supabaseClient.from('forecast_venta_real_mensual').select('mes, monto_real_usd').eq('anio', a);
-        return data || [];
-      }));
+      const filasPorAnio = await obtenerFilasCrecimiento(anios);
       const sumar = (filas, hastaMes = 12) =>
         filas.filter(f => f.mes <= hastaMes).reduce((s, f) => s + (Number(f.monto_real_usd) || 0), 0);
       const totales = filasPorAnio.map(f => sumar(f));
